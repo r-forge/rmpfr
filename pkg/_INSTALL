@@ -1,0 +1,19 @@
+## -*- sh -*-
+
+## During Development: do NOT use  NAMESPACE  and
+
+PTYPE=`/bin/uname -m | awk '{print $1}'`
+if [ $PTYPE = x86_64 ]
+then LD_L_P=/usr/local64.sfs/lib
+else LD_L_P=/usr/local.sfs/lib
+fi
+
+(cd ~/R/Pkgs; T=Rmpfr.Rcheck; rm -rf $T/00LOCK; TEXINPUTS= MAKEFLAGS="LDFLAGS=-L${LD_L_P}" R CMD INSTALL Rmpfr -l $T)
+
+or
+
+(cd ~/R/Pkgs; TEXINPUTS= MAKEFLAGS="LDFLAGS=-L${LD_L_P}" R CMD check Rmpfr)
+
+or often rather
+
+(cd ~/R/Pkgs; TEXINPUTS= MAKEFLAGS="LDFLAGS=-L${LD_L_P}" R CMD check --no-clean Rmpfr)

@@ -1,0 +1,33 @@
+1) R: character -> mpfr   "3.14159265358979323846264" -> mpfr
+
+2) NOTA BENE:  Have  "mpfrMatrix", dim(.) <- ..; t(), %*%, crossprod()...
+
+ -  <mpfr> %*% <mpfr>    should work like with numeric vectors
+ -  <mpfr> %*% t(<mpfr>)  ditto
+
+ -  <mpfr>[i] & <mpfrMatrix>[i]  work
+    but   <mpfrMatrix> [i,j]  not yet
+
+ -->  want things to work like
+          which(<mpfrMatrix> == ., arr.ind = TRUE)  - ok
+          outer(....)                               - not yet
+
+ [No longer sure if this is true :]
+ For this, we must ensure that the methods are used, instead of the
+ .Primitive  base functions :
+
+ One way: --> see ~/R/MM/NUMERICS/bessel-large-x.R
+                  --------------------------------
+
+  ## really interesting is  bI(x., nu)  {for "mpfr" argument}:
+  ## it uses outer(), but that needs to dispatch on, e.g. "^",
+  ## i.e., not only look at "base"
+  environment(outer) <- as.environment("package:Rmpfr")
+  environment(dim) <- as.environment("package:Rmpfr")
+  environment(dimnames) <- as.environment("package:Rmpfr")
+  environment(`dim<-`) <- as.environment("package:Rmpfr")
+  environment(`dimnames<-`) <- as.environment("package:Rmpfr")
+  environment(which) <- as.environment("package:Rmpfr")
+
+
+4)
