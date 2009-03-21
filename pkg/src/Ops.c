@@ -32,9 +32,9 @@ SEXP Math_mpfr(SEXP x, SEXP op)
 	       precision, even though in some cases the result may
 	       need higher precision */
 
-	case  0: /* trunc */ NOT_YET; break;
-	case  1: /* floor */ NOT_YET; break;
-	case  2: /* ceiling */ NOT_YET; break;
+	case  0: /* trunc */ mpfr_trunc(R_i, R_i); break;
+	case  1: /* floor */ mpfr_floor(R_i, R_i); break;
+	case  2: /* ceiling*/ mpfr_ceil(R_i, R_i); break;
 	case  3: /* sqrt */  mpfr_sqrt(R_i, R_i, GMP_RNDN); break;
 	case  4: /* sign */
 	    error("'sign' is dealt with in R.  Should not happen, please report");

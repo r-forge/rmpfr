@@ -28,7 +28,10 @@ two <- mpfr(2,100)
 stopifnot(all.EQ(u ^ two, u ^ 2),
           identical(u ^ 2, u ^ 2L),
           all.EQ(two ^ u, 2 ^ u),
-          identical(2 ^ u, 2L ^ u))
+          identical(2 ^ u, 2L ^ u),
+          floor  (3*u) == floor  (3/17*(0:17)),
+          ceiling(u*5) == ceiling(5/17*(0:17))
+          )
 
 stopifnot(all.equal(as.numeric(x+1),
                     as.numeric(x)+1))

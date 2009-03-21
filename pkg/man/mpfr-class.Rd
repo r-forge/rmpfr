@@ -8,7 +8,7 @@
 \alias{[,mpfr,ANY,missing,missing-method}
 \alias{[<-,mpfr,ANY,missing,ANY-method}
 \alias{[<-,mpfr,ANY,missing,mpfr-method}
-
+% FIXME: many of these are just \alias{}ed, but *NOT* documented:
 \alias{as.numeric,mpfr-method}
 \alias{as.integer,mpfr-method}
 \alias{coerce,mpfr,character-method}
@@ -18,20 +18,33 @@
 \alias{coerce,integer,mpfr-method}
 \alias{coerce,numeric,mpfr-method}
 \alias{coerce,numeric,mpfr1-method}
-
+\alias{coerce,array,mpfr-method}
+\alias{coerce,character,mpfr-method}
+\alias{coerce,mpfr,mpfr1-method}
+%
 \alias{Ops,mpfr,ANY-method}
 \alias{Ops,ANY,mpfr-method}
+\alias{Ops,array,mpfr-method}
+\alias{Ops,mpfr,array-method}
+\alias{Ops,mpfr,vector-method}
+\alias{Ops,vector,mpfr-method}
+\alias{Arith,mpfr,array-method}
 \alias{Arith,mpfr,missing-method}
 \alias{Arith,mpfr,mpfr-method}
 \alias{Arith,mpfr,integer-method}
 \alias{Arith,mpfr,numeric-method}
 \alias{Arith,integer,mpfr-method}
 \alias{Arith,numeric,mpfr-method}
+\alias{Arith,array,mpfr-method}
+%
 \alias{Compare,mpfr,mpfr-method}
 \alias{Compare,mpfr,integer-method}
 \alias{Compare,mpfr,numeric-method}
 \alias{Compare,integer,mpfr-method}
 \alias{Compare,numeric,mpfr-method}
+\alias{Compare,mpfr,array-method}
+\alias{Compare,array,mpfr-method}
+%
 \alias{Logic,mpfr,mpfr-method}
 \alias{Summary,mpfr-method}
 \alias{Math,mpfr-method}
@@ -48,7 +61,18 @@
 %
 \alias{all.equal,mpfr,ANY-method}
 \alias{all.equal,ANY,mpfr-method}
-%
+\alias{mean,mpfr-method}
+
+\alias{dim<-,mpfr-method}
+\alias{t,mpfr-method}
+
+\alias{\%*\%,array_or_vector,mpfr-method}
+\alias{\%*\%,mpfr,array_or_vector-method}
+\alias{crossprod,array_or_vector,mpfr-method}
+\alias{crossprod,mpfr,array_or_vector-method}
+\alias{tcrossprod,array_or_vector,mpfr-method}
+\alias{tcrossprod,mpfr,array_or_vector-method}
+
 \alias{show,mpfr-method}
 \alias{show,mpfr1-method}
 \alias{print.mpfr}
@@ -61,6 +85,7 @@
   For the high-level user, \code{"mpfr"} objects should behave
   as standard \R's \code{\link{numeric}} \emph{vectors}, just with
   prespecified (typically high) precision.
+
 }
 \section{Objects from the Class}{
   Objects are typically created by \code{\link{mpfr}(<number>, precBits)}.
@@ -93,6 +118,12 @@
 \section{Methods}{
   \describe{
     \item{abs}{\code{signature(x = "mpfr")}: ... }
+
+    \item{dim<-}{\code{signature(x = "mpfr")}: Setting a dimension
+      \code{\link{dim}} on an \code{"mpfr"} object makes it into an object
+      of class \code{"\linkS4class{mpfrArray}"} or (more specifically)
+      \code{"mpfrMatrix"} for a length-2 dimension, see their help page;
+      note that \code{t(x)} (below) is a special case of this.}
 
     \item{Ops}{\code{signature(e1 = "mpfr", e2 = "ANY")}: ... }
     \item{Ops}{\code{signature(e1 = "ANY", e2 = "mpfr")}: ... }
@@ -135,6 +166,10 @@
     \item{coerce}{\code{signature(from = "numeric", to = "mpfr")}: ... }
     \item{coerce}{\code{signature(from = "mpfr", to = "numeric")}: ... }
     \item{coerce}{\code{signature(from = "mpfr", to = "character")}: ... }
+
+    \item{t}{\code{signature(x = "mpfr")}: makes \code{x} into an \eqn{n
+	\times 1}{n x 1} \code{\linkS4class{mpfrMatrix}}.}
+
   }
 }
 % \references{ ~put references to the literature/web site here ~ }

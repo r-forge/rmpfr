@@ -54,13 +54,15 @@ print.mpfr <- function(x, digits = NULL, ...) {
 setMethod(show, "mpfr", function(object) print.mpfr(object))
 
 
-## "[" which also keeps names:
+## "[" which also keeps names ... JMC says that names are not support(ed|able)
+## ---  for such objects..
 setMethod("[", signature(x = "mpfr", i = "ANY", j = "missing", drop = "missing"),
           function(x,i,j, ..., drop) {
               nA <- nargs()
-              if(nA == 2) ## x[i] etc -- vector case
-                  new("mpfr", structure(x@.Data[i], names=names(x)[i]))
-              else if(nA == 3 && !is.null(d <- dim(x))) { ## matrix indexing  (!)
+	      if(nA == 2) { ## x[i] etc -- vector case -- to be fast, need C! --
+		  x@.Data <- structure(x@.Data[i], names=names(x)[i])
+		  x
+	      } else if(nA == 3 && !is.null(d <- dim(x))) { ## matrix indexing(!)
                   ## not keeping dimnames though ...
                   message("nargs() == 3  'mpfr' array indexing ... ")
                   new("mpfr", structure(x@.Data[i,j,...,drop=drop], dim = d))
@@ -82,7 +84,12 @@ setReplaceMethod("[", signature(x = "mpfr", i = "ANY", j = "missing",
 
 setReplaceMethod("[", signature(x = "mpfr", i = "ANY", j = "missing",
 				value = "mpfr"),
-	  function(x,i,value) { x@.Data[i] <- value ; x })
+	  function(x,i, ..., value) {
+	      if(length(list(...)))# should no longer happen:
+		  stop("extra replacement arguments",
+		       deparse(list(...))," not dealt with")
+	      x@.Data[i] <- value
+	      x })
 
 
 

@@ -1,7 +1,7 @@
 ## From an "mpfr" object make an mpfr(Array|Matrix) :
 
 setMethod("dim", "mpfrArray", function(x) x@Dim)
-setMethod("dimnames", "mpfrArray", function(x) x@DimNames)
+setMethod("dimnames", "mpfrArray", function(x) x@Dimnames)
 
 ## 2 basic methods to construct "mpfr - arrays" ( mpfrArray | mpfrMatrix ) :
 
@@ -12,11 +12,19 @@ setMethod("dim<-", signature(x = "mpfr", value = "ANY"),
 		      x, Dim = iv)
 	  })
 
-mpfrArray <- function(x, precBits, dim = length(x), dimnames = NULL) {
+mpfrArray <- function(x, precBits, dim = length(x), dimnames = NULL)
+{
+    dim <- as.integer(dim)
+    ml <- .Call("d2mpfr1_list", x, precBits, PACKAGE="Rmpfr")
+    vl <- prod(dim)
+    if (length(x) != vl) {
+        if (vl > .Machine$integer.max)
+            stop("'dim' specifies too large an array")
+        ml <- rep(ml, length.out = vl)
+    }
     new(if(length(dim) == 2) "mpfrMatrix" else "mpfrArray",
-	.Call("d2mpfr1_list", x, precBits, PACKAGE="Rmpfr"),
-	Dim = dim,
-	DimNames = if(is.null(dimnames)) vector("list", length(dim))
+        ml, Dim = dim,
+	Dimnames = if(is.null(dimnames)) vector("list", length(dim))
 		   else dimnames)
 }
 
@@ -31,7 +39,7 @@ setMethod("dimnames<-", signature(x = "mpfrArray", value = "ANY"),
 	      if(!is.list(value)) stop("non-list RHS")
 	      if(length(value) != length(x@Dim))
 		  stop("RHS (new dimnames) differs in length from dim(.)")
-	      x@DimNames <- value
+	      x@Dimnames <- value
 	      x
 	  })
 
@@ -42,7 +50,7 @@ setMethod("t", "mpfrMatrix",
 	      ## ind.t <- function(n,m)rep.int(1:n, rep(m,n)) + n*(0:(m-1))
 	      x@.Data <- x@.Data[rep.int(1:n, rep(m,n)) + n*(0:(m-1))]
 	      x@Dim <- c(m,n)
-	      x@DimNames <- x@DimNames[2:1]
+	      x@Dimnames <- x@Dimnames[2:1]
 	      x
 	  })
 setMethod("t", "mpfr",
@@ -52,6 +60,21 @@ setMethod("t", "mpfr",
 	      r@.Data <- x@.Data
 	      r
 	  })
+
+setMethod("aperm", signature(a="mpfrArray"),
+	  function(a, perm, resize=TRUE) {
+	      stopifnot(1 <= (k <- length(d <- a@Dim)))
+	      if(missing(perm)) perm <- k:1
+	      else stopifnot(length(perm <- as.integer(perm)) == k, 1 <= perm, perm <= k)
+	      if(!resize)
+		  stop("'resize != TRUE is not (yet) implemented for 'mpfrArray'")
+	      a@Dim <- d[perm]
+	      a@Dimnames <- a@Dimnames[perm]
+	      ii <- c(aperm(array(1:prod(d), dim=d), perm=perm, resize=FALSE))
+	      a@.Data <- a@.Data[ ii ]
+	      a
+	  })
+
 
 setMethod("as.vector", "mpfrArray", function(x) as(x, "mpfr"))
 ## a "vector" in  *one* sense at least ...
@@ -268,10 +291,14 @@ setMethod("tcrossprod", signature(x = "array_or_vector", y = "mpfr"),
     if(drop & is.null(dim(r)))
         new("mpfr", r)
     else {
-        x@Dim <- if(is.null(dr <- dim(r)))
-            rep.int(1L, length(dx)) else dr
-        x@DimNames <- if(is.null(dn <- dimnames(r)))
-            vector("list", length(dx)) else dn
+        D <- if(is.null(dr <- dim(r))) # ==> drop is FALSE; can this happen?
+            rep.int(1L, length(r)) else dr
+        x@Dim <- D
+        x@Dimnames <- if(is.null(dn <- dimnames(r)))
+            vector("list", length(D)) else dn
+	if(length(D) == 2 && class(x) != "mpfrMatrix")
+	    ## low-level "coercion" from mpfrArray to *Matrix :
+	    attr(x,"class") <- getClass("mpfrMatrix")@className
         attributes(r) <- NULL
         x@.Data <- r
         x
@@ -287,21 +314,124 @@ setMethod("[", signature(x = "mpfrArray", i = "ANY", j = "missing",
                          drop = "missing"),
           .mpfrA.subset)
 
+
+
+.mA.subAssign <- function(x,i,j,..., value)
+{
+    nA <- nargs()
+    if(nA >= 4) {
+	## A[i,j]  /  A[i,]  /	A[,j]	but not A[i]
+	## A[i,j,k] <- v : nA == 5
+	r <- x@.Data
+	dim(r) <- dim(x)
+	dimnames(r) <- dimnames(x)
+	vD <- as(value, "mpfr")@.Data
+	if(nA == 4) {
+
+	    r[i,j] <- vD
+
+	} else { ## nA >= 5
+
+	    r[i, j, ...] <- vD
+
+	}
+	attributes(r) <- NULL
+	x@.Data <- r
+    }
+    else if(nA == 3) { ##  A [ i ] <- v
+
+	x@.Data[i] <- value
+
+    } else { ## nA <= 2
+	stop(sprintf("nargs() == %d  mpfrArray[i,j] <- value  IMPOSSIBLE?",
+		     nA))
+    }
+    x
+}## .mA.subAssign
+
 ## "[<-" :
 setReplaceMethod("[", signature(x = "mpfrArray", i = "ANY", j = "ANY",
 				value = "ANY"),
-	function(x,i,j,value) {
-            ## FIXME: should only trigger
-            ##        for A[i,j] / A[i,] / A[,j] but not A[i]
-            nA <- nargs()
-            if(nA == 4) {
-                r <- x@.Data
-                dim(r) <- dim(x)
-                dimnames(r) <- dimnames(x)
-                r[i,j] <- as(value, "mpfr")@.Data
-                attributes(r) <- NULL
-                x@.Data <- r
-            } else {
-                stop(sprintf("nargs() == %d  mpfrArray[i,j] <- value ... ", nA))
-            }
-            x })
+		 .mA.subAssign)
+## E.g., for A[1,,2] <- V
+## these are to trigger before the  ("mpfr", i,j, "mpfr")  [ ./mpfr.R ] does
+setReplaceMethod("[", signature(x = "mpfrArray", i = "ANY", j = "missing",
+				value = "mpfr"),
+		 .mA.subAssign)
+setReplaceMethod("[", signature(x = "mpfrArray", i = "missing", j = "ANY",
+				value = "mpfr"),
+		 .mA.subAssign)
+setReplaceMethod("[", signature(x = "mpfrArray", i = "ANY", j = "ANY",
+				value = "mpfr"),
+		 .mA.subAssign)
+
+###-----------
+
+setGeneric("cbind", signature = "...")# -> message about override & deparse.level
+setGeneric("rbind", signature = "...")
+
+setMethod("cbind", "Mnumber",
+	  function(..., deparse.level = 1) {
+	      args <- list(...)
+	      if(all(sapply(args, is.numeric)))
+		  return( base::cbind(..., deparse.level = deparse.level) )
+	      ## else: at least one is "mpfr(Matrix/Array)"
+
+	      L <- function(a) if(is.numeric(n <- nrow(a))) n else length(a)
+	      W <- function(a) if(is.numeric(n <- ncol(a))) n else 1L
+	      ## the number of rows of the result :
+	      NR <- max(lengths <- sapply(args, L))
+	      NC <- sum(widths	<- sapply(args, W))
+	      r <- new("mpfrMatrix")
+	      r@Dim <- as.integer(c(NR, NC))
+	      r@.Data <- vector("list", NR*NC)
+	      if(deparse.level >= 1 && !is.null(nms <- names(widths)))
+		  r@Dimnames[[2]] <- nms
+	      j <- 0
+	      prec <- .Machine$double.digits
+	      for(ia in seq_along(args)) {
+		  w <- widths[ia]
+		  a <- args[[ia]]
+		  if(is(a,"mpfr")) {
+		      prec <- max(prec, sapply(a@.Data, slot, "prec"))
+		  } else { ## not "mpfr"
+		      a <- mpfr(a, prec)
+		  }
+		  r[, j+ 1:w] <- a
+		  j <- j + w
+	      }
+	      r
+	  })
+
+setMethod("rbind", "Mnumber",
+	  function(..., deparse.level = 1) {
+	      args <- list(...)
+	      if(all(sapply(args, is.numeric)))
+		  return( base::rbind(..., deparse.level = deparse.level) )
+	      ## else: at least one is "mpfr(Matrix/Array)"
+
+	      L <- function(a) if(is.numeric(n <- nrow(a))) n else 1L
+	      W <- function(a) if(is.numeric(n <- ncol(a))) n else length(a)
+	      ## the number of rows of the result :
+	      NR <- sum(lengths <- sapply(args, L))
+	      NC <- max(widths	<- sapply(args, W))
+	      r <- new("mpfrMatrix")
+	      r@Dim <- as.integer(c(NR, NC))
+	      r@.Data <- vector("list", NR*NC)
+	      if(deparse.level >= 1 && !is.null(nms <- names(widths)))
+		  r@Dimnames[[1]] <- nms
+	      i <- 0
+	      prec <- .Machine$double.digits
+	      for(ia in seq_along(args)) {
+		  le <- lengths[ia]
+		  a <- args[[ia]]
+		  if(is(a,"mpfr")) {
+		      prec <- max(prec, sapply(a@.Data, slot, "prec"))
+		  } else { ## not "mpfr"
+		      a <- mpfr(a, prec)
+		  }
+		  r[i+ 1:le, ] <- a
+		  i <- i + le
+	      }
+	      r
+	  })

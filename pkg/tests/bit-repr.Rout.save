@@ -1,6 +1,6 @@
 
-R version 2.8.1 RC (2008-12-16 r47223)
-Copyright (C) 2008 The R Foundation for Statistical Computing
+R version 2.8.1 Patched (2009-01-29 r47792)
+Copyright (C) 2009 The R Foundation for Statistical Computing
 ISBN 3-900051-07-0
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -25,6 +25,12 @@ Attaching package: 'Rmpfr'
 	The following object(s) are masked from package:stats :
 
 	 pnorm 
+
+
+	The following object(s) are masked from package:base :
+
+	 cbind,
+	 rbind 
 
 > 
 > ### Try to look at the internal bit-representation of the limbs
@@ -103,6 +109,7 @@ Attaching package: 'Rmpfr'
 13 1025 10000000001
 > 
 > x <- mpfr(c(-20:30),64)
+> x <- x[x != 0] # mpfr(0, *) has "random" bits
 > data.frame(x= as.numeric(x), I(Bits(x)))
      x Bits.x.
 1  -20   10100
@@ -125,37 +132,36 @@ Attaching package: 'Rmpfr'
 18  -3      11
 19  -2    <NA>
 20  -1    <NA>
-21   0    <NA>
-22   1    <NA>
-23   2    <NA>
-24   3      11
-25   4    <NA>
-26   5     101
-27   6     110
-28   7     111
-29   8    <NA>
-30   9    1001
-31  10    1010
-32  11    1011
-33  12    1100
-34  13    1101
-35  14    1110
-36  15    1111
-37  16    <NA>
-38  17   10001
-39  18   10010
-40  19   10011
-41  20   10100
-42  21   10101
-43  22   10110
-44  23   10111
-45  24   11000
-46  25   11001
-47  26   11010
-48  27   11011
-49  28   11100
-50  29   11101
-51  30   11110
+21   1    <NA>
+22   2    <NA>
+23   3      11
+24   4    <NA>
+25   5     101
+26   6     110
+27   7     111
+28   8    <NA>
+29   9    1001
+30  10    1010
+31  11    1011
+32  12    1100
+33  13    1101
+34  14    1110
+35  15    1111
+36  16    <NA>
+37  17   10001
+38  18   10010
+39  19   10011
+40  20   10100
+41  21   10101
+42  22   10110
+43  23   10111
+44  24   11000
+45  25   11001
+46  26   11010
+47  27   11011
+48  28   11100
+49  29   11101
+50  30   11110
 > 
 > ## pi, in varying number of bits :
 > p. <- round(pi* 2^c(10,16,5*(4:8)))
@@ -177,7 +183,7 @@ c(3217, 205887, 3294199, 105414357, 3373259426, 107944301636,
 > 
 > 
 > cat('Time elapsed: ', proc.time(),'\n') # "stats"
-Time elapsed:  0.677 0.039 0.806 0 0 
+Time elapsed:  1.176 0.02 1.188 0 0 
 > 
 > if(!interactive()) warnings()
 NULL

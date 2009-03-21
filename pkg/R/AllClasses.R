@@ -33,17 +33,17 @@ setClass("mpfr", ## a *vector* of "mpfr1", i.e., multi-precision float numbers
 
 setClass("mpfrArray", ## mpfr + "dim" + dimnames
 	 contains = "mpfr",
-	 representation = list(Dim = "integer", DimNames = "list"),
+	 representation = list(Dim = "integer", Dimnames = "list"),
 	 prototype = prototype(new("mpfr"), Dim= 0L,
-			       DimNames = list(NULL)),
+			       Dimnames = list(NULL)),
 	 validity = function(object) {
 	     if(length(object) != prod(D <- object@Dim))
 		 "Dimension does not match length()"
-	     else if(length(DN <- object@DimNames) != length(D))
-		 "DimNames must have same length as 'Dim'"
+	     else if(length(DN <- object@Dimnames) != length(D))
+		 "Dimnames must have same length as 'Dim'"
 	     else if(any(hasN <- !sapply(DN, is.null)) &&
 		     any((lDN <- sapply(DN[hasN], length)) != D[hasN]))
-		 "length of some 'DimNames' do not match 'Dim'"
+		 "length of some 'Dimnames' do not match 'Dim'"
 	     else
 		 TRUE
 	 })
@@ -52,7 +52,7 @@ setClass("mpfrMatrix",
 	 contains = "mpfrArray",
 	 prototype = prototype(new("mpfrArray"),
 			       Dim= c(0L,0L),
-			       DimNames = list(NULL, NULL)),
+			       Dimnames = list(NULL, NULL)),
 	 validity = function(object) {
 	     if(length(object@Dim) != 2L)
 		 "'Dim' is not of length 2"
@@ -65,5 +65,9 @@ setClass("mpfrMatrix",
 ## *not* made into vectors in method dispatch,
 ## which they would be if we used simply "vector"
 setClassUnion("array_or_vector",
-              members = c("array", "matrix", "vector"))
+	      members = c("array", "matrix", "vector"))
 
+## For this class, we want to define  '...' methods for cbind & rbind :
+setClassUnion("Mnumber",
+	      members = c("array_or_vector",
+	      "mpfr", "mpfrArray", "mpfrMatrix"))

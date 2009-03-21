@@ -56,6 +56,7 @@ x
 data.frame(x= as.numeric(x), I(Bits(x)))
 
 x <- mpfr(c(-20:30),64)
+x <- x[x != 0] # mpfr(0, *) has "random" bits
 data.frame(x= as.numeric(x), I(Bits(x)))
 
 ## pi, in varying number of bits :

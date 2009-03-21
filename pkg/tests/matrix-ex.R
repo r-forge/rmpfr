@@ -14,6 +14,7 @@ m.y <- matrix(7 * 1:12, 3,4)
 stopifnot(my[2,2] == 35,
           my[,1] == 7*(1:3))
 
+.N <- function(x) { if(!is.null(dim(x))) as(x,"array") else as(x,"numeric") }
 noDN <- function(.) { dimnames(.) <- NULL ; . }
 allEQ <- function(x,y) all.equal(x,y, tol=1e-15)
 
@@ -23,10 +24,10 @@ stopifnot(allEQ(m.x, noDN(as(mx, "matrix"))),
           allEQ(noDN(as(crossprod(mx, t(my)),"matrix")), crossprod(m.x, t(m.y))),
           allEQ(noDN(as(tcrossprod(my, t(mx)),"matrix")),
                         tcrossprod(m.y, t(m.x))),
-
+          ##
           identical(mx, t(t(mx))),
           identical(my, t(t(my))),
-
+          ##
           identical(noDN(as(my %*% 1:4,"matrix")),
                          as(my,"matrix") %*% 1:4 )
           )
@@ -54,6 +55,53 @@ m1 <- 1:3 %*% y  %*% r
 y. <- t(mpfr(2:6, 20))
 m2 <- 1:3 %*% y. %*% r
 stopifnot(m1 == m2, m1 - m2 == 0, identical(dim(m1), dim(m2)))
+
+### Array (non-matrix) ---- indexing & sub-assignment :
+A <- mpfrArray(1:24, prec = 96, dim = 2:4)
+a <-     array(1:24,            dim = 2:4)
+a.1 <- as(A[,,1], "array")
+a1. <- as(A[1,,], "array")
+A1. <- as(A[1,,], "mpfr")
+
+stopifnot(all.equal(noDN(a.1), a[,,1], tol=0),
+	  identical(A1., as.vector(A[1,,])),
+	  ## arithmetic, subsetting etc:
+	  allEQ(noDN(.N(A / A1.)), a/c(a1.)),
+	  allEQ(noDN(.N(a / A1.)), a/c(a1.)),
+          identical(noDN(A == 23), a == 23),
+          identical(noDN(10 >= A), 10 >= a),
+          identical(noDN(A <=  2), a <=  2),
+          identical(noDN(A < 2.5), a < 2.5),
+          identical(noDN(A !=  5), a !=  5),
+          identical(A != 3, !(3 == A)),
+          identical(-1 > A, A == 100),
+          identical(noDN(A <= 0), a == pi)
+	  )
+
+A[1,2,3] <- Const("pi")
+A[1, ,2] <- 1 / A[1,,2]
+A
+
+## check that A is "==" a  where
+a <- array(1:24, 2:4); a[1,2,3] <- pi; a[1,,2] <- 1/a[1,,2]
+stopifnot(allEQ(noDN(.N(A)), a),
+          ## check aperm() methods :
+          allEQ(noDN(.N(aperm(A))), aperm(a)),
+          {p <- c(3,1:2); allEQ(noDN(.N(aperm(A,p))), aperm(a,p))},
+          {p <- c(2:1,3); allEQ(noDN(.N(aperm(A,p))), aperm(a,p))})
+
+## cbind() / rbind():
+validObject(m0 <- cbind(pi=pi, i = 1:6))
+validObject(m1 <- cbind(a=Const("pi",60),i = 1:6, "1/mp" = 1/mpfr(1:3,70)))
+validObject(m2 <- cbind(pi=pi, i = 1:2, 1/mpfr(1:6,70)))
+stopifnot(is(m0,"matrix"), is(m1, "mpfrMatrix"), is(m2, "mpfrMatrix"),
+          dim(m0) == c(6,2), dim(m1) == c(6,3), dim(m2) == c(6,3))
+if(FALSE) ## FIXME: gives error, but should only warn
+validObject(m3 <- cbind(I=10, 1:3, inv=1/mpfr(2:3,80)))
+
+validObject(n2 <- rbind(pi=pi, i = 1:2, 1/mpfr(1:6,70)))
+stopifnot(identical(t(n2), m2))
+
 
 cat('Time elapsed: ', proc.time(),'\n') # "stats"
 
