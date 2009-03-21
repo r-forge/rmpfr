@@ -2,7 +2,7 @@ require("Rmpfr")
 
 ## must take the *larger* of the two precisions:
 stopifnot(format(mpfr(1, 60) / mpfr(7, 160)) ==
-          "1.4285714285714285714285714285714285714285714285712e-1")
+          "0.14285714285714285714285714285714285714285714285712")
 
 (x <- mpfr(0:7, 100) / 7)
 stopifnot( mpfr.is.0(x - x) ) # badly failed on 64-bit

@@ -149,6 +149,24 @@ SEXP d2mpfr1_list(SEXP x, SEXP prec)
     return val;
 }
 
+SEXP str2mpfr1_list(SEXP x, SEXP prec)
+{
+    int i_prec = asInteger(prec), n = LENGTH(x), i;
+    SEXP val = PROTECT(allocVector(VECSXP, n));
+    double *dx;
+
+    if(!isReal(x))
+	x = coerceVector(x, REALSXP);
+    dx = REAL(x);
+    for(i = 0; i < n; i++) {
+	/* FIXME: become more efficient by doing R_..._2R_init() only once*/
+	SET_VECTOR_ELT(val, i, d2mpfr1_(dx[i], i_prec));
+    }
+
+    UNPROTECT(1);
+    return val;
+}
+
 #undef R_mpfr_MPFR_2R_init
 #undef R_mpfr_MPFR_2R_fill
 
@@ -278,9 +296,9 @@ SEXP mpfr2str(SEXP x, SEXP digits) {
     SEXP D = GET_SLOT(x, Rmpfr_Data_Sym);/* an R list() of length */
     int n = length(D), i;
     int n_dig = isNull(digits) ? 0 : asInteger(digits);
-    SEXP val = PROTECT(allocVector(VECSXP, 2)),
-	nms, str, exp;
-    int *i_exp;
+    SEXP val = PROTECT(allocVector(VECSXP, 4)),
+	nms, str, exp, fini, zero;
+    int *i_exp, *is_fin, *is_0;
 
     mpfr_t R_i;
 
@@ -289,10 +307,16 @@ SEXP mpfr2str(SEXP x, SEXP digits) {
 
     SET_VECTOR_ELT(val, 0, str = allocVector(STRSXP, n));
     SET_VECTOR_ELT(val, 1, exp = allocVector(INTSXP, n));
-    setAttrib(val, R_NamesSymbol, nms = allocVector(STRSXP, 2));
+    SET_VECTOR_ELT(val, 2, fini = allocVector(LGLSXP, n));
+    SET_VECTOR_ELT(val, 3, zero = allocVector(LGLSXP, n));
+    setAttrib(val, R_NamesSymbol, nms = allocVector(STRSXP, 4));
     SET_STRING_ELT(nms, 0, mkChar("str"));
     SET_STRING_ELT(nms, 1, mkChar("exp"));
+    SET_STRING_ELT(nms, 2, mkChar("finite"));
+    SET_STRING_ELT(nms, 3, mkChar("is.0"));
     i_exp = INTEGER(exp);
+    is_fin= INTEGER(fini);
+    is_0  = INTEGER(zero);
 
     mpfr_init(R_i); /* with default precision */
 
@@ -308,7 +332,9 @@ SEXP mpfr2str(SEXP x, SEXP digits) {
 	ch = mpfr_get_str(NULL, exp_ptr, /* B = */ 10,
 			  (size_t) n_dig, R_i, GMP_RNDN);
 	SET_STRING_ELT(str, i, mkChar(ch));
-	i_exp[i] = exp_ptr[0];
+	i_exp[i] = exp_ptr[0]; /* "FIXME": coerce to 'int' here; ok for non-0 */
+	is_fin[i]= mpfr_number_p(R_i);
+	is_0 [i] = mpfr_zero_p(R_i);
 	mpfr_free_str(ch);
     }
 

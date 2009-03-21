@@ -62,7 +62,8 @@ setMethod("[", signature(x = "mpfr", i = "ANY", j = "missing", drop = "missing")
                   new("mpfr", structure(x@.Data[i], names=names(x)[i]))
               else if(nA == 3 && !is.null(d <- dim(x))) { ## matrix indexing  (!)
                   ## not keeping dimnames though ...
-                  new("mpfr", structure(x@.Data[i,j,...,drop], dim = d))
+                  message("nargs() == 3  'mpfr' array indexing ... ")
+                  new("mpfr", structure(x@.Data[i,j,...,drop=drop], dim = d))
 ## keeping dimnames: maybe try
 ##                   D <- x@.Data; dim(D) <- d
 ##                   if(!is.null(dn <- dimnames(x))) dimnames(D) <- dn
@@ -224,7 +225,8 @@ setMethod("all.equal", signature(target = "mpfr", current = "ANY"),
 		    tolerance = .Machine$double.eps^0.5, ...) {
 	      ## to use "our" mean() :
 	      environment(all.equal.numeric) <- environment()
-	      all.equal.numeric(target, as(current, "mpfr"), ...)
+	      all.equal.numeric(target, as(current, "mpfr"),
+				tolerance=tolerance, ...)
 	  })
 
 setMethod("all.equal", signature(target = "ANY", current = "mpfr"),
@@ -232,5 +234,6 @@ setMethod("all.equal", signature(target = "ANY", current = "mpfr"),
 		    tolerance = .Machine$double.eps^0.5, ...) {
 	      ## to use "our" mean() :
 	      environment(all.equal.numeric) <- environment()
-	      all.equal.numeric(as(target, "mpfr"), current, ...)
+	      all.equal.numeric(as(target, "mpfr"), current,
+				tolerance=tolerance, ...)
 	  })

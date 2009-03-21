@@ -2,22 +2,36 @@
 ####			    ======   =======   =====
 
 ### "Math" are done in ./Math.R ,  "Summary" in ./Summary.R
-###  ----		 ~~~~~~     -------       ~~~~~~~~~
+###  ----		 ~~~~~~	    -------	  ~~~~~~~~~
 ### NB:	 Look at /usr/local/app/R/R_local/src/Brobdingnag/R/brob.R
 ###					      -----------
 
-if(FALSE) ## here are the individual function
+if(FALSE) ## here are the individual functions
 getGroupMembers("Ops")
-if(FALSE) ## here are the individual function
+if(FALSE)
 str(list(Arith	 = getGroupMembers("Arith"),
 	 Compare = getGroupMembers("Compare"),
 	 Logic	 = getGroupMembers("Logic")), vec.len = 20)
 
-setMethod("Ops", signature(e1 = "mpfr", e2 = "ANY"),
+## Using "vector" and "array" seperately, rather than "ANY"
+## ===> shorter distance in method dispatch calculation :
+setMethod("Ops", signature(e1 = "mpfr", e2 = "vector"),
 	  function(e1, e2) callGeneric(e1, as(e2, "numeric")))
-setMethod("Ops", signature(e1 = "ANY", e2 = "mpfr"),
+setMethod("Ops", signature(e1 = "vector", e2 = "mpfr"),
 	  function(e1, e2) callGeneric(as(e1, "numeric"), e2))
 
+## These should not trigger anymore (because we have "Arith"/"Compare"/...):
+setMethod("Ops", signature(e1 = "mpfr", e2 = "array"),
+	  function(e1, e2)
+	      stop(gettextf("'%s'(mpfr,array) method is not implemented yet",
+			    .Generic)))
+setMethod("Ops", signature(e1 = "array", e2 = "mpfr"),
+	  function(e1, e2)
+	      stop(gettextf("'%s'(array,mpfr) method is not implemented yet",
+			    .Generic)))
+
+
+## FIXME: this is too cheap: also need	<mpfr, numeric>	 <array, mpfrArray> etc
 setMethod("Logic", signature(e1 = "mpfr", e2 = "mpfr"),
 	  function(e1, e2) callGeneric(as(e1, "numeric"),
 				       as(e2, "numeric")))
@@ -110,17 +124,207 @@ setMethod("Compare", signature(e1 = "numeric", e2 = "mpfr"),
 		    PACKAGE="Rmpfr")
 	  })
 
+### -------------- mpfrArray ------------------------
+
+.dimCheck <- function(a, b) {
+    da <- dim(a)
+    db <- dim(b)
+    if(length(da) != length(db) || any(da != db))
+	stop(gettextf("Matrices must have same dimensions in %s",
+		      deparse(sys.call(sys.parent()))),
+	     call. = FALSE)
+    da
+}
+
+setMethod("Arith", signature(e1 = "mpfrArray", e2 = "mpfrArray"),
+	  function(e1, e2) {
+	      .dimCheck(e1, e2)
+	      ## else: result has identical dimension:
+	      e1@.Data[] <- .Call("Arith_mpfr", e1, e2, .Arith.codes[.Generic],
+				  PACKAGE="Rmpfr")
+	      e1
+	  })
+
+setMethod("Arith", signature(e1 = "mpfrArray", e2 = "mpfr"),
+	  function(e1, e2) {
+	      if(length(e1) %% length(e2) != 0)
+		  stop("length of first argument (array) is not multiple of the second argument's one")
+	      ## else: result has dimension from array:
+	      e1@.Data[] <- .Call("Arith_mpfr", e1, e2, .Arith.codes[.Generic],
+				  PACKAGE="Rmpfr")
+	      e1
+	  })
+
+setMethod("Arith", signature(e1 = "array", e2 = "mpfr"),# incl "mpfrArray"
+	  function(e1, e2) {
+	      if(e2Arr <- !is.null(dim(e2)))
+		  d2 <- .dimCheck(e1, e2)
+	      else if(length(e1) %% length(e2) != 0)
+		  stop("length of first argument (array) is not multiple of the second argument's one")
+
+	      if(e2Arr) {
+		  e2@.Data[] <- .Call("Arith_d_mpfr", e1, e2, .Arith.codes[.Generic],
+				      PACKAGE="Rmpfr")
+		  e2
+	      } else {
+		  r <- new("mpfrArray")
+		  r@Dim <- dim(e1)
+		  if(!is.null(dn <- dimnames(e1)))
+		      r@Dimnames <- dn
+		  r@.Data[] <- .Call("Arith_d_mpfr", e1, e2, .Arith.codes[.Generic],
+				      PACKAGE="Rmpfr")
+		  r
+	      }
+	  })
+setMethod("Arith", signature(e1 = "mpfr", e2 = "array"),# "mpfr" incl "mpfrArray"
+	  function(e1, e2) {
+	      if(e1Arr <- !is.null(dim(e1)))
+		  d1 <- .dimCheck(e1, e2)
+	      else if(length(e1) %% length(e2) != 0)
+		  stop("length of first argument (array) is not multiple of the second argument's one")
+
+	      if(e1Arr) {
+		  e1@.Data[] <- .Call("Arith_mpfr_d", e1, e2, .Arith.codes[.Generic],
+				      PACKAGE="Rmpfr")
+		  e1
+	      } else {
+		  r <- new("mpfrArray")
+		  r@Dim <- dim(e2)
+		  if(!is.null(dn <- dimnames(e2)))
+		      r@Dimnames <- dn
+		  r@.Data[] <- .Call("Arith_mpfr_d", e1, e2, .Arith.codes[.Generic],
+				      PACKAGE="Rmpfr")
+		  r
+	      }
+	  })
+
+setMethod("Arith", signature(e1 = "mpfrArray", e2 = "numeric"),
+	  function(e1, e2) {
+	      if(length(e1) %% length(e2) != 0)
+		  stop("length of first argument (array) is not multiple of the second argument's one")
+	      e1@.Data[] <-
+		  .Call(if(is.integer(e2)) "Arith_mpfr_i" else "Arith_mpfr_d",
+			e1, e2, .Arith.codes[.Generic], PACKAGE="Rmpfr")
+	      e1
+	  })
+
+setMethod("Arith", signature(e1 = "numeric", e2 = "mpfrArray"),
+	  function(e1, e2) {
+	      if(length(e2) %% length(e1) != 0)
+		  stop("length of second argument (array) is not multiple of the first argument's one")
+	      e2@.Data[] <-
+		  .Call(if(is.integer(e1)) "Arith_i_mpfr" else "Arith_d_mpfr",
+			e1, e2, .Arith.codes[.Generic],
+			PACKAGE="Rmpfr")
+	      e2
+	  })
+
+setMethod("Arith", signature(e1 = "mpfr", e2 = "mpfrArray"),
+	  function(e1, e2) {
+	      if(length(e2) %% length(e1) != 0)
+		  stop("length of second argument (array) is not multiple of the first argument's one")
+	      e2@.Data[] <- .Call("Arith_mpfr", e1, e2, .Arith.codes[.Generic],
+				  PACKAGE="Rmpfr")
+	      e2
+	  })
+
+
+
+setMethod("Compare", signature(e1 = "mpfrArray", e2 = "mpfr"),
+	  function(e1, e2) {
+	      if(is.null(dim(e2))) {
+		  if(length(e1) %% length(e2) != 0)
+		      stop("length of first argument (array) is not multiple of the second argument's one")
+	      } else .dimCheck(e1, e2)
+
+	      structure(.Call("Compare_mpfr", e1, e2, .Compare.codes[.Generic],
+			      PACKAGE="Rmpfr"),
+			dim = dim(e1),
+			dimnames = dimnames(e1))
+	  })
+
+setMethod("Compare", signature(e1 = "mpfr", e2 = "mpfrArray"),
+	  function(e1, e2) {
+	      if(is.null(dim(e1))) {
+		  if(length(e2) %% length(e1) != 0)
+		      stop("length of second argument (array) is not multiple of the first argument's one")
+	      } else .dimCheck(e1, e2)
+
+	      structure(.Call("Compare_mpfr", e1, e2, .Compare.codes[.Generic],
+			      PACKAGE="Rmpfr"),
+			dim = dim(e2),
+			dimnames = dimnames(e2))
+	  })
+
+setMethod("Compare", signature(e1 = "mpfr", e2 = "array"),# "mpfr" incl "mpfrArray"
+	  function(e1, e2) {
+	      if(is.null(dim(e1))) {
+		  if(length(e2) %% length(e1) != 0)
+		      stop("length of second argument (array) is not multiple of the first argument's one")
+	      } else .dimCheck(e1, e2)
+
+	      structure(.Call(if(is.integer(e2)) "Compare_mpfr_i" else
+			      "Compare_mpfr_d", e1, e2, .Compare.codes[.Generic],
+			      PACKAGE="Rmpfr"),
+			dim = dim(e2),
+			dimnames = dimnames(e2))
+	  })
+
+setMethod("Compare", signature(e1 = "array", e2 = "mpfr"),# incl "mpfrArray"
+	  function(e1, e2) {
+	      if(is.null(dim(e2))) {
+		  if(length(e1) %% length(e2) != 0)
+		      stop("length of first argument (array) is not multiple of the second argument's one")
+	      } else .dimCheck(e1, e2)
+
+	      structure(.Call(if(is.integer(e1)) "Compare_mpfr_i" else
+			      "Compare_mpfr_d",
+			      e2, e1,
+			      .Compare.codes[c(1, 3:2, 4, 6:5)][.Generic],
+			      PACKAGE="Rmpfr"),
+			dim = dim(e1),
+			dimnames = dimnames(e1))
+	  })
+
+setMethod("Compare", signature(e1 = "mpfrArray", e2 = "numeric"),# incl integer
+	  function(e1, e2) {
+	      if(length(e1) %% length(e2) != 0)
+		  stop("length of first argument (array) is not multiple of the second argument's one")
+	      structure(.Call(if(is.integer(e1)) "Compare_mpfr_i" else
+			      "Compare_mpfr_d",
+			      e1, e2, .Compare.codes[.Generic],
+			      PACKAGE="Rmpfr"),
+			dim = dim(e1),
+			dimnames = dimnames(e1))
+	  })
+
+
+setMethod("Compare", signature(e1 = "numeric", e2 = "mpfrArray"),
+	  function(e1, e2) {
+
+	      if(length(e2) %% length(e1) != 0)
+		  stop("length of second argument (array) is not multiple of the first argument's one")
+	      structure(.Call(if(is.integer(e1)) "Compare_mpfr_i" else
+			      "Compare_mpfr_d",
+			      e2, e1,
+			      .Compare.codes[c(1, 3:2, 4, 6:5)][.Generic],
+			      PACKAGE="Rmpfr"),
+			dim = dim(e2),
+			dimnames = dimnames(e2))
+	  })
+
+
 
 
 ## ".Brob.arith" <- function(e1,e2){
 ##   switch(.Generic,
-##          "+" = .Brob.add  (e1, e2),
-##          "-" = .Brob.add  (e1, .Brob.negative(as.brob(e2))),
-##          "*" = .Brob.mult (e1, e2),
-##          "/" = .Brob.mult (e1, .Brob.inverse(as.brob(e2))),
-##          "^" = .Brob.power(e1, e2),
-##          stop(paste("binary operator \"", .Generic, "\" not defined for Brobdingnagian numbers"))
-##          ) }
+##	    "+" = .Brob.add  (e1, e2),
+##	    "-" = .Brob.add  (e1, .Brob.negative(as.brob(e2))),
+##	    "*" = .Brob.mult (e1, e2),
+##	    "/" = .Brob.mult (e1, .Brob.inverse(as.brob(e2))),
+##	    "^" = .Brob.power(e1, e2),
+##	    stop(paste("binary operator \"", .Generic, "\" not defined for Brobdingnagian numbers"))
+##	    ) }
 
 ## setMethod("Arith", signature(e1 = "brob", e2="ANY"), .Brob.arith)
 ## setMethod("Arith", signature(e1 = "ANY", e2="brob"), .Brob.arith)

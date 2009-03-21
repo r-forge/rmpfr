@@ -82,12 +82,24 @@ setMethod("log", signature(x = "mpfr"),
 	  function(x, base) {
 	      if(!missing(base) && base != exp(1))
 		  stop("base != exp(1) is not yet implemented")
-	      new("mpfr", .Call("Math_mpfr", x, .Math.codes["log"],
-				PACKAGE="Rmpfr"))
+	      x@.Data[] <- .Call("Math_mpfr", x, .Math.codes["log"],
+				 PACKAGE="Rmpfr")
+	      x
 	  })
 
 setMethod("Math", signature(x = "mpfr"),
 	  function(x) {
-	      new("mpfr", .Call("Math_mpfr", x, .Math.codes[.Generic],
-				PACKAGE="Rmpfr"))
+	      x@.Data[] <- .Call("Math_mpfr", x, .Math.codes[.Generic],
+			   PACKAGE="Rmpfr")
+	      x
 	  })
+
+##---- mpfrArray / mpfrMatrix --- methods -----------------
+
+## not many needed: "mpfrArray" contain "mpfr",
+## i.e., if the above methods are written "general enough", they apply directly
+
+setMethod("sign", "mpfrArray",
+	  function(x) structure(sapply(x, function(e) e@sign),
+				dim = dim(x),
+				dimnames = dimnames(x)))

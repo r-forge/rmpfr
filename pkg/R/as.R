@@ -36,6 +36,10 @@ setAs("mpfr1", "numeric",  ## just for user-de-confusion :
 	  as(new("mpfr", list(from)), "numeric") })
 
 setAs("mpfr1", "mpfr", function(from) new("mpfr", list(from)))
+setAs("mpfr", "mpfr1", function(from) {
+    if(length(from) == 1) from[[1]] else
+    stop("only \"mpfr\" objects of length 1 can be coerced to \"mpfr1\"")
+})
 
 
 .mpfr2str <- function(x, digits = NULL) {
@@ -45,40 +49,76 @@ setAs("mpfr1", "mpfr", function(from) new("mpfr", list(from)))
     .Call("mpfr2str", x, digits, PACKAGE="Rmpfr")
 }
 
-setMethod("format", "mpfr",
-	  function(x, digits = NULL) {
-	      stopifnot(is.null(digits) ||
-			(is.numeric(digits) && digits >= 0))
-	      ##  digits = NULL : use as many digits "as needed"
+.format.mpfr <- function(x, digits = NULL,
+			 scientific = FALSE, decimal.mark = ".", ...)
+{
+    stopifnot(is.null(digits) ||
+	      (is.numeric(digits) && digits >= 0))
+    ##	digits = NULL : use as many digits "as needed"
 
-	      s.e <- .mpfr2str(x, digits)
-	      ## The following could happen more efficiently
-	      ## (but more error-prone) in C :
-              ## TODO: still have 3 calls, 3 times R -> C:
-              ## ----  .mpfr2str(), is.finite(),  mpfr.is.0()
-              ## --> Return these results in *one* list !
+    ff <- .mpfr2str(x, digits)
+    hasMinus <- sign(x) == -1
+    isNum <- ff$finite	## ff$finite == is.finite(x)
+    i0 <- ff$is.0	## == mpfr.is.0(x)
+    ex <- ff$exp ## the *decimal* exp : one too large *unless* x == 0
+    r  <- ff$str
+    if(is.null(digits)) digits <- nchar(r)
 
-	      ## (maybe) add decimal point
-	      hasMinus <- sign(x) == -1
-	      i. <- 1+hasMinus
-              i0 <- mpfr.is.0(x)
-	      if(!all(isNum <- is.finite(x))) {
-		  r <- s.e$str
-		  i. <- i.[isNum]
-		  r[isNum] <- paste(substr(r[isNum], 1,i.),
-				    substring(r[isNum], i.+1), sep = ".")
-	      }
-	      else
-		  r <- paste(substr(s.e$str, 1,i.),
-			     substring(s.e$str, i.+1), sep = ".")
-	      ex <- s.e$exp # these are too large by one *unless* x == 0
-	      if(any(i0))
-		  ex[!i0] <- ex[!i0] - 1L
-	      else ex <- ex - 1L
-	      if(any(hasE <- isNum & ex != 0))
-		  r[hasE] <- paste(r[hasE], as.character(ex[hasE]),
-				   sep = "e")
-	      r
-	  })
+    if(any(i0)) {
+	Ex <- ex
+	Ex[!i0] <- ex[!i0] - 1L
+    } else Ex <- ex - 1L
+
+    if(!all(isNum))
+        r[!isNum] <- gsub("@", '', r[!isNum], fixed=TRUE)
+
+    ## (maybe) add decimal point
+    patch <- function(str, k)
+	paste(substr   (str, 1, k),
+	      substring(str, k+1), sep = decimal.mark)
+
+    ## This very much depends on the desired format.
+    ## if(scientific) --> all get a final "e<exp>"; otherwise, we
+    ## adopt the following simple scheme :
+    hasE <- if(scientific) TRUE else isNum & (Ex < -4 | Ex >= digits)
+
+    if(any(hasE)) {
+	i. <- 1+hasMinus
+	ii <- isNum & hasE
+	r[ii] <- patch(r[ii], i.[ii])
+	## FIXME : if this is correct, make it simpler :
+	## r[hasE] <- paste(r[hasE], as.character(Ex[hasE]), sep = "e")
+	r[ii] <- paste(r[ii], as.character(Ex[ii]), sep = "e")
+    }
+    if(!all(hasE)) { ## "non-scientific" i.e. with out final  e<nn> :
+	ii <- isNum & !hasE
+	iNeg <- ex <= 0	 & ii ## i.e., ex	 in {0,-1,-2,-3}
+	iPos <- ex > 0	 & ii ## i.e., ex	 in {1,2..., digits}
+
+	nZeros <- function(n)
+	    sapply(n, function(k) paste(rep.int("0", k), collapse = ""))
+	if(any(iNeg)) { ## "0.00..." : be careful with minus sign
+	    if(any(isMin <- hasMinus[iNeg])) {
+		rr <- r[iNeg]
+		rr[isMin] <- substring(rr[isMin], 2)
+		r[iNeg] <- paste(c("","-")[1+isMin], "0.",
+				 nZeros(-ex[iNeg]), rr, sep="")
+	    }
+	    else {
+		r[iNeg] <- paste("0.", nZeros(-ex[iNeg]), r[iNeg], sep="")
+	    }
+	}
+	if(any(iPos)) ## "xy.nnnn" :
+	    r[iPos] <- patch(r[iPos], (hasMinus + ex)[iPos])
+    }
+    r
+}
+setMethod("format", "mpfr", .format.mpfr)
+
 
 setAs("mpfr", "character", function(from) format(from, digits=NULL))
+
+setAs("character", "mpfr", function(from) {
+    ## read 'numeric strings' into mpfr numbers
+    new("mpfr", .Call("str2mpfr1_list", x, digits, PACKAGE="Rmpfr"))
+})

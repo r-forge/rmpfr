@@ -16,7 +16,7 @@ stopifnot(identical(is.na(spec), is.na(d.spec)),
           identical(is.finite(spec), is.finite(d.spec)),
           identical(is.infinite(spec), is.infinite(d.spec)),
           identical(format(spec),
-                    c("0.0", "@NaN@", "@NaN@", "@Inf@", "-@Inf@")))
+                    c("0.00", "NaN", "NaN", "Inf", "-Inf")))
 
 x <- c(-12, 1:3 * pi)
 sss <- mpfr(x, 100)

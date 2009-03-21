@@ -30,3 +30,40 @@ setClass("mpfr", ## a *vector* of "mpfr1", i.e., multi-precision float numbers
 	     ## else
 		 "Not all components are of class 'mpfr1'"
 	 })
+
+setClass("mpfrArray", ## mpfr + "dim" + dimnames
+	 contains = "mpfr",
+	 representation = list(Dim = "integer", DimNames = "list"),
+	 prototype = prototype(new("mpfr"), Dim= 0L,
+			       DimNames = list(NULL)),
+	 validity = function(object) {
+	     if(length(object) != prod(D <- object@Dim))
+		 "Dimension does not match length()"
+	     else if(length(DN <- object@DimNames) != length(D))
+		 "DimNames must have same length as 'Dim'"
+	     else if(any(hasN <- !sapply(DN, is.null)) &&
+		     any((lDN <- sapply(DN[hasN], length)) != D[hasN]))
+		 "length of some 'DimNames' do not match 'Dim'"
+	     else
+		 TRUE
+	 })
+
+setClass("mpfrMatrix",
+	 contains = "mpfrArray",
+	 prototype = prototype(new("mpfrArray"),
+			       Dim= c(0L,0L),
+			       DimNames = list(NULL, NULL)),
+	 validity = function(object) {
+	     if(length(object@Dim) != 2L)
+		 "'Dim' is not of length 2"
+	     else TRUE
+	 })
+
+## This is tricky ...
+## With the following class,  arrays/matrices  are covered as they are with
+## "vector" already. *However*, they are
+## *not* made into vectors in method dispatch,
+## which they would be if we used simply "vector"
+setClassUnion("array_or_vector",
+              members = c("array", "matrix", "vector"))
+

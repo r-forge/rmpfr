@@ -4,7 +4,12 @@
 \alias{mpfr.is.0}
 \alias{atan2,mpfr,ANY-method}
 \alias{atan2,ANY,mpfr-method}
+\alias{atan2,ANY,mpfrArray-method}
+\alias{atan2,mpfrArray,ANY-method}
+\alias{atan2,mpfrArray,mpfrArray-method}
+\alias{atan2,mpfr,mpfr-method}
 \alias{hypot}
+%
 \description{
   \code{\link{c}(x,y,...)} can be used to combine MPFR numbers in the
   same way as regular numbers \bold{IFF} the first argument \code{x} is
