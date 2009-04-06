@@ -1,3 +1,7 @@
+2009-03-31  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* src/Makevars.win: add this after suggestions from Uwe
+
 2009-02-06  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* R/Arith.R (Compare): add missing ', .Generic' to some methods.

@@ -14,7 +14,7 @@
 #include <Rversion.h>
 /* for NEW_OBJECT(), GET_SLOT + Rinternals.h : */
 #include <Rdefines.h>
-/* for R_Outputfile :*/
+/* for R_Outputfile __ UNIX-only !  __ :*/
 #include <Rinterface.h>
 
 /* must come *after* the above, e.g., for
