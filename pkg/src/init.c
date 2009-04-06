@@ -16,8 +16,11 @@ static R_CallMethodDef CallEntries[] = {
     CALLDEF(d2mpfr, 2),
     CALLDEF(d2mpfr1, 2),
     CALLDEF(d2mpfr1_list, 2),
+#ifndef WIN32
+    /* only works on "unix-alikes" */
     CALLDEF(print_mpfr, 2),
     CALLDEF(print_mpfr1, 2),
+#endif
     CALLDEF(mpfr2d, 1),
     CALLDEF(mpfr2str, 2),
     CALLDEF(str2mpfr1_list, 2),
@@ -66,8 +69,10 @@ R_init_Rmpfr(DllInfo *dll)
     RREGDEF(d2mpfr);
     RREGDEF(d2mpfr1);
     RREGDEF(d2mpfr1_list);
+#ifndef WIN32
     RREGDEF(print_mpfr);
     RREGDEF(print_mpfr1);
+#endif
     RREGDEF(mpfr2d);
     RREGDEF(mpfr2str);
     RREGDEF(str2mpfr1_list);
