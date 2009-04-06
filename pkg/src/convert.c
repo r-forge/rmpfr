@@ -227,6 +227,12 @@ void R_asMPFR(SEXP x, mpfr_ptr r)
     return;
 }
 
+#ifndef WIN32
+/* This only works on  "unix-alikes" ... but we don't really need it */
+/* for R_Outputfile : */
+#include <Rinterface.h>
+
+
 SEXP print_mpfr1(SEXP x, SEXP digits)
 {
     mpfr_t r;
@@ -254,12 +260,20 @@ SEXP print_mpfr(SEXP x, SEXP digits)
     int n = length(D), i;
     mpfr_t r;
     Rboolean use_x_digits = INTEGER(digits)[0] == NA_INTEGER;
+/* #if MPFR_VERSION >= MPFR_VERSION_NUM(2,4,0) */
+/*     char buf[R_BUFSIZE], *p = buf; */
+/* #endif */
 
     mpfr_init(r); /* with default precision */
     for(i=0; i < n; i++) {
 	R_asMPFR(VECTOR_ELT(D, i), r);
+/* #if MPFR_VERSION >= MPFR_VERSION_NUM(2,4,0) */
+
+/* 	Rprintf */
+/* #else  /\* requires R_Outputfile  from  R's Interfaces.h  ___Unix-alike only__ *\/ */
 	mpfr_out_str (R_Outputfile, 10, use_x_digits ? 0 : asInteger(digits),
 		      r, GMP_RNDD);
+/* #endif */
 	Rprintf("\n");
     }
 
@@ -267,6 +281,9 @@ SEXP print_mpfr(SEXP x, SEXP digits)
     mpfr_free_cache(); /* <- Manual 4.8 "Memory Handling" strongly advises ...*/
     return x;
 }
+
+#endif
+/* ^^^ Unix-alike only */
 
 /* Convert R "mpfr" object (list of "mpfr1")  to R "double" vector : */
 SEXP mpfr2d(SEXP x) {

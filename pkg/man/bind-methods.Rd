@@ -1,5 +1,5 @@
 \name{cbind-methods}
-\title{"mpfr" Methods for Functions cbind() \& rbind()}}
+\title{"mpfr" Methods for Functions cbind(), rbind()}
 \docType{methods}
 \alias{cbind-methods}
 \alias{rbind-methods}

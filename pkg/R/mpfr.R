@@ -23,6 +23,8 @@ print.mpfr1 <- function(x, digits = NULL, ...) {
 setMethod(show, "mpfr1", function(object) print.mpfr1(object))
 
 ## For testing, debugging etc
+if(.Platform$OS.type != "windows") {## No R_Outputfile (in C) on Windows
+
 .print.mpfr <- function(x, digits = NA, ...) {
     stopifnot(is(x, "mpfr"), is.na(digits) || digits >= 2)
     ## digits = NA --> the inherent precision of x will be used
@@ -30,6 +32,7 @@ setMethod(show, "mpfr1", function(object) print.mpfr1(object))
 	.Call("print_mpfr", x, as.integer(digits), PACKAGE="Rmpfr")
     invisible(x)
 }
+}# non-Windows only
 
 ## Get or Set the C-global  'R_mpfr_debug_' variable:
 .mpfr.debug <- function(i = NA)
