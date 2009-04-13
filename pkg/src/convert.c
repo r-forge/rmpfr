@@ -133,36 +133,60 @@ SEXP d2mpfr1(SEXP x, SEXP prec) {
 
 SEXP d2mpfr1_list(SEXP x, SEXP prec)
 {
-    int i_prec = asInteger(prec), n = LENGTH(x), i;
+    int *iprec, n = LENGTH(x), np = LENGTH(prec), i;
     SEXP val = PROTECT(allocVector(VECSXP, n));
     double *dx;
 
-    if(!isReal(x))
-	x = coerceVector(x, REALSXP);
+    if(!isReal(x)) x = coerceVector(x, REALSXP);
+    if(!isInteger(prec)) prec = coerceVector(prec, INTSXP);
     dx = REAL(x);
+    iprec = INTEGER(prec);
     for(i = 0; i < n; i++) {
 	/* FIXME: become more efficient by doing R_..._2R_init() only once*/
-	SET_VECTOR_ELT(val, i, d2mpfr1_(dx[i], i_prec));
+	SET_VECTOR_ELT(val, i, d2mpfr1_(dx[i], iprec[i % np]));
     }
 
     UNPROTECT(1);
     return val;
 }
 
-SEXP str2mpfr1_list(SEXP x, SEXP prec)
+/* From the MPFR (2.3.2, 2008) doc :
+ -- Function:
+
+ int mpfr_set_str (mpfr_t ROP, const char *S, int BASE, mp_rnd_t RND)
+
+     Set ROP to the value of the whole string S in base BASE, rounded
+     in the direction RND.  See the documentation of `mpfr_strtofr' for
+     a detailed description of the valid string formats.  This function
+     returns 0 if the entire string up to the final null character is a
+     valid number in base BASE; otherwise it returns -1, and ROP may
+     have changed.
+*/
+
+SEXP str2mpfr1_list(SEXP x, SEXP prec, SEXP base)
 {
-    int i_prec = asInteger(prec), n = LENGTH(x), i;
+    int ibase = asInteger(base), *iprec,
+	n = LENGTH(x), np = LENGTH(prec), i;
     SEXP val = PROTECT(allocVector(VECSXP, n));
-    double *dx;
+    mpfr_t r_i;
+    mpfr_init(r_i);
 
-    if(!isReal(x))
-	x = coerceVector(x, REALSXP);
-    dx = REAL(x);
+    if(!isString(x))	    x = coerceVector(x, STRSXP);
+    if(!isInteger(prec)) prec = coerceVector(prec, INTSXP);
+    iprec = INTEGER(prec);
+
     for(i = 0; i < n; i++) {
+	int ierr;
+	mpfr_set_prec(r_i, (mpfr_prec_t) iprec[i % np]);
+	ierr = mpfr_set_str(r_i, CHAR(STRING_ELT(x, i)), ibase, GMP_RNDD);
+	if(ierr)
+	    error("str2mpfr1_list(x, *): x[%d] cannot be made into MPFR",
+		  i+1);
 	/* FIXME: become more efficient by doing R_..._2R_init() only once*/
-	SET_VECTOR_ELT(val, i, d2mpfr1_(dx[i], i_prec));
+	SET_VECTOR_ELT(val, i, MPFR_as_R(r_i));
     }
-
+    mpfr_clear (r_i);
+    mpfr_free_cache();
     UNPROTECT(1);
     return val;
 }

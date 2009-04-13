@@ -77,7 +77,9 @@ setMethod("aperm", signature(a="mpfrArray"),
 
 
 setMethod("as.vector", "mpfrArray", function(x) as(x, "mpfr"))
-## a "vector" in  *one* sense at least ...
+## a "vector" in  *one* sense at least, but *not* this one,
+## and we should *not* define this ("mpfr" does not extend "vector"!):
+## setAs("mpfrArray", "vector", function(from) as(from, "mpfr")
 
 toNum <- function(from) {
     structure(.Call("mpfr2d", from, PACKAGE="Rmpfr"),
@@ -248,7 +250,7 @@ setMethod(show, "mpfrArray", function(object) print.mpfrArray(object))
 setMethod("%*%", signature(x = "mpfrMatrix", y = "mpfrMatrix"),
           function(x,y) .matmult.R(x,y, op= 0))
 ## "FIXME"?  'ANY' is a bit much; may give uncomprehensible error messages
-##       advantage: things will work with "Matrix" class matrices,
+##       advantage: things wwould work with "Matrix" class matrices,
 setMethod("%*%", signature(x = "mpfrMatrix", y = "array_or_vector"),
           function(x,y) .matmult.R(x,y, op= 0))
 setMethod("%*%", signature(x = "array_or_vector", y = "mpfrMatrix"),
@@ -373,10 +375,25 @@ setGeneric("rbind", signature = "...")
 setMethod("cbind", "Mnumber",
 	  function(..., deparse.level = 1) {
 	      args <- list(...)
-	      if(all(sapply(args, is.numeric)))
+	      if(all(sapply(args, is.atomic)))
 		  return( base::cbind(..., deparse.level = deparse.level) )
 	      ## else: at least one is "mpfr(Matrix/Array)"
 
+	      if(any(sapply(args, is.character))) {
+		  ## result will be  <character> matrix !
+		  isM <- sapply(args, is, class2 = "mpfr")
+		  args[isM] <- lapply(args[isM], as, Class = "character")
+		  return(do.call(base::cbind,
+				 c(args, list(deparse.level=deparse.level))))
+
+	      } else if(any(sapply(args, is.complex))) {
+		  ## result will be  <complex> matrix;
+		  ## in the future <complex_mpfr>  ???
+
+		  stop("cbind(...) of 'complex' and 'mpfr' objects is not implemented")
+		  ## give at least warning !!
+              }
+              ## else
 	      L <- function(a) if(is.numeric(n <- nrow(a))) n else length(a)
 	      W <- function(a) if(is.numeric(n <- ncol(a))) n else 1L
 	      ## the number of rows of the result :
@@ -406,15 +423,31 @@ setMethod("cbind", "Mnumber",
 setMethod("rbind", "Mnumber",
 	  function(..., deparse.level = 1) {
 	      args <- list(...)
-	      if(all(sapply(args, is.numeric)))
+	      if(all(sapply(args, is.atomic)))
 		  return( base::rbind(..., deparse.level = deparse.level) )
 	      ## else: at least one is "mpfr(Matrix/Array)"
 
-	      L <- function(a) if(is.numeric(n <- nrow(a))) n else 1L
+	      if(any(sapply(args, is.character))) {
+		  ## result will be  <character> matrix !
+		  isM <- sapply(args, is, class2 = "mpfr")
+		  args[isM] <- lapply(args[isM], as, Class = "character")
+		  return(do.call(base::rbind,
+				 c(args, list(deparse.level=deparse.level))))
+
+	      } else if(any(sapply(args, is.complex))) {
+		  ## result will be  <complex> matrix;
+		  ## in the future <complex_mpfr>  ???
+
+		  stop("rbind(...) of 'complex' and 'mpfr' objects is not implemented")
+		  ## give at least warning !!
+	      }
+              ## else
+ 	      L <- function(a) if(is.numeric(n <- nrow(a))) n else 1L
 	      W <- function(a) if(is.numeric(n <- ncol(a))) n else length(a)
 	      ## the number of rows of the result :
 	      NR <- sum(lengths <- sapply(args, L))
 	      NC <- max(widths	<- sapply(args, W))
+
 	      r <- new("mpfrMatrix")
 	      r@Dim <- as.integer(c(NR, NC))
 	      r@.Data <- vector("list", NR*NC)

@@ -23,7 +23,7 @@ static R_CallMethodDef CallEntries[] = {
 #endif
     CALLDEF(mpfr2d, 1),
     CALLDEF(mpfr2str, 2),
-    CALLDEF(str2mpfr1_list, 2),
+    CALLDEF(str2mpfr1_list, 3),
 
     CALLDEF(Math_mpfr, 2),
     CALLDEF(Arith_mpfr, 3),
@@ -39,6 +39,8 @@ static R_CallMethodDef CallEntries[] = {
     CALLDEF(Summary_mpfr, 3),
 
     CALLDEF(R_mpfr_set_debug, 1),
+    CALLDEF(R_mpfr_set_default_prec, 1),
+    CALLDEF(R_mpfr_get_default_prec, 0),
 
     CALLDEF(const_asMpfr, 2),
 
@@ -89,6 +91,9 @@ R_init_Rmpfr(DllInfo *dll)
     RREGDEF(Summary_mpfr);
 
     RREGDEF(R_mpfr_set_debug);
+    RREGDEF(R_mpfr_set_default_prec);
+    RREGDEF(R_mpfr_get_default_prec);
+
     RREGDEF(const_asMpfr);
 
     RREGDEF(R_mpfr_is_finite);

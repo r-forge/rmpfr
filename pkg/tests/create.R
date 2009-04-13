@@ -55,3 +55,5 @@ for(n in 1:40) {
 
 X. <- X.[!mpfr.is.0(X.)]
 stopifnot(all( X./X. == 1)) # TRUE
+
+mpfr("3.14159265358979323846264", 120)

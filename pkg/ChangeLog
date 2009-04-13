@@ -1,3 +1,17 @@
+2009-04-13  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* src/convert.c (d2mpfr1_list, str2mpfr1_list): allow 'prec' to be
+	a vector.
+
+	* R/as.R (mpfr): now support mpfr(<character>, prec)
+	* src/convert.c (str2mpfr1_list): implement character |-> mpfr
+
+	* src/utils.c (R_mpfr_set_default_prec, *_get_*):
+
+	* R/array.R (cbind, rbind): also work when there are "character"
+
+	* R/AllClasses.R (array_or_vector): only contain 'atomicVector'
+
 2009-03-31  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* src/Makevars.win: add this after suggestions from Uwe

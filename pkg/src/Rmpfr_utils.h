@@ -92,7 +92,7 @@ SEXP d2mpfr1_(double x, int i_prec);
 SEXP d2mpfr1_list(SEXP x, SEXP prec);
 SEXP mpfr2d(SEXP x);
 SEXP mpfr2str(SEXP x, SEXP digits);
-SEXP str2mpfr1_list(SEXP x, SEXP prec);
+SEXP str2mpfr1_list(SEXP x, SEXP prec, SEXP base);
 
 SEXP print_mpfr (SEXP x, SEXP digits);
 SEXP print_mpfr1(SEXP x, SEXP digits);
@@ -121,6 +121,9 @@ SEXP MPFR_as_R(mpfr_t r);
 
 /* ./utils.c */
 SEXP R_mpfr_set_debug(SEXP I);
+SEXP R_mpfr_set_default_prec(SEXP prec);
+SEXP R_mpfr_get_default_prec(void);
+
 
 SEXP const_asMpfr(SEXP I, SEXP prec);
 

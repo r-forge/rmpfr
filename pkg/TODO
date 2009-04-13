@@ -30,4 +30,13 @@
   environment(which) <- as.environment("package:Rmpfr")
 
 
-4)
+4) format() should get more (optional) arguments; e.g. an option to
+    [ round() after decimal ], and one to drop trailing zeros,
+   see format.default
+
+5) Current  cbind(<Mnumber>)  breaks  cbind() working for character
+
+   <==  Current class "Mnumber" also extends "character", "list", ...
+        this is *WRONG*
+
+6) Add tests for hypot() & atan2() to tests/special-fun-ex.R

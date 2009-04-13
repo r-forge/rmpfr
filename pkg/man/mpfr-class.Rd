@@ -59,6 +59,7 @@
 \alias{is.nan,mpfr-method}
 \alias{unique,mpfr,missing-method}
 %
+\alias{all.equal,mpfr,mpfr-method}
 \alias{all.equal,mpfr,ANY-method}
 \alias{all.equal,ANY,mpfr-method}
 \alias{mean,mpfr-method}
@@ -156,13 +157,16 @@
     \item{show}{\code{signature(object = "mpfr")}: ... }
     \item{sign}{\code{signature(x = "mpfr")}: ... }
 
+    \item{all.equal}{\code{signature(target = "mpfr", current = "mpfr")},}
     \item{all.equal}{\code{signature(target = "mpfr", current = "ANY")}, and}
     \item{all.equal}{\code{signature(target = "ANY", current = "mpfr")}:
-    methods for numerical (approximate) equality,
-    \code{\link[base]{all.equal}} of multiple precision numbers.  Note
-    that it may make sense for these to use \code{tolerance} (argument)
-    values of considerably less than double precision machine precision.}
-
+      methods for numerical (approximate) equality,
+      \code{\link[base]{all.equal}} of multiple precision numbers.  Note
+      that the default \code{tolerance} (argument) is taken to correspond
+      to the (smaller of the two) precisions when both main arguments are
+      of class \code{\linkS4class{"mpfr"}}, and hence can be considerably
+      less than double precision machine epsilon
+      \code{\link{.Machine}$double.eps}.}
     \item{coerce}{\code{signature(from = "numeric", to = "mpfr")}: ... }
     \item{coerce}{\code{signature(from = "mpfr", to = "numeric")}: ... }
     \item{coerce}{\code{signature(from = "mpfr", to = "character")}: ... }

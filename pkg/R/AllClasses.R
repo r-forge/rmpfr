@@ -59,15 +59,37 @@ setClass("mpfrMatrix",
 	     else TRUE
 	 })
 
+## "atomic vectors" (-> ?is.atomic ) -- as in "Matrix"..
+## ---------------
+setClassUnion("atomicVector", ## "double" is not needed, and not liked by some
+	      members = c("logical", "integer", "numeric",
+			  "complex", "raw", "character"))
+
 ## This is tricky ...
 ## With the following class,  arrays/matrices  are covered as they are with
 ## "vector" already. *However*, they are
 ## *not* made into vectors in method dispatch,
 ## which they would be if we used simply "vector"
 setClassUnion("array_or_vector",
-	      members = c("array", "matrix", "vector"))
+	      members = c("array", "matrix", "atomicVector"))
+## However, the above could be too large: "vector" contains much!
 
 ## For this class, we want to define  '...' methods for cbind & rbind :
+## FIXME(?): "array_or_vector" also contains "character"
+##         (and even if it wouldn't, a "matrix" could have "character" entries!)
 setClassUnion("Mnumber",
-	      members = c("array_or_vector",
+	      members = c("array_or_vector", # *but* must be numeric-like
 	      "mpfr", "mpfrArray", "mpfrMatrix"))
+if(FALSE) { ## if we did this, then ... {see below}
+    setValidity("Mnumber",
+		function(object) {
+		    if(is.numeric(object) ||
+		       is.logical(object) ||
+		       is(object, "mpfr")) return(TRUE)
+		    ## else
+		    "Not a valid 'Mnumber' class object"
+		})
+
+    ## ...., then, the following would fail (!)
+    validObject( new("character", LETTERS) )
+}

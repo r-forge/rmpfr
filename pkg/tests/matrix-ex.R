@@ -98,10 +98,10 @@ stopifnot(is(m0,"matrix"), is(m1, "mpfrMatrix"), is(m2, "mpfrMatrix"),
           dim(m0) == c(6,2), dim(m1) == c(6,3), dim(m2) == c(6,3))
 if(FALSE) ## FIXME: gives error, but should only warn
 validObject(m3 <- cbind(I=10, 1:3, inv=1/mpfr(2:3,80)))
-
 validObject(n2 <- rbind(pi=pi, i = 1:2, 1/mpfr(1:6,70)))
-stopifnot(identical(t(n2), m2))
-
+stopifnot(identical(t(n2), m2),
+	  identical(cbind("A", "c"), matrix(c("A", "c"), 1,2)),
+	  identical(rbind("A", 2),   matrix(c("A", "2"), 2,1)) )
 
 cat('Time elapsed: ', proc.time(),'\n') # "stats"
 

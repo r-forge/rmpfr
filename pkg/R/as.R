@@ -2,19 +2,23 @@
 
 
 ## was  toMpfr <-
-mpfr <- function(x, precBits) {
-
-    if(missing(precBits)) stop("must specify 'precBits'")
-    stopifnot(length(precBits) == 1, precBits >= 2)
+mpfr <- function(x, precBits, base = 10)
+{
+    if(is.character(x))
+	stopifnot(length(base) == 1, 2 <= base, base <= 36)
+    if(missing(precBits)) {
+	if(is.character(x)) ## number of digits --> number of bits
+	    precBits <- ceiling(log2(base) * nchar(gsub("[-.]", '', x)))
+	else stop("must specify 'precBits' for numeric 'x'")
+    }
     ## libmpfr would exit (after good error message) for precBits == 1
-    if(is.numeric(x))
-        new("mpfr", .Call("d2mpfr1_list", x, precBits, PACKAGE="Rmpfr"))
-    else if(is.character(x))
-        stop("not yet implemented for character input")
-
-    ## TODO: Make this work also with "character" x + optional argument 'base'
-
-
+    stopifnot(precBits >= 2)
+    if(is.numeric(x)) {
+	new("mpfr", .Call("d2mpfr1_list", x, precBits, PACKAGE="Rmpfr"))
+    } else if(is.character(x)) {
+	new("mpfr", .Call("str2mpfr1_list", x, precBits, base, PACKAGE="Rmpfr"))
+	## TODO: support another optional argument 'base'
+    }
     else stop("invalid 'x'. Must be numeric or character")
 }
 
@@ -120,5 +124,6 @@ setAs("mpfr", "character", function(from) format(from, digits=NULL))
 
 setAs("character", "mpfr", function(from) {
     ## read 'numeric strings' into mpfr numbers
-    new("mpfr", .Call("str2mpfr1_list", x, digits, PACKAGE="Rmpfr"))
+    new("mpfr", .Call("str2mpfr1_list", from, precBits = 128L, base = 10L,
+                      PACKAGE="Rmpfr"))
 })

@@ -14,6 +14,15 @@ setMethod("is.nan", "mpfr",
 mpfr.is.0 <- function(x) .Call("R_mpfr_is_zero", x, PACKAGE="Rmpfr")
     ## sapply(x, function(.) .@exp == - .Machine$integer.max)
 
+mpfr_default_prec <- function(prec) {
+    if(missing(prec) || is.null(prec))
+	.Call("R_mpfr_get_default_prec", PACKAGE="Rmpfr")
+    else {
+	stopifnot((prec <- as.integer(prec[1])) > 0)
+	.Call("R_mpfr_set_default_prec", prec, PACKAGE="Rmpfr")
+    }
+}
+
 print.mpfr1 <- function(x, digits = NULL, ...) {
     stopifnot(is(x, "mpfr1"), is.null(digits) || digits >= 2)
     cat("'mpfr1' ", format(as(x, "mpfr"), digits=digits),"\n", sep="")
@@ -97,7 +106,7 @@ setReplaceMethod("[", signature(x = "mpfr", i = "ANY", j = "missing",
 
 
 ## I don't see how I could use setMethod("c", ...)
-## but works "magically"  when the first argument is an mpfr :
+## but this works "magically"  when the first argument is an mpfr :
 c.mpfr <- function(...) new("mpfr", unlist(lapply(list(...), as, Class = "mpfr")))
 
 
@@ -227,9 +236,18 @@ setMethod("seq", c(from="ANY", to="ANY", by = "mpfr"), seqMpfr)
 
 ## TODO ?? <<<<<<<<<<<
 ## ====
-## 1) different default tolerance (when both are mpfr)
 ## 2) instead of  as(., "mpfr")  use  mpfr(., precBits = <smart>)
-##
+
+## For two "mpfr"s, use a  "smart" default tolerance :
+setMethod("all.equal", signature(target = "mpfr", current = "mpfr"),
+	  function (target, current,
+		    tolerance = 2^-(1/2* min(target@prec, current@prec)/2), ...)
+      {
+	  ## to use "our" mean() :
+	  environment(all.equal.numeric) <- environment()
+	  all.equal.numeric(target, current, tolerance=tolerance, ...)
+      })
+
 setMethod("all.equal", signature(target = "mpfr", current = "ANY"),
 	  function (target, current,
 		    tolerance = .Machine$double.eps^0.5, ...) {

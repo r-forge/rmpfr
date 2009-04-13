@@ -19,6 +19,16 @@ SEXP R_mpfr_set_debug(SEXP I) {
     return I;
 }
 
+SEXP R_mpfr_get_default_prec(void) {
+    return ScalarInteger((int) mpfr_get_default_prec());
+}
+
+SEXP R_mpfr_set_default_prec(SEXP prec) {
+    SEXP ans = ScalarInteger((int) mpfr_get_default_prec());
+    mpfr_set_default_prec((mp_prec_t) asInteger(prec));
+    return ans;
+}
+
 
 #define INIT_1_SETUP(_X_, _R_)			\
     mpfr_t _R_;					\
