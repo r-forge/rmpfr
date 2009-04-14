@@ -164,9 +164,8 @@
       \code{\link[base]{all.equal}} of multiple precision numbers.  Note
       that the default \code{tolerance} (argument) is taken to correspond
       to the (smaller of the two) precisions when both main arguments are
-      of class \code{\linkS4class{"mpfr"}}, and hence can be considerably
-      less than double precision machine epsilon
-      \code{\link{.Machine}$double.eps}.}
+      of class \code{"mpfr"}, and hence can be considerably less than
+      double precision machine epsilon \code{\link{.Machine}$double.eps}.}
     \item{coerce}{\code{signature(from = "numeric", to = "mpfr")}: ... }
     \item{coerce}{\code{signature(from = "mpfr", to = "numeric")}: ... }
     \item{coerce}{\code{signature(from = "mpfr", to = "character")}: ... }
@@ -176,16 +175,15 @@
 
   }
 }
-% \references{ ~put references to the literature/web site here ~ }
 \author{Martin Maechler}
 % \note{ ~~further notes~~ }
 
 %  ~Make other sections like Warning with \section{Warning }{....} ~
 
-% \seealso{
-% 	~~objects to See Also as \code{\link{~~fun~~}}, ~~~
-% 	or \code{\linkS4class{CLASSNAME}} for links to other classes
-% }
+\seealso{
+  The \code{"\linkS4class{mpfrMatrix}"} class, which extends the
+  \code{"mpfr"} one.
+}
 \examples{
 ## 30 digit precision
 str(x <- mpfr(c(2:3, pi), prec = 30 * log2(10)))
