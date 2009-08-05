@@ -414,6 +414,13 @@ setMethod("cbind", "Mnumber",
 		  } else { ## not "mpfr"
 		      a <- mpfr(a, prec)
 		  }
+		  if(lengths[ia] != NR) { # recycle w/ warning (as traditional R)
+		      if(!is.null(dim(a)))
+			  stop("number of rows of matrices must match")
+		      ## else
+		      warning("number of rows of result is not a multiple of vector length")
+		      a <- a[rep(seq_len(lengths[ia]), length.out = NR)]
+		  }
 		  r[, j+ 1:w] <- a
 		  j <- j + w
 	      }
@@ -462,6 +469,13 @@ setMethod("rbind", "Mnumber",
 		      prec <- max(prec, sapply(a@.Data, slot, "prec"))
 		  } else { ## not "mpfr"
 		      a <- mpfr(a, prec)
+		  }
+		  if(widths[ia] != NC) { # recycle w/ warning (as traditional R)
+		      if(!is.null(dim(a)))
+			  stop("number of columnws of matrices must match")
+		      ## else
+		      warning("number of columns of result is not a multiple of vector length")
+		      a <- a[rep(seq_len(widths[ia]), length.out = NC)]
 		  }
 		  r[i+ 1:le, ] <- a
 		  i <- i + le

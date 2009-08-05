@@ -1,5 +1,9 @@
 2009-08-05  Martin Maechler  <maechler@stat.math.ethz.ch>
 
+	* R/array.R (cbind, rbind): correct behavior when length/dims do
+	not quite match.
+	* tests/matrix-ex.R: test these.
+
 	* src/convert.c (d2mpfr, etc): PROTECT(.) all coerceVector()s.
 
 2009-04-30  Martin Maechler  <maechler@stat.math.ethz.ch>

@@ -92,14 +92,16 @@ stopifnot(allEQ(noDN(.N(A)), a),
 
 ## cbind() / rbind():
 validObject(m0 <- cbind(pi=pi, i = 1:6))
-validObject(m1 <- cbind(a=Const("pi",60),i = 1:6, "1/mp" = 1/mpfr(1:3,70)))
+validObject(m1 <- cbind(a=Const("pi",60),i = 1:6, "1/mp" = 1/mpfr(1:3,70))) # + warning
 validObject(m2 <- cbind(pi=pi, i = 1:2, 1/mpfr(1:6,70)))
+validObject(n2 <- rbind(pi=pi, i = 1:2, 1/mpfr(1:6,70)))
 stopifnot(is(m0,"matrix"), is(m1, "mpfrMatrix"), is(m2, "mpfrMatrix"),
           dim(m0) == c(6,2), dim(m1) == c(6,3), dim(m2) == c(6,3))
-if(FALSE) ## FIXME: gives error, but should only warn
-validObject(m3 <- cbind(I=10, 1:3, inv=1/mpfr(2:3,80)))
-validObject(n2 <- rbind(pi=pi, i = 1:2, 1/mpfr(1:6,70)))
+suppressWarnings(eval(ex <- quote(m3 <- cbind(I=10, 1:3, inv=1/mpfr(2:3,80)))))
+validObject(suppressWarnings(     n3 <- rbind(I=10, 1:3, inv=1/mpfr(2:3,80))))
 stopifnot(identical(t(n2), m2),
+          identical(t(n3), m3), validObject(m3),
+          is(tryCatch(eval(ex), warning=function(.).), "warning"),
 	  identical(cbind("A", "c"), matrix(c("A", "c"), 1,2)),
 	  identical(rbind("A", 2),   matrix(c("A", "2"), 2,1)) )
 
