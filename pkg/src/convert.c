@@ -133,12 +133,12 @@ SEXP d2mpfr1(SEXP x, SEXP prec) {
 
 SEXP d2mpfr1_list(SEXP x, SEXP prec)
 {
-    int *iprec, n = LENGTH(x), np = LENGTH(prec), i;
+    int *iprec, n = LENGTH(x), np = LENGTH(prec), i, nprot = 1;
     SEXP val = PROTECT(allocVector(VECSXP, n));
     double *dx;
 
-    if(!isReal(x)) x = coerceVector(x, REALSXP);
-    if(!isInteger(prec)) prec = coerceVector(prec, INTSXP);
+    if(!isReal(x))       { PROTECT(x    = coerceVector(x,   REALSXP)); nprot++; }
+    if(!isInteger(prec)) { PROTECT(prec = coerceVector(prec, INTSXP)); nprot++; }
     dx = REAL(x);
     iprec = INTEGER(prec);
     for(i = 0; i < n; i++) {
@@ -146,7 +146,7 @@ SEXP d2mpfr1_list(SEXP x, SEXP prec)
 	SET_VECTOR_ELT(val, i, d2mpfr1_(dx[i], iprec[i % np]));
     }
 
-    UNPROTECT(1);
+    UNPROTECT(nprot);
     return val;
 }
 
@@ -166,13 +166,14 @@ SEXP d2mpfr1_list(SEXP x, SEXP prec)
 SEXP str2mpfr1_list(SEXP x, SEXP prec, SEXP base)
 {
     int ibase = asInteger(base), *iprec,
-	n = LENGTH(x), np = LENGTH(prec), i;
+	n = LENGTH(x), np = LENGTH(prec), i, nprot = 1;
     SEXP val = PROTECT(allocVector(VECSXP, n));
     mpfr_t r_i;
     mpfr_init(r_i);
 
-    if(!isString(x))	    x = coerceVector(x, STRSXP);
-    if(!isInteger(prec)) prec = coerceVector(prec, INTSXP);
+    if(!isString(x))     { PROTECT(x    = coerceVector(x,    STRSXP)); nprot++; }
+    if(!isInteger(prec)) { PROTECT(prec = coerceVector(prec, INTSXP)); nprot++; }
+
     iprec = INTEGER(prec);
 
     for(i = 0; i < n; i++) {
@@ -187,7 +188,7 @@ SEXP str2mpfr1_list(SEXP x, SEXP prec, SEXP base)
     }
     mpfr_clear (r_i);
     mpfr_free_cache();
-    UNPROTECT(1);
+    UNPROTECT(nprot);
     return val;
 }
 
@@ -198,13 +199,12 @@ SEXP str2mpfr1_list(SEXP x, SEXP prec, SEXP base)
 /* This does not work: gives *empty* .Data slot [bug in NEW_OBJECT()? ] */
 SEXP d2mpfr(SEXP x, SEXP prec)
 {
-    int i_prec = asInteger(prec), n = LENGTH(x), i;
+    int i_prec = asInteger(prec), n = LENGTH(x), i, nprot = 1;
     SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("mpfr"))),
 	lis = ALLOC_SLOT(val, Rmpfr_Data_Sym, VECSXP, n);
     double *dx;
 
-    if(!isReal(x))
-	x = coerceVector(x, REALSXP);
+    if(!isReal(x)) { PROTECT(x = coerceVector(x, REALSXP)); nprot++; }
     REprintf("d2mpfr(x, prec): length(x) = %d, prec = %d -> length(lis) = %d\n",
 	     n, i_prec, LENGTH(lis));
     dx = REAL(x);
@@ -212,7 +212,7 @@ SEXP d2mpfr(SEXP x, SEXP prec)
 	SET_VECTOR_ELT(lis, i, duplicate(d2mpfr1_(dx[i], i_prec)));
     }
 
-    UNPROTECT(1);
+    UNPROTECT(nprot);
     return val;
 }
 

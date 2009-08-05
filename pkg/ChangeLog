@@ -1,3 +1,11 @@
+2009-08-05  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* src/convert.c (d2mpfr, etc): PROTECT(.) all coerceVector()s.
+
+2009-04-30  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* man/mpfr-class.Rd: mention sort(),.., duplicated(), ...
+
 2009-04-13  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* src/convert.c (d2mpfr1_list, str2mpfr1_list): allow 'prec' to be

@@ -170,15 +170,22 @@
     \item{coerce}{\code{signature(from = "mpfr", to = "numeric")}: ... }
     \item{coerce}{\code{signature(from = "mpfr", to = "character")}: ... }
 
+    \item{unique}{\code{signature(x = "mpfr")}: and}
+    \item{duplicated}{\code{signature(x = "mpfr")}: just work as with numbers.}
+
     \item{t}{\code{signature(x = "mpfr")}: makes \code{x} into an \eqn{n
 	\times 1}{n x 1} \code{\linkS4class{mpfrMatrix}}.}
 
   }
 }
 \author{Martin Maechler}
-% \note{ ~~further notes~~ }
 
-%  ~Make other sections like Warning with \section{Warning }{....} ~
+\note{Many more methods (\dQuote{functions}) automagically work for
+  \code{"mpfr"} number vectors (and matrices, see the
+  \code{\linkS4class{mpfrMatrix}} class doc),
+  notably
+  \code{\link{sort}}, \code{\link{order}}, \code{\link{rank}}.
+}
 
 \seealso{
   The \code{"\linkS4class{mpfrMatrix}"} class, which extends the
