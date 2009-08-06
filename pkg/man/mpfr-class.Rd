@@ -13,9 +13,12 @@
 \alias{as.integer,mpfr-method}
 \alias{coerce,mpfr,character-method}
 \alias{coerce,mpfr,numeric-method}
+\alias{coerce,mpfr,integer-method}
 \alias{coerce,mpfr1,numeric-method}
 \alias{coerce,mpfr1,mpfr-method}
 \alias{coerce,integer,mpfr-method}
+\alias{coerce,logical,mpfr-method}
+\alias{coerce,raw,mpfr-method}
 \alias{coerce,numeric,mpfr-method}
 \alias{coerce,numeric,mpfr1-method}
 \alias{coerce,array,mpfr-method}
@@ -48,6 +51,7 @@
 \alias{Logic,mpfr,mpfr-method}
 \alias{Summary,mpfr-method}
 \alias{Math,mpfr-method}
+\alias{Math2,mpfr-method}
 \alias{abs,mpfr-method}
 \alias{log,mpfr-method}
 \alias{sign,mpfr-method}
@@ -146,6 +150,9 @@
 
     \item{Math}{\code{signature(x = "mpfr")}: ... }
 
+    \item{Math2}{\code{signature(x = "mpfr")}: \code{\link{round}(x,
+    digits)} and \code{\link{signif}(x, digits)} methods.}
+
     \item{as.numeric}{\code{signature(x = "mpfr")}: ... }
     \item{[}{\code{signature(x = "mpfr", i = "ANY", j = "missing", drop = "missing")}: ... }
     \item{format}{\code{signature(x = "mpfr")}: ... }
@@ -166,7 +173,11 @@
       to the (smaller of the two) precisions when both main arguments are
       of class \code{"mpfr"}, and hence can be considerably less than
       double precision machine epsilon \code{\link{.Machine}$double.eps}.}
-    \item{coerce}{\code{signature(from = "numeric", to = "mpfr")}: ... }
+    \item{coerce}{\code{signature(from = "numeric", to = "mpfr")}:
+      \code{\link{as}(., "mpfr")} coercion methods are available for
+      \code{\link{character}} strings, \code{\link{numeric}}, \code{\link{integer}},
+      \code{\link{logical}}, and even \code{\link{raw}}.  Note however,
+      that \code{\link{mpfr}(., precBits, base)} is more flexible.}
     \item{coerce}{\code{signature(from = "mpfr", to = "numeric")}: ... }
     \item{coerce}{\code{signature(from = "mpfr", to = "character")}: ... }
 

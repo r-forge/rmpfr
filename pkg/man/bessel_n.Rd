@@ -32,9 +32,7 @@ yn(n, x)
 }
 \examples{
 x <- (0:100)/8 # (have exact binary representation)
-## FIXME: mpfr(0, .) fails on 64-bit
-x <- (1:100)/8 # (have exact binary representation)
-stopifnot(all.equal(besselY(x, 0), bY0 <- y0(x))
+stopifnot(  all.equal(besselY(x, 0), bY0 <- y0(x))
           , all.equal(besselJ(x, 1), bJ1 <- j1(x))
           , all.equal(yn(0,x), bY0)
           , all.equal(jn(1,x), bJ1)

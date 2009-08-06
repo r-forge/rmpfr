@@ -1,7 +1,28 @@
+2009-08-06  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 0.1-5 -- release-ready
+
+	* man/seqMpfr.Rd, ...: add all missing *Rd pages.
+
+	* R/mpfr.R (seqMpfr): remove FIXME, using new pmin(), pmax().
+
+	* R/Math.R (Math2): group methods - for round() and signif()
+
+	* src/convert.c (mpfr2i): new, for as(. "integer")
+
 2009-08-05  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/mpfr.R (pmin, pmax): now seem to work
+
+	* R/as.R (mpfr): as(<char>, "mpfr") now uses mpfr()
+	(mpfr): now also works for 'raw' and 'logical'; adding as(*,.) methods
+	==>  x[.] <- NA should work
 
 	* R/array.R (cbind, rbind): correct behavior when length/dims do
 	not quite match.
+
+	* R/array.R (dim<-): make work for NULL.
+
 	* tests/matrix-ex.R: test these.
 
 	* src/convert.c (d2mpfr, etc): PROTECT(.) all coerceVector()s.

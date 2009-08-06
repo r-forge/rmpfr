@@ -165,6 +165,7 @@ SEXP d2mpfr1_list(SEXP x, SEXP prec)
 
 SEXP str2mpfr1_list(SEXP x, SEXP prec, SEXP base)
 {
+/* NB:  prec is "recycled"  within 'x' */
     int ibase = asInteger(base), *iprec,
 	n = LENGTH(x), np = LENGTH(prec), i, nprot = 1;
     SEXP val = PROTECT(allocVector(VECSXP, n));
@@ -324,6 +325,32 @@ SEXP mpfr2d(SEXP x) {
 	r[i] = mpfr_get_d(R_i, GMP_RNDD);
     }
 
+    mpfr_clear (R_i);
+    mpfr_free_cache();
+    UNPROTECT(1);
+    return val;
+}
+
+/* Convert R "mpfr" object (list of "mpfr1")  to R "integer" vector : */
+SEXP mpfr2i(SEXP x) {
+    SEXP D = GET_SLOT(x, Rmpfr_Data_Sym);/* an R list() of length */
+    int n = length(D), i;
+    SEXP val = PROTECT(allocVector(INTSXP, n));
+    int *r = INTEGER(val);
+    mpfr_t R_i;
+    mpfr_init(R_i); /* with default precision */
+
+    for(i=0; i < n; i++) {
+	R_asMPFR(VECTOR_ELT(D, i), R_i);
+	if(!mpfr_fits_sint_p(R_i, GMP_RNDD)) {
+	    warning("NAs introduced by coercion from \"mpfr\" [%d]", i+1);
+	    r[i] = NA_INTEGER;
+	}
+	else {
+	    long lr = mpfr_get_si(R_i, GMP_RNDD);
+	    r[i] = (int) lr;
+	}
+    }
     mpfr_clear (R_i);
     mpfr_free_cache();
     UNPROTECT(1);

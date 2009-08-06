@@ -4,6 +4,7 @@ x <- mpfr(0:7, 64)/7
 mx <- x
 dim(mx) <- c(4,2)
 mx # "print"
+stopifnot(is(mx, "mpfrMatrix"), dim(mx) == c(4,2))
 m.x <- matrix((0:7)/7, 4,2)
 
 y <- 7 * mpfr(1:12, 80)
@@ -91,12 +92,14 @@ stopifnot(allEQ(noDN(.N(A)), a),
           {p <- c(2:1,3); allEQ(noDN(.N(aperm(A,p))), aperm(a,p))})
 
 ## cbind() / rbind():
+options(warn = 2)## no warnings here - ("exact recycling"):
 validObject(m0 <- cbind(pi=pi, i = 1:6))
-validObject(m1 <- cbind(a=Const("pi",60),i = 1:6, "1/mp" = 1/mpfr(1:3,70))) # + warning
+validObject(m1 <- cbind(a=Const("pi",60),i = 1:6, "1/mp" = 1/mpfr(1:3,70)))
 validObject(m2 <- cbind(pi=pi, i = 1:2, 1/mpfr(1:6,70)))
 validObject(n2 <- rbind(pi=pi, i = 1:2, 1/mpfr(1:6,70)))
 stopifnot(is(m0,"matrix"), is(m1, "mpfrMatrix"), is(m2, "mpfrMatrix"),
           dim(m0) == c(6,2), dim(m1) == c(6,3), dim(m2) == c(6,3))
+options(warn = 1)
 suppressWarnings(eval(ex <- quote(m3 <- cbind(I=10, 1:3, inv=1/mpfr(2:3,80)))))
 validObject(suppressWarnings(     n3 <- rbind(I=10, 1:3, inv=1/mpfr(2:3,80))))
 stopifnot(identical(t(n2), m2),
@@ -106,5 +109,4 @@ stopifnot(identical(t(n2), m2),
 	  identical(rbind("A", 2),   matrix(c("A", "2"), 2,1)) )
 
 cat('Time elapsed: ', proc.time(),'\n') # "stats"
-
 if(!interactive()) warnings()

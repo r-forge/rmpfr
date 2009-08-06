@@ -91,6 +91,7 @@ SEXP d2mpfr1 (SEXP x, SEXP prec);
 SEXP d2mpfr1_(double x, int i_prec);
 SEXP d2mpfr1_list(SEXP x, SEXP prec);
 SEXP mpfr2d(SEXP x);
+SEXP mpfr2i(SEXP x);
 SEXP mpfr2str(SEXP x, SEXP digits);
 SEXP str2mpfr1_list(SEXP x, SEXP prec, SEXP base);
 

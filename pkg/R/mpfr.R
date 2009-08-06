@@ -119,6 +119,93 @@ setMethod("unique", signature(x="mpfr", incomparables="missing"),
 ## sort() works too  (but could be made faster via faster
 ## ------  xtfrm() method !  [ TODO ]
 
+
+setGeneric("pmin", signature = "...")# -> message about override ...
+setGeneric("pmax", signature = "...")
+
+setMethod("pmin", "Mnumber",
+	  function(..., na.rm = FALSE) {
+	      args <- list(...)
+	      if(all(sapply(args, is.atomic)))
+		  return( base::pmin(..., na.rm = na.rm) )
+	      ## else: at least one is "mpfr(Matrix/Array)"
+              is.m <- sapply(args, is, "mpfr")
+              if(!any(is.m))
+                  stop("no \"mpfr\" argument -- wrong method chosen")
+
+	      N <- max(lengths <- sapply(args, length))
+              ## precision needed -- FIXME: should be *vector*
+              mPrec <- max(unlist(lapply(args[is.m], getPrec)),
+                           if(any(sapply(args[!is.m], is.double)))
+                           .Machine$double.digits)
+              ## to be the result :
+              r <- mpfr(rep.int(Inf, N), precBits = mPrec)
+
+              ## modified from ~/R/D/r-devel/R/src/library/base/R/pmax.R
+              has.na <- FALSE
+              for(i in seq_along(args)) {
+                  x <- args[[i]]
+                  if((n.i <- lengths[i]) != N)
+                      x <- x[rep(seq_len(n.i), length.out = N)]
+                  nas <- cbind(is.na(r), is.na(x))
+                  if(!is.m[i]) x <- mpfr(x, prec=mPrec)
+                  if(has.na || (has.na <- any(nas))) {
+                      r[nas[, 1L]] <- x[nas[, 1L]]
+                      x[nas[, 2L]] <- r[nas[, 2L]]
+                  }
+                  change <- r > x
+                  change <- change & !is.na(change)
+                  r[change] <- x[change]
+                  if (has.na && !na.rm)
+                      r[nas[, 1L] | nas[, 2L]] <- NA
+              }
+
+              mostattributes(r) <- attributes(args[[1L]])
+              r
+          })
+
+setMethod("pmax", "Mnumber",
+	  function(..., na.rm = FALSE) {
+	      args <- list(...)
+	      if(all(sapply(args, is.atomic)))
+		  return( base::pmax(..., na.rm = na.rm) )
+	      ## else: at least one is "mpfr(Matrix/Array)"
+              is.m <- sapply(args, is, "mpfr")
+              if(!any(is.m))
+                  stop("no \"mpfr\" argument -- wrong method chosen")
+
+	      N <- max(lengths <- sapply(args, length))
+              ## precision needed -- FIXME: should be *vector*
+              mPrec <- max(unlist(lapply(args[is.m], getPrec)),
+                           if(any(sapply(args[!is.m], is.double)))
+                           .Machine$double.digits)
+              ## to be the result :
+              r <- mpfr(rep.int(-Inf, N), precBits = mPrec)
+
+              ## modified from ~/R/D/r-devel/R/src/library/base/R/pmax.R
+              has.na <- FALSE
+              for(i in seq_along(args)) {
+                  x <- args[[i]]
+                  if((n.i <- lengths[i]) != N)
+                      x <- x[rep(seq_len(n.i), length.out = N)]
+                  nas <- cbind(is.na(r), is.na(x))
+                  if(!is.m[i]) x <- mpfr(x, prec=mPrec)
+                  if(has.na || (has.na <- any(nas))) {
+                      r[nas[, 1L]] <- x[nas[, 1L]]
+                      x[nas[, 2L]] <- r[nas[, 2L]]
+                  }
+                  change <- r < x
+                  change <- change & !is.na(change)
+                  r[change] <- x[change]
+                  if (has.na && !na.rm)
+                      r[nas[, 1L] | nas[, 2L]] <- NA
+              }
+
+              mostattributes(r) <- attributes(args[[1L]])
+              r
+          })
+
+
 ### seq() :
 
 ## seq.default()  and  seq.Date()  as examples :
@@ -174,9 +261,7 @@ seqMpfr <- function(from = 1, to = 1, by = ((to - from)/(length.out - 1)),
         n <- as.integer(n + 1e-7)
         x <- from + (0:n) * by
         ## correct for overshot because of fuzz
-        if(FALSE) {## FIXME : need pmin(), pmax() for "mpfr"
         if(by > 0) pmin(x, to) else pmax(x, to)
-        } else { x }## END{FIXME}
     }
     else if(!is.finite(length.out) || length.out < 0)
 	stop("length must be non-negative number")
@@ -231,6 +316,7 @@ setMethod("seq", c(from="ANY", to="ANY", by = "mpfr"), seqMpfr)
 
 }#not yet
 
+getPrec <- function(x) sapply(x, slot, "prec")
 
 ### all.equal()
 
@@ -241,7 +327,9 @@ setMethod("seq", c(from="ANY", to="ANY", by = "mpfr"), seqMpfr)
 ## For two "mpfr"s, use a  "smart" default tolerance :
 setMethod("all.equal", signature(target = "mpfr", current = "mpfr"),
 	  function (target, current,
-		    tolerance = 2^-(1/2* min(target@prec, current@prec)/2), ...)
+		    tolerance =
+		    2^-(0.5 * min(mean(getPrec(target)),
+				  mean(getPrec(current)))), ...)
       {
 	  ## to use "our" mean() :
 	  environment(all.equal.numeric) <- environment()

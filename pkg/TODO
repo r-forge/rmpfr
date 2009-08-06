@@ -1,5 +1,3 @@
-1) R: character -> mpfr   "3.14159265358979323846264" -> mpfr
-
 2) NOTA BENE:  Have  "mpfrMatrix", dim(.) <- ..; t(), %*%, crossprod()...
 
  -  <mpfr> %*% <mpfr>    should work like with numeric vectors
@@ -34,9 +32,21 @@
     [ round() after decimal ], and one to drop trailing zeros,
    see format.default
 
-5) Current  cbind(<Mnumber>)  breaks  cbind() working for character
+5) I'd like seq() methods, but that seems currently impossible because of
+   a "design infelicity" in base::seq.default  --- ???? E-mail to R-core ??
+   --> R/mpfr.R
 
-   <==  Current class "Mnumber" also extends "character", "list", ...
-        this is *WRONG*
+6) It is "wrong" that the class "Mnumber" also extends "character", "list";
+   but it's not clear we can find better definitions, see R/AllClasses.R
 
-6) Add tests for hypot() & atan2() to tests/special-fun-ex.R
+7) Add tests for hypot() & atan2() to tests/special-fun-ex.R
+
+8) round(x, .) & signif(x, .) currently return "mpfr" numbers of the same precision.
+   That *looks* ugly.
+   Potentially add a swith 'keepPrec = FALSE' -- i.e. by default *reduce*
+   precision to "match" 'digits' argument.
+
+
+10) For *complex* arithmetic, build interface to the  "MPC" library
+   ---> http://www.multiprecision.org/mpc -- which is LGPL and itself
+   builds on MPFR and GMP.

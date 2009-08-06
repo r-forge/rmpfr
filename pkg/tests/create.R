@@ -37,11 +37,20 @@ y <- c(0, 100,-10, 1.25, -2.5,
 (Y <- mpfr(y, 100))
 cbind(y, as.data.frame(.mpfr2str(Y, 20))[,c("exp","str")])
 
-stopifnot(all.equal(y, as.numeric(format(Y, digits=20)),
-                    tol = 8 * .Machine$double.epsilon))
+eps8 <- 8 * .Machine$double.eps
+## checking  mpfr -> character -> mpfr:
+stopifnot(all.equal(y, as.numeric(format(Y, digits=20)), tol= eps8),
+          all.equal(Y, as(format(Y), "mpfr"), tol= eps8))
+
+## More  character -> mpfr  checking :
+## from   echo 'scale=200; 4*a(1)' | bc -l :
+cpi <- "3.14159265358979323846264338327950288419716939937510582097494459230781640628620899862803482534211706798214808651328230664709384460955058223172535940812848111745028410270193852110555964462294895493038196"
+pi. <- Const("pi", prec=667)
+stopifnot(cpi == format(mpfr(cpi, prec=667), digits=201),
+          all.equal(pi., as(cpi, "mpfr")),
+          all.equal(pi., as(cpi, "mpfr"), tol = 1e-200))
 
 ## Check double -> mpfr -> character -> double :
-eps8 <- 8 * .Machine$double.eps
 rSign <- function(n) sample(c(-1,1), size = n, replace=TRUE)
 N <- function(x) as.numeric(x)
 for(n in 1:40) {
@@ -56,4 +65,7 @@ for(n in 1:40) {
 X. <- X.[!mpfr.is.0(X.)]
 stopifnot(all( X./X. == 1)) # TRUE
 
-mpfr("3.14159265358979323846264", 120)
+u <- mpfr(as.raw(0:100))
+stopifnot(0:100 == u,
+	  all.equal(u, mpfr(0:100, prec = 8), tol = 0),
+	  0:1 == mpfr(1:2 %% 2 == 0))

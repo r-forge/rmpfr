@@ -9,30 +9,35 @@ mpfr <- function(x, precBits, base = 10)
     if(missing(precBits)) {
 	if(is.character(x)) ## number of digits --> number of bits
 	    precBits <- ceiling(log2(base) * nchar(gsub("[-.]", '', x)))
+	else if(is.logical(x))
+	    precBits <- 2L # even 1 would suffice - but need 2 (in C ?)
+	else if(is.raw(x))
+	    precBits <- 8L
 	else stop("must specify 'precBits' for numeric 'x'")
     }
     ## libmpfr would exit (after good error message) for precBits == 1
     stopifnot(precBits >= 2)
-    if(is.numeric(x)) {
+    if(is.numeric(x) || is.logical(x) || is.raw(x)) {
 	new("mpfr", .Call("d2mpfr1_list", x, precBits, PACKAGE="Rmpfr"))
     } else if(is.character(x)) {
 	new("mpfr", .Call("str2mpfr1_list", x, precBits, base, PACKAGE="Rmpfr"))
-	## TODO: support another optional argument 'base'
     }
-    else stop("invalid 'x'. Must be numeric or character")
+    else stop("invalid 'x'. Must be numeric (logical, raw) or character")
 }
-
 
 setAs("numeric", "mpfr1", ## use default precision of 128 bits
       function(from) .Call("d2mpfr1", from, 128L, PACKAGE="Rmpfr"))
 setAs("numeric", "mpfr", function(from) mpfr(from, 128L))
-setAs("integer", "mpfr", function(from) mpfr(from, 128L))
+setAs("integer", "mpfr", function(from) mpfr(from,  32L))
+setAs("raw",     "mpfr", function(from) mpfr(from,   8L))
+setAs("logical", "mpfr", function(from) mpfr(from,   2L))
+## TODO?  base=16 for "0x" or "0X" prefix -- but base must have length 1 ..
+setAs("character", "mpfr", function(from) mpfr(from))
 
-setAs("mpfr", "numeric",
-      function(from) .Call("mpfr2d", from, PACKAGE="Rmpfr"))
+setAs("mpfr", "numeric", function(from) .Call("mpfr2d", from, PACKAGE="Rmpfr"))
+setAs("mpfr", "integer", function(from) .Call("mpfr2i", from, PACKAGE="Rmpfr"))
 setMethod("as.numeric", "mpfr", function(x) .Call("mpfr2d", x, PACKAGE="Rmpfr"))
-setMethod("as.integer", "mpfr", ## this is cheap; if needed do in libmpfr-code
-	  function(x) as.integer(as.numeric(x)))
+setMethod("as.integer", "mpfr", function(x) .Call("mpfr2i", x, PACKAGE="Rmpfr"))
 
 setAs("mpfr1", "numeric",  ## just for user-de-confusion :
       function(from) {
@@ -122,8 +127,4 @@ setMethod("format", "mpfr", .format.mpfr)
 
 setAs("mpfr", "character", function(from) format(from, digits=NULL))
 
-setAs("character", "mpfr", function(from) {
-    ## read 'numeric strings' into mpfr numbers
-    new("mpfr", .Call("str2mpfr1_list", from, precBits = 128L, base = 10L,
-                      PACKAGE="Rmpfr"))
-})
+setAs("character", "mpfr", function(from) mpfr(from))

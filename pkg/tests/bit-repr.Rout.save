@@ -1,5 +1,5 @@
 
-R version 2.8.1 Patched (2009-01-29 r47792)
+R version 2.9.1 Patched (2009-08-05 r49073)
 Copyright (C) 2009 The R Foundation for Statistical Computing
 ISBN 3-900051-07-0
 
@@ -30,6 +30,8 @@ Attaching package: 'Rmpfr'
 	The following object(s) are masked from package:base :
 
 	 cbind,
+	 pmax,
+	 pmin,
 	 rbind 
 
 > 
@@ -183,7 +185,7 @@ c(3217, 205887, 3294199, 105414357, 3373259426, 107944301636,
 > 
 > 
 > cat('Time elapsed: ', proc.time(),'\n') # "stats"
-Time elapsed:  1.176 0.02 1.188 0 0 
+Time elapsed:  0.799 0.033 0.869 0 0 
 > 
 > if(!interactive()) warnings()
 NULL

@@ -1,3 +1,5 @@
+1) R: character -> mpfr   "3.14159265358979323846264" -> mpfr
+
 3) "Arith" and "Compare" methods currently ``lose dim + dimnames''
    for "mpfrArray" (& "mpfrMatrix")
 

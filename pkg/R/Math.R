@@ -1,5 +1,5 @@
-#### Define mpfr methods for Math  group functions
-####                        ======
+#### Define mpfr methods for Math  and Math2  group functions
+####                        ======     =====
 
 ### "Arith", "Compare",..., are in ./Arith.R
 ###  ----                            ~~~~~~~
@@ -45,15 +45,6 @@ if(FALSE) ## here are the individual function
 .Math.gen <- getGroupMembers("Math")
 
 ## Those "Math" group generics that are not in the do_math1 table above
-if(FALSE)
-.Math.gen[!(.Math.gen %in% names(.Math.codes))] # grouped "semantically":
-## "abs" "atan"   {no problem}
-## "trunc"        has ... for methods
-## "log"
-## "log10" "log2" {no problem}
-##
-## "cummax" "cummin" "cumprod" "cumsum"  { no problem; but  related to
-##                                         max,min,..: --> "Summary" group }
 
 .Math.codes <-
     c(.Math.codes,
@@ -66,6 +57,9 @@ if(FALSE)
       "j0" = 111, "j1" = 112, "y0" = 113, "y1" = 114)
 storage.mode(.Math.codes) <- "integer"
 
+if(FALSE)
+.Math.gen[!(.Math.gen %in% names(.Math.codes))]
+## "abs" -- only one left
 
 ## A few ones have a very simple method:
 setMethod("sign", "mpfr",
@@ -92,6 +86,74 @@ setMethod("Math", signature(x = "mpfr"),
 	      x@.Data[] <- .Call("Math_mpfr", x, .Math.codes[.Generic],
 			   PACKAGE="Rmpfr")
 	      x
+	  })
+
+setMethod("Math2", signature(x = "mpfr"),
+	  function(x, digits) {
+	      digits <- as.integer(round(digits))
+	      if(is.na(digits)) return(x + digits)
+	      ## NOTA BENE: vectorized in  'x'
+	      if(any(ret.x <- !is.finite(x) | mpfr.is.0(x))) {
+		  if(any(ok <- !ret.x))
+		      x[ok] <- callGeneric(x[ok], digits=digits)
+		  return(x)
+	      }
+	      ## now: both x and digits are finite
+	      pow10 <- function(d) mpfr(rep.int(10., length(d)),
+					precBits = log2(10)*as.numeric(d))^ d
+	      rint <- function(x) { ## have x >= 0 here
+		  sml.x <- (x < .Machine$integer.max)
+		  r <- x
+		  if(any(sml.x)) {
+		      x.5 <- x[sml.x] + 0.5
+		      ix <- as.integer(x.5)
+		      ## implement "round to even" :
+		      if(any(doDec <- (abs(x.5 - ix) < 10*.Machine$double.eps & (ix %% 2))))
+			  ix[doDec] <- ix[doDec] - 1L
+		      r[sml.x] <- ix
+		  }
+		  if(!all(sml.x)) { ## large x - no longer care for round to even
+		      r[!sml.x] <- floor(x[!sml.x] + 0.5)
+		  }
+		  r
+	      }
+	      neg.x <- x < 0
+	      x[neg.x] <- - x[neg.x]
+	      sgn <- ifelse(neg.x, -1, +1)
+	      switch(.Generic,
+		     "round" = { ## following ~/R/D/r-devel/R/src/nmath/fround.c :
+			 if(digits == 0)
+			     sgn * rint(x)
+			 else if(digits > 0) {
+			     p10 <- pow10(digits)
+			     intx <- floor(x)
+			     sgn * (intx + rint((x-intx) * p10) / p10)
+			 }
+			 else { ## digits < 0
+			     p10 <- pow10(-digits)
+			     sgn * rint(x/p10) * p10
+			 }
+		     },
+		     "signif" = { ## following ~/R/D/r-devel/R/src/nmath/fprec.c :
+			 if(digits > max(getPrec(x)) * log10(2))
+			     return(x)
+			 if(digits < 1) digits <- 1L
+			 l10 <- log10(x)
+			 e10 <- digits - 1L - floor(l10)
+			 r <- x
+			 pos.e <- (e10 > 0) ##* 10 ^ e, with e >= 1 : exactly representable
+			 if(any(pos.e)) {
+			     p10 <- pow10(e10[pos.e])
+			     r[pos.e] <- sgn[pos.e]* rint(x[pos.e]*p10) / p10
+			 }
+			 if(any(neg.e <- !pos.e)) {
+			     p10 <- pow10(-e10[neg.e])
+			     r[neg.e] <- sgn[neg.e]* rint(x[neg.e]/p10) * p10
+			 }
+			 r
+		     },
+		     stop(gettextf("Non-Math2 group generic '%s' -- should not happen",
+				   .Generic)))
 	  })
 
 ##---- mpfrArray / mpfrMatrix --- methods -----------------

@@ -10,6 +10,10 @@ setMethod("dim<-", signature(x = "mpfr", value = "ANY"),
 	      if(is.numeric(value) && all(value == (iv <- as.integer(value))))
 		  new(if(length(iv) == 2) "mpfrMatrix" else "mpfrArray",
 		      x, Dim = iv)
+	      else if(is.null(value))
+		  as.vector(x)
+	      else
+		  stop("invalid 'value' ( = RHS = right hand side)")
 	  })
 
 mpfrArray <- function(x, precBits, dim = length(x), dimnames = NULL)
@@ -249,8 +253,8 @@ setMethod(show, "mpfrArray", function(object) print.mpfrArray(object))
 
 setMethod("%*%", signature(x = "mpfrMatrix", y = "mpfrMatrix"),
           function(x,y) .matmult.R(x,y, op= 0))
-## "FIXME"?  'ANY' is a bit much; may give uncomprehensible error messages
-##       advantage: things wwould work with "Matrix" class matrices,
+
+## "FIXME"?  make working also with "Matrix" class matrices ..
 setMethod("%*%", signature(x = "mpfrMatrix", y = "array_or_vector"),
           function(x,y) .matmult.R(x,y, op= 0))
 setMethod("%*%", signature(x = "array_or_vector", y = "mpfrMatrix"),
@@ -414,12 +418,13 @@ setMethod("cbind", "Mnumber",
 		  } else { ## not "mpfr"
 		      a <- mpfr(a, prec)
 		  }
-		  if(lengths[ia] != NR) { # recycle w/ warning (as traditional R)
+		  if((li <- lengths[ia]) != 1 && li != NR) { ## recycle
 		      if(!is.null(dim(a)))
 			  stop("number of rows of matrices must match")
 		      ## else
-		      warning("number of rows of result is not a multiple of vector length")
-		      a <- a[rep(seq_len(lengths[ia]), length.out = NR)]
+		      if(NR %% li)
+			  warning("number of rows of result is not a multiple of vector length")
+		      a <- a[rep(seq_len(li), length.out = NR)]
 		  }
 		  r[, j+ 1:w] <- a
 		  j <- j + w
@@ -470,12 +475,14 @@ setMethod("rbind", "Mnumber",
 		  } else { ## not "mpfr"
 		      a <- mpfr(a, prec)
 		  }
-		  if(widths[ia] != NC) { # recycle w/ warning (as traditional R)
+
+		  if((wi <- widths[ia]) != 1 && wi != NC) { ## recycle
 		      if(!is.null(dim(a)))
-			  stop("number of columnws of matrices must match")
+			  stop("number of rows of matrices must match")
 		      ## else
-		      warning("number of columns of result is not a multiple of vector length")
-		      a <- a[rep(seq_len(widths[ia]), length.out = NC)]
+		      if(NC %% wi)
+			  warning("number of columns of result is not a multiple of vector length")
+		      a <- a[rep(seq_len(wi), length.out = NC)]
 		  }
 		  r[i+ 1:le, ] <- a
 		  i <- i + le
