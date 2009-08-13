@@ -46,7 +46,16 @@
    Potentially add a swith 'keepPrec = FALSE' -- i.e. by default *reduce*
    precision to "match" 'digits' argument.
 
+9) median(mpfr(1:4, 60)) now fails, but mean(.) and quantile() both work.
+   ------ The infelicity could be seen in the way namespaces work :
+   median.default() calls the correct sort() on "mpfr", but calls the *wrong*
+   base::mean() instead of mean() {which is S4 by then} ....
+   all would be fine if  base::mean() was *already* S4 generic ....
+   of course I could replace base::mean() by the S4 generic on
+   package-load time, but would prefer a cleaner solution.
+   ---> talk to Luke and John (and ??) about that
 
-10) For *complex* arithmetic, build interface to the  "MPC" library
+
+50) For *complex* arithmetic, build interface to the  "MPC" library
    ---> http://www.multiprecision.org/mpc -- which is LGPL and itself
    builds on MPFR and GMP.
