@@ -19,8 +19,8 @@ erfc(x)
 pnorm(q, mean = 0, sd = 1, lower.tail = TRUE, log.p = FALSE) }
 \arguments{
   \item{x, q,mean,sd}{a \code{\link{numeric}} or \code{\linkS4class{mpfr}} vector.}
-  \item{lower.tail, log.p}{logical, see \code{\link[stats]{pnorm}} (or
-    other \code{p*()} functions).}
+  \item{lower.tail, log.p}{logical, see \code{\link{pnorm}} (or other
+    \code{p*()} functions).}
 }
 \details{
   \code{zeta(x)} computes Riemann's Zeta function
