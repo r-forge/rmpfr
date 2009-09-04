@@ -1,3 +1,4 @@
 _INSTALL
 Misc
 autom4te.cache/
+tests/00.*

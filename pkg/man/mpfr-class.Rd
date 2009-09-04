@@ -147,16 +147,16 @@
 
     \item{Logic}{\code{signature(e1 = "mpfr", e2 = "mpfr")}: ... }
 
-    \item{Summary}{\code{signature(x = "mpfr")}: The
-      \code{\link[methods]{Summary}} group functions,
+    \item{Summary}{\code{signature(x = "mpfr")}: The S4
+      \code{\link[methods:S4groupGeneric]{Summary}} group functions,
       \code{\link{max}}, \code{\link{min}}, \code{\link{range}},
       \code{\link{prod}}, \code{\link{sum}},
       \code{\link{any}}, and \code{\link{all}}
       are all defined for MPFR numbers.}
 
-    \item{Math}{\code{signature(x = "mpfr")}: All the
-      \code{\link[methods]{Math}} group functions are defined, using
-      multiple precision (MPFR) arithmetic, from
+    \item{Math}{\code{signature(x = "mpfr")}: All the S4
+      \code{\link[methods:S4groupGeneric]{Math}} group functions are
+      defined, using multiple precision (MPFR) arithmetic, from
       \code{\link{getGroupMembers}("Math")}, these are (in alphabetical order):
 
       \code{\link{abs}}, \code{\link{sign}}, \code{\link{sqrt}},
@@ -229,7 +229,8 @@
   \code{"mpfr"} number vectors (and matrices, see the
   \code{\linkS4class{mpfrMatrix}} class doc),
   notably
-  \code{\link{sort}}, \code{\link{order}}, \code{\link{rank}}.
+  \code{\link{sort}}, \code{\link{order}}, \code{\link{quantile}},
+  \code{\link{rank}}.
 }
 
 \seealso{

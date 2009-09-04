@@ -19,7 +19,7 @@ erfc(x)
 pnorm(q, mean = 0, sd = 1, lower.tail = TRUE, log.p = FALSE) }
 \arguments{
   \item{x, q,mean,sd}{a \code{\link{numeric}} or \code{\linkS4class{mpfr}} vector.}
-  \item{lower.tail, log.p}{logical, see \code{\link{pnorm}} (or other
+  \item{lower.tail, log.p}{logical, see \code{\link[stats:Normal]{pnorm}} (or other
     \code{p*()} functions).}
 }
 \details{
@@ -36,7 +36,7 @@ pnorm(q, mean = 0, sd = 1, lower.tail = TRUE, log.p = FALSE) }
 
   \code{erf(x)} and \code{erfc(x)} are the error, respectively
   \bold{c}omplementary error function which are both reparametrizations
-  of \code{\link[stats]{pnorm}}, \code{erf(x) = 2*pnorm(sqrt(2)*x)} and
+  of \code{pnorm}, \code{erf(x) = 2*pnorm(sqrt(2)*x)} and
   \code{erfc(x) = 2* pnorm(sqrt(2)*x, lower=FALSE)}.
 }
 \value{
@@ -44,13 +44,14 @@ pnorm(q, mean = 0, sd = 1, lower.tail = TRUE, log.p = FALSE) }
 }
 % \references{
 % }
-\seealso{\code{\link[stats]{pnorm}} in standard package \pkg{stats};
+\seealso{\code{\link[stats:Normal]{pnorm}} in standard package \pkg{stats};
   the class description \code{\linkS4class{mpfr}} mentioning the
   generic arithmetic and mathematical functions (\code{sin}, \code{log},
   \dots, etc) for which \code{"mpfr"} methods are available.
 }
 \examples{
 curve(Ei,  0, 5, n=2001)
+curve(Li2, 0, 5, n=2001)
 
 curve(Li2, -2, 13,   n=2000); abline(h=0,v=0, lty=3)
 curve(Li2, -200,400, n=2000); abline(h=0,v=0, lty=3)

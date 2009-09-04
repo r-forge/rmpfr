@@ -68,6 +68,11 @@
     and correctly *jointly* formats and aligns  columns !
     drop0trailing is not really sensible there
 
+11b) format(<mpfr>) --> .mpfr2str() -> C mpfr2str()  still suffers from a
+     memory bug, inspite of my efforts in src/convert.c
+     I think this is the MPFR library just allocating memory that's in use
+     by R, but it seems hard to prove and or fix that.
+
 12) crossprod(), tcrossprod() (and more?) methods for "mpfrMatrix".
 
 13) implement the  NOT_YET  in src/Ops.c

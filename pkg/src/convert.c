@@ -399,6 +399,13 @@ SEXP mpfr2str(SEXP x, SEXP digits) {
 
 	R_asMPFR(VECTOR_ELT(D, i), R_i);
 
+/* Observing memory problems, e.g., see ../tests/00-bug.R.~3~
+ * Originally hoped it was solvable via  R_alloc() etc, but it seems the problem is
+ * deeper and I currently suspect a problem/bug in MPFR library's  mpfr_get_str(..) */
+#ifdef __Rmpfr_FIRST_TRY_FAILS__
+	ch = mpfr_get_str(NULL, exp_ptr, B,
+			  (size_t) n_dig, R_i, GMP_RNDN);
+#else
 	if(n_dig) {/* use it as desired precision */
 	    dig_needed = n_dig;
 	} else { /* n_dig = 0 --> string will use "enough" digits */
@@ -416,10 +423,14 @@ SEXP mpfr2str(SEXP x, SEXP digits) {
 	 *			size_t N, mpfr_t OP, mp_rnd_t RND) */
 	mpfr_get_str(ch, exp_ptr, B,
 		     (size_t) n_dig, R_i, GMP_RNDN);
+#endif
 	SET_STRING_ELT(str, i, mkChar(ch));
 	i_exp[i] = (int) exp_ptr[0];
 	is_fin[i]= mpfr_number_p(R_i);
 	is_0 [i] = mpfr_zero_p(R_i);
+#ifdef __Rmpfr_FIRST_TRY_FAILS__
+	mpfr_free_str(ch);
+#endif
     }
 
     mpfr_clear (R_i);
