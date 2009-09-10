@@ -34,9 +34,9 @@ mpfr_default_prec <- function(prec) {
     }
 }
 
+.mpfrVersion <- function() .Call("R_mpfr_get_version", PACKAGE="Rmpfr")
 mpfrVersion <- function()
-    numeric_version(sub("^([0-9]+\\.[0-9]+\\.[0-9]+).*","\\1",
-                        .Call("R_mpfr_get_version", PACKAGE="Rmpfr")))
+    numeric_version(sub("^([0-9]+\\.[0-9]+\\.[0-9]+).*","\\1", .mpfrVersion()))
 
 print.mpfr1 <- function(x, digits = NULL, drop0trailing = TRUE, ...) {
     stopifnot(is(x, "mpfr1"), is.null(digits) || digits >= 2)

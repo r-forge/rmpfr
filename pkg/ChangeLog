@@ -1,9 +1,13 @@
+2009-09-10  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/mpfr.R (mpfrVersion): factor out .mpfrVersion()
+
 2009-09-07  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 0.1-7; released to CRAN
 
 	* R/mpfr.R (mpfrVersion): amend for funny version string on Debian
 	testings.
-
-	* DESCRIPTION (Version): 0.1-7
 
 	* R/mpfr.R (mpfrVersion): new utility
 	* src/utils.c (R_mpfr_get_version): C level
