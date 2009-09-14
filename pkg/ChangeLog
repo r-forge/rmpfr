@@ -1,3 +1,7 @@
+2009-09-14  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* src/Makevars.win: -lmpfr *before* -lgmp  (does matter some places)
+
 2009-09-10  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* R/mpfr.R (mpfrVersion): factor out .mpfrVersion()
