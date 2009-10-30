@@ -125,9 +125,13 @@ showClass("mpfrMatrix")
 validObject(mm <- new("mpfrMatrix"))
 validObject(aa <- new("mpfrArray"))
 
-m6 <- new("mpfrMatrix", mpfr(1:6, 128), Dim = c(2L, 3L))
+v6 <- mpfr(1:6, 128)
+m6 <- new("mpfrMatrix", v6, Dim = c(2L, 3L))
 validObject(m6)
 m6
 which(m6 == 3, arr.ind = TRUE) # |-->  (1, 2)
+## Coercion back to "vector": Both of these work:
+stopifnot(identical(as(m6, "mpfr"), v6),
+          identical(as.vector(m6), v6)) # < but this is a "coincidence"
 }
 \keyword{classes}
