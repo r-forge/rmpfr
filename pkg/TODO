@@ -85,6 +85,9 @@
                `mpfr_prec_round' instead."
     -->  mpfr_prec_round(X, PREC, RND)
 
+16) psigamma(x, n)  {and  digamma(), trigamma() aliases}
+
+
 
 50) For *complex* arithmetic, build interface to the  "MPC" library
    ---> http://www.multiprecision.org/mpc -- which is LGPL and itself

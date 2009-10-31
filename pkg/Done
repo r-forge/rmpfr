@@ -9,3 +9,8 @@
 
   If the other part is a matrix their dim() must be identical,
   if just a vector, its length must be a divisor of  length(<matrix>)
+
+15) beta(.,.) and lbeta(.,.) .. using  my_mpfr_beta() in C.
+   Interestingly, the speedup is not dramatical
+    (50% for length 200; 300% for length 1)
+

@@ -1,3 +1,16 @@
+2009-10-31  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Consts.R (Const): nicer error message when 'name' is invalid.
+
+2009-10-29  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/special-fun.R (beta, lbeta): new methods added
+
+	* src/utils.c (my_mpfr_beta, my_mpfr_lbeta): own C functions,
+	calling mpfr_*() ones, for beta() and lbeta().
+
+	* tests/special-fun-ex.R (B,lB): add tests for beta(), lbeta()
+
 2009-09-14  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* src/Makevars.win: -lmpfr *before* -lgmp  (does matter some places)

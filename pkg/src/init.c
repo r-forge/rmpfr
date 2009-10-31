@@ -56,6 +56,8 @@ static R_CallMethodDef CallEntries[] = {
     CALLDEF(R_mpfr_yn, 2),
     CALLDEF(R_mpfr_atan2, 2),
     CALLDEF(R_mpfr_hypot, 2),
+    CALLDEF(R_mpfr_beta, 2),
+    CALLDEF(R_mpfr_lbeta, 2),
 
     {NULL, NULL, 0}
 };
@@ -111,6 +113,8 @@ R_init_Rmpfr(DllInfo *dll)
     RREGDEF(R_mpfr_yn);
     RREGDEF(R_mpfr_atan2);
     RREGDEF(R_mpfr_hypot);
+    RREGDEF(R_mpfr_beta);
+    RREGDEF(R_mpfr_lbeta);
 
 
 /* Sync this with declarations in ./Syms.h : */
