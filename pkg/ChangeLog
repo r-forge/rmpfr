@@ -1,5 +1,9 @@
 2009-10-31  Martin Maechler  <maechler@stat.math.ethz.ch>
 
+	* R/array.R: add "mpfrArray" -> "matrix" coercion
+
+	* R/Arith.R (Arith): fix length check in ("mpfr", "array")
+
 	* R/Consts.R (Const): nicer error message when 'name' is invalid.
 
 2009-10-29  Martin Maechler  <maechler@stat.math.ethz.ch>

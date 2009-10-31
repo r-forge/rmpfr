@@ -86,8 +86,8 @@ for(a in c(0.1, 1, 1.5, 2, 20)) {
 stopifnot(validObject(xx <- outer(b10, runif(20))),
           dim(xx) == c(length(b10), 20),
           validObject(vx <- as(xx, "mpfr")), class(vx) == "mpfr", is.null(dim(vx)))
-C1 <- replicate(10, system.time(bb <- beta(vx, vx+2)))
-C2 <- replicate(10, system.time(b2 <-    B(vx, vx+2)))
+C1 <- replicate(10, system.time(bb <<- beta(vx, vx+2)))
+C2 <- replicate(10, system.time(b2 <<-    B(vx, vx+2)))
 summary(1000*C1[1,]) ##  80.3 {cmath-5, 2009}
 summary(1000*C2[1,]) ## 125.1 { " }
 stopifnot(all.equal(bb, b2))

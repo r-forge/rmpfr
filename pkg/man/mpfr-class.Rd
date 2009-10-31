@@ -11,6 +11,19 @@
 % FIXME: many of these are just \alias{}ed, but *NOT* documented:
 \alias{as.numeric,mpfr-method}
 \alias{as.integer,mpfr-method}
+\alias{beta,ANY,mpfr-method}
+\alias{beta,ANY,mpfrArray-method}
+\alias{beta,mpfr,ANY-method}
+\alias{beta,mpfrArray,ANY-method}
+\alias{beta,mpfrArray,mpfrArray-method}
+\alias{beta,mpfr,mpfr-method}
+\alias{lbeta,ANY,mpfr-method}
+\alias{lbeta,ANY,mpfrArray-method}
+\alias{lbeta,mpfr,ANY-method}
+\alias{lbeta,mpfrArray,ANY-method}
+\alias{lbeta,mpfrArray,mpfrArray-method}
+\alias{lbeta,mpfr,mpfr-method}
+%
 \alias{coerce,mpfr,character-method}
 \alias{coerce,mpfr,numeric-method}
 \alias{coerce,mpfr,integer-method}
@@ -125,6 +138,13 @@
   \describe{
     \item{abs}{\code{signature(x = "mpfr")}: ... }
 
+    \item{beta}{\code{signature(a = "mpfr", b = "ANY")},}
+    \item{lbeta}{\code{signature(a = "ANY", b = "mpfrArray")},}
+    \item{beta}{\code{signature(a = "mpfr", b = "mpfr")}, \dots, etc:
+      Compute the beta function \eqn{B(a,b)}, using high precision,
+      building on internal \code{\link{gamma}} or \code{\link{lgamma}}.
+      See the help for \R's base function \code{\link[base]{beta}} for
+      more.}
     \item{dim<-}{\code{signature(x = "mpfr")}: Setting a dimension
       \code{\link{dim}} on an \code{"mpfr"} object makes it into an object
       of class \code{"\linkS4class{mpfrArray}"} or (more specifically)

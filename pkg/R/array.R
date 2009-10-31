@@ -95,6 +95,11 @@ setAs("mpfrArray", "array", toNum)
 
 setAs("mpfrMatrix", "matrix", toNum)
 
+setAs("mpfrArray", "matrix", function(from) {
+    if(length(dim(from)) != 2)
+	stop("dim(.) != 2  ==> cannot be coerced to 'matrix'")
+    toNum(from)
+})
 
 print.mpfrArray <- function(x, digits = NULL, drop0trailing = FALSE, ...) {
 ##                                                            -----

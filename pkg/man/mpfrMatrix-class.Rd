@@ -15,6 +15,7 @@
 \alias{Compare,numeric,mpfrArray-method}
 %
 \alias{coerce,mpfrArray,array-method}
+\alias{coerce,mpfrArray,matrix-method}
 \alias{coerce,mpfrMatrix,matrix-method}
 %
 \alias{as.vector,mpfrArray,missing-method}
