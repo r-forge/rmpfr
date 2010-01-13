@@ -197,7 +197,8 @@ SEXP str2mpfr1_list(SEXP x, SEXP prec, SEXP base)
 #undef R_mpfr_MPFR_2R_fill
 
 
-/* This does not work: gives *empty* .Data slot [bug in NEW_OBJECT()? ] */
+#ifdef _not_used_
+/* This does *not* work: gives *empty* .Data slot [bug in NEW_OBJECT()? ] */
 SEXP d2mpfr(SEXP x, SEXP prec)
 {
     int i_prec = asInteger(prec), n = LENGTH(x), i, nprot = 1;
@@ -216,7 +217,7 @@ SEXP d2mpfr(SEXP x, SEXP prec)
     UNPROTECT(nprot);
     return val;
 }
-
+#endif
 
 /* The inverse of  MPFR_as_R() :
  * From an R  "mpfr1" object, (re)build an mpfr one: */

@@ -13,7 +13,6 @@
 
 static R_CallMethodDef CallEntries[] = {
 
-    CALLDEF(d2mpfr, 2),
     CALLDEF(d2mpfr1, 2),
     CALLDEF(d2mpfr1_list, 2),
 #ifndef WIN32
@@ -73,7 +72,6 @@ R_init_Rmpfr(DllInfo *dll)
 
 #define RREGDEF(name)  R_RegisterCCallable("Rmpfr", #name, (DL_FUNC) name)
 
-    RREGDEF(d2mpfr);
     RREGDEF(d2mpfr1);
     RREGDEF(d2mpfr1_list);
 #ifndef WIN32

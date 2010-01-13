@@ -1,3 +1,7 @@
+2010-01-13  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* src/init.c, src/convert.c (d2mpfr): outcomment unused function
+
 2009-10-31  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* R/array.R: add "mpfrArray" -> "matrix" coercion
