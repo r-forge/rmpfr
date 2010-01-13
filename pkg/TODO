@@ -87,6 +87,7 @@
 
 16) psigamma(x, n)  {and  digamma(), trigamma() aliases}
 
+    --> experiments in ~/R/MM/Pkg-ex/Rmpfr/psigamma.R )
 
 
 50) For *complex* arithmetic, build interface to the  "MPC" library

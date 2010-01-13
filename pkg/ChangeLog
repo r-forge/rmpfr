@@ -1,5 +1,11 @@
 2010-01-13  Martin Maechler  <maechler@stat.math.ethz.ch>
 
+	* DESCRIPTION (Version): 0.1-8
+
+	* R/Math.R (.mpfr.sign): fix to ensure sign(0) |-> 0.  Reported by
+	Petr Savicky.
+	* tests/arith-ex.R: test it.
+
 	* src/init.c, src/convert.c (d2mpfr): outcomment unused function
 
 2009-10-31  Martin Maechler  <maechler@stat.math.ethz.ch>

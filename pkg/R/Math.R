@@ -62,8 +62,15 @@ if(FALSE)
 ## "abs" -- only one left
 
 ## A few ones have a very simple method:
-setMethod("sign", "mpfr",
-	  function(x) sapply(x, function(e) e@sign))
+## Note that the 'sign' slot is from the C-internal struct
+## and is always +/- 1 , but R's sign(0) |--> 0
+.mpfr.sign <- function(x) {
+    r <- numeric(n <- length(x))# all 0
+    not0 <- !mpfr.is.0(x)
+    r[not0] <- unlist(lapply(x@.Data[not0], slot, name = "sign"))
+    r
+}
+setMethod("sign", "mpfr", .mpfr.sign)
 
 setMethod("abs", "mpfr",
 	  function(x) {
@@ -174,6 +181,6 @@ setMethod("Math2", signature(x = "mpfr"),
 ## i.e., if the above methods are written "general enough", they apply directly
 
 setMethod("sign", "mpfrArray",
-	  function(x) structure(sapply(x, function(e) e@sign),
+	  function(x) structure(.mpfr.sign(x),
 				dim = dim(x),
 				dimnames = dimnames(x)))
