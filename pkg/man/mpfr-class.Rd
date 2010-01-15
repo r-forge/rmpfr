@@ -10,6 +10,7 @@
 \alias{[<-,mpfr,ANY,missing,mpfr-method}
 % FIXME: many of these are just \alias{}ed, but *NOT* documented:
 \alias{as.numeric,mpfr-method}
+\alias{as.vector,mpfrArray-method}
 \alias{as.integer,mpfr-method}
 \alias{beta,ANY,mpfr-method}
 \alias{beta,ANY,mpfrArray-method}
@@ -204,6 +205,12 @@
 	digits)} and \code{\link{signif}(x, digits)} methods.}
 
     \item{as.numeric}{\code{signature(x = "mpfr")}: ... }
+
+    \item{as.vector}{\code{signature(x = "mpfrArray")}: as for standard
+      \code{\link{array}}s, this \dQuote{drops} the \code{dim} (and
+      \code{dimnames}), i.e., transforms \code{x} into an \sQuote{MPFR}
+      number vector, i.e., class \code{\linkS4class{mpfr}}.}
+
     \item{[}{\code{signature(x = "mpfr", i = "ANY", j = "missing", drop = "missing")}: ... }
     \item{format}{\code{signature(x = "mpfr")}, further arguments
       \code{digits = NULL, scientific = NA}, etc:

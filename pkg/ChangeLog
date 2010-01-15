@@ -1,3 +1,21 @@
+2010-01-15  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/array.R (.matmult.R): tcrossprod changes along to the bug fix
+	in R (!).
+
+	* DESCRIPTION (Version): 0.2-0
+
+2010-01-14  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/array.R ([<-): define for more signatures
+	(%*%, crossprod, tcrossprod): extend signatures to include more
+	pairs, and using "Mnumber" instead of just "array_or_vector".
+
+	* tests/matrix-ex.R: test part of that
+
+	* man/*-class.Rd: additions, notably as.vector() and
+	as(<mpfrMatrix>, "vector").
+
 2010-01-13  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* DESCRIPTION (Version): 0.1-8
