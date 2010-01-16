@@ -108,19 +108,23 @@ setMethod("[", signature(x = "mpfr", i = "ANY", j = "missing", drop = "missing")
 	  })
 
 ## "[<-" :
-setReplaceMethod("[", signature(x = "mpfr", i = "ANY", j = "missing",
-				value = "ANY"),
-	  function(x,i,value) { x@.Data[i] <- as(value, "mpfr"); x })
-
-setReplaceMethod("[", signature(x = "mpfr", i = "ANY", j = "missing",
-				value = "mpfr"),
-	  function(x,i, ..., value) {
-	      if(length(list(...)))# should no longer happen:
-		  stop("extra replacement arguments",
-		       deparse(list(...))," not dealt with")
-	      x@.Data[i] <- value
-	      x })
-
+.mpfr.repl <- function(x, i, ..., value) {
+    if(length(list(...))) ## should no longer happen:
+        stop("extra replacement arguments",
+             deparse(list(...))," not dealt with")
+    n <- length(x@.Data)
+    x@.Data[i] <- value
+    if((nn <- length(x@.Data)) > n+1)
+	## must "fill" the newly created NULL entries
+	x@.Data[setdiff((n+1):(nn-1), i)] <- mpfr(NA, precBits = 2L)
+    x
+}
+setReplaceMethod("[", signature(x = "mpfr", i = "ANY", j = "missing", value = "mpfr"),
+		 .mpfr.repl)
+setReplaceMethod("[", signature(x = "mpfr", i = "missing", j = "missing", value = "ANY"),
+	  function(x,i,value) .mpfr.repl(x, , value = as(value, "mpfr")))
+setReplaceMethod("[", signature(x = "mpfr", i = "ANY", j = "missing", value = "ANY"),
+	  function(x,i,value) .mpfr.repl(x, i, value = as(value, "mpfr")))
 
 
 ## I don't see how I could use setMethod("c", ...)

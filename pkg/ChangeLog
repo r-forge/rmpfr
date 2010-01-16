@@ -1,6 +1,9 @@
 2010-01-16  Martin Maechler  <maechler@stat.math.ethz.ch>
 
-	* R/mpfr.R ([<-): change such that  x[] <- 1  works
+	* R/mpfr.R (.mpfr.repl, [<-): change such that  x[] <- 1  works;
+	also z[i] <- v when i is larger than length(z).
+
+	* tests/create.R: test the above.
 
 2010-01-15  Martin Maechler  <maechler@stat.math.ethz.ch>
 

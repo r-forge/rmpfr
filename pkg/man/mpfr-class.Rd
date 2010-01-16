@@ -6,6 +6,7 @@
 \alias{mpfr1-class}
 %
 \alias{[,mpfr,ANY,missing,missing-method}
+\alias{[<-,mpfr,missing,missing,ANY-method}
 \alias{[<-,mpfr,ANY,missing,ANY-method}
 \alias{[<-,mpfr,ANY,missing,mpfr-method}
 % FIXME: many of these are just \alias{}ed, but *NOT* documented:
