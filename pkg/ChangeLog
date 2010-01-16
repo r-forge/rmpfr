@@ -1,3 +1,7 @@
+2010-01-16  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/mpfr.R ([<-): change such that  x[] <- 1  works
+
 2010-01-15  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* R/array.R (.matmult.R): tcrossprod changes along to the bug fix

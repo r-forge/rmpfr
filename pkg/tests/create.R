@@ -69,6 +69,10 @@ X. <- X.[!mpfr.is.0(X.)]
 stopifnot(all( X./X. == 1)) # TRUE
 
 u <- mpfr(as.raw(0:100))
-stopifnot(0:100 == u,
+z <- mpfr(1:20, 200)
+z[] <- 0
+stopifnot(0:100 == u, is(z,"mpfr"), mpfr.is.0(z),
 	  all.equal(u, mpfr(0:100, prec = 8), tol = 0),
 	  0:1 == mpfr(1:2 %% 2 == 0))
+z[3] <- Const("pi",200)
+stopifnot(all.equal(z[1:4], c(0,0,pi,0), tol = 1e-15))

@@ -110,7 +110,7 @@ setMethod("[", signature(x = "mpfr", i = "ANY", j = "missing", drop = "missing")
 ## "[<-" :
 setReplaceMethod("[", signature(x = "mpfr", i = "ANY", j = "missing",
 				value = "ANY"),
-	  function(x,i,value) { x[i] <- as(value, "mpfr"); x })
+	  function(x,i,value) { x@.Data[i] <- as(value, "mpfr"); x })
 
 setReplaceMethod("[", signature(x = "mpfr", i = "ANY", j = "missing",
 				value = "mpfr"),
