@@ -1,3 +1,11 @@
+2010-01-18  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 0.2-1
+
+	* R/array.R (.matmult.R): "obvious" speed up, replacing the
+	innermost for() loop by a sum(); inspired by a patch from Petr.
+	*However* the real speedup would use a .Call(..) directly!
+
 2010-01-16  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* R/mpfr.R (.mpfr.repl, [<-): change such that  x[] <- 1  works;

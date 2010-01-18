@@ -228,13 +228,11 @@ setMethod(show, "mpfrArray", function(object) print.mpfrArray(object))
 	z@Dim <- c(nrx, ncy)
 	z@.Data <- vector("list", nrx*ncy)
 	if (nrx > 0 && ncx > 0 && nry > 0 && ncy > 0)
-	    for(i in 1:nrx)
-		for (k in 0L:(ncy - 1L)) {
-		    sum <- 0
-		    for (j in 0L:(ncx - 1L))
-			sum <- sum + x[i + j * nrx] * y[1L+ j + k * nry]
-		    z[i + k * nrx] <- sum
-		}
+	    for(i in 1:nrx) {
+		j <- 0L:(ncx - 1L)
+		for (k in 0L:(ncy - 1L))
+		    z[i + k * nrx] <- sum(x[i + j * nrx] * y[1L+ j + k * nry])
+	    }
 	else	    #/* zero-extent operations should return zeroes */
 	    for(i in seq_len(nrx*ncy)) z[i] <- z0
     }
@@ -244,13 +242,11 @@ setMethod(show, "mpfrArray", function(object) print.mpfrArray(object))
 	z@Dim <- c(ncx, ncy)
 	z@.Data <- vector("list", ncx*ncy)
 	if (nrx > 0 && ncx > 0 && nry > 0 && ncy > 0)
-	    for(i in 0L:(ncx - 1L))
-		for (k in 0L:(ncy - 1L)) {
-		    sum <- 0
-		    for (j in 1L:nrx)
-			sum <- sum + x[j + i * nrx] * y[j + k * nry]
-		    z[1L +i + k * ncx] <- sum
-		}
+	    for(i in 0L:(ncx - 1L)) {
+		j <- 1L:nrx
+		for (k in 0L:(ncy - 1L))
+		    z[1L +i + k * ncx] <- sum(x[j + i * nrx] * y[j + k * nry])
+	    }
 	else
 	    for(i in seq_len(ncx*ncy)) z[i] <- z0
     }
@@ -260,13 +256,11 @@ setMethod(show, "mpfrArray", function(object) print.mpfrArray(object))
 	z@Dim <- c(nrx, nry)
 	z@.Data <- vector("list", nrx*nry)
 	if (nrx > 0 && ncx > 0 && nry > 0 && ncy > 0)
-	    for(i in seq_len(nrx))
-		for (k in 0L:(nry - 1L)) {
-		    sum <- 0
-		    for (j in 0L:(ncx - 1L))
-			sum <- sum + x[i + j * nrx] * y[1L +k + j * nry]
-		    z[i + k * nrx] <- sum
-		}
+	    for(i in seq_len(nrx)) {
+		j <- 0L:(ncx - 1L)
+		for (k in 0L:(nry - 1L))
+		    z[i + k * nrx] <- sum(x[i + j * nrx] * y[1L +k + j * nry])
+	    }
 	else
 	    for(i in seq_len(nrx*nry)) z[i] <- z0
     }
