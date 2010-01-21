@@ -8,15 +8,22 @@ pi. # nicely prints 80 digits [260 * log10(2) ~= 78.3 ~ 80]
 ## This is TRUE for 0 and -0 :
 Zero <- mpfr(c(0,1/-Inf), 20)
 stopifnot(mpfr.is.0(Zero))
-Zero
+Zero # the "-0" should print correctly
+stopifnot(sapply(Zero,slot,"sign") == c(1,-1),
+	  identical(format(Zero, digits=1), c("0.", "-0.")))
+
+## testing 'recycling'
+b <- c(20,120,80, 60)
+x <- mpfr(2^-(5:7), precBits = b);x
 
 d.spec <- c(0,NA,NaN,Inf,-Inf)
 (spec <- mpfr(d.spec, 3))
-stopifnot(identical(is.na(spec), is.na(d.spec)),
-          identical(is.finite(spec), is.finite(d.spec)),
-          identical(is.infinite(spec), is.infinite(d.spec)),
-          identical(format(spec),
-                    c("0.00", "NaN", "NaN", "Inf", "-Inf")))
+stopifnot(length(x) == 4, x[1] == x[4], getPrec(x) == b,
+	  identical(is.na(spec), is.na(d.spec)),
+	  identical(is.finite(spec), is.finite(d.spec)),
+	  identical(is.infinite(spec), is.infinite(d.spec)),
+	  identical(format(spec),
+		    c("0.0", "NaN", "NaN", "Inf", "-Inf")))
 
 x <- c(-12, 1:3 * pi)
 sss <- mpfr(x, 100)

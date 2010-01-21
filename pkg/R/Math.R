@@ -154,7 +154,7 @@ setMethod("Math2", signature(x = "mpfr"),
 		     },
 		     "signif" = { ## following ~/R/D/r-devel/R/src/nmath/fprec.c :
                          if(missing(digits)) digits <- 6L
-			 if(digits > max(getPrec(x)) * log10(2))
+			 if(digits > max(.getPrec(x)) * log10(2))
 			     return(x)
 			 if(digits < 1) digits <- 1L
 			 l10 <- log10(x)

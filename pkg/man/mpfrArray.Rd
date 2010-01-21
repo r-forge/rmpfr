@@ -12,7 +12,9 @@ mpfrArray(x, precBits, dim = length(x), dimnames = NULL)
 \arguments{
   \item{x}{numeric(like) vector, typically of length \code{prod(dim)} or
     shorter in which case it is recycled.}
-  \item{precBits}{ ~~Describe \code{precBits} here~~ }
+  \item{precBits}{a number, the maximal precision to be used, in
+    \bold{\emph{bits}}; i.e., \code{53} corresponds to double precision.
+    Must be at least 2.}
   \item{dim}{the dimension of the array to be created, that is a
     vector of length one or more giving the maximal indices in
     each dimension.}

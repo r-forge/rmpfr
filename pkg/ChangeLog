@@ -1,3 +1,27 @@
+2010-01-21  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 0.2-2
+
+	* R/as.R (formatMpfr): add 'showNeg0' argument, and fix printing of
+	zeros.
+
+	* R/mpfr.R ([): ensure out-of-range indexing returns valid "mpfr".
+
+	* tests/create.R: test the above.
+
+2010-01-20  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/mpfr.R (.getPrec, getPrec): previous getPrec() renamed to
+	.getPrec(); the new getPrec() also works for simple R "numbers",
+	and is used in mpfr(), and the following :
+
+	* R/mpfr.R ([<-): for non-"mpfr" value, use at least the previous
+	precision, following a chat with Petr Savicky.
+
+	* src/convert.c (d2mpfr1_list): ensure x is recycled when prec
+	is longer than x.
+	(str2mpfr1_list): ditto.
+
 2010-01-18  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* DESCRIPTION (Version): 0.2-1

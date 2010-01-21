@@ -2,9 +2,12 @@
  * MPFR - Multiple Precision Floating-Point Reliable Library
  * ----   -        -         -              -
  */
+#include <Rmath.h>
+/* for imax2() */
 
 #include "Rmpfr_utils.h"
 #include "Syms.h"
+
 
 /*------------------------------------------------------------------------*/
 
@@ -133,7 +136,8 @@ SEXP d2mpfr1(SEXP x, SEXP prec) {
 
 SEXP d2mpfr1_list(SEXP x, SEXP prec)
 {
-    int *iprec, n = LENGTH(x), np = LENGTH(prec), i, nprot = 1;
+    int nx = LENGTH(x), np = LENGTH(prec), n = imax2(nx, np),
+	*iprec, i, nprot = 1;
     SEXP val = PROTECT(allocVector(VECSXP, n));
     double *dx;
 
@@ -143,7 +147,7 @@ SEXP d2mpfr1_list(SEXP x, SEXP prec)
     iprec = INTEGER(prec);
     for(i = 0; i < n; i++) {
 	/* FIXME: become more efficient by doing R_..._2R_init() only once*/
-	SET_VECTOR_ELT(val, i, d2mpfr1_(dx[i], iprec[i % np]));
+	SET_VECTOR_ELT(val, i, d2mpfr1_(dx[i % nx], iprec[i % np]));
     }
 
     UNPROTECT(nprot);
@@ -165,9 +169,10 @@ SEXP d2mpfr1_list(SEXP x, SEXP prec)
 
 SEXP str2mpfr1_list(SEXP x, SEXP prec, SEXP base)
 {
-/* NB:  prec is "recycled"  within 'x' */
+/* NB: Both x and prec are "recycled" to the longer one if needed */
     int ibase = asInteger(base), *iprec,
-	n = LENGTH(x), np = LENGTH(prec), i, nprot = 1;
+	nx = LENGTH(x), np = LENGTH(prec), n = imax2(nx, np),
+	i, nprot = 1;
     SEXP val = PROTECT(allocVector(VECSXP, n));
     mpfr_t r_i;
     mpfr_init(r_i);
@@ -180,7 +185,8 @@ SEXP str2mpfr1_list(SEXP x, SEXP prec, SEXP base)
     for(i = 0; i < n; i++) {
 	int ierr;
 	mpfr_set_prec(r_i, (mpfr_prec_t) iprec[i % np]);
-	ierr = mpfr_set_str(r_i, CHAR(STRING_ELT(x, i)), ibase, GMP_RNDD);
+	ierr = mpfr_set_str(r_i, CHAR(STRING_ELT(x, i % nx)),
+			    ibase, GMP_RNDD);
 	if(ierr)
 	    error("str2mpfr1_list(x, *): x[%d] cannot be made into MPFR",
 		  i+1);
@@ -201,19 +207,21 @@ SEXP str2mpfr1_list(SEXP x, SEXP prec, SEXP base)
 /* This does *not* work: gives *empty* .Data slot [bug in NEW_OBJECT()? ] */
 SEXP d2mpfr(SEXP x, SEXP prec)
 {
-    int i_prec = asInteger(prec), n = LENGTH(x), i, nprot = 1;
+    int i_prec = asInteger(prec),
+	nx = LENGTH(x), np = LENGTH(prec), n = imax2(nx, np),
+	i, nprot = 1;
     SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("mpfr"))),
 	lis = ALLOC_SLOT(val, Rmpfr_Data_Sym, VECSXP, n);
     double *dx;
 
     if(!isReal(x)) { PROTECT(x = coerceVector(x, REALSXP)); nprot++; }
     REprintf("d2mpfr(x, prec): length(x) = %d, prec = %d -> length(lis) = %d\n",
-	     n, i_prec, LENGTH(lis));
+	     nx, i_prec, LENGTH(lis));
     dx = REAL(x);
     for(i = 0; i < n; i++) {
-	SET_VECTOR_ELT(lis, i, duplicate(d2mpfr1_(dx[i], i_prec)));
+	SET_VECTOR_ELT(lis, i, duplicate(d2mpfr1_(dx [i % nx],
+						  i_prec [i % np])));
     }
-
     UNPROTECT(nprot);
     return val;
 }
