@@ -13,8 +13,8 @@
 
 static R_CallMethodDef CallEntries[] = {
 
-    CALLDEF(d2mpfr1, 2),
-    CALLDEF(d2mpfr1_list, 2),
+    CALLDEF(d2mpfr1, 3),
+    CALLDEF(d2mpfr1_list, 3),
 #ifndef WIN32
     /* only works on "unix-alikes" */
     CALLDEF(print_mpfr, 2),
@@ -23,7 +23,7 @@ static R_CallMethodDef CallEntries[] = {
     CALLDEF(mpfr2d, 1),
     CALLDEF(mpfr2i, 1),
     CALLDEF(mpfr2str, 2),
-    CALLDEF(str2mpfr1_list, 3),
+    CALLDEF(str2mpfr1_list, 4),
 
     CALLDEF(Math_mpfr, 2),
     CALLDEF(Arith_mpfr, 3),

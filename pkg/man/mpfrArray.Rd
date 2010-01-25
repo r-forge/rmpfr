@@ -7,7 +7,8 @@
   \code{\link{array}} function.
 }
 \usage{
-mpfrArray(x, precBits, dim = length(x), dimnames = NULL)
+mpfrArray(x, precBits, dim = length(x), dimnames = NULL,
+          rnd.mode = c("N","D","U","Z"))
 }
 \arguments{
   \item{x}{numeric(like) vector, typically of length \code{prod(dim)} or
@@ -23,6 +24,9 @@ mpfrArray(x, precBits, dim = length(x), dimnames = NULL)
     either \code{NULL} or a character vector of the length given by
     \code{dim} for that dimension.}
   %% ?array has more, about named dimnames etc...
+  \item{rnd.mode}{a 1-letter string specifying how \emph{rounding}
+    should happen at C-level conversion to MPFR, see details of
+    \code{\link{mpfr}}.}
 }
 \value{
   an object of class \code{"\linkS4class{mpfrArray}"}, specifically

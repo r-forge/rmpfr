@@ -86,13 +86,14 @@ static R_INLINE int R_mpfr_nr_limbs(mpfr_t r)
 
 
 /* ./convert.c : */
-SEXP d2mpfr1 (SEXP x, SEXP prec);
-SEXP d2mpfr1_(double x, int i_prec);
-SEXP d2mpfr1_list(SEXP x, SEXP prec);
+mp_rnd_t R_rnd2GMP(SEXP rnd_mode);
+SEXP d2mpfr1 (SEXP x, SEXP prec, SEXP rnd_mode);
+SEXP d2mpfr1_(double x, int i_prec, mp_rnd_t rnd);
+SEXP d2mpfr1_list(SEXP x, SEXP prec, SEXP rnd_mode);
 SEXP mpfr2d(SEXP x);
 SEXP mpfr2i(SEXP x);
 SEXP mpfr2str(SEXP x, SEXP digits);
-SEXP str2mpfr1_list(SEXP x, SEXP prec, SEXP base);
+SEXP str2mpfr1_list(SEXP x, SEXP prec, SEXP base, SEXP rnd_mode);
 
 SEXP print_mpfr (SEXP x, SEXP digits);
 SEXP print_mpfr1(SEXP x, SEXP digits);

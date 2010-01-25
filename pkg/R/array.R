@@ -16,10 +16,14 @@ setMethod("dim<-", signature(x = "mpfr", value = "ANY"),
 		  stop("invalid 'value' ( = RHS = right hand side)")
 	  })
 
-mpfrArray <- function(x, precBits, dim = length(x), dimnames = NULL)
+mpfrArray <- function(x, precBits, dim = length(x), dimnames = NULL,
+                      rnd.mode = c('N','D','U','Z'))
 {
     dim <- as.integer(dim)
-    ml <- .Call("d2mpfr1_list", x, precBits, PACKAGE="Rmpfr")
+    rnd.mode <- toupper(rnd.mode)
+    rnd.mode <- match.arg(rnd.mode)
+
+    ml <- .Call("d2mpfr1_list", x, precBits, rnd.mode, PACKAGE="Rmpfr")
     vl <- prod(dim)
     if (length(x) != vl) {
         if (vl > .Machine$integer.max)
@@ -358,36 +362,37 @@ setMethod("[", signature(x = "mpfrArray", i = "ANY", j = "missing",
           .mpfrA.subset)
 
 
-
-.mA.subAssign <- function(x,i,j,..., value)
+.mA.subAssign <- function(x,i,j,..., value, n.a, isMpfr)
 {
-    nA <- nargs()
-    if(nA >= 4) {
+    ## n.a :=== nargs() -- in the calling "[<-" method --
+    r <- x@.Data
+    if(n.a >= 4) {
 	## A[i,j]  /  A[i,]  /	A[,j]	but not A[i]
-	## A[i,j,k] <- v : nA == 5
-	r <- x@.Data
+	## A[i,j,k] <- v : n.a == 5
 	dim(r) <- dim(x)
 	dimnames(r) <- dimnames(x)
-	vD <- as(value, "mpfr")@.Data
-	if(nA == 4) {
-
+	if(!isMpfr)
+	   value <- mpfr(value, precBits =
+			 pmax(getPrec(value),
+			      .getPrec(if(n.a == 4) r[i,j] else r[i,j, ...]))
+			 )
+	vD <- value@.Data
+	if(n.a == 4) {
 	    r[i,j] <- vD
-
-	} else { ## nA >= 5
-
+	} else { ## n.a >= 5
 	    r[i, j, ...] <- vD
-
 	}
 	attributes(r) <- NULL
 	x@.Data <- r
     }
-    else if(nA == 3) { ##  A [ i ] <- v
+    else if(n.a == 3) { ##  A [ i ] <- v
+	if(!isMpfr)
+	    value <- mpfr(value, precBits = pmax(getPrec(value), .getPrec(r[i])))
+	x@.Data[i] <- value
 
-	x@.Data[i] <- as(value, "mpfr")
-
-    } else { ## nA <= 2
+    } else { ## n.a <= 2
 	stop(sprintf("nargs() == %d  mpfrArray[i,j] <- value  IMPOSSIBLE?",
-		     nA))
+		     n.a))
     }
     x
 }## .mA.subAssign
@@ -397,11 +402,19 @@ setMethod("[", signature(x = "mpfrArray", i = "ANY", j = "missing",
 ## E.g., for A[1,,2] <- V
 ## these are to trigger before the  ("mpfr", i,j, "mpfr")  [ ./mpfr.R ] does
 for(it in c("ANY", "missing"))
-  for(jt in c("ANY", "missing"))
-    for(valt in c("ANY","mpfr"))
-	setReplaceMethod("[", signature(x = "mpfrArray", i = it, j = jt, value = valt),
-			 .mA.subAssign)
-rm(it,jt,valt)
+    for(jt in c("ANY", "missing"))
+    setReplaceMethod("[", signature(x = "mpfrArray", i = it, j = jt, value = "mpfr"),
+		     function(x,i,j,..., value)
+		     .mA.subAssign(x,i=i,j=j,...,value=value,
+				   n.a=nargs(), isMpfr = TRUE))
+## non-"mpfr" value
+for(it in c("ANY", "missing"))
+    for(jt in c("ANY", "missing"))
+    setReplaceMethod("[", signature(x = "mpfrArray", i = it, j = jt, value = "ANY"),
+		     function(x,i,j, ..., value)
+		     .mA.subAssign(x,i=i,j=j,...,value=value,
+				   n.a=nargs(), isMpfr = FALSE))
+rm(it,jt)
 
 ###-----------
 

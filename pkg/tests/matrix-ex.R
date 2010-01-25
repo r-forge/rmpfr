@@ -52,6 +52,11 @@ stopifnot(dim(m2) == c(2,2), sum(m2) == 2)
 Tmx <- array(TRUE, dim(mx), dimnames=dimnames(mx))
 stopifnot(identical(Tmx, mx == (mx - mpfr(0, 10))),
 	  identical(Tmx, mx - mpfr(1, 10) * mx == 0))
+## subassignment, many kinds
+mx[5] <- pi
+mx[6] <- Const("pi",100)
+stopifnot(validObject(mx), allEQ(mx[5], mx[6]),
+	  getPrec(mx) == c(rep(64,5), 100, 64,64))
 
 ## %*% with vectors on LHS, ...
 y <- t(2:4) # 1 x 3 matrix

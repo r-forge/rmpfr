@@ -3,7 +3,7 @@
 
 
 ## was  toMpfr <-
-mpfr <- function(x, precBits, base = 10)
+mpfr <- function(x, precBits, base = 10, rnd.mode = c('N','D','U','Z'))
 {
     if(is.character(x))
 	stopifnot(length(base) == 1, 2 <= base, base <= 36)
@@ -11,17 +11,22 @@ mpfr <- function(x, precBits, base = 10)
 	precBits <- getPrec(x, base = base, doNumeric = FALSE)
     }
     ## libmpfr would exit (after good error message) for precBits == 1
-    stopifnot(precBits >= 2)
+    stopifnot(precBits >= 2, is.character(rnd.mode))
+    rnd.mode <- toupper(rnd.mode)
+    rnd.mode <- match.arg(rnd.mode)
+
     if(is.numeric(x) || is.logical(x) || is.raw(x)) {
-	new("mpfr", .Call("d2mpfr1_list", x, precBits, PACKAGE="Rmpfr"))
+	new("mpfr", .Call("d2mpfr1_list", x, precBits, rnd.mode, PACKAGE="Rmpfr"))
     } else if(is.character(x)) {
-	new("mpfr", .Call("str2mpfr1_list", x, precBits, base, PACKAGE="Rmpfr"))
+	new("mpfr", .Call("str2mpfr1_list", x, precBits,
+			  base, rnd.mode, PACKAGE="Rmpfr"))
     }
     else stop("invalid 'x'. Must be numeric (logical, raw) or character")
 }
 
 setAs("numeric", "mpfr1", ## use default precision of 128 bits
-      function(from) .Call("d2mpfr1", from, 128L, PACKAGE="Rmpfr"))
+      function(from) .Call("d2mpfr1", from, 128L, "N",# <- round to [N]earest
+                           PACKAGE="Rmpfr"))
 setAs("numeric", "mpfr", function(from) mpfr(from, 128L))
 setAs("integer", "mpfr", function(from) mpfr(from,  32L))
 setAs("raw",     "mpfr", function(from) mpfr(from,   8L))

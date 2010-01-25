@@ -1,3 +1,12 @@
+2010-01-22  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 0.2-2
+
+	* src/convert.c (R_rnd2GMP): new; allow to specify
+	"rounding mode" from R. For now, for conversion to MPFR.
+	Change default to use (round to) [N]earest rather than [D]ownwards.
+
+
 2010-01-21  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* DESCRIPTION (Version): 0.2-2
