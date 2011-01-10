@@ -1,6 +1,12 @@
+2011-01-10  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 0.2-4
+
+	* R/Math.R (factorial): improve integer test (thanks to Petr Savicky).
+
 2010-01-22  Martin Maechler  <maechler@stat.math.ethz.ch>
 
-	* DESCRIPTION (Version): 0.2-2
+	* DESCRIPTION (Version): 0.2-3
 
 	* src/convert.c (R_rnd2GMP): new; allow to specify
 	"rounding mode" from R. For now, for conversion to MPFR.

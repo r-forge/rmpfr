@@ -83,7 +83,9 @@ setMethod("abs", "mpfr",
 setMethod("factorial", "mpfr",
 	  function(x) {
 	      r <- gamma(x + 1)
-	      if(mpfr.is.integer(x)) round(r) else r
+	      isi <- mpfr.is.integer(x)
+	      r[isi] <- round(r[isi])
+	      r
 	  })
 
 ## "log" is still special with its 'base' :
