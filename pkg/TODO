@@ -1,4 +1,5 @@
-2) NOTA BENE:  Have  "mpfrMatrix", dim(.) <- ..; t(), %*%, crossprod()...
+2)
+ - Now have working  "mpfrMatrix", dim(.) <- ..; t(), %*%, crossprod()...
 
  -  <mpfr> %*% <mpfr>    should work like with numeric vectors
  -  <mpfr> %*% t(<mpfr>)  ditto
@@ -86,3 +87,4 @@
 50) For *complex* arithmetic, build interface to the  "MPC" library
    ---> http://www.multiprecision.org/mpc -- which is LGPL and itself
    builds on MPFR and GMP.
+   Ubuntu now has 'libmpc-dev' (!)

@@ -15,13 +15,19 @@ mpfr <- function(x, precBits, base = 10, rnd.mode = c('N','D','U','Z'))
     rnd.mode <- toupper(rnd.mode)
     rnd.mode <- match.arg(rnd.mode)
 
-    if(is.numeric(x) || is.logical(x) || is.raw(x)) {
-	new("mpfr", .Call("d2mpfr1_list", x, precBits, rnd.mode, PACKAGE="Rmpfr"))
-    } else if(is.character(x)) {
-	new("mpfr", .Call("str2mpfr1_list", x, precBits,
-			  base, rnd.mode, PACKAGE="Rmpfr"))
+    ml <-
+	if(is.numeric(x) || is.logical(x) || is.raw(x))
+	    .Call("d2mpfr1_list", x, precBits, rnd.mode, PACKAGE="Rmpfr")
+	else if(is.character(x))
+	    .Call("str2mpfr1_list",x, precBits, base, rnd.mode,PACKAGE="Rmpfr")
+	else stop("invalid 'x'. Must be numeric (logical, raw) or character")
+    if(is.array(x)) {
+	dim <- dim(x) ; dn <- dimnames(x)
+	new(if(length(dim) == 2) "mpfrMatrix" else "mpfrArray",
+	    ml, Dim = dim,
+	    Dimnames = if(is.null(dn)) vector("list", length(dim)) else dn)
     }
-    else stop("invalid 'x'. Must be numeric (logical, raw) or character")
+    else new("mpfr", ml)
 }
 
 setAs("numeric", "mpfr1", ## use default precision of 128 bits

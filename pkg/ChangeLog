@@ -1,3 +1,10 @@
+2011-01-15  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/array.R (mpfr2array): new utility as alternative to 'dim(.) <- *'
+
+	* R/as.R (mpfr): now also works with matrix or array input,
+	returning "mpfrArray"/"..Matrix".
+
 2011-01-10  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* DESCRIPTION (Version): 0.2-4
