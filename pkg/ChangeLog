@@ -1,5 +1,8 @@
 2011-01-15  Martin Maechler  <maechler@stat.math.ethz.ch>
 
+	* R/mpfr.R (.getPrec): return default precision instead of NULL for
+	0-length input; this enables  <mpfr>[FALSE] <- 1.
+
 	* R/array.R (mpfr2array): new utility as alternative to 'dim(.) <- *'
 
 	* R/as.R (mpfr): now also works with matrix or array input,

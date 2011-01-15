@@ -78,6 +78,7 @@ stopifnot(all( X./X. == 1)) # TRUE
 
 u <- mpfr(as.raw(0:100))
 z <- mpfr(1:12, 200)
+z[z > 100] <- 100 # nothing done  (but used to fail)
 z[] <- 0
 stopifnot(0:100 == u, is(z,"mpfr"), mpfr.is.0(z),
 	  all.equal(u, mpfr(0:100, prec = 8), tol = 0),

@@ -54,8 +54,8 @@
 10) [l]choose()       "should" be implemented {based on lgamma()}
     (===>  ~/R/MM/Pkg-ex/Rmpfr/binom-coef.R )
     possibly via a factorialMPFR() which automatically
-    uses full precision for integer-valued argument, notably using MPFR's mpfr_fac_ui;
-    see also end of man/mpfr-class.Rd
+    uses full precision for integer-valued argument,
+    notably using MPFR's mpfr_fac_ui; see also end of man/mpfr-class.Rd
 
     [a C level implementation, using MPFR-structs instead of R's "mpfr",
      would be considerably faster, both for the  prod(...) case {for
@@ -81,8 +81,8 @@
     -->  mpfr_prec_round(X, PREC, RND)
 
 16) psigamma(x, n)  {and  digamma(), trigamma() aliases}
-
     --> experiments in ~/R/MM/Pkg-ex/Rmpfr/psigamma.R )
+    Note that since, MPFR 3.0.0, there is a digamma(),
 
 50) For *complex* arithmetic, build interface to the  "MPC" library
    ---> http://www.multiprecision.org/mpc -- which is LGPL and itself

@@ -122,14 +122,17 @@ setMethod("[", signature(x = "mpfr", i = "ANY", j = "missing", drop = "missing")
 	x@.Data[setdiff((n+1):(nn-1), i)] <- mpfr(NA, precBits = 2L)
     x
 }
-setReplaceMethod("[", signature(x = "mpfr", i = "ANY", j = "missing", value = "mpfr"),
+setReplaceMethod("[", signature(x = "mpfr", i = "ANY", j = "missing",
+				value = "mpfr"),
 		 .mpfr.repl)
 ## for non-"mpfr", i.e. "ANY" 'value', coerce to mpfr with correct prec:
-setReplaceMethod("[", signature(x = "mpfr", i = "missing", j = "missing", value = "ANY"),
+setReplaceMethod("[", signature(x = "mpfr", i = "missing", j = "missing",
+				value = "ANY"),
 	  function(x,i,value)
 		 .mpfr.repl(x, , value = mpfr(value, precBits =
 				 pmax(getPrec(value), .getPrec(x)))))
-setReplaceMethod("[", signature(x = "mpfr", i = "ANY", j = "missing", value = "ANY"),
+setReplaceMethod("[", signature(x = "mpfr", i = "ANY", j = "missing",
+				value = "ANY"),
 	  function(x,i,value)
 		 .mpfr.repl(x, i, value = mpfr(value, precBits =
 				  pmax(getPrec(value), .getPrec(x[i])))))
@@ -348,10 +351,15 @@ setMethod("seq", c(from="ANY", to="ANY", by = "mpfr"), seqMpfr)
 
 }#not yet
 
-## the fast mpfr-only version:
-.getPrec <- function(x) unlist(lapply(x, slot, "prec"))
+## the fast mpfr-only version - should not return NULL
+.getPrec <- function(x) {
+    if(length(x)) unlist(lapply(x, slot, "prec"))
+    else mpfr_default_prec()
+}
 ## the user version
 getPrec <- function(x, base = 10, doNumeric = TRUE, is.mpfr = NA) {
+    ## if(!length(x)) ## NULL (from sapply(.) below) is not ok
+    ##     return(mpfr_default_prec())
     if(isTRUE(is.mpfr) || is(x,"mpfr")) sapply(x, slot, "prec")
     else if(is.character(x)) ## number of digits --> number of bits
 	ceiling(log2(base) * nchar(gsub("[-.]", '', x)))
