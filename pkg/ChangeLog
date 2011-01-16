@@ -1,3 +1,10 @@
+2011-01-16  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* src/Ops.c (Math_mpfr): enable digamma() for mpfr 3.0.0 and later
+	(Math_mpfr): implement  cummax(), cummin(), cumprod(), cumsum()
+
+	* src/Ops.c, R/special-fun.R: enable Airy function ai()
+
 2011-01-15  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* R/mpfr.R (.getPrec): return default precision instead of NULL for

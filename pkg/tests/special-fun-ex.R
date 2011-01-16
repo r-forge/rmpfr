@@ -53,6 +53,8 @@ stopifnot(all.equal(zeta( 0), -1/2,      tol = 2^-100)
 
 ### Exponential Integral Ei(.)
 curve(Ei, 0,5, n=5001)
+### Airy function Ai(.)
+curve(Ai, -10, 5, n=5001); abline(h=0,v=0, col="gray", lty=3)
 
 ### Utilities  hypot(), atan2() : --- TODO !
 

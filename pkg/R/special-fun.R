@@ -3,8 +3,8 @@
 erf <- function(x) {
     if(is.numeric(x)) 2 * pnorm(x * sqrt(2)) - 1
     else if(is(x, "mpfr")) { # maybe also mpfrMatrix
-        ##new("mpfr", .Call("Math_mpfr", x, .Math.codes["erf"], PACKAGE="Rmpfr"))
-        x@.Data[] <- .Call("Math_mpfr", x, .Math.codes["erf"], PACKAGE="Rmpfr")
+        ##new("mpfr", .Call("Math_mpfr", x, .Math.codes[["erf"]], PACKAGE="Rmpfr"))
+        x@.Data[] <- .Call("Math_mpfr", x, .Math.codes[["erf"]], PACKAGE="Rmpfr")
         x
     }
     else stop("invalid class(x): ", class(x))
@@ -83,7 +83,7 @@ Ei <- function(x) {
 ## Li_2() the dilogarithm
 Li2 <- function(x) {
     x <- as(x, "mpfr")
-    x@.Data[] <- .Call("Math_mpfr", x, .Math.codes["Li2"], PACKAGE="Rmpfr")
+    x@.Data[] <- .Call("Math_mpfr", x, .Math.codes[["Li2"]], PACKAGE="Rmpfr")
     x
 }
 
@@ -93,22 +93,28 @@ Li2 <- function(x) {
 ## y0, y1, yn
 j0 <- function(x) {
     x <- as(x, "mpfr")
-    x@.Data[] <- .Call("Math_mpfr", x, .Math.codes["j0"], PACKAGE="Rmpfr")
+    x@.Data[] <- .Call("Math_mpfr", x, .Math.codes[["j0"]], PACKAGE="Rmpfr")
     x
 }
 j1 <- function(x) {
     x <- as(x, "mpfr")
-    x@.Data[] <- .Call("Math_mpfr", x, .Math.codes["j1"], PACKAGE="Rmpfr")
+    x@.Data[] <- .Call("Math_mpfr", x, .Math.codes[["j1"]], PACKAGE="Rmpfr")
     x
 }
 y0 <- function(x) {
     x <- as(x, "mpfr")
-    x@.Data[] <- .Call("Math_mpfr", x, .Math.codes["y0"], PACKAGE="Rmpfr")
+    x@.Data[] <- .Call("Math_mpfr", x, .Math.codes[["y0"]], PACKAGE="Rmpfr")
     x
 }
 y1 <- function(x) {
     x <- as(x, "mpfr")
-    x@.Data[] <- .Call("Math_mpfr", x, .Math.codes["y1"], PACKAGE="Rmpfr")
+    x@.Data[] <- .Call("Math_mpfr", x, .Math.codes[["y1"]], PACKAGE="Rmpfr")
+    x
+}
+
+Ai <- function(x) {
+    x <- as(x, "mpfr")
+    x@.Data[] <- .Call("Math_mpfr", x, .Math.codes[["ai"]], PACKAGE="Rmpfr")
     x
 }
 
@@ -122,6 +128,7 @@ yn <- function(n, x) {
     x@.Data[] <- .Call("R_mpfr_yn", x, as.integer(n), PACKAGE="Rmpfr")
     x
 }
+
 
 ###-------- 2-argument cases -------
 

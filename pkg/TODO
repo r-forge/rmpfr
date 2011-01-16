@@ -79,6 +79,7 @@
     Manual:  "In case you want to keep the previous value stored in X, use
                `mpfr_prec_round' instead."
     -->  mpfr_prec_round(X, PREC, RND)
+    [MM: ... should not be hard  !!!]
 
 16) psigamma(x, n)  {and  digamma(), trigamma() aliases}
     --> experiments in ~/R/MM/Pkg-ex/Rmpfr/psigamma.R )

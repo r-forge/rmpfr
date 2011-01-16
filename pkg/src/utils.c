@@ -126,6 +126,7 @@ SEXP const_asMpfr(SEXP I, SEXP prec)
     case 1: mpfr_const_pi     (r, GMP_RNDN); break;
     case 2: mpfr_const_euler  (r, GMP_RNDN); break;
     case 3: mpfr_const_catalan(r, GMP_RNDN); break;
+    case 4: mpfr_const_log2   (r, GMP_RNDN); break;
     default:
 	error("invalid integer code {const_asMpfr()}"); /* -Wall */
     }
@@ -190,6 +191,8 @@ R_MPFR_1_Numeric_Function(R_mpfr_j0, mpfr_j0)
 R_MPFR_1_Numeric_Function(R_mpfr_j1, mpfr_j1)
 R_MPFR_1_Numeric_Function(R_mpfr_y0, mpfr_y0)
 R_MPFR_1_Numeric_Function(R_mpfr_y1, mpfr_y1)
+
+R_MPFR_1_Numeric_Function(R_mpfr_ai, mpfr_ai)
 
 #endif
 /* __NOT_ANY_MORE__ */

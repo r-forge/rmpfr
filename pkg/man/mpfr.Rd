@@ -8,7 +8,7 @@
 }
 \usage{
 mpfr(x, precBits, base = 10, rnd.mode = c("N","D","U","Z"))
-Const(name = c("pi", "gamma", "catalan"), prec = 120L)
+Const(name = c("pi", "gamma", "catalan", "log2"), prec = 120L)
 }
 \arguments{
   \item{x}{a \code{\link{numeric}} or \code{\link{character}} vector or
