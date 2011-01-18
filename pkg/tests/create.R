@@ -45,10 +45,14 @@ y <- c(0, 100,-10, 1.25, -2.5,
 (Y <- mpfr(y, 100))
 cbind(y, as.data.frame(.mpfr2str(Y, 20))[,c("exp","str")])
 
+s <- mpfr(43208,  14)# low precision
 eps8 <- 8 * .Machine$double.eps
 ## checking  mpfr -> character -> mpfr:
 stopifnot(all.equal(y, as.numeric(format(Y, digits=20)), tol= eps8),
-          all.equal(Y, as(format(Y), "mpfr"), tol= eps8))
+	  all.equal(Y, as(format(Y), "mpfr"), tol= eps8),
+	  identical(sapply(1:5, formatMpfr, x=s),
+		    c("4.e4", "4.3e4", "4.32e4", "43210.", "43208.")))
+
 
 ## More  character -> mpfr  checking :
 ## from   echo 'scale=200; 4*a(1)' | bc -l :
@@ -58,17 +62,20 @@ stopifnot(cpi == format(mpfr(cpi, prec=667), digits=201),
           all.equal(pi., as(cpi, "mpfr")),
           all.equal(pi., as(cpi, "mpfr"), tol = 1e-200))
 
+set.seed(17)
 ## Check double -> mpfr -> character -> double :
 ##  Unfortunately,  format(<mpfr>, .) -> .mpfr2str() triggers a memory bug
 ##  that I think is an MPFR library "mis-feature"
+## 2011-01-18 -- bug is still triggered (64-bit Linux, MPFR 3.0.0) for ntry=100
 rSign <- function(n) sample(c(-1,1), size = n, replace=TRUE)
 N <- function(x) as.numeric(x)
-ntry <- if(Sys.getenv("USER") == "maechler") 40 else 2
+ntry <- if(Sys.getenv("USER") == "maechler") 50 else 5
 for(n in 1:ntry) {
     cat(if(n %% 10)"." else n)
     x. <- rSign(100) * rlnorm(100)
-    X. <- mpfr(x., precBits = 120L)
-    stopifnot(all.equal(x., N(format(X., digits=20)), tol = eps8)
+    prec <- rpois(1, 110); digs <- floor(0.95*(prec / log2(10)))
+    X. <- mpfr(x., precBits = prec)
+    stopifnot(all.equal(x., N(format(X., digits=digs)), tol = eps8)
               , all.equal(x., N(log(exp(X.))), tol = 32*eps8)
     )
 }; cat("\n")

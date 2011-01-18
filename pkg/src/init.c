@@ -58,6 +58,10 @@ static R_CallMethodDef CallEntries[] = {
     CALLDEF(R_mpfr_beta, 2),
     CALLDEF(R_mpfr_lbeta, 2),
 
+    CALLDEF(R_mpfr_fac, 2),
+    CALLDEF(R_mpfr_poch, 2),
+    CALLDEF(R_mpfr_round, 2),
+
     {NULL, NULL, 0}
 };
 
@@ -113,6 +117,9 @@ R_init_Rmpfr(DllInfo *dll)
     RREGDEF(R_mpfr_hypot);
     RREGDEF(R_mpfr_beta);
     RREGDEF(R_mpfr_lbeta);
+    RREGDEF(R_mpfr_fac);
+    RREGDEF(R_mpfr_poch);
+    RREGDEF(R_mpfr_round);
 
 
 /* Sync this with declarations in ./Syms.h : */

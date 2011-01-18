@@ -83,9 +83,16 @@
 
 16) psigamma(x, n)  {and  digamma(), trigamma() aliases}
     --> experiments in ~/R/MM/Pkg-ex/Rmpfr/psigamma.R )
-    Note that since, MPFR 3.0.0, there is a digamma(),
+    Note that since, MPFR 3.0.0, there is a digamma(); .. which we now interface to
+
 
 50) For *complex* arithmetic, build interface to the  "MPC" library
    ---> http://www.multiprecision.org/mpc -- which is LGPL and itself
    builds on MPFR and GMP.
-   Ubuntu now has 'libmpc-dev' (!)
+   Ubuntu now has 'libmpc-dev' (!)  {but there's no '*-doc' package yet;
+   	      	  	       	     on nb-mm, I've installed from source
+				     --> Info comes along}
+  One idea: Since the names are so much in parallel, try
+      to take each src/*.c file and mechanically  s/mpfr/mpc/  producing a
+      mpc version of that;
+      then "the same" for the R interface code.

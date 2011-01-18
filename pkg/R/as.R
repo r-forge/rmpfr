@@ -1,8 +1,6 @@
 #### All  coercion methods for the  "Rmpfr" classes
 
 
-
-## was  toMpfr <-
 mpfr <- function(x, precBits, base = 10, rnd.mode = c('N','D','U','Z'))
 {
     if(is.character(x))
@@ -112,7 +110,7 @@ formatMpfr <-
     ## if(scientific) --> all get a final "e<exp>"; otherwise, we
     ## adopt the following simple scheme :
     hasE <- { if(is.logical(scientific)) scientific else
-	      isNum & (Ex < -4 + scientific | Ex >= digits) }
+	      isNum & (Ex < -4 + scientific | Ex > digits) }
 
     if(any(hasE)) {
 	i. <- 1L + hasMinus
@@ -131,6 +129,10 @@ formatMpfr <-
 
 	nZeros <- function(n) ## e.g.  nZeros(2:0) gives  c("00","0", "")
 	    sapply(n, function(k) paste(rep.int("0", k), collapse = ""))
+	if(any(eq <- (Ex == digits))) {
+	    r[eq] <- paste(r[eq], "0", sep="")
+	    Ex[eq] <- Ex[eq] + 1L
+	}
 	if(any(iNeg)) { ## "0.00..." : be careful with minus sign
 	    if(any(isMin <- hasMinus[iNeg])) {
 		rr <- r[iNeg]

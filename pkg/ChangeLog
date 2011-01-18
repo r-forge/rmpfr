@@ -1,3 +1,16 @@
+2011-01-18  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Math.R (roundMpfr): "round" to precBits (bits!) also to
+	*increase* precision for further computation.
+	* src/utils.c (my_mpfr_round): C implementation.
+	* R/Math.R (factorialMpfr, pochMpfr): new functions, e.g., as tools
+	for choose().
+	* src/utils.c (my_mpfr_poch, R_mpfr_fac): underlying C code.
+
+2011-01-17  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/as.R (formatMpfr): fix the case where 'Ex == digits'
+
 2011-01-16  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* src/Ops.c (Math_mpfr): enable digamma() for mpfr 3.0.0 and later

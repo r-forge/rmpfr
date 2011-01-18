@@ -19,6 +19,10 @@
 int my_mpfr_beta (mpfr_t ROP, mpfr_t X, mpfr_t Y, mp_rnd_t RND);
 int my_mpfr_lbeta(mpfr_t ROP, mpfr_t X, mpfr_t Y, mp_rnd_t RND);
 
+int my_mpfr_poch (mpfr_t ROP, long n,    mpfr_t X, mp_rnd_t RND);
+int my_mpfr_round(mpfr_t ROP, long prec, mpfr_t X, mp_rnd_t RND);
+/* argument order above must match the one of mpfr_jn() etc .. */
+
 /*------------------------------------------------------------------------*/
 int my_mpfr_beta (mpfr_t R, mpfr_t X, mpfr_t Y, mp_rnd_t RND)
 {
@@ -76,6 +80,41 @@ int my_mpfr_lbeta(mpfr_t R, mpfr_t X, mpfr_t Y, mp_rnd_t RND)
     return ans;
 }
 
+/** Pochhammer Symbol -- *rising* factorial   x * (x+1) * ... (x+n-1)
+ * all initialization and cleanup is called in the caller
+ */
+int my_mpfr_poch (mpfr_t R, long n, mpfr_t X, mp_rnd_t RND)
+{
+    int ans;
+    long i;
+    mpfr_t r, x;
+    mpfr_init_set(x, X, RND);
+    mpfr_init_set(r, X, RND);
+    for(i=1; i < n; i++) {
+	mpfr_add_si(x, x, 1L, RND); // x = X + i
+	mpfr_mul(r, r, x, RND); // r := r * x = X(X+1)..(X+i)
+#ifdef DEBUG_Rmpfr
+	Rprintf("my_mpfr_poch(): X (= X_0 + %d)= ", i); R_PRT(x);
+	Rprintf("\n --> r ="); R_PRT(r);
+#endif
+    }
+    ans = mpfr_set(R, r, RND);
+    return ans;
+}
+
+/** round to (binary) bits, not (decimal) digits
+ */
+int my_mpfr_round (mpfr_t R, long prec, mpfr_t X, mp_rnd_t RND)
+{
+    int ans;
+    if(prec < MPFR_PREC_MIN)
+	error("prec = %d < %d  is too small", prec, MPFR_PREC_MIN);
+    if(prec > MPFR_PREC_MAX)
+	error("prec = %d > %d  is too large", prec, MPFR_PREC_MAX);
+    ans = mpfr_prec_round(X, (mp_prec_t) prec, RND);
+    mpfr_set(R, X, RND);
+    return ans;
+}
 
 /*------------------------------------------------------------------------*/
 
@@ -160,7 +199,25 @@ R_MPFR_Logic_Function(R_mpfr_is_integer,  mpfr_integer_p)
 R_MPFR_Logic_Function(R_mpfr_is_na,       mpfr_nan_p)
 R_MPFR_Logic_Function(R_mpfr_is_zero,     mpfr_zero_p)
 
+
+SEXP R_mpfr_fac (SEXP n_, SEXP prec) {
+    unsigned long int nn = asInteger(n_);
+    unsigned long int n = (unsigned long int) nn;
+    mpfr_t r; SEXP val;
+    if(nn < 0)
+	error("R_mpfr_fac(n): n is not positive: %d", nn);
+    mpfr_init2(r, (mp_prec_t) asInteger(prec));
+    mpfr_fac_ui(r, n, GMP_RNDN);
+    PROTECT(val = MPFR_as_R(r));
+    mpfr_clear(r);
+    mpfr_free_cache();
+    UNPROTECT(1);
+    return val;
+}
+
 #ifdef __NOT_ANY_MORE__
+//       ------------ as we deal with these "as if Math() group"
+// via Math_mpfr() in ./Ops.c
 
 #define R_MPFR_1_Numeric_Function(_FNAME, _MPFR_NAME)			\
 SEXP _FNAME(SEXP x) {							\
@@ -238,15 +295,20 @@ R_MPFR_2_Numeric_Function(R_mpfr_lbeta, my_mpfr_lbeta)
 
 #define R_MPFR_2_Num_Long_Function(_FNAME, _MPFR_NAME)			\
 SEXP _FNAME(SEXP x, SEXP y) {						\
-    SEXP xD = PROTECT(GET_SLOT(x, Rmpfr_Data_Sym));			\
-    int *yy = INTEGER(y);						\
-    int nx = length(xD), ny = length(y), i,				\
-	n = (nx * ny == 0) ? 0 : imax2(nx, ny), mismatch = 0;		\
-    SEXP val = PROTECT(allocVector(VECSXP, n));				\
+    SEXP xD, yt, val;							\
+    int *yy, n, nx, ny = length(y), i, nprot = 0, mismatch = 0;		\
     mpfr_t x_i;								\
 									\
-    if(TYPEOF(y) != INTSXP)						\
-	error("MPFR_2_Num_Long...(d,mpfr): 'y' is not \"integer\"");	\
+    if(TYPEOF(y) != INTSXP) {						\
+	PROTECT(yt = coerceVector(y, INTSXP)); nprot++;/* or bail out*/ \
+	yy = INTEGER(yt);						\
+    } else {								\
+	yy = INTEGER(y);						\
+    }									\
+    PROTECT(xD = GET_SLOT(x, Rmpfr_Data_Sym));	nprot++;		\
+    nx = length(xD);							\
+    n = (nx * ny == 0) ? 0 : imax2(nx, ny);				\
+    PROTECT(val = allocVector(VECSXP, n)); 	nprot++;		\
     mpfr_init(x_i); /* with default precision */			\
 									\
     if (nx == ny || nx == 1 || ny == 1) mismatch = 0;			\
@@ -264,10 +326,12 @@ SEXP _FNAME(SEXP x, SEXP y) {						\
     MISMATCH_WARN;							\
     mpfr_clear (x_i);							\
     mpfr_free_cache();							\
-    UNPROTECT(2);							\
+    UNPROTECT(nprot);							\
     return val;								\
 }
 
 R_MPFR_2_Num_Long_Function(R_mpfr_jn, mpfr_jn)
 R_MPFR_2_Num_Long_Function(R_mpfr_yn, mpfr_yn)
+R_MPFR_2_Num_Long_Function(R_mpfr_poch, my_mpfr_poch)
+R_MPFR_2_Num_Long_Function(R_mpfr_round, my_mpfr_round)
 

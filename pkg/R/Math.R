@@ -88,6 +88,35 @@ setMethod("factorial", "mpfr",
 	      r[isi] <- round(r[isi])
 	      r
 	  })
+## The "real" thing is to use  the MPFR-internal function:
+factorialMpfr <- function(n, precBits = ceiling(lgamma(n)/log(2))) {
+    new("mpfr", list(.Call("R_mpfr_fac", n, precBits, PACKAGE="Rmpfr")))
+}
+
+##' Pochhammer rising factorial = Pochhammer(a,n) {1 of 2 definitions!}
+##' we use the *rising* factorial for Pochhamer(a,n), i.e.,
+##' the definition that the GSL and Mathematica use as well.
+##' We want to do this well for *integer* n, only the general case is using
+##' P(a,x) := Gamma(a+x)/Gamma(x)
+pochMpfr <- function(a, n) {
+    if(!is(a, "mpfr")) ## use a high enough default precision
+        a <- mpfr(a, precBits = max(1,n)*getPrec(a))
+    a@.Data[] <- .Call("R_mpfr_poch", a, n, PACKAGE="Rmpfr")
+    a
+}
+
+##' Rounding to binary bits, not decimal digits. Closer to the number
+##' representation, this also allows to increase or decrease a number's precBits
+##' @title Rounding to binary bits, "mpfr-internally"
+##' @param x an mpfr number (vector)
+##' @param precBits integer specifying the desired precision in bits.
+##' @return an mpfr number as \code{x} but with the new 'precBits' precision
+##' @author Martin Maechler
+roundMpfr <- function(x, precBits) {
+    stopifnot(is(x, "mpfr"))
+    x@.Data[] <- .Call("R_mpfr_round", x, precBits, PACKAGE="Rmpfr")
+    x
+}
 
 ## "log" is still special with its 'base' :
 setMethod("log", signature(x = "mpfr"),
@@ -121,7 +150,7 @@ setMethod("Math2", signature(x = "mpfr"),
 
 	      ## now: both x and digits are finite
 	      pow10 <- function(d) mpfr(rep.int(10., length(d)),
-					precBits = log2(10)*as.numeric(d))^ d
+					precBits = ceiling(log2(10)*as.numeric(d)))^ d
 	      rint <- function(x) { ## have x >= 0 here
 		  sml.x <- (x < .Machine$integer.max)
 		  r <- x
