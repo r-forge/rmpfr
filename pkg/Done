@@ -10,6 +10,21 @@
   If the other part is a matrix their dim() must be identical,
   if just a vector, its length must be a divisor of  length(<matrix>)
 
+10b) a factorialMPFR() which automatically uses full precision for
+    integer-valued argument, notably using MPFR's mpfr_fac_ui; see also end
+    of man/mpfr-class.Rd
+
+
+
+14) Want to *change*  'precBits' of existing MPFR numbers;
+    MPFR has  mpfr_set_prec(X, PREC)  but that sets the value to NaN.
+    Manual:  "In case you want to keep the previous value stored in X, use
+               `mpfr_prec_round' instead."
+
+   --> fulfilled via  roundMpfr(x, precBits)
+
+
+
 15) beta(.,.) and lbeta(.,.) .. using  my_mpfr_beta() in C.
    Interestingly, the speedup is not dramatical
     (50% for length 200; 300% for length 1)

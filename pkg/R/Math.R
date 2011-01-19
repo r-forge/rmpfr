@@ -89,7 +89,7 @@ setMethod("factorial", "mpfr",
 	      r
 	  })
 ## The "real" thing is to use  the MPFR-internal function:
-factorialMpfr <- function(n, precBits = ceiling(lgamma(n)/log(2))) {
+factorialMpfr <- function(n, precBits = ceiling(lgamma(n+1)/log(2))) {
     new("mpfr", list(.Call("R_mpfr_fac", n, precBits, PACKAGE="Rmpfr")))
 }
 
