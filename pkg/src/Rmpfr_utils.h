@@ -143,6 +143,7 @@ SEXP R_mpfr_beta(SEXP x, SEXP y);
 SEXP R_mpfr_lbeta(SEXP x, SEXP y);
 
 SEXP R_mpfr_fac (SEXP n, SEXP prec);
+SEXP R_mpfr_choose(SEXP a, SEXP n);
 SEXP R_mpfr_poch(SEXP a, SEXP n);
 SEXP R_mpfr_round(SEXP x, SEXP prec);
 

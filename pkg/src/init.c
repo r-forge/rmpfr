@@ -59,6 +59,7 @@ static R_CallMethodDef CallEntries[] = {
     CALLDEF(R_mpfr_lbeta, 2),
 
     CALLDEF(R_mpfr_fac, 2),
+    CALLDEF(R_mpfr_choose, 2),
     CALLDEF(R_mpfr_poch, 2),
     CALLDEF(R_mpfr_round, 2),
 
@@ -118,6 +119,7 @@ R_init_Rmpfr(DllInfo *dll)
     RREGDEF(R_mpfr_beta);
     RREGDEF(R_mpfr_lbeta);
     RREGDEF(R_mpfr_fac);
+    RREGDEF(R_mpfr_choose);
     RREGDEF(R_mpfr_poch);
     RREGDEF(R_mpfr_round);
 

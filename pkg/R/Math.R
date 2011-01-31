@@ -105,6 +105,15 @@ pochMpfr <- function(a, n) {
     a
 }
 
+##' Binomial Coefficient choose(a,n)
+##' We want to do this well for *integer* n
+chooseMpfr <- function(a, n) {
+    if(!is(a, "mpfr")) ## use a high enough default precision
+        a <- mpfr(a, precBits = max(1,n)*getPrec(a))
+    a@.Data[] <- .Call("R_mpfr_choose", a, n, PACKAGE="Rmpfr")
+    a
+}
+
 ##' Rounding to binary bits, not decimal digits. Closer to the number
 ##' representation, this also allows to increase or decrease a number's precBits
 ##' @title Rounding to binary bits, "mpfr-internally"

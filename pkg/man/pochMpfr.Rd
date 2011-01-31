@@ -1,17 +1,23 @@
 \name{pochMpfr}
+\alias{chooseMpfr}
 \alias{pochMpfr}
-\title{Pochhammer Symbol aka Rising / Ascending Factorial}
+\title{Binomial Coefficients and Pochhammer Symbol aka Rising Factorial}
 \description{
-  Compute the Pochhammer symbol or \dQuote{rising factorial}, also called
-  the \dQuote{Pochhammer function}, \dQuote{Pochhammer polynomial},
-  \dQuote{ascending factorial}, \dQuote{rising sequential product} or
-  \dQuote{upper factorial},
+  Compute binomial coefficients, \code{chooseMpfr(a,n)} being
+  mathematically the same as \code{\link{choose}(a,n)}, but using high
+  precision (MPFR) arithmetic.
+
+  \code{pochMpfr()} computes the Pochhammer symbol or \dQuote{rising
+  factorial}, also called the \dQuote{Pochhammer function},
+  \dQuote{Pochhammer polynomial}, \dQuote{ascending factorial},
+  \dQuote{rising sequential product} or \dQuote{upper factorial},
 
   \deqn{x^{(n)}=x(x+1)(x+2)\cdots(x+n-1)= \frac{(x+n-1)!}{(x-1)!} = \frac{\Gamma(x+n)}{\Gamma(x)}.
   }{x^(n) = x(x+1)(x+2)...(x+n-1) = (x+n-1)! / (x-1)! = Gamma(x+n) / Gamma(x).}
 
 }
 \usage{
+chooseMpfr(a, n)
 pochMpfr(a, n)
 }
 \arguments{
@@ -37,7 +43,8 @@ pochMpfr(100, 4) == 100*101*102*103 # TRUE
 a <- 100:110
 pochMpfr(a, 10) # exact (but too high precision)
 x <- mpfr(a, 70)# should be enough
-pochMpfr(x, 10) # the same as above (needing only 70 bits)
-stopifnot(pochMpfr(a, 10) == pochMpfr(x, 10))
+(px <- pochMpfr(x, 10)) # the same as above (needing only 70 bits)
+stopifnot(pochMpfr(a, 10) == px,
+          px[1] ==prod(mpfr(100:109, 100)))# used to fail
 }
 \keyword{arith}

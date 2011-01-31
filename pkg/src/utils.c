@@ -19,8 +19,9 @@
 int my_mpfr_beta (mpfr_t ROP, mpfr_t X, mpfr_t Y, mp_rnd_t RND);
 int my_mpfr_lbeta(mpfr_t ROP, mpfr_t X, mpfr_t Y, mp_rnd_t RND);
 
-int my_mpfr_poch (mpfr_t ROP, long n,    mpfr_t X, mp_rnd_t RND);
-int my_mpfr_round(mpfr_t ROP, long prec, mpfr_t X, mp_rnd_t RND);
+int my_mpfr_choose(mpfr_t ROP, long n,    mpfr_t X, mp_rnd_t RND);
+int my_mpfr_poch  (mpfr_t ROP, long n,    mpfr_t X, mp_rnd_t RND);
+int my_mpfr_round (mpfr_t ROP, long prec, mpfr_t X, mp_rnd_t RND);
 /* argument order above must match the one of mpfr_jn() etc .. */
 
 /*------------------------------------------------------------------------*/
@@ -80,6 +81,32 @@ int my_mpfr_lbeta(mpfr_t R, mpfr_t X, mpfr_t Y, mp_rnd_t RND)
     return ans;
 }
 
+/** Binomial Coefficient --
+ * all initialization and cleanup is called in the caller
+ */
+int my_mpfr_choose (mpfr_t R, long n, mpfr_t X, mp_rnd_t RND)
+{
+    int ans;
+    long i;
+    mpfr_t r, x;
+    mp_prec_t p_X = mpfr_get_prec(X);
+
+    mpfr_init2(x, p_X); mpfr_set(x, X, RND);
+    mpfr_init2(r, p_X); mpfr_set(r, X, RND);
+    for(i=1; i < n; ) {
+	mpfr_sub_si(x, x, 1L, RND); // x = X - i
+	mpfr_mul   (r, r, x, RND); // r := r * x = X(X-1)..(X-i)
+	mpfr_div_si(r, r, ++i, RND);
+	// r := r / (i+1) =  X(X-1)..(X-i) / (1*2..*(i+1))
+#ifdef DEBUG_Rmpfr
+	Rprintf("my_mpfr_choose(): X (= X_0 - %d)= ", i); R_PRT(x);
+	Rprintf("\n --> r ="); R_PRT(r); Rprintf("\n");
+#endif
+    }
+    ans = mpfr_set(R, r, RND);
+    return ans;
+}
+
 /** Pochhammer Symbol -- *rising* factorial   x * (x+1) * ... (x+n-1)
  * all initialization and cleanup is called in the caller
  */
@@ -88,14 +115,16 @@ int my_mpfr_poch (mpfr_t R, long n, mpfr_t X, mp_rnd_t RND)
     int ans;
     long i;
     mpfr_t r, x;
-    mpfr_init_set(x, X, RND);
-    mpfr_init_set(r, X, RND);
+    mp_prec_t p_X = mpfr_get_prec(X);
+
+    mpfr_init2(x, p_X); mpfr_set(x, X, RND);
+    mpfr_init2(r, p_X); mpfr_set(r, X, RND);
     for(i=1; i < n; i++) {
 	mpfr_add_si(x, x, 1L, RND); // x = X + i
 	mpfr_mul(r, r, x, RND); // r := r * x = X(X+1)..(X+i)
 #ifdef DEBUG_Rmpfr
 	Rprintf("my_mpfr_poch(): X (= X_0 + %d)= ", i); R_PRT(x);
-	Rprintf("\n --> r ="); R_PRT(r);
+	Rprintf("\n --> r ="); R_PRT(r); Rprintf("\n");
 #endif
     }
     ans = mpfr_set(R, r, RND);
@@ -332,6 +361,7 @@ SEXP _FNAME(SEXP x, SEXP y) {						\
 
 R_MPFR_2_Num_Long_Function(R_mpfr_jn, mpfr_jn)
 R_MPFR_2_Num_Long_Function(R_mpfr_yn, mpfr_yn)
+R_MPFR_2_Num_Long_Function(R_mpfr_choose, my_mpfr_choose)
 R_MPFR_2_Num_Long_Function(R_mpfr_poch, my_mpfr_poch)
 R_MPFR_2_Num_Long_Function(R_mpfr_round, my_mpfr_round)
 
