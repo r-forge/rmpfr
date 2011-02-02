@@ -14,7 +14,6 @@
 
   \deqn{x^{(n)}=x(x+1)(x+2)\cdots(x+n-1)= \frac{(x+n-1)!}{(x-1)!} = \frac{\Gamma(x+n)}{\Gamma(x)}.
   }{x^(n) = x(x+1)(x+2)...(x+n-1) = (x+n-1)! / (x-1)! = Gamma(x+n) / Gamma(x).}
-
 }
 \usage{
 chooseMpfr(a, n)
@@ -22,11 +21,13 @@ pochMpfr(a, n)
 }
 \arguments{
   \item{a}{a numeric or \code{\linkS4class{mpfr}} vector.}
-  \item{n}{an integer (vector).}
+  \item{n}{an integer (of length 1!).}
 }
-% \details{
-% %%  ~~ If necessary, more details than the description above ~~
-% }
+\note{
+  Yes, it would be desirable that both functions also work with a
+  \emph{vector} \code{n} (and recycle the shorter of \code{a} and
+  \code{n}).  Patches are welcome :-)
+}
 \value{
   an \code{\linkS4class{mpfr}} vector as \code{a}.
 }
@@ -46,5 +47,8 @@ x <- mpfr(a, 70)# should be enough
 (px <- pochMpfr(x, 10)) # the same as above (needing only 70 bits)
 stopifnot(pochMpfr(a, 10) == px,
           px[1] ==prod(mpfr(100:109, 100)))# used to fail
+
+(c1 <- chooseMpfr(1000:997, 60)) # -> automatic "correct" precision
+stopifnot(all.equal(c1, choose(1000:997, 60), tol=1e-12))
 }
 \keyword{arith}

@@ -89,8 +89,9 @@ setMethod("factorial", "mpfr",
 	      r
 	  })
 ## The "real" thing is to use  the MPFR-internal function:
-factorialMpfr <- function(n, precBits = ceiling(lgamma(n+1)/log(2))) {
-    new("mpfr", list(.Call("R_mpfr_fac", n, precBits, PACKAGE="Rmpfr")))
+factorialMpfr <- function(n, precBits = max(2, ceiling(lgamma(n+1)/log(2)))) {
+    stopifnot(n >= 0)
+    new("mpfr", .Call("R_mpfr_fac", n, precBits, PACKAGE="Rmpfr"))
 }
 
 ##' Pochhammer rising factorial = Pochhammer(a,n) {1 of 2 definitions!}
@@ -108,8 +109,10 @@ pochMpfr <- function(a, n) {
 ##' Binomial Coefficient choose(a,n)
 ##' We want to do this well for *integer* n
 chooseMpfr <- function(a, n) {
-    if(!is(a, "mpfr")) ## use a high enough default precision
-        a <- mpfr(a, precBits = max(1,n)*getPrec(a))
+    if(!is(a, "mpfr")) { ## use high enough default precision
+        lc <- lchoose(a,n)
+        a <- mpfr(a, precBits = ceiling(max(lc[is.finite(lc)], 1)/log(2)))
+    }
     a@.Data[] <- .Call("R_mpfr_choose", a, n, PACKAGE="Rmpfr")
     a
 }

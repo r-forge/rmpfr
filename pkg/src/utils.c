@@ -228,19 +228,28 @@ R_MPFR_Logic_Function(R_mpfr_is_integer,  mpfr_integer_p)
 R_MPFR_Logic_Function(R_mpfr_is_na,       mpfr_nan_p)
 R_MPFR_Logic_Function(R_mpfr_is_zero,     mpfr_zero_p)
 
+SEXP R_mpfr_fac (SEXP n_, SEXP prec)
+{
+    int n = length(n_), i, *nn;
+    SEXP n_t, val = PROTECT(allocVector(VECSXP, n)); int nprot = 1;
+    mpfr_t r_i;
+    if(TYPEOF(n_) != INTSXP) {
+	PROTECT(n_t = coerceVector(n_, INTSXP)); nprot++;/* or bail out*/
+	nn = INTEGER(n_t);
+    } else {
+	nn = INTEGER(n_);
+    }
+    mpfr_init2(r_i, (mp_prec_t) asInteger(prec));
+    for(i=0; i < n; i++) {
+	// never happens when called from R:
+	if(nn[i] < 0) error("R_mpfr_fac(%d): negative n.", nn[i]);
+	mpfr_fac_ui(r_i, nn[i], GMP_RNDN);
+	SET_VECTOR_ELT(val, i, MPFR_as_R(r_i));
+    }
 
-SEXP R_mpfr_fac (SEXP n_, SEXP prec) {
-    unsigned long int nn = asInteger(n_);
-    unsigned long int n = (unsigned long int) nn;
-    mpfr_t r; SEXP val;
-    if(nn < 0)
-	error("R_mpfr_fac(n): n is not positive: %d", nn);
-    mpfr_init2(r, (mp_prec_t) asInteger(prec));
-    mpfr_fac_ui(r, n, GMP_RNDN);
-    PROTECT(val = MPFR_as_R(r));
-    mpfr_clear(r);
+    mpfr_clear(r_i);
     mpfr_free_cache();
-    UNPROTECT(1);
+    UNPROTECT(nprot);
     return val;
 }
 
