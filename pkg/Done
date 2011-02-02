@@ -36,3 +36,7 @@
 
 
 12) crossprod(), tcrossprod() (and more?) methods for "mpfrMatrix".
+
+10) chooseMpfr(a,n) is now implemented --- *NOT* based on gamma(),
+    but rather n.
+

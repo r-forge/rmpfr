@@ -27,6 +27,11 @@ pochMpfr(a, n)
   Yes, it would be desirable that both functions also work with a
   \emph{vector} \code{n} (and recycle the shorter of \code{a} and
   \code{n}).  Patches are welcome :-)
+
+  If you need high precision \code{choose(a,n)} (or Pochhammer(a,n)) for
+  large \code{n}, do work with the corresponding
+  \code{\link{factorial}(mpfr(..))}, or \code{\link{gamma}(mpfr(..))}
+  terms.
 }
 \value{
   an \code{\linkS4class{mpfr}} vector as \code{a}.
