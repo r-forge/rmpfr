@@ -249,15 +249,15 @@ seqMpfr <- function(from = 1, to = 1, by = ((to - from)/(length.out - 1)),
 		    length.out = NULL, along.with = NULL, ...)
 {
     if(h.from <- !missing(from)) {
-        lf <- length(from)
-        if(lf != 1) stop("'from' must be of length 1")
+	lf <- length(from)
+	if(lf != 1) stop("'from' must be of length 1")
     }
     if ((One <- nargs() == 1L) && h.from) {
-        if(is.numeric(from) || is(from,"mpfr")) {
-            to <- from; from <- mpfr(1, getPrec(from))
-        } else stop("'from' is neither numeric nor \"mpfr\"")
+	if(is.numeric(from) || is(from,"mpfr")) {
+	    to <- from; from <- mpfr(1, getPrec(from))
+	} else stop("'from' is neither numeric nor \"mpfr\"")
     }
-    else if (!is(from, "mpfr")) from <- as(from, "mpfr")
+    ## else if (!is(from, "mpfr")) from <- as(from, "mpfr")
 
     if(!missing(to)) {
 	if (!is(to, "mpfr")) to <- as(to, "mpfr")
@@ -275,10 +275,13 @@ seqMpfr <- function(from = 1, to = 1, by = ((to - from)/(length.out - 1)),
 ##	   warning("not exactly two of 'to', 'by' and 'length.out' / 'along.with' have been specified")
 
     if(is.null(length.out)) {
+	if(!is(to,   "mpfr")) to   <- as(to,   "mpfr")
+	if(!is(from, "mpfr")) from <- as(from, "mpfr")# need it again
 	del <- to - from
 	if(del == 0 && to == 0) return(to)
-	if(missing(by))
+	if(missing(by)) {
 	    by <- mpfr(sign(del), from[[1]]@prec)
+	}
     }
     if (!is(by, "mpfr")) by <- as(by, "mpfr")
     if (length(by) != 1) stop("'by' must be of length 1")
@@ -307,22 +310,23 @@ seqMpfr <- function(from = 1, to = 1, by = ((to - from)/(length.out - 1)),
     else if(!is.finite(length.out) || length.out < 0)
 	stop("length must be non-negative number")
     else if(length.out == 0)
-	from[FALSE] # of same precision
+	as(from,"mpfr")[FALSE] # of same precision
     ## else if (One) 1:length.out
     else if(missing(by)) {
 	# if(from == to || length.out < 2) by <- 1
 	if(missing(to))
-	    to <- from + length.out - 1
+	    to <- as(from,"mpfr") + length.out - 1
 	if(missing(from))
 	    from <- to - length.out + 1
 	if(length.out > 2)
 	    if(from == to)
-		rep.int(from, length.out)
-	    else as.vector(c(from, from + (1:(length.out - 2)) * by, to))
-	else as.vector(c(from, to))[1:length.out]
+		rep.int(as(from,"mpfr"), length.out)
+	    else { f <- as(from,"mpfr")
+		   as.vector(c(f, f + (1:(length.out - 2)) * by, to)) }
+	else as.vector(c(as(from,"mpfr"), to))[1:length.out]
     }
     else if(missing(to))
-	from + (0:(length.out - 1)) * by
+	as(from,"mpfr") + (0:(length.out - 1)) * by
     else if(missing(from))
 	to - ((length.out - 1):0) * by
     else stop("too many arguments")

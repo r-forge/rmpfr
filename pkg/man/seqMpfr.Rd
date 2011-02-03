@@ -39,8 +39,20 @@ seqMpfr(from = 1, to = 1, by = ((to - from)/(length.out - 1)),
 seqMpfr(0, 1, by = mpfr(0.25, prec=88))
 
 seqMpfr(7, 3) # -> default prec.
+\dontshow{
+eq.test <- function(...) {
+  args <- list(...)
+  r <- do.call(seqMpfr, args)
+  is(r,"mpfr") && r == do.call(seq, args)
+}
 stopifnot(seqMpfr(7,3) == 7:3, seqMpfr(to=1) == 1,
-          seqMpfr(pi) == seq(pi),
-          seqMpfr(to=pi) == seq(to=pi))
+          eq.test(pi),
+          eq.test(1,12,3),
+          eq.test(1, by=2, length= 5),
+          eq.test(1, length.out = 8),
+          eq.test(1, 8, length.out=8),
+          eq.test(to=17, by=2, length=4),
+          TRUE)
+}% {dontshow} -- but test
 }
 \keyword{manip}
