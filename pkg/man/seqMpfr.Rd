@@ -17,15 +17,14 @@ seqMpfr(from = 1, to = 1, by = ((to - from)/(length.out - 1)),
     \code{"\linkS4class{mpfr}"}) of the sequence.}
   \item{by}{number (numeric or \code{"\linkS4class{mpfr}"}): increment
     of the sequence.}
-  \item{length.out}{desired length of the sequence.  A
-    non-negative number, which for \code{seq} and \code{seq.int} will be
-    rounded up if fractional.}
+  \item{length.out}{desired length of the sequence.  A non-negative
+    number, which will be rounded up if fractional.}
   \item{along.with}{take the length from the length of this argument.}
   \item{\dots}{arguments passed to or from methods.}
 }
 \details{
   see \code{\link[base]{seq}} (default method in package \pkg{base}),
-  whose semantic we want to replicate.
+  whose semantic we want to replicate (almost).% not  seq(9:6) => seq(4)
 }
 \value{
   a \sQuote{vector} of class \code{"\linkS4class{mpfr}"}, when one of
@@ -40,6 +39,8 @@ seqMpfr(from = 1, to = 1, by = ((to - from)/(length.out - 1)),
 seqMpfr(0, 1, by = mpfr(0.25, prec=88))
 
 seqMpfr(7, 3) # -> default prec.
-stopifnot(seqMpfr(7,3) == 7:3)
+stopifnot(seqMpfr(7,3) == 7:3, seqMpfr(to=1) == 1,
+          seqMpfr(pi) == seq(pi),
+          seqMpfr(to=pi) == seq(to=pi))
 }
 \keyword{manip}

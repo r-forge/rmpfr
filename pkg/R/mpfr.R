@@ -248,10 +248,17 @@ setMethod("pmax", "Mnumber",
 seqMpfr <- function(from = 1, to = 1, by = ((to - from)/(length.out - 1)),
 		    length.out = NULL, along.with = NULL, ...)
 {
+    if(h.from <- !missing(from)) {
+        lf <- length(from)
+        if(lf != 1) stop("'from' must be of length 1")
+    }
+    if ((One <- nargs() == 1L) && h.from) {
+        if(is.numeric(from) || is(from,"mpfr")) {
+            to <- from; from <- mpfr(1, getPrec(from))
+        } else stop("'from' is neither numeric nor \"mpfr\"")
+    }
+    else if (!is(from, "mpfr")) from <- as(from, "mpfr")
 
-    if(missing(from)) stop("'from' must be specified")
-    if (!is(from, "mpfr")) from <- as(from, "mpfr")
-    if(length(from) != 1) stop("'from' must be of length 1")
     if(!missing(to)) {
 	if (!is(to, "mpfr")) to <- as(to, "mpfr")
 	if (length(to) != 1) stop("'to' must be of length 1")
@@ -269,6 +276,7 @@ seqMpfr <- function(from = 1, to = 1, by = ((to - from)/(length.out - 1)),
 
     if(is.null(length.out)) {
 	del <- to - from
+	if(del == 0 && to == 0) return(to)
 	if(missing(by))
 	    by <- mpfr(sign(del), from[[1]]@prec)
     }
@@ -278,8 +286,6 @@ seqMpfr <- function(from = 1, to = 1, by = ((to - from)/(length.out - 1)),
     ## ---- This is  cut n paste  from seq.default() :
     ## ---- It should work, since "arithmetic works for mpfr :
     if(is.null(length.out)) {
-	del <- to - from
-	if(del == 0 && to == 0) return(to)
 	n <- del/by
 	if(!(length(n) && is.finite(n))) {
 	    if(length(by) && by == 0 && length(del) && del == 0)
@@ -322,17 +328,21 @@ seqMpfr <- function(from = 1, to = 1, by = ((to - from)/(length.out - 1)),
     else stop("too many arguments")
 }
 
-if(FALSE) ## fails: seq(1, length.out=3)
+if(FALSE) { ##-- --- I don't see *any* way  to define  seq() {S4} methods
+    ## 1. Currently  need a  setGeneric() :
+    ## ---- just calling setMethod("seq",...) as below fails directly {signature problem}
+
+    ## 2. Trying three different variations --- all of them render the
+    ##    *default method invalid :
+    ###   --->    seq(1, length.out=3)  # afterwards fails with   " missing 'by' "
 setGeneric("seq", function(from, to, by, ...) standardGeneric("seq"),
 	   useAsDefault = function(from, to, by, ...)
 	   base::seq(from, to, by, ...))
-if(FALSE) ## fails: seq(1, length.out=3)
+
 setGeneric("seq", function(from, to, by, ...) standardGeneric("seq"),
 	   useAsDefault =
 	   function(from=1, to=1, by=((to-from)/(length.out-1)), ...)
 	   base::seq(from, to, by, ...))
-
-if(FALSE) { ##-- but this also fails: afterwards  seq(1, length.out=3)
 
 setGeneric("seq", function (from, to, by, length.out, along.with, ...)
 	   standardGeneric("seq"),
@@ -344,12 +354,11 @@ setGeneric("seq", function (from, to, by, length.out, along.with, ...)
 			     length.out=length.out, along.with=along.with, ...)
 	   })
 
-
 setMethod("seq", c(from="mpfr", to="ANY", by = "ANY"), seqMpfr)
 setMethod("seq", c(from="ANY", to="mpfr", by = "ANY"), seqMpfr)
 setMethod("seq", c(from="ANY", to="ANY", by = "mpfr"), seqMpfr)
 
-}#not yet
+}##--not yet-- defining seq() methods -- as it fails
 
 ## the fast mpfr-only version - should not return NULL
 .getPrec <- function(x) {
