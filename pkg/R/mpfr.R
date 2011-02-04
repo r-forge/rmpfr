@@ -314,6 +314,7 @@ seqMpfr <- function(from = 1, to = 1, by = ((to - from)/(length.out - 1)),
     ## else if (One) 1:length.out
     else if(missing(by)) {
 	# if(from == to || length.out < 2) by <- 1
+        length.out <- as.integer(length.out)
 	if(missing(to))
 	    to <- as(from,"mpfr") + length.out - 1
 	if(missing(from))
@@ -323,12 +324,12 @@ seqMpfr <- function(from = 1, to = 1, by = ((to - from)/(length.out - 1)),
 		rep.int(as(from,"mpfr"), length.out)
 	    else { f <- as(from,"mpfr")
 		   as.vector(c(f, f + (1:(length.out - 2)) * by, to)) }
-	else as.vector(c(as(from,"mpfr"), to))[1:length.out]
+	else as.vector(c(as(from,"mpfr"), to))[seq_len(length.out)]
     }
     else if(missing(to))
-	as(from,"mpfr") + (0:(length.out - 1)) * by
+	as(from,"mpfr") + (0:(as.integer(length.out) - 1L)) * by
     else if(missing(from))
-	to - ((length.out - 1):0) * by
+	to - ((as.integer(length.out) - 1L):0) * by
     else stop("too many arguments")
 }
 

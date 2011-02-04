@@ -100,6 +100,7 @@ factorialMpfr <- function(n, precBits = max(2, ceiling(lgamma(n+1)/log(2)))) {
 ##' We want to do this well for *integer* n, only the general case is using
 ##' P(a,x) := Gamma(a+x)/Gamma(x)
 pochMpfr <- function(a, n) {
+    stopifnot(n >= 0)
     if(!is(a, "mpfr")) ## use a high enough default precision
         a <- mpfr(a, precBits = max(1,n)*getPrec(a))
     a@.Data[] <- .Call("R_mpfr_poch", a, n, PACKAGE="Rmpfr")
@@ -109,13 +110,31 @@ pochMpfr <- function(a, n) {
 ##' Binomial Coefficient choose(a,n)
 ##' We want to do this well for *integer* n
 chooseMpfr <- function(a, n) {
+    stopifnot(n >= 0)
     if(!is(a, "mpfr")) { ## use high enough default precision
         lc <- lchoose(a,n)
-        a <- mpfr(a, precBits = ceiling(max(lc[is.finite(lc)], 1)/log(2)))
+        precB <- ceiling(max(lc[is.finite(lc)])/log(2))
+        a <- mpfr(a, precBits = n + max(2, precB))# add n bits for the n multiplications
     }
     a@.Data[] <- .Call("R_mpfr_choose", a, n, PACKAGE="Rmpfr")
     a
 }
+
+chooseMpfr.all <- function(n) { ## return   chooseMpfr(n, 1:n)  "but smartly"
+    if(!is.numeric(n) || (n <- as.integer(n)) < 1)
+	stop("n must be integer >= 1")
+    if(n == 1) return(mpfr(1, 32))
+    ## else : n >= 2
+    n2 <- n %/% 2
+    prec <- ceiling(lchoose(n,n2)/log(2)) # number of bits needed in result
+    precBits <- max(2, n2 +  prec) # need more for cumprod(), and division
+    n2. <- mpfr(n2, precBits)
+    r <- cumprod(seqMpfr(mpfr(n, precBits), n+1-n2., length.out=n2)) /
+        cumprod(seqMpfr(1, n2., length.out=n2))
+    r <- roundMpfr(r, max(2,prec))
+    c(r[c(1:n2,n2:1)], 1)
+}
+
 
 ##' Rounding to binary bits, not decimal digits. Closer to the number
 ##' representation, this also allows to increase or decrease a number's precBits

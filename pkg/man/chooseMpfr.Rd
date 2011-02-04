@@ -1,4 +1,4 @@
-\name{pochMpfr}
+\name{chooseMpfr}
 \alias{chooseMpfr}
 \alias{pochMpfr}
 \title{Binomial Coefficients and Pochhammer Symbol aka Rising Factorial}
@@ -55,5 +55,14 @@ stopifnot(pochMpfr(a, 10) == px,
 
 (c1 <- chooseMpfr(1000:997, 60)) # -> automatic "correct" precision
 stopifnot(all.equal(c1, choose(1000:997, 60), tol=1e-12))
+
+## --- Experimenting ---> Found (another / same) BUG in  Rmpfr:
+c3 <- chooseMpfr.all(3)
+c3 ##--> segmentation fault
+for(n in c(1:20,50:55, 100:110, 999:1020)) {
+  cat(n,":"); stopifnot(is.whole(c.c <- chooseMpfr.all(n)))
+  cat(" [Ok]\n")
+}
+
 }
 \keyword{arith}
