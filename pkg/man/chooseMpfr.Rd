@@ -1,11 +1,15 @@
 \name{chooseMpfr}
 \alias{chooseMpfr}
+\alias{chooseMpfr.all}
 \alias{pochMpfr}
 \title{Binomial Coefficients and Pochhammer Symbol aka Rising Factorial}
 \description{
   Compute binomial coefficients, \code{chooseMpfr(a,n)} being
   mathematically the same as \code{\link{choose}(a,n)}, but using high
   precision (MPFR) arithmetic.
+
+  \code{chooseMpfr.all(n)} means the vector \code{\link{choose}(n, 1:n)},
+  using enough bits for exact computation via MPFR.
 
   \code{pochMpfr()} computes the Pochhammer symbol or \dQuote{rising
   factorial}, also called the \dQuote{Pochhammer function},
@@ -16,12 +20,14 @@
   }{x^(n) = x(x+1)(x+2)...(x+n-1) = (x+n-1)! / (x-1)! = Gamma(x+n) / Gamma(x).}
 }
 \usage{
-chooseMpfr(a, n)
+chooseMpfr (a, n)
+chooseMpfr.all(n)
 pochMpfr(a, n)
 }
 \arguments{
   \item{a}{a numeric or \code{\linkS4class{mpfr}} vector.}
-  \item{n}{an integer (of length 1!).}
+  \item{n}{an integer vector; if not of length one, \code{n} and
+    \code{a} are recycled to the same length.}
 }
 \note{
   Yes, it would be desirable that both functions also work with a
@@ -56,9 +62,7 @@ stopifnot(pochMpfr(a, 10) == px,
 (c1 <- chooseMpfr(1000:997, 60)) # -> automatic "correct" precision
 stopifnot(all.equal(c1, choose(1000:997, 60), tol=1e-12))
 
-## --- Experimenting ---> Found (another / same) BUG in  Rmpfr:
-c3 <- chooseMpfr.all(3)
-c3 ##--> segmentation fault
+## --- Experimenting
 for(n in c(1:20,50:55, 100:110, 999:1020)) {
   cat(n,":"); stopifnot(is.whole(c.c <- chooseMpfr.all(n)))
   cat(" [Ok]\n")

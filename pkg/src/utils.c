@@ -104,6 +104,8 @@ int my_mpfr_choose (mpfr_t R, long n, mpfr_t X, mp_rnd_t RND)
 #endif
     }
     ans = mpfr_set(R, r, RND);
+    mpfr_clear (x);
+    mpfr_clear (r);
     return ans;
 }
 
@@ -128,6 +130,8 @@ int my_mpfr_poch (mpfr_t R, long n, mpfr_t X, mp_rnd_t RND)
 #endif
     }
     ans = mpfr_set(R, r, RND);
+    mpfr_clear (x);
+    mpfr_clear (r);
     return ans;
 }
 
@@ -136,12 +140,17 @@ int my_mpfr_poch (mpfr_t R, long n, mpfr_t X, mp_rnd_t RND)
 int my_mpfr_round (mpfr_t R, long prec, mpfr_t X, mp_rnd_t RND)
 {
     int ans;
+    mpfr_t x;
+    mp_prec_t p_X = mpfr_get_prec(X);
+    mpfr_init2(x, p_X); mpfr_set(x, X, RND);
+
     if(prec < MPFR_PREC_MIN)
 	error("prec = %d < %d  is too small", prec, MPFR_PREC_MIN);
     if(prec > MPFR_PREC_MAX)
 	error("prec = %d > %d  is too large", prec, MPFR_PREC_MAX);
-    ans = mpfr_prec_round(X, (mp_prec_t) prec, RND);
-    mpfr_set(R, X, RND);
+    ans = mpfr_prec_round(x, (mp_prec_t) prec, RND);
+    mpfr_set(R, x, RND);
+    mpfr_clear (x);
     return ans;
 }
 

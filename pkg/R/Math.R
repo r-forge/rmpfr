@@ -101,8 +101,10 @@ factorialMpfr <- function(n, precBits = max(2, ceiling(lgamma(n+1)/log(2)))) {
 ##' P(a,x) := Gamma(a+x)/Gamma(x)
 pochMpfr <- function(a, n) {
     stopifnot(n >= 0)
-    if(!is(a, "mpfr")) ## use a high enough default precision
-        a <- mpfr(a, precBits = max(1,n)*getPrec(a))
+    if(!is(a, "mpfr")) ## use a high enough default precision (and recycle ..)
+        a <- mpfr(a, precBits = pmax(1,n)*getPrec(a))
+    else if((ln <- length(n)) != 1 && ln != length(a))
+	a <- a + 0*n
     a@.Data[] <- .Call("R_mpfr_poch", a, n, PACKAGE="Rmpfr")
     a
 }
@@ -114,8 +116,10 @@ chooseMpfr <- function(a, n) {
     if(!is(a, "mpfr")) { ## use high enough default precision
         lc <- lchoose(a,n)
         precB <- ceiling(max(lc[is.finite(lc)])/log(2))
-        a <- mpfr(a, precBits = n + max(2, precB))# add n bits for the n multiplications
-    }
+        ## add n bits for the n multiplications (and recycle {a,n} to same length)
+        a <- mpfr(a, precBits = n + max(2, precB))
+    } else if((ln <- length(n)) != 1 && ln != length(a))
+	a <- a + 0*n
     a@.Data[] <- .Call("R_mpfr_choose", a, n, PACKAGE="Rmpfr")
     a
 }
