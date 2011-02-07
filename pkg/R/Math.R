@@ -136,7 +136,7 @@ chooseMpfr.all <- function(n) { ## return   chooseMpfr(n, 1:n)  "but smartly"
     r <- cumprod(seqMpfr(mpfr(n, precBits), n+1-n2., length.out=n2)) /
         cumprod(seqMpfr(1, n2., length.out=n2))
     r <- roundMpfr(r, max(2,prec))
-    c(r[c(1:n2,n2:1)], 1)
+    c(r[c(seq_len(n2-1+(n%%2)), n2:1)], 1)
 }
 
 
