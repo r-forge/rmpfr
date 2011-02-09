@@ -66,10 +66,10 @@ set.seed(17)
 ## Check double -> mpfr -> character -> double :
 ##  Unfortunately,  format(<mpfr>, .) -> .mpfr2str() triggers a memory bug
 ##  that I think is an MPFR library "mis-feature"
-## 2011-01-18 -- bug is still triggered (64-bit Linux, MPFR 3.0.0) for ntry=100
+## 2011-02-09 -- bug *no longer* triggered !
 rSign <- function(n) sample(c(-1,1), size = n, replace=TRUE)
 N <- function(x) as.numeric(x)
-ntry <- if(Sys.getenv("USER") == "maechler") 50 else 5
+ntry <- if(Sys.getenv("USER") == "maechler") 150 else 5
 for(n in 1:ntry) {
     cat(if(n %% 10)"." else n)
     x. <- rSign(100) * rlnorm(100)
