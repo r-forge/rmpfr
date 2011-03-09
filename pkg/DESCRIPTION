@@ -1,8 +1,8 @@
 Package: Rmpfr
 Type: Package
 Title: R MPFR - Multiple Precision Floating-Point Reliable
-Version: 0.2-6
-Date: 2011-02-09
+Version: 0.3-0
+Date: 2011-03-09
 Author: Martin Maechler
 Maintainer: Martin Maechler <maechler@stat.math.ethz.ch>
 Depends: methods, R (>= 2.9.1)
@@ -15,5 +15,5 @@ Description: The package aims at providing S4 classes and methods for
   which itself is based on the GMP (GNU Multiple Precision) Library.
 License: GPL (>= 2)
 NoNamespace: There is currently no NAMESPACE, as I want one package with
-  heavy use of S4 methods and classes and no namesapce.  This may well change.
+  heavy use of S4 methods and classes and no namespace.  This may well change.
 

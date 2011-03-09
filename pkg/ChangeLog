@@ -1,3 +1,9 @@
+2011-03-09  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/integrate-Romberg.R (integrateR): new pure Rfunction for Romberg
+	integration; works with "mpfr".
+	* man/integrateR.Rd: docu & examples.
+
 2011-01-18  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* R/Math.R (roundMpfr): "round" to precBits (bits!) also to
