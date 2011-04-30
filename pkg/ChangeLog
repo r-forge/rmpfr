@@ -1,3 +1,7 @@
+2011-04-30  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/special-fun.R (Bernoulli): B(0) = 1  now also works.
+
 2011-03-09  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* R/integrate-Romberg.R (integrateR): new pure Rfunction for Romberg

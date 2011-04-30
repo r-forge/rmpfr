@@ -65,11 +65,13 @@ zeta <- function(x) {
 Bernoulli <- function(k, precBits = 128) {
     ## Purpose: Bernoulli Numbers (in high precision)
     ## -----------------------------------------------------------
-    ## Arguments: k: positive integer vector
+    ## Arguments: k: non-negative integer vector
     ## -----------------------------------------------------------
     ## Author: Martin Maechler, Date: 12 Dec 2008, 11:35
-    stopifnot(all(k > 0), k == as.integer(k))
-    - k * zeta(if(is(k, "mpfr")) 1 - k else mpfr(1 - k, precBits=precBits))
+    stopifnot(all(k >= 0), k == as.integer(k))
+    r <- - k * zeta(if(is(k, "mpfr")) 1 - k else mpfr(1 - k, precBits=precBits))
+    if(any(k0 <- k == 0)) r[k0] <- mpfr(1, precBits=precBits)
+    r
 }
 
 

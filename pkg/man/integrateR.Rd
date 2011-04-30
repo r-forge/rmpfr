@@ -1,5 +1,6 @@
 \name{integrateR}
 \alias{integrateR}
+\alias{print.integrate}
 \title{One-Dimensional Numerical Integration - in pure R}
 \description{
   Numerical integration of one-dimensional functions in pure R,
@@ -64,6 +65,9 @@ integrateR(f, lower, upper, \dots, ord = NULL,
   \R's standard, \code{\link{integrate}}, is much more adaptive,
   also allowing infinite integration boundaries, and typically
   considerably faster for a given accuracy.
+
+  We use the same (actually a copy) \code{print} S3 method,
+  \code{\link{print.integrate}()}, as provided by \R.% 'stats' package
 }
 \examples{
 
