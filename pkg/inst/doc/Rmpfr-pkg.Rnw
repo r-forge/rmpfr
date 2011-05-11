@@ -1,0 +1,344 @@
+\documentclass[article]{jss}
+%\documentclass[nojss,article]{jss}
+%              ----- for the package-vignette, don't use JSS logo, etc
+%
+\author{Martin M\"achler \\ ETH Zurich}
+\title{Arbitrary Accurate Computation with \R\  \\ The \pkg{Rmpfr} Package}
+% \def\mythanks{a version of this paper, for \pkg{nacopula} 0.4\_4, has been published
+%     in JSS, \url{http://www.jstatsoft.org/v39/i09}.}
+%% for pretty printing and a nice hypersummary also set:
+\Plainauthor{Martin M\"achler} %% comma-separated
+\Plaintitle{Arbitrary Accurate Computation with R---The Rmpfr Package}
+% \Shorttitle{}
+%
+%\VignetteIndexEntry{Rmpfr}
+%\VignetteDepends{Rmpfr}
+\SweaveOpts{engine=R,eps=FALSE,pdf=TRUE,width=7,height=4,strip.white=true,keep.source=TRUE}
+
+%% an abstract and keywords
+\Abstract{
+ The \R\ package \pkg{Rmpfr} allows to use arbitrary high precision numbers
+ instead of \R's double precision numbers in many \R\ computations and functions.
+
+ This is achieved by defining S4 classes of such numbers and vectors,
+ matrices, and arrays thereof, where all arithmetic and mathematical
+ functions work via the (GNU) MPFR C library, where MPFR is acronym for
+ ``\emph{\textbf{M}ultiple \textbf{P}recision \textbf{F}loating-Point \textbf{R}eliably}''.
+ MPFR is Free Software, available under the LGPL license, and
+ itself is built on the free GNU Multiple Precision arithmetic library (GMP).
+
+ Consequently, by using \pkg{Rmpfr}, you can often call your \R\ function or
+ numerical code with mpfr--numbers instead of simple numbers, and all
+ results will automatically be much more accurate.
+}
+
+\Keywords{MPFR, Abitrary Precision, Multiple Precision Floating-Point, R}
+%% at least one keyword must be supplied
+
+%% publication information
+%% NOTE: Typically, this can be left commented and will be filled out by the technical editor
+%% \Volume{13}
+%% \Issue{9}
+%% \Month{September}
+%% \Year{2004}
+%% \Submitdate{2004-09-29}
+%% \Acceptdate{2004-09-29}
+
+%% The address of (at least) one author should be given
+%% in the following format:
+\Address{
+	Martin M\"achler\\
+	Seminar f\"ur Statistik, HG G~16\\
+	ETH Zurich\\
+	8092 Zurich, Switzerland\\
+	E-mail: \email{maechler@stat.math.ethz.ch}\\
+	URL: \url{http://stat.ethz.ch/people/maechler}
+}
+%% It is also possible to add a telephone and fax number
+%% before the e-mail in the following format:
+%% Telephone: +43/1/31336-5053
+%% Fax: +43/1/31336-734
+
+%% for those who use Sweave please include the following line (with % symbols):
+%% MM: this is "substituted" by  jss.cls:
+%% need no \usepackage{Sweave.sty}
+
+%% Marius' packages
+\usepackage[american]{babel}%for American English
+% \usepackage{microtype}%for character protrusion and font expansion (only with pdflatex)
+\usepackage{amsmath}%sophisticated mathematical formulas with amstex (includes \text{})
+\usepackage{mathtools}%fix amsmath deficiencies
+\usepackage{amssymb}%sophisticated mathematical symbols with amstex (includes \mathbb{})
+% \usepackage{amsthm}%theorem environments
+% \usepackage{bm}%for bold math symbols: \bm (= bold math)
+% %NON-STANDARD:\RequirePackage{bbm}%only for indicator functions
+% \usepackage{enumitem}%for automatic numbering of new enumerate environments
+% \usepackage[
+%   format=hang,
+%   % NOT for JSS: labelsep=space,
+%   justification=justified,
+%   singlelinecheck=false%,
+%   % NOT for JSS: labelfont=bf
+% ]{caption}%for captions
+% \usepackage{tikz}%sophisticated graphics package
+% \usepackage{tabularx}%for special table environment (tabularx-table)
+% \usepackage{booktabs}%for table layout
+
+% This is already in jss above -- but withOUT the  fontsize=\small part !!
+\DefineVerbatimEnvironment{Sinput}{Verbatim}{fontsize=\small,fontshape=sl}
+\DefineVerbatimEnvironment{Soutput}{Verbatim}{fontsize=\small}
+\DefineVerbatimEnvironment{Scode}{Verbatim}{fontsize=\small,fontshape=sl}
+% but when submitting, do get rid of too much vertical space between R
+% input & output, i.e. between Sinput and Soutput:
+\fvset{listparameters={\setlength{\topsep}{0pt}}}% !! quite an effect!
+%%
+%
+\newcommand*{\R}{\proglang{R}}%{\textsf{R}}
+\newcommand*{\Arg}[1]{\texttt{\itshape $\langle$#1$\rangle$}}
+\newcommand*{\eps}{\varepsilon}
+
+%% end of declarations %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\begin{document}
+%% include your article here, just as usual
+%% Note that you should use the \pkg{}, \proglang{} and \code{} commands.
+% \section[About Java]{About \proglang{Java}}
+%% Note: If there is markup in \(sub)section, then it has to be escape as above.
+%% Note: These are explained in '?RweaveLatex' :
+<<preliminaries, echo=FALSE, results=hide>>=
+options(SweaveHooks= list(fig=function() par(mar=c(5.1, 4.1, 1.1, 2.1))),
+        width = 75,
+        digits = 7, # <-- here, keep R's default!
+        prompt = "R> ",
+        continue=" ")
+Sys.setenv(LANGUAGE = "en")
+if(.Platform$OS.type != "windows")
+  Sys.setlocale("LC_MESSAGES","C")
+@
+\section[Introduction]{Introduction}% \small~\footnote{\mythanks}}
+
+%% - Why did I want this in R :
+There are situations, notably in researching better numerical algorithms
+for non-trivial mathematical functions, say the $F$-distribution function, where
+it is interesting and very useful to be able to rerun computations in \R\ in
+(potentially much) higher precision.
+
+
+- Why S4 classes and methods are useful here:
+
+S4 allows ``multiple
+dispatch'' which means that the method that is called for a generic
+function may not just depend on the first argument of the function (as in
+S3 or in traditional class-based OOP), but on a \emph{``signature''} of
+multiple arguments.
+For example, \texttt{a + b} is the same as \code{`+`(a,b)}, i.e., calling a
+function with two arguments. ...
+
+- The engine:
+
+The package Rmpfr interfaces R to the C Library
+
+    MPFR, the "Multiple Precision Floating-Point Reliably" library
+
+
+MPFR is Free Software, available under the LGPL license.
+See \url{http://mpfr.org/}.
+
+MPFR itself is built on and requires the
+GNU Multiple Precision arithmetic library (GMP),
+see \url{http://gmplib.org/}. It can be obtained from there,
+or from your operating system vendor.
+
+Under Debian, Ubuntu (and other Debian derivative) Linux distributions,
+it is sufficient (for \emph{both} libraries) to simply issue
+\begin{verbatim}
+   sudo apt-get install libmpfr-dev
+\end{verbatim}
+
+The standard reference to MPFR is
+\cite{FouLHLPZ-2007}
+
+
+\section{Arithmetic with mpfr-numbers}
+<<ex1>>=
+(0:7) / 7  #  k/7,  for  k= 0..7  printed with R's default precision
+options(digits= 16)
+(0:7) / 7  #  in full  double precision accuracy
+options(digits=  7) # back to default
+str(.Machine[c("double.digits","double.eps", "double.neg.eps")], digits=10)
+2^-(52:53)
+@
+In other words, the double precision numbers \R\ uses have a 53-bit mantissa,
+and the two ``computer epsilons'' are $2^{-52}$ and $2^{-53}$, respectively.
+
+Less technically, how many decimal digits can double precision numbers work with,
+$2^{-53} = 10^{-x} \Longleftrightarrow x = 53 \log_{10}(2)$,
+<<n-digs>>=
+53 * log10(2)
+@
+i.e., almost 16 digits.
+
+If we want to compute some arithmetic expression with higher precision,
+this can now easily be achieved, using the \pkg{Rmpfr} package, by defining
+``\texttt{mpfr}--numbers'' and then work with these.
+
+Starting with simple examples:
+<<ex1>>=
+require("Rmpfr") # after having installed the package ...
+
+## a more precise version of  k/7,  k = 0...7  from above
+x <- mpfr(0:7, 80)/7 # using 80 bits precision
+x
+
+7*x
+7*x  - 0:7
+@
+which here is even ``perfect'' -- but that's ``luck'' only, and also the
+case here for ``simple'' double precision numbers, at least on our current
+platform.\footnote{64-bit Linux, Fedora 13 on a ``AMD Phenom 925'' processor}
+
+Our \pkg{Rmpfr} package also provides the mathematical constants which MPFR
+provides, via \code{Const(., \Arg{prec})}, currently the
+\Sexpr{length(eval(formals(Const)[["name"]]))} constants
+<<Const-names>>=
+formals(Const)$name
+@
+are available, where
+\code{"gamma"} is for Euler's gamma, $\gamma := \lim_{n\to\infty}
+\sum_{k=1}^n \frac 1 k - \log(n) \approx 0.5777$, and
+\code{"catalan"} for
+Catalan's constant (see \url{http://en.wikipedia.org/wiki/Catalan\%27s_constant}).
+<<Const-ex>>=
+Const("pi")
+Const("log2")
+@
+where you may note a default precision of 120 digits, a bit more than
+quadruple precision, but also that 1000 digits of $\pi$ are available instantaneously,
+<<pi-1000>>=
+system.time(Pi <- Const("pi", 1000 *log2(10)))
+Pi
+@
+
+TODO ---  an example of a user written function, computing something
+relevant ...
+
+...
+
+...
+
+...
+
+\section{``All'' mathematical functions, arbitrary precise}
+
+%% see ../../man/mfpr-class.Rd
+%%  but also ....
+
+%% {Math}{\code{signature(x = "mpfr")}:
+All the S4 ``\texttt{Math}'' group functions are
+      defined, using multiple precision (MPFR) arithmetic, i.e.,
+<<Math-group>>=
+getGroupMembers("Math")
+@
+      % \code{{abs}}, \code{{sign}}, \code{{sqrt}},
+      % \code{{ceiling}}, \code{{floor}}, \code{{trunc}},
+      % \code{{cummax}}, \code{{cummin}}, \code{{cumprod}},
+      % \code{{cumsum}}, \code{{exp}}, \code{{expm1}},
+      % \code{{log}}, \code{{log10}}, \code{{log2}},
+      % \code{{log1p}}, \code{{cos}}, \code{{cosh}},
+      % \code{{sin}}, \code{{sinh}}, \code{{tan}},
+      % \code{{tanh}}, \code{{acos}}, \code{{acosh}},
+      % \code{{asin}}, \code{{asinh}}, \code{{atan}},
+      % \code{{atanh}}, \code{{gamma}}, \code{{lgamma}},
+      % \code{{digamma}}, and \code{{trigamma}}.
+
+where currently , \code{digamma}, and \code{trigamma} are not provided by
+the MPFR library, and hence the methods not implemented yet.
+\\
+Further, the \code{cum*()} methods are \emph{not yet} implemented.
+
+\code{factorial()} has a \texttt{"mpfr"} method; and in addition,
+\code{factorialMpfr()} computes ${n!}$ efficiently in arbitrary precision,
+using the MPFR-internal implementation.
+This is mathematically (but not numerically) the same as
+$\Gamma(n+1) = $\code{gamma(n+1)}.
+
+
+\section{Arbitrary precise matrices and arrays}
+
+... ...
+
+... ...
+
+\section{Special mathematical functions}
+
+\code{zeta(x)} computes Riemann's Zeta function $\zeta(x)$ important in
+analytical number theory and related fields.  The traditional definition is
+\begin{equation*}
+  \zeta(x) = \sum_{n=1}^\infty \frac{1}{n^x}.
+\end{equation*}
+
+\code{Ei(x)} computes the \textbf{e}xponential integral,
+\begin{equation*}
+  \int_{-\infty}^{x} \frac{e^t}{t} \; dt.
+\end{equation*}
+<<Ei-curve, fig=TRUE>>=
+curve(Ei,  0, 5, n=2001);  abline(h=0,v=0, lty=3)
+@
+
+\code{Li2(x)}, part of the MPFR C library since version 2.4.0,
+computes the dilogarithm,
+\begin{equation*}
+   \mathtt{Li2(x)} = \operatorname{Li}_2(x) := \int_{0}^{x} \frac{-log(1-t)}{t} \; dt,
+\end{equation*}
+which is the most prominent ``polylogarithm'' function,
+where the general polylogarithm is (initially) defined as
+\begin{equation*}
+  \operatorname{Li}_s(z) = \sum_{k=1}^\infty \frac{z^k}{k^s}, \ \forall s
+  \in \mathbb{C} \ \mathrm{and } z \in \{z\in\mathbb{C}; |z| < 1\},
+\end{equation*}
+see \url{http://en.wikipedia.org/wiki/Polylogarithm#Dilogarithm}.
+
+Note that the integral definition is valid for all $x\in \mathbb{C}$, and also,
+$Li_2(1) = \zeta(2) = \pi^2/6$.
+<<Li2-1>>=
+if(mpfrVersion() >= "2.4.0")  ## Li2() is not available in older MPFR versions
+  all.equal(Li2(1), Const("pi", 128)^2/6, tol = 1e-30)
+@
+where we also see that \pkg{Rmpfr} provides \texttt{all.equal()} methods
+for mpfr-numbers which naturally allow very small tolerances \code{tol}.
+
+<<Li2-curve, fig=TRUE>>=
+if(mpfrVersion() >= "2.4.0")
+   curve(Li2, -2, 13,   n=2000); abline(h=0,v=0, lty=3)
+@
+
+\code{erf(x)} is the ``error\footnote{named exactly because of its relation
+  to the normal / Gaussian distribution} function'' and \code{erfc(x)} its
+\textbf{c}omplement, \code{erfc(x) := 1 - erf(x)},
+defined es
+\begin{equation*}
+  \operatorname{erf}(x) = \frac{2}{\sqrt{\pi}}\int_{0}^x e^{-t^2} dt,
+\end{equation*}
+and consequently, both functions simply are reparametrizations
+of \code{pnorm}, \code{erf(x) = 2*pnorm(sqrt(2)*x)} and
+\code{erfc(x) = 1 - erf(x) = 2* pnorm(sqrt(2)*x, lower=FALSE)}.
+<<erf-curves, fig=TRUE>>=
+curve(erf, -3,3, col = "red", ylim = c(-1,2))
+curve(erfc, add = TRUE, col = "blue")
+abline(h=0, v=0, lty=3)
+legend(-3,1, c("erf(x)", "erfc(x)"), col = c("red","blue"), lty=1)
+@
+
+\section{Arbitrary precise matrices and arrays}
+
+... ...
+
+... ...
+
+
+\section{Conclusion}
+
+\bibliography{Rmpfr}
+
+\end{document}
