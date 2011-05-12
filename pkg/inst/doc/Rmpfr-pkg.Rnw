@@ -3,7 +3,7 @@
 %              ----- for the package-vignette, don't use JSS logo, etc
 %
 \author{Martin M\"achler \\ ETH Zurich}
-\title{Arbitrary Accurate Computation with \R\  \\ The \pkg{Rmpfr} Package}
+\title{Arbitrary Accurate Computation with \R: \\ The \pkg{Rmpfr} Package}
 % \def\mythanks{a version of this paper, for \pkg{nacopula} 0.4\_4, has been published
 %     in JSS, \url{http://www.jstatsoft.org/v39/i09}.}
 %% for pretty printing and a nice hypersummary also set:
@@ -295,7 +295,7 @@ which is the most prominent ``polylogarithm'' function,
 where the general polylogarithm is (initially) defined as
 \begin{equation*}
   \operatorname{Li}_s(z) = \sum_{k=1}^\infty \frac{z^k}{k^s}, \ \forall s
-  \in \mathbb{C} \ \mathrm{and } z \in \{z\in\mathbb{C}; |z| < 1\},
+  \in \mathbb{C} \ \ \forall |z| < 1, z\in\mathbb{C},
 \end{equation*}
 see \url{http://en.wikipedia.org/wiki/Polylogarithm#Dilogarithm}.
 
@@ -335,6 +335,65 @@ legend(-3,1, c("erf(x)", "erfc(x)"), col = c("red","blue"), lty=1)
 ... ...
 
 ... ...
+
+\section{Integration highly precisely}
+Sometimes, important functions are defined as integrals of
+other known functions, e.g., the dilogarithm $\operatorname{Li}_2()$ above.
+Consequently, we found it desirable to allow numerical
+integration, using mpfr-numbers, and hence---conceptionally---arbitrarily precisely.
+
+\R's \code{integrate()} uses a relatively smart adaptive integration
+scheme, but based on C code which is not very simply translatable to pure
+\R, to be used with mpfr numbers.
+For this reason, our \code{integrateR()} function uses classical
+Romberg integration \citep{Bauer-1961}.
+
+We demonstrate its use, first by looking at a situation where
+\R's \code{integrate()}  can get problems:
+<<integrateR-dnorm>>=
+integrateR(dnorm,0,2000)
+integrateR(dnorm,0,2000, rel.tol=1e-15)
+integrateR(dnorm,0,2000, rel.tol=1e-15, verbose=TRUE)
+@
+
+Now, for situtations where numerical integration would not be necessary,
+as the solution is known analytically, but hence are useful for exploration
+of high accuracy numerical integration:
+
+First, the exponential function $\exp(x) = e^x$ with its well-known $\int
+\exp(t)\;dt = \exp(x)$,  both with standard (double precision) floats,
+<<integ-exp-double>>=
+(Ie.d <- integrateR(exp,            0     , 1, rel.tol=1e-15, verbose=TRUE))
+@
+and then the same, using 128-bit accurate mpfr-numbers:
+<<integ-exp-mpfr>>=
+(Ie.m <- integrateR(exp, mpfr(0,200), 1, rel.tol=1e-25, verbose=TRUE))
+(I.true <- exp(mpfr(1, 200)) - 1)
+## with absolute errors
+as.numeric(c(I.true - Ie.d$value,
+             I.true - Ie.m$value))
+@
+
+Now, for polynomials, where romberg integration of the appropriate order is
+exact, mathematically,
+<<integ-poly-double>>=
+if(require("polynom")) {
+    x <- polynomial(0:1)
+    p <- (x-2)^4 - 3*(x-3)^2
+    Fp <- as.function(p)
+    print(pI <- integral(p)) # formally
+    print(Itrue <- predict(pI, 5) - predict(pI, 0)) ## == 20
+} else {
+    Fp <- function(x) (x-2)^4 - 3*(x-3)^2
+    Itrue <- 20
+}
+(Id <- integrateR(Fp, 0,      5))
+(Im <- integrateR(Fp, 0, mpfr(5, 256),
+                  rel.tol = 1e-70, verbose=TRUE))
+## and the numerical errors, are indeed of the expected size:
+256 * log10(2) # - expect ~ 77 digit accuracy for mpfr(*., 256)
+as.numeric(Itrue - c(Im$value, Id$value))
+@
 
 
 \section{Conclusion}
