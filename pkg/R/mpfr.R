@@ -70,7 +70,7 @@ print.mpfr <- function(x, digits = NULL, drop0trailing = TRUE, ...) {
     n <- length(x)
     ch.prec <-
 	if(n >= 1) {
-	    rpr <- range(sapply(x, slot, "prec"))
+	    rpr <- range(vapply(x, slot, 1L, "prec"))
 	    paste("of precision ", rpr[1],
 		   if(rpr[1] != rpr[2]) paste("..",rpr[2]), " bits")
 	}
@@ -91,7 +91,7 @@ setMethod("[", signature(x = "mpfr", i = "ANY", j = "missing", drop = "missing")
 	      nA <- nargs()
 	      if(nA == 2) { ## x[i] etc -- vector case -- to be fast, need C! --
 		  xd <- structure(x@.Data[i], names=names(x)[i])
-		  if(any(iN <- unlist(lapply(xd, is.null))))# e.g. i > length(x)
+		  if(any(iN <- vapply(xd, is.null, NA)))# e.g. i > length(x)
 		      xd[iN] <- mpfr(NA, precBits = 2L)
 		  x@.Data <- xd
 		  x
@@ -159,17 +159,17 @@ setGeneric("pmax", signature = "...")
 setMethod("pmin", "Mnumber",
 	  function(..., na.rm = FALSE) {
 	      args <- list(...)
-	      if(all(sapply(args, is.atomic)))
+	      if(all(vapply(args, is.atomic, NA)))
 		  return( base::pmin(..., na.rm = na.rm) )
 	      ## else: at least one is "mpfr(Matrix/Array)"
-	      is.m <- sapply(args, is, "mpfr")
+	      is.m <- vapply(args, is, NA, "mpfr")
 	      if(!any(is.m))
 		  stop("no \"mpfr\" argument -- wrong method chosen")
 
-	      N <- max(lengths <- sapply(args, length))
+	      N <- max(lengths <- vapply(args, length, 1L))
 	      ## precision needed -- FIXME: should be *vector*
-	      mPrec <- max(unlist(lapply(args[is.m], .getPrec)),
-			   if(any(sapply(args[!is.m], is.double)))
+	      mPrec <- max(unlist(lapply(args[is.m], .getPrec)),# not vapply
+			   if(any(vapply(args[!is.m], is.double, NA)))
 			   .Machine$double.digits)
 	      ## to be the result :
 	      r <- mpfr(rep.int(Inf, N), precBits = mPrec)
@@ -200,17 +200,17 @@ setMethod("pmin", "Mnumber",
 setMethod("pmax", "Mnumber",
 	  function(..., na.rm = FALSE) {
 	      args <- list(...)
-	      if(all(sapply(args, is.atomic)))
+	      if(all(vapply(args, is.atomic, NA)))
 		  return( base::pmax(..., na.rm = na.rm) )
 	      ## else: at least one is "mpfr(Matrix/Array)"
-	      is.m <- sapply(args, is, "mpfr")
+	      is.m <- vapply(args, is, NA, "mpfr")
 	      if(!any(is.m))
 		  stop("no \"mpfr\" argument -- wrong method chosen")
 
-	      N <- max(lengths <- sapply(args, length))
+	      N <- max(lengths <- vapply(args, length, 1L))
 	      ## precision needed -- FIXME: should be *vector*
-	      mPrec <- max(unlist(lapply(args[is.m], .getPrec)),
-			   if(any(sapply(args[!is.m], is.double)))
+	      mPrec <- max(unlist(lapply(args[is.m], .getPrec)),# not vapply
+			   if(any(vapply(args[!is.m], is.double, NA)))
 			   .Machine$double.digits)
 	      ## to be the result :
 	      r <- mpfr(rep.int(-Inf, N), precBits = mPrec)
@@ -367,14 +367,14 @@ setMethod("seq", c(from="ANY", to="ANY", by = "mpfr"), seqMpfr)
 
 ## the fast mpfr-only version - should not return NULL
 .getPrec <- function(x) {
-    if(length(x)) unlist(lapply(x, slot, "prec"))
+    if(length(x)) vapply(x, slot, 1L, "prec")
     else mpfr_default_prec()
 }
 ## the user version
 getPrec <- function(x, base = 10, doNumeric = TRUE, is.mpfr = NA) {
     ## if(!length(x)) ## NULL (from sapply(.) below) is not ok
     ##     return(mpfr_default_prec())
-    if(isTRUE(is.mpfr) || is(x,"mpfr")) sapply(x, slot, "prec")
+    if(isTRUE(is.mpfr) || is(x,"mpfr")) vapply(x, slot, 1L, "prec")
     else if(is.character(x)) ## number of digits --> number of bits
 	ceiling(log2(base) * nchar(gsub("[-.]", '', x)))
     else if(is.logical(x))
