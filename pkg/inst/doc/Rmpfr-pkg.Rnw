@@ -131,7 +131,7 @@ For example,  if you are interested in Euler's $e$, the base of natural logarith
 given, e.g., by $e^x = \exp(x)$, you will look into
 <<exp-1>>=
 exp(1)
-@ 
+@
 typically uses 7 digits for printing, as \code{getOption("digits")} is 7.
 To see \R's internal accuracy fully, you can use
 <<exp-1-dig-17>>=
@@ -141,24 +141,48 @@ With \pkg{Rmpfr} you can now simply use ``mpfr -- numbers'' and get more
 accurate results automatically, here using a \emph{vector} of numbers as is
 customary in \R:
 <<exp-1-mp>>=
+require("Rmpfr") # after having installed the package ...
 (one <- mpfr(1, 120))
 exp(one)
 @
 
+In combinatorics, number theory or when computing series, you may occasionaly want to
+work with \emph{exact} factorials or binomial coefficients, where e.g. you
+may need all factorials $k!$, for $k=1,2,\dots,24$ or a full row
+of Pascal's triangle, i.e., want all $\binom{n}{k}$ for $n=80$.
 
-in combinatorics or number theory, you may occasionaly want to
-work with \emph{exact} binomial coefficients, e.g., you may need a full row
-of Pascal's triangle, i.e., want all $\binom{n}{k}$ for $n=80$ (and hence $k=0,\dots,n$),
-which with \pkg{Rmpfr} can be as simple as
-<<chooseM-ex>>=
-require("Rmpfr") # after having installed the package ...
-chooseMpfr.all(n = 80)
+With \pkg{Rmpfr} this can be as simple as
+<<factorial-1>>=
+ns <- 1:24 ; factorial(ns)
 @
+where you loose the full precision of $24!$: If you display it
+with its full internal precision,
+<<factorial-full>>=
+noquote(sprintf("%-30.0f", factorial(24)))
+@
+it is obviously wrong in the last couple of digits as they are \code{0}.
+However, you can easily get full precision results with \pkg{Rmpfr}, by
+replacing ``simple'' numbers by mpfr-numbers:
+<<factorial-mpfr>>=
+ns <- mpfr(1:24, 120) ; factorial(ns)
+@
+
+Or for the 80-th Pascal triangle row, $\binom{n}{k}$ for $n=80$ and $k=0,\dots,n$,
+<<chooseM-ex-fake,eval=false>>=
+chooseMpfr.all(n = 80)
+<<chooseM-ex-do-hidden,echo=false,eval=false>>=
+co <- capture.output(chooseMpfr.all(n = 80))
+writeLines(co[1:5]);cat(" ... \n ... \n")
+writeLines(co[13:16]);cat(" ... \n ... \n");writeLines(tail(co,2))
+## For now, still use the full:
+<<chooseM-run>>=
+<<chooseM-ex-fake>>
+@
+
 %%% "FIXME:" drawback of the above is that it is *integer* arithmetic only ...
 
-
-- Why S4 classes and methods are useful here:
-
+\paragraph{S4 classes and methods:}
+% Why they are useful here:
 S4 allows ``multiple
 dispatch'' which means that the method that is called for a generic
 function may not just depend on the first argument of the function (as in
@@ -362,12 +386,6 @@ curve(erfc, add = TRUE, col = "blue")
 abline(h=0, v=0, lty=3)
 legend(-3,1, c("erf(x)", "erfc(x)"), col = c("red","blue"), lty=1)
 @
-
-\section{Arbitrary precise matrices and arrays}
-
-... ...
-
-... ...
 
 \section{Integration highly precisely}
 Sometimes, important functions are defined as integrals of
