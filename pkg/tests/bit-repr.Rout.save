@@ -1,6 +1,6 @@
 
-R version 2.12.0 Patched (2010-12-01 r53725)
-Copyright (C) 2010 The R Foundation for Statistical Computing
+R version 2.13.0 Patched (2011-05-11 r55852)
+Copyright (C) 2011 The R Foundation for Statistical Computing
 ISBN 3-900051-07-0
 Platform: x86_64-unknown-linux-gnu (64-bit)
 
@@ -24,7 +24,7 @@ Attaching package: 'Rmpfr'
 
 The following object(s) are masked from 'package:stats':
 
-    pnorm
+    pnorm, print.integrate
 
 The following object(s) are masked from 'package:base':
 
@@ -177,7 +177,7 @@ c(3217, 205887, 3294199, 105414357, 3373259426, 107944301636,
 > 
 > 
 > cat('Time elapsed: ', proc.time(),'\n') # "stats"
-Time elapsed:  0.543 0.05 0.628 0 0 
+Time elapsed:  1.316 0.045 1.419 0 0 
 > 
 > if(!interactive()) warnings()
 NULL

@@ -115,6 +115,9 @@ options(SweaveHooks= list(fig=function() par(mar=c(5.1, 4.1, 1.1, 2.1))),
 Sys.setenv(LANGUAGE = "en")
 if(.Platform$OS.type != "windows")
   Sys.setlocale("LC_MESSAGES","C")
+<<diagnose-lib, echo=FALSE>>=
+if(Sys.getenv("USER") == "maechler")## just for "testing"
+  print( .libPaths() )
 @
 \section[Introduction]{Introduction}% \small~\footnote{\mythanks}}
 
@@ -123,6 +126,35 @@ There are situations, notably in researching better numerical algorithms
 for non-trivial mathematical functions, say the $F$-distribution function, where
 it is interesting and very useful to be able to rerun computations in \R\ in
 (potentially much) higher precision.
+
+For example,  if you are interested in Euler's $e$, the base of natural logarithms, and
+given, e.g., by $e^x = \exp(x)$, you will look into
+<<exp-1>>=
+exp(1)
+@ 
+typically uses 7 digits for printing, as \code{getOption("digits")} is 7.
+To see \R's internal accuracy fully, you can use
+<<exp-1-dig-17>>=
+print(exp(1), digits = 17)
+@
+With \pkg{Rmpfr} you can now simply use ``mpfr -- numbers'' and get more
+accurate results automatically, here using a \emph{vector} of numbers as is
+customary in \R:
+<<exp-1-mp>>=
+(one <- mpfr(1, 120))
+exp(one)
+@
+
+
+in combinatorics or number theory, you may occasionaly want to
+work with \emph{exact} binomial coefficients, e.g., you may need a full row
+of Pascal's triangle, i.e., want all $\binom{n}{k}$ for $n=80$ (and hence $k=0,\dots,n$),
+which with \pkg{Rmpfr} can be as simple as
+<<chooseM-ex>>=
+require("Rmpfr") # after having installed the package ...
+chooseMpfr.all(n = 80)
+@
+%%% "FIXME:" drawback of the above is that it is *integer* arithmetic only ...
 
 
 - Why S4 classes and methods are useful here:
@@ -133,31 +165,33 @@ function may not just depend on the first argument of the function (as in
 S3 or in traditional class-based OOP), but on a \emph{``signature''} of
 multiple arguments.
 For example, \texttt{a + b} is the same as \code{`+`(a,b)}, i.e., calling a
-function with two arguments. ...
+function with two arguments.
 
-- The engine:
+...
 
-The package Rmpfr interfaces R to the C Library
+\subsection{The engine behind: MPFR and GMP}
 
-    MPFR, the "Multiple Precision Floating-Point Reliably" library
+The package \pkg{Rmpfr} interfaces \R\ to the C (GNU) library
+\begin{quote}
+  MPFR, acronym for
+ ``\emph{\textbf{M}ultiple \textbf{P}recision \textbf{F}loating-Point \textbf{R}eliably}''.
+\end{quote}
 
-
-MPFR is Free Software, available under the LGPL license.
-See \url{http://mpfr.org/}.
-
+MPFR is Free Software, available under the LGPL license, see
+\url{http://mpfr.org/}, and
 MPFR itself is built on and requires the
-GNU Multiple Precision arithmetic library (GMP),
-see \url{http://gmplib.org/}. It can be obtained from there,
+GNU Multiple Precision arithmetic library (GMP), see
+\url{http://gmplib.org/}. It can be obtained from there,
 or from your operating system vendor.
 
-Under Debian, Ubuntu (and other Debian derivative) Linux distributions,
+On some platforms, it is very simple, to install MPFR and GMP, something
+necessary before \pkg{Rmpfr} can be used.
+E.g., in Linux distributions Debian, Ubuntu and other Debian derivatives,
 it is sufficient (for \emph{both} libraries) to simply issue
 \begin{verbatim}
    sudo apt-get install libmpfr-dev
 \end{verbatim}
-
-The standard reference to MPFR is
-\cite{FouLHLPZ-2007}
+The standard reference to MPFR is \cite{FouLHLPZ-2007}.
 
 
 \section{Arithmetic with mpfr-numbers}
@@ -183,14 +217,11 @@ If we want to compute some arithmetic expression with higher precision,
 this can now easily be achieved, using the \pkg{Rmpfr} package, by defining
 ``\texttt{mpfr}--numbers'' and then work with these.
 
-Starting with simple examples:
+Starting with simple examples,
+a more precise version of  $k/7$,  $k = 0,\dots, 7$  from above:
 <<ex1>>=
-require("Rmpfr") # after having installed the package ...
-
-## a more precise version of  k/7,  k = 0...7  from above
 x <- mpfr(0:7, 80)/7 # using 80 bits precision
 x
-
 7*x
 7*x  - 0:7
 @
@@ -224,6 +255,8 @@ TODO ---  an example of a user written function, computing something
 relevant ...
 
 ...
+
+\code{seqMpfr()}
 
 ...
 
@@ -365,7 +398,7 @@ First, the exponential function $\exp(x) = e^x$ with its well-known $\int
 <<integ-exp-double>>=
 (Ie.d <- integrateR(exp,            0     , 1, rel.tol=1e-15, verbose=TRUE))
 @
-and then the same, using 128-bit accurate mpfr-numbers:
+and then the same, using 200-bit accurate mpfr-numbers:
 <<integ-exp-mpfr>>=
 (Ie.m <- integrateR(exp, mpfr(0,200), 1, rel.tol=1e-25, verbose=TRUE))
 (I.true <- exp(mpfr(1, 200)) - 1)
