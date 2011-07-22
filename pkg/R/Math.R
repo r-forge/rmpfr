@@ -65,17 +65,18 @@ if(FALSE)
 ## A few ones have a very simple method:
 ## Note that the 'sign' slot is from the C-internal struct
 ## and is always +/- 1 , but R's sign(0) |--> 0
+.getSign <- function(x) vapply(x@.Data, slot, 1L, "sign")
 .mpfr.sign <- function(x) {
     r <- numeric(n <- length(x))# all 0
     not0 <- !mpfr.is.0(x)
-    r[not0] <- unlist(lapply(x@.Data[not0], slot, name = "sign"))
+    r[not0] <- .getSign(x[not0])
     r
 }
 setMethod("sign", "mpfr", .mpfr.sign)
 
 setMethod("abs", "mpfr",
 	  function(x) {
-	      for(i in seq_along(x)) x[[i]]@sign <- 1L
+	      for(i in seq_along(x)) x@.Data[[i]]@sign <- 1L
 	      x
 	  })
 

@@ -19,7 +19,7 @@ pnorm <- function (q, mean = 0, sd = 1, lower.tail = TRUE, log.p = FALSE)
     else if(is(q, "mpfr") || is(mean, "mpfr") || is(sd, "mpfr")) {
         stopifnot(length(lower.tail) == 1, length(log.p) == 1)
         q <- as(q, "mpfr")
-        prec.q <- max(sapply(q, slot, "prec"))
+	prec.q <- max(.getPrec(q))
         rt2 <- sqrt(mpfr(2, prec.q))
         if(lower.tail) {
             if(log.p && all(mean == 0))

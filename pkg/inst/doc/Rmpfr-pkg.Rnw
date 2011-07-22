@@ -30,6 +30,13 @@
  Consequently, by using \pkg{Rmpfr}, you can often call your \R\ function or
  numerical code with mpfr--numbers instead of simple numbers, and all
  results will automatically be much more accurate.
+
+ Applications by the package author include testing of Bessel or
+ polylog functions and distribution computations, e.g. for stable distributions.
+%%
+%%__FIXME__ the  UseR! 2011--Late_Poster__Abstract is a bit better
+%% =====  --> ~/R/Meetings-Kurse-etc/2011-useR-Warwick/MartinMaechler.Rnw
+%%            ----------------------------------------~~~~~~~~~~~~~~~~~~~
 }
 
 \Keywords{MPFR, Abitrary Precision, Multiple Precision Floating-Point, R}

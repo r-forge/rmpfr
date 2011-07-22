@@ -1,3 +1,13 @@
+2011-07-21  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/mpfr.R ([[): finished adding a '[[' method which returns one
+	"mpfr" number (instead of a "mpfr1" one).  Needed a bit of changes,
+	notably in .getPrec() etc.
+
+2011-05-12  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 0.3-0 -- "finished" integrateR(); using vapply()
+
 2011-04-30  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* R/special-fun.R (Bernoulli): B(0) = 1  now also works.

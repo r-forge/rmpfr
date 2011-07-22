@@ -70,7 +70,7 @@ print.mpfr <- function(x, digits = NULL, drop0trailing = TRUE, ...) {
     n <- length(x)
     ch.prec <-
 	if(n >= 1) {
-	    rpr <- range(vapply(x, slot, 1L, "prec"))
+	    rpr <- range(.getPrec(x))
 	    paste("of precision ", rpr[1],
 		   if(rpr[1] != rpr[2]) paste("..",rpr[2]), " bits")
 	}
@@ -86,28 +86,37 @@ setMethod(show, "mpfr", function(object) print.mpfr(object))
 
 ## "[" which also keeps names ... JMC says that names are not support(ed|able)
 ## ---	for such objects..
+.mpfr.subset <- function(x,i,j, ..., drop) {
+    nA <- nargs()
+    if(nA == 2) { ## x[i] etc -- vector case -- to be fast, need C! --
+        xd <- structure(x@.Data[i], names=names(x)[i])
+        if(any(iN <- vapply(xd, is.null, NA))) # e.g. i > length(x)
+            xd[iN] <- mpfr(NA, precBits = 2L)
+        x@.Data <- xd
+        x
+    } else if(nA == 3 && !is.null(d <- dim(x))) { ## matrix indexing(!)
+        ## not keeping dimnames though ...
+        message("nargs() == 3	 'mpfr' array indexing ... ")
+        new("mpfr", structure(x@.Data[i,j,...,drop=drop], dim = d))
+        ## keeping dimnames: maybe try
+        ##		     D <- x@.Data; dim(D) <- d
+        ##		     if(!is.null(dn <- dimnames(x))) dimnames(D) <- dn
+        ##		     D <- D[i,,drop=drop]
+        ##		     new("mpfr", D)
+    }
+    else
+        stop(sprintf("invalid 'mpfr' subsetting (nargs = %d)",nA))
+}
 setMethod("[", signature(x = "mpfr", i = "ANY", j = "missing", drop = "missing"),
-	  function(x,i,j, ..., drop) {
-	      nA <- nargs()
-	      if(nA == 2) { ## x[i] etc -- vector case -- to be fast, need C! --
-		  xd <- structure(x@.Data[i], names=names(x)[i])
-		  if(any(iN <- vapply(xd, is.null, NA)))# e.g. i > length(x)
-		      xd[iN] <- mpfr(NA, precBits = 2L)
-		  x@.Data <- xd
-		  x
-	      } else if(nA == 3 && !is.null(d <- dim(x))) { ## matrix indexing(!)
-		  ## not keeping dimnames though ...
-		  message("nargs() == 3	 'mpfr' array indexing ... ")
-		  new("mpfr", structure(x@.Data[i,j,...,drop=drop], dim = d))
-## keeping dimnames: maybe try
-##		     D <- x@.Data; dim(D) <- d
-##		     if(!is.null(dn <- dimnames(x))) dimnames(D) <- dn
-##		     D <- D[i,,drop=drop]
-##		     new("mpfr", D)
+          .mpfr.subset)
 
-	      }
-	      else
-		  stop(sprintf("invalid 'mpfr' subsetting (nargs = %d)",nA))
+setMethod("[[", signature(x = "mpfr", i = "ANY"),
+	  function(x,i) {
+	      if(length(i) > 1L) # give better error message than x@.Data[[i]] would:
+		  stop("attempt to select more than one element")
+	      xd <- x@.Data[[i]] # also gives error when i is "not ok"
+	      x@.Data <- list(xd)
+	      x
 	  })
 
 ## "[<-" :
@@ -280,7 +289,7 @@ seqMpfr <- function(from = 1, to = 1, by = ((to - from)/(length.out - 1)),
 	del <- to - from
 	if(del == 0 && to == 0) return(to)
 	if(missing(by)) {
-	    by <- mpfr(sign(del), from[[1]]@prec)
+	    by <- mpfr(sign(del), from@.Data[[1]]@prec)
 	}
     }
     if (!is(by, "mpfr")) by <- as(by, "mpfr")
@@ -367,14 +376,14 @@ setMethod("seq", c(from="ANY", to="ANY", by = "mpfr"), seqMpfr)
 
 ## the fast mpfr-only version - should not return NULL
 .getPrec <- function(x) {
-    if(length(x)) vapply(x, slot, 1L, "prec")
+    if(length(x)) vapply(x@.Data, slot, 1L, "prec")
     else mpfr_default_prec()
 }
 ## the user version
 getPrec <- function(x, base = 10, doNumeric = TRUE, is.mpfr = NA) {
     ## if(!length(x)) ## NULL (from sapply(.) below) is not ok
     ##     return(mpfr_default_prec())
-    if(isTRUE(is.mpfr) || is(x,"mpfr")) vapply(x, slot, 1L, "prec")
+    if(isTRUE(is.mpfr) || is(x,"mpfr")) vapply(x@.Data, slot, 1L, "prec")
     else if(is.character(x)) ## number of digits --> number of bits
 	ceiling(log2(base) * nchar(gsub("[-.]", '', x)))
     else if(is.logical(x))

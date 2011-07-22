@@ -118,7 +118,7 @@ print.mpfrArray <- function(x, digits = NULL, drop0trailing = FALSE, ...) {
     n <- length(x)
     ch.prec <-
 	if(n >= 1) {
-	    rpr <- range(sapply(x, slot, "prec"))
+	    rpr <- range(.getPrec(x))
 	    paste("of precision ", rpr[1],
 		   if(rpr[1] != rpr[2]) paste("..",rpr[2]), " bits")
 	}
@@ -462,7 +462,7 @@ setMethod("cbind", "Mnumber",
 		  w <- widths[ia]
 		  a <- args[[ia]]
 		  if(is(a,"mpfr")) {
-		      prec <- max(prec, sapply(a@.Data, slot, "prec"))
+		      prec <- max(prec, .getPrec(a))
 		  } else { ## not "mpfr"
 		      a <- mpfr(a, prec)
 		  }
@@ -519,7 +519,7 @@ setMethod("rbind", "Mnumber",
 		  le <- lengths[ia]
 		  a <- args[[ia]]
 		  if(is(a,"mpfr")) {
-		      prec <- max(prec, sapply(a@.Data, slot, "prec"))
+		      prec <- max(prec, .getPrec(a))
 		  } else { ## not "mpfr"
 		      a <- mpfr(a, prec)
 		  }
