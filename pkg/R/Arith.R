@@ -39,7 +39,9 @@ setMethod("Logic", signature(e1 = "mpfr", e2 = "mpfr"),
 ###-- 2) ----------- Arith --------------------------------------------------
 
 .mpfr.negative <- function(x) {
-    for(i in seq_along(x)) x[[i]]@sign <- -x[[i]]@sign
+    ## FIXME: faster if this happened in a .Call
+    for(i in seq_along(x))
+        slot(x@.Data[[i]], "sign", check=FALSE) <- - x@.Data[[i]]@sign
     x
 }
 
