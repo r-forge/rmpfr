@@ -1,3 +1,15 @@
+2011-07-30  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* src/Ops.c (Rmpfr_minus, Rmpfr_abs): new C versions,
+	called in
+	* R/Arith.R
+	* R/Math.R
+
+2011-07-29  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/array.R (mpfr2array): speedup, not using new(cl, ...) for
+	check=FALSE (= new default).
+
 2011-07-21  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* R/mpfr.R ([[): finished adding a '[[' method which returns one

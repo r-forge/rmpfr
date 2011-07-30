@@ -12,6 +12,36 @@
 #include "Rmpfr_utils.h"
 #include "Syms.h"
 
+
+SEXP Rmpfr_minus(SEXP x)
+{
+    int n = length(x);
+    SEXP val = PROTECT(duplicate(x));
+    for(int i=0; i < n; i++) {
+	int sign = asInteger(GET_SLOT(VECTOR_ELT(x,i), Rmpfr_signSym));
+	SEXP r_i = VECTOR_ELT(val, i);
+	SET_SLOT(r_i, Rmpfr_signSym, ScalarInteger(-sign));
+	SET_VECTOR_ELT(val, i, r_i);
+    }
+
+    UNPROTECT(1);
+    return val;
+} /* Rmpfr_minus() */
+
+SEXP Rmpfr_abs(SEXP x)
+{
+    int n = length(x);
+    SEXP val = PROTECT(duplicate(x));
+    for(int i=0; i < n; i++) {
+	SEXP r_i = VECTOR_ELT(val, i);
+	SET_SLOT(r_i, Rmpfr_signSym, ScalarInteger(1));
+	SET_VECTOR_ELT(val, i, r_i);
+    }
+    UNPROTECT(1);
+    return val;
+} /* Rmpfr_abs() */
+
+
 /*------------------------------------------------------------------------*/
 
 SEXP Math_mpfr(SEXP x, SEXP op)

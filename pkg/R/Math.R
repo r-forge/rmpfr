@@ -74,11 +74,16 @@ if(FALSE)
 }
 setMethod("sign", "mpfr", .mpfr.sign)
 
+## R version, no longer used:
+.abs.mpfr <- function(x) {
+    ## FIXME: faster if this happened in a .Call
+    xD <- getDataPart(x)   # << currently [2011] *faster* than  x@Data
+    for(i in seq_along(x))
+        slot(xD[[i]], "sign", check=FALSE) <- 1L
+    setDataPart(x, xD, check=FALSE) ## faster than  x@.Data <- xD
+}
 setMethod("abs", "mpfr",
-	  function(x) {
-	      for(i in seq_along(x)) x@.Data[[i]]@sign <- 1L
-	      x
-	  })
+	  function(x) .Call("Rmpfr_abs", x, PACKAGE="Rmpfr"))
 
 ## Note that  factorial() and lfactorial() automagically work through  [l]gamma()
 ## but for the sake of "exact for integer"

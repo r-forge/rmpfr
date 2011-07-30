@@ -38,12 +38,14 @@ setMethod("Logic", signature(e1 = "mpfr", e2 = "mpfr"),
 
 ###-- 2) ----------- Arith --------------------------------------------------
 
-.mpfr.negative <- function(x) {
-    ## FIXME: faster if this happened in a .Call
+## R version, no longer used:
+.mpfr.negative.R <- function(x) {
+    xD <- getDataPart(x)# << currently [2011] *faster* than  x@Data
     for(i in seq_along(x))
-        slot(x@.Data[[i]], "sign", check=FALSE) <- - x@.Data[[i]]@sign
-    x
+	slot(xD[[i]], "sign", check=FALSE) <- - xD[[i]]@sign
+    setDataPart(x, xD, check=FALSE) ## faster than  x@Data <- xD
 }
+.mpfr.negative <- function(x) .Call("Rmpfr_minus", x, PACKAGE="Rmpfr")
 
 setMethod("Arith",signature(e1 = "mpfr", e2="missing"),
 	  function(e1,e2) {
