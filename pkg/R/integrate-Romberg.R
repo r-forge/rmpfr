@@ -78,4 +78,17 @@ integrateR <- function(f, lower, upper, ..., ord = NULL,
 }
 
 ## This is  such that  print.integrate() calls the correct format() method:
+
+##>> The following works nicely {making a copy of stats::print.integrate}
+##>> *iff* we have no namespace :
 environment(print.integrate) <- environment()
+if(FALSE) ## this does *not* work in the no-namespace case {why ??}
+## make a copy into our namespace:
+print.integrate <- stats::print.integrate
+
+if(FALSE) ## does not help with a namespace, either:
+environment(print.integrate) <- asNamespace("Rmpfr")
+
+if(FALSE) ## does not help with a namespace, either:
+## Maybe also do this anyway (but I want to test the print() route first):
+setMethod(show, "integrate", function(object) print.integrate(object))

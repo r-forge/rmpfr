@@ -65,7 +65,7 @@ if(FALSE)
 ## A few ones have a very simple method:
 ## Note that the 'sign' slot is from the C-internal struct
 ## and is always +/- 1 , but R's sign(0) |--> 0
-.getSign <- function(x) vapply(x@.Data, slot, 1L, "sign")
+.getSign <- function(x) vapply(getD(x), slot, 1L, "sign")
 .mpfr.sign <- function(x) {
     r <- numeric(n <- length(x))# all 0
     not0 <- !mpfr.is.0(x)
@@ -111,8 +111,9 @@ pochMpfr <- function(a, n) {
         a <- mpfr(a, precBits = pmax(1,n)*getPrec(a))
     else if((ln <- length(n)) != 1 && ln != length(a))
 	a <- a + 0*n
-    a@.Data[] <- .Call("R_mpfr_poch", a, n, PACKAGE="Rmpfr")
-    a
+    ## a@.Data[] <- .Call("R_mpfr_poch", a, n, PACKAGE="Rmpfr")
+    ## a
+    setDataPart(a, .Call("R_mpfr_poch", a, n, PACKAGE="Rmpfr"))
 }
 
 ##' Binomial Coefficient choose(a,n)
@@ -126,8 +127,9 @@ chooseMpfr <- function(a, n) {
         a <- mpfr(a, precBits = n + max(2, precB))
     } else if((ln <- length(n)) != 1 && ln != length(a))
 	a <- a + 0*n
-    a@.Data[] <- .Call("R_mpfr_choose", a, n, PACKAGE="Rmpfr")
-    a
+    ## a@.Data[] <- .Call("R_mpfr_choose", a, n, PACKAGE="Rmpfr")
+    ## a
+    setDataPart(a, .Call("R_mpfr_choose", a, n, PACKAGE="Rmpfr"))
 }
 
 chooseMpfr.all <- function(n) { ## return   chooseMpfr(n, 1:n)  "but smartly"
@@ -155,8 +157,9 @@ chooseMpfr.all <- function(n) { ## return   chooseMpfr(n, 1:n)  "but smartly"
 ##' @author Martin Maechler
 roundMpfr <- function(x, precBits) {
     stopifnot(is(x, "mpfr"))
-    x@.Data[] <- .Call("R_mpfr_round", x, precBits, PACKAGE="Rmpfr")
-    x
+    ## x@.Data[] <- .Call("R_mpfr_round", x, precBits, PACKAGE="Rmpfr")
+    ## x
+    setDataPart(x, .Call("R_mpfr_round", x, precBits, PACKAGE="Rmpfr"))
 }
 
 ## "log" is still special with its 'base' :
@@ -164,17 +167,13 @@ setMethod("log", signature(x = "mpfr"),
 	  function(x, base) {
 	      if(!missing(base) && base != exp(1))
 		  stop("base != exp(1) is not yet implemented")
-	      x@.Data[] <- .Call("Math_mpfr", x, .Math.codes[["log"]],
-				 PACKAGE="Rmpfr")
-	      x
+	      setDataPart(x, .Call("Math_mpfr", x, .Math.codes[["log"]],
+				   PACKAGE="Rmpfr"))
 	  })
 
-setMethod("Math", signature(x = "mpfr"),
-	  function(x) {
-	      x@.Data[] <- .Call("Math_mpfr", x, .Math.codes[[.Generic]],
-			   PACKAGE="Rmpfr")
-	      x
-	  })
+setMethod("Math", signature(x = "mpfr"), function(x)
+	  setDataPart(x, .Call("Math_mpfr", x, .Math.codes[[.Generic]],
+			       PACKAGE="Rmpfr")))
 
 setMethod("Math2", signature(x = "mpfr"),
 	  function(x, digits) {

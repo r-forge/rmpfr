@@ -46,7 +46,11 @@ SEXP Rmpfr_abs(SEXP x)
 
 SEXP Math_mpfr(SEXP x, SEXP op)
 {
-    SEXP D = PROTECT(GET_SLOT(x, Rmpfr_Data_Sym));/* an R list() of length */
+#ifdef using_Data_slot
+    SEXP D = PROTECT(GET_SLOT(x, Rmpfr_Data_Sym));
+#else
+# define D x
+#endif
     mp_prec_t current_prec = mpfr_get_default_prec();
     int n = length(D), i_op = asInteger(op), i;
 
@@ -164,15 +168,24 @@ SEXP Math_mpfr(SEXP x, SEXP op)
     mpfr_clear (R_i);
     if(is_cum) mpfr_clear(cum);
     mpfr_free_cache();
+#ifdef using_Data_slot
     UNPROTECT(2);
+#else
+    UNPROTECT(1);
+#endif
     return val;
 } /* Math_mpfr() */
 #undef NOT_YET
 
 SEXP Arith_mpfr(SEXP x, SEXP y, SEXP op)
 {
+#ifdef using_Data_slot
     SEXP xD = PROTECT(GET_SLOT(x, Rmpfr_Data_Sym)),
 	 yD = PROTECT(GET_SLOT(y, Rmpfr_Data_Sym));
+#else
+# define xD x
+# define yD y
+#endif
     int nx = length(xD), ny = length(yD), i_op = asInteger(op), i,
 	n = (nx * ny == 0) ? 0 : imax2(nx, ny), mismatch = 0;
 
@@ -229,14 +242,22 @@ SEXP Arith_mpfr(SEXP x, SEXP y, SEXP op)
     mpfr_clear (x_i); mpfr_clear (y_i);
     if(i_op == 6) mpfr_clear(r);
     mpfr_free_cache();
+#ifdef using_Data_slot
     UNPROTECT(3);
+#else
+    UNPROTECT(1);
+#endif
     return val;
 } /* Arith_mpfr */
 
 
 SEXP Arith_mpfr_i(SEXP x, SEXP y, SEXP op)
 {
+#ifdef using_Data_slot
     SEXP xD = PROTECT(GET_SLOT(x, Rmpfr_Data_Sym));
+#else
+# define xD x
+#endif
     int *yy = INTEGER(y);
     int nx = length(xD), ny = length(y), i_op = asInteger(op), i,
 	n = (nx * ny == 0) ? 0 : imax2(nx, ny), mismatch = 0;
@@ -275,14 +296,22 @@ SEXP Arith_mpfr_i(SEXP x, SEXP y, SEXP op)
 
     mpfr_clear (x_i);
     mpfr_free_cache();
+#ifdef using_Data_slot
     UNPROTECT(2);
+#else
+    UNPROTECT(1);
+#endif
     return val;
 } /* Arith_mpfr_i */
 #undef NOT_YET
 
 SEXP Arith_i_mpfr(SEXP x, SEXP y, SEXP op)
 {
+#ifdef using_Data_slot
     SEXP yD = PROTECT(GET_SLOT(y, Rmpfr_Data_Sym));
+#else
+# define yD y
+#endif
     int *xx = INTEGER(x);
     int nx = length(x), ny = length(yD), i_op = asInteger(op), i,
 	n = (nx * ny == 0) ? 0 : imax2(nx, ny), mismatch = 0;
@@ -335,14 +364,22 @@ SEXP Arith_i_mpfr(SEXP x, SEXP y, SEXP op)
 
     mpfr_clear (y_i);
     mpfr_free_cache();
+#ifdef using_Data_slot
     UNPROTECT(2);
+#else
+    UNPROTECT(1);
+#endif
     return val;
 } /* Arith_i_mpfr */
 #undef NOT_YET
 
 SEXP Arith_mpfr_d(SEXP x, SEXP y, SEXP op)
 {
+#ifdef using_Data_slot
     SEXP xD = PROTECT(GET_SLOT(x, Rmpfr_Data_Sym));
+#else
+# define xD x
+#endif
     double *yy = REAL(y);
     int nx = length(xD), ny = length(y), i_op = asInteger(op), i,
 	n = (nx * ny == 0) ? 0 : imax2(nx, ny), mismatch = 0;
@@ -399,14 +436,22 @@ SEXP Arith_mpfr_d(SEXP x, SEXP y, SEXP op)
 
     mpfr_clear (x_i); mpfr_clear (yy_i);
     mpfr_free_cache();
+#ifdef using_Data_slot
     UNPROTECT(2);
+#else
+    UNPROTECT(1);
+#endif
     return val;
 } /* Arith_mpfr_d */
 #undef NOT_YET
 
 SEXP Arith_d_mpfr(SEXP x, SEXP y, SEXP op)
 {
+#ifdef using_Data_slot
     SEXP yD = PROTECT(GET_SLOT(y, Rmpfr_Data_Sym));
+#else
+# define yD y
+#endif
     double *xx = REAL(x);
     int nx = length(x), ny = length(yD), i_op = asInteger(op), i,
 	n = (nx * ny == 0) ? 0 : imax2(nx, ny), mismatch = 0;
@@ -466,7 +511,11 @@ SEXP Arith_d_mpfr(SEXP x, SEXP y, SEXP op)
 
     mpfr_clear (y_i); mpfr_clear (xx_i);
     mpfr_free_cache();
+#ifdef using_Data_slot
     UNPROTECT(2);
+#else
+    UNPROTECT(1);
+#endif
     return val;
 } /* Arith_d_mpfr */
 #undef NOT_YET
@@ -477,8 +526,13 @@ SEXP Arith_d_mpfr(SEXP x, SEXP y, SEXP op)
 
 SEXP Compare_mpfr(SEXP x, SEXP y, SEXP op)
 {
+#ifdef using_Data_slot
     SEXP xD = PROTECT(GET_SLOT(x, Rmpfr_Data_Sym)),
 	yD = PROTECT(GET_SLOT(y, Rmpfr_Data_Sym));
+#else
+# define xD x
+# define yD y
+#endif
     int nx = length(xD), ny = length(yD), i_op = asInteger(op), i,
 	n = (nx * ny == 0) ? 0 : imax2(nx, ny), mismatch = 0;
 
@@ -508,13 +562,21 @@ SEXP Compare_mpfr(SEXP x, SEXP y, SEXP op)
 
     mpfr_clear (x_i); mpfr_clear (y_i);
     mpfr_free_cache();
+#ifdef using_Data_slot
     UNPROTECT(3);
+#else
+    UNPROTECT(1);
+#endif
     return val;
 } /* Compare_mpfr */
 
 SEXP Compare_mpfr_i(SEXP x, SEXP y, SEXP op)
 {
+#ifdef using_Data_slot
     SEXP xD = PROTECT(GET_SLOT(x, Rmpfr_Data_Sym));
+#else
+# define xD x
+#endif
     int *yy = INTEGER(y);
     int nx = length(xD), ny = length(y), i_op = asInteger(op), i,
 	n = (nx * ny == 0) ? 0 : imax2(nx, ny), mismatch = 0;
@@ -549,13 +611,21 @@ SEXP Compare_mpfr_i(SEXP x, SEXP y, SEXP op)
 
     mpfr_clear (x_i);
     mpfr_free_cache();
+#ifdef using_Data_slot
     UNPROTECT(2);
+#else
+    UNPROTECT(1);
+#endif
     return val;
 } /* Compare_mpfr_i */
 
 SEXP Compare_mpfr_d(SEXP x, SEXP y, SEXP op)
 {
+#ifdef using_Data_slot
     SEXP xD = PROTECT(GET_SLOT(x, Rmpfr_Data_Sym));
+#else
+# define xD x
+#endif
     double *yy = REAL(y);
     int nx = length(xD), ny = length(y), i_op = asInteger(op), i,
 	n = (nx * ny == 0) ? 0 : imax2(nx, ny), mismatch = 0;
@@ -591,7 +661,11 @@ SEXP Compare_mpfr_d(SEXP x, SEXP y, SEXP op)
 
     mpfr_clear (x_i);
     mpfr_free_cache();
+#ifdef using_Data_slot
     UNPROTECT(2);
+#else
+    UNPROTECT(1);
+#endif
     return val;
 } /* Compare_mpfr_d */
 

@@ -60,6 +60,10 @@ if(.Platform$OS.type != "windows") {## No R_Outputfile (in C) on Windows
 }
 }# non-Windows only
 
+## a faster version of getDataPart(.) - as we *KNOW* we have a list
+## !! If ever the internal representation of such S4 objects changes, this can break !!
+getD <- function(x) { attributes(x) <- NULL; x }
+
 ## Get or Set the C-global  'R_mpfr_debug_' variable:
 .mpfr.debug <- function(i = NA)
     .Call("R_mpfr_set_debug", as.integer(i), PACKAGE="Rmpfr")
@@ -89,17 +93,17 @@ setMethod(show, "mpfr", function(object) print.mpfr(object))
 .mpfr.subset <- function(x,i,j, ..., drop) {
     nA <- nargs()
     if(nA == 2) { ## x[i] etc -- vector case -- to be fast, need C! --
-        xd <- structure(x@.Data[i], names=names(x)[i])
+        xd <- structure(getD(x)[i], names=names(x)[i])
         if(any(iN <- vapply(xd, is.null, NA))) # e.g. i > length(x)
             xd[iN] <- mpfr(NA, precBits = 2L)
-        x@.Data <- xd
-        x
+        ## faster than  { x@.Data <- xd ; x }:
+        setDataPart(x, xd, check=FALSE)
     } else if(nA == 3 && !is.null(d <- dim(x))) { ## matrix indexing(!)
         ## not keeping dimnames though ...
         message("nargs() == 3	 'mpfr' array indexing ... ")
-        new("mpfr", structure(x@.Data[i,j,...,drop=drop], dim = d))
+        new("mpfr", structure(getD(x)[i,j,...,drop=drop], dim = d))
         ## keeping dimnames: maybe try
-        ##		     D <- x@.Data; dim(D) <- d
+        ##		     D <- getD(x); dim(D) <- d
         ##		     if(!is.null(dn <- dimnames(x))) dimnames(D) <- dn
         ##		     D <- D[i,,drop=drop]
         ##		     new("mpfr", D)
@@ -114,35 +118,35 @@ setMethod("[[", signature(x = "mpfr", i = "ANY"),
 	  function(x,i) {
 	      if(length(i) > 1L) # give better error message than x@.Data[[i]] would:
 		  stop("attempt to select more than one element")
-	      xd <- x@.Data[[i]] # also gives error when i is "not ok"
-	      x@.Data <- list(xd)
-	      x
+	      xd <- getD(x)[[i]] # also gives error when i is "not ok"
+              ## faster than { x@.Data <- list(xd) ; x }
+              setDataPart(x, list(xd), check=FALSE)
 	  })
 
 ## "[<-" :
-.mpfr.repl <- function(x, i, ..., value) {
+.mpfr.repl <- function(x, i, ..., value, check=TRUE) {
     if(length(list(...))) ## should no longer happen:
-        stop("extra replacement arguments",
-             deparse(list(...))," not dealt with")
-    n <- length(x@.Data)
-    x@.Data[i] <- value
-    if((nn <- length(x@.Data)) > n+1)
+	stop("extra replacement arguments ", deparse(list(...)),
+	     " not dealt with")
+    n <- length(xD <- getD(x))
+    xD[i] <- value
+    if((nn <- length(xD)) > n+1)
 	## must "fill" the newly created NULL entries
-	x@.Data[setdiff((n+1):(nn-1), i)] <- mpfr(NA, precBits = 2L)
-    x
+	xD[setdiff((n+1):(nn-1), i)] <- mpfr(NA, precBits = 2L)
+    setDataPart(x, xD, check=check)
 }
 setReplaceMethod("[", signature(x = "mpfr", i = "ANY", j = "missing",
 				value = "mpfr"),
-		 .mpfr.repl)
+                 function(x, i, j, ..., value) .mpfr.repl(x, i, ..., value=value))
 ## for non-"mpfr", i.e. "ANY" 'value', coerce to mpfr with correct prec:
 setReplaceMethod("[", signature(x = "mpfr", i = "missing", j = "missing",
 				value = "ANY"),
-	  function(x,i,value)
+	  function(x,i,j, ..., value)
 		 .mpfr.repl(x, , value = mpfr(value, precBits =
 				 pmax(getPrec(value), .getPrec(x)))))
 setReplaceMethod("[", signature(x = "mpfr", i = "ANY", j = "missing",
 				value = "ANY"),
-	  function(x,i,value)
+	  function(x,i,j, ..., value)
 		 .mpfr.repl(x, i, value = mpfr(value, precBits =
 				  pmax(getPrec(value), .getPrec(x[i])))))
 
@@ -154,7 +158,7 @@ c.mpfr <- function(...) new("mpfr", unlist(lapply(list(...), as, Class = "mpfr")
 
 setMethod("unique", signature(x="mpfr", incomparables="missing"),
 	  function(x, incomparables = FALSE, ...)
-	  new("mpfr", unique(x@.Data, incomparables, ...)))
+	  new("mpfr", unique(getD(x), incomparables, ...)))
 
 ## -> duplicated() now work
 
@@ -289,7 +293,7 @@ seqMpfr <- function(from = 1, to = 1, by = ((to - from)/(length.out - 1)),
 	del <- to - from
 	if(del == 0 && to == 0) return(to)
 	if(missing(by)) {
-	    by <- mpfr(sign(del), from@.Data[[1]]@prec)
+	    by <- mpfr(sign(del), getD(from)[[1]]@prec)
 	}
     }
     if (!is(by, "mpfr")) by <- as(by, "mpfr")
@@ -376,14 +380,14 @@ setMethod("seq", c(from="ANY", to="ANY", by = "mpfr"), seqMpfr)
 
 ## the fast mpfr-only version - should not return NULL
 .getPrec <- function(x) {
-    if(length(x)) vapply(x@.Data, slot, 1L, "prec")
+    if(length(x)) vapply(getD(x), slot, 1L, "prec")
     else mpfr_default_prec()
 }
 ## the user version
 getPrec <- function(x, base = 10, doNumeric = TRUE, is.mpfr = NA) {
     ## if(!length(x)) ## NULL (from sapply(.) below) is not ok
     ##     return(mpfr_default_prec())
-    if(isTRUE(is.mpfr) || is(x,"mpfr")) vapply(x@.Data, slot, 1L, "prec")
+    if(isTRUE(is.mpfr) || is(x,"mpfr")) vapply(getD(x), slot, 1L, "prec")
     else if(is.character(x)) ## number of digits --> number of bits
 	ceiling(log2(base) * nchar(gsub("[-.]", '', x)))
     else if(is.logical(x))

@@ -25,6 +25,7 @@ setClass("mpfr1", ## a single Multi-precision float number
 setClass("mpfr", ## a *vector* of "mpfr1", i.e., multi-precision float numbers
 	 contains = "list", ## of "mpfr1" entries:
 	 validity = function(object) {
+	     ## should be fast ( ==> not using	is(., "mpfr1") ) :
 	     if(all(vapply(object@.Data, class, "") == "mpfr1"))
 		 return(TRUE)
 	     ## else
