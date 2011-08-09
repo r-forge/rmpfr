@@ -1,4 +1,12 @@
+.*--
+.*_unneeded
 _INSTALL
+.Rhistory
+svn-todo
+Savicky.*
+trace-stuff.R
+inst/doc/auto
+inst/doc/MPFR_Fousse_etal.*
 Misc
 autom4te.cache/
 tests/00.*

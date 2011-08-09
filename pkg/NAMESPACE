@@ -1,0 +1,7 @@
+## Trivial NAMESPACE - this works, whereas a sophisticated one with
+## importsFrom(..) does not .. ?!?!
+
+useDynLib(Rmpfr)# TODO: , .registration=TRUE)
+
+# Export all names
+exportPattern(".")

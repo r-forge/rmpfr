@@ -1,3 +1,8 @@
+2011-08-09  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 0.4-2,  with a trivial primitive
+	* NAMESPACE:  .. which works {the sophisticated one fails!}.
+
 2011-07-30  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* src/Ops.c (Rmpfr_minus, Rmpfr_abs): new C versions,
