@@ -83,7 +83,7 @@ setMethod("sign", "mpfr", .mpfr.sign)
     setDataPart(x, xD, check=FALSE) ## faster than  x@.Data <- xD
 }
 setMethod("abs", "mpfr",
-	  function(x) .Call("Rmpfr_abs", x, PACKAGE="Rmpfr"))
+	  function(x) .Call(Rmpfr_abs, x))
 
 ## Note that  factorial() and lfactorial() automagically work through  [l]gamma()
 ## but for the sake of "exact for integer"
@@ -97,7 +97,7 @@ setMethod("factorial", "mpfr",
 ## The "real" thing is to use  the MPFR-internal function:
 factorialMpfr <- function(n, precBits = max(2, ceiling(lgamma(n+1)/log(2)))) {
     stopifnot(n >= 0)
-    new("mpfr", .Call("R_mpfr_fac", n, precBits, PACKAGE="Rmpfr"))
+    new("mpfr", .Call(R_mpfr_fac, n, precBits))
 }
 
 ##' Pochhammer rising factorial = Pochhammer(a,n) {1 of 2 definitions!}
@@ -111,9 +111,9 @@ pochMpfr <- function(a, n) {
         a <- mpfr(a, precBits = pmax(1,n)*getPrec(a))
     else if((ln <- length(n)) != 1 && ln != length(a))
 	a <- a + 0*n
-    ## a@.Data[] <- .Call("R_mpfr_poch", a, n, PACKAGE="Rmpfr")
+    ## a@.Data[] <- .Call(R_mpfr_poch, a, n)
     ## a
-    setDataPart(a, .Call("R_mpfr_poch", a, n, PACKAGE="Rmpfr"))
+    setDataPart(a, .Call(R_mpfr_poch, a, n))
 }
 
 ##' Binomial Coefficient choose(a,n)
@@ -127,9 +127,9 @@ chooseMpfr <- function(a, n) {
         a <- mpfr(a, precBits = n + max(2, precB))
     } else if((ln <- length(n)) != 1 && ln != length(a))
 	a <- a + 0*n
-    ## a@.Data[] <- .Call("R_mpfr_choose", a, n, PACKAGE="Rmpfr")
+    ## a@.Data[] <- .Call(R_mpfr_choose, a, n)
     ## a
-    setDataPart(a, .Call("R_mpfr_choose", a, n, PACKAGE="Rmpfr"))
+    setDataPart(a, .Call(R_mpfr_choose, a, n))
 }
 
 chooseMpfr.all <- function(n) { ## return   chooseMpfr(n, 1:n)  "but smartly"
@@ -157,9 +157,9 @@ chooseMpfr.all <- function(n) { ## return   chooseMpfr(n, 1:n)  "but smartly"
 ##' @author Martin Maechler
 roundMpfr <- function(x, precBits) {
     stopifnot(is(x, "mpfr"))
-    ## x@.Data[] <- .Call("R_mpfr_round", x, precBits, PACKAGE="Rmpfr")
+    ## x@.Data[] <- .Call(R_mpfr_round, x, precBits)
     ## x
-    setDataPart(x, .Call("R_mpfr_round", x, precBits, PACKAGE="Rmpfr"))
+    setDataPart(x, .Call(R_mpfr_round, x, precBits))
 }
 
 ## "log" is still special with its 'base' :
@@ -167,13 +167,11 @@ setMethod("log", signature(x = "mpfr"),
 	  function(x, base) {
 	      if(!missing(base) && base != exp(1))
 		  stop("base != exp(1) is not yet implemented")
-	      setDataPart(x, .Call("Math_mpfr", x, .Math.codes[["log"]],
-				   PACKAGE="Rmpfr"))
+	      setDataPart(x, .Call(Math_mpfr, x, .Math.codes[["log"]]))
 	  })
 
 setMethod("Math", signature(x = "mpfr"), function(x)
-	  setDataPart(x, .Call("Math_mpfr", x, .Math.codes[[.Generic]],
-			       PACKAGE="Rmpfr")))
+	  setDataPart(x, .Call(Math_mpfr, x, .Math.codes[[.Generic]])))
 
 setMethod("Math2", signature(x = "mpfr"),
 	  function(x, digits) {

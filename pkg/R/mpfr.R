@@ -2,20 +2,20 @@
 #### apart from coercions and the group methods
 
 setMethod("is.finite", "mpfr",
-          function(x) .Call("R_mpfr_is_finite", x, PACKAGE="Rmpfr"))
+          function(x) .Call(R_mpfr_is_finite, x))
 setMethod("is.infinite", "mpfr",
-          function(x) .Call("R_mpfr_is_infinite", x, PACKAGE="Rmpfr"))
+          function(x) .Call(R_mpfr_is_infinite, x))
 ## MPFR has only "NaN" ( == "NA"  -- hence these two are identical :
 setMethod("is.na", "mpfr",
-          function(x) .Call("R_mpfr_is_na", x, PACKAGE="Rmpfr"))
+          function(x) .Call(R_mpfr_is_na, x))
 setMethod("is.nan", "mpfr",
-          function(x) .Call("R_mpfr_is_na", x, PACKAGE="Rmpfr"))
+          function(x) .Call(R_mpfr_is_na, x))
 
-mpfr.is.0 <- function(x) .Call("R_mpfr_is_zero", x, PACKAGE="Rmpfr")
+mpfr.is.0 <- function(x) .Call(R_mpfr_is_zero, x)
     ## sapply(x, function(.) .@exp == - .Machine$integer.max)
 
 mpfr.is.integer <- function(x)
-    .Call("R_mpfr_is_integer", x, PACKAGE="Rmpfr")
+    .Call(R_mpfr_is_integer, x)
 
 is.whole <- function(x) {
     if(is.integer(x) || is.logical(x)) rep.int(TRUE, length(x))
@@ -27,14 +27,14 @@ is.whole <- function(x) {
 
 mpfr_default_prec <- function(prec) {
     if(missing(prec) || is.null(prec))
-	.Call("R_mpfr_get_default_prec", PACKAGE="Rmpfr")
+	.Call(R_mpfr_get_default_prec)
     else {
 	stopifnot((prec <- as.integer(prec[1])) > 0)
-	.Call("R_mpfr_set_default_prec", prec, PACKAGE="Rmpfr")
+	.Call(R_mpfr_set_default_prec, prec)
     }
 }
 
-.mpfrVersion <- function() .Call("R_mpfr_get_version", PACKAGE="Rmpfr")
+.mpfrVersion <- function() .Call(R_mpfr_get_version)
 mpfrVersion <- function()
     numeric_version(sub("^([0-9]+\\.[0-9]+\\.[0-9]+).*","\\1", .mpfrVersion()))
 
@@ -55,7 +55,7 @@ if(.Platform$OS.type != "windows") {## No R_Outputfile (in C) on Windows
     stopifnot(is(x, "mpfr"), is.na(digits) || digits >= 2)
     ## digits = NA --> the inherent precision of x will be used
     if(length(x) >= 1)
-	.Call("print_mpfr", x, as.integer(digits), PACKAGE="Rmpfr")
+	.Call(print_mpfr, x, as.integer(digits))
     invisible(x)
 }
 }# non-Windows only
@@ -66,7 +66,7 @@ getD <- function(x) { attributes(x) <- NULL; x }
 
 ## Get or Set the C-global  'R_mpfr_debug_' variable:
 .mpfr.debug <- function(i = NA)
-    .Call("R_mpfr_set_debug", as.integer(i), PACKAGE="Rmpfr")
+    .Call(R_mpfr_set_debug, as.integer(i))
 
 print.mpfr <- function(x, digits = NULL, drop0trailing = TRUE, ...) {
     stopifnot(is(x, "mpfr"), is.null(digits) || digits >= 2)
@@ -82,7 +82,7 @@ print.mpfr <- function(x, digits = NULL, drop0trailing = TRUE, ...) {
     if(n >= 1)
 	print(format(x, digits=digits, drop0trailing=drop0trailing), ...,
 	      quote = FALSE)
-    ## .Call("print_mpfr", x, as.integer(digits), PACKAGE="Rmpfr")
+    ## .Call(print_mpfr, x, as.integer(digits))
     invisible(x)
 }
 setMethod(show, "mpfr", function(object) print.mpfr(object))

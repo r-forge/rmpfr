@@ -10,6 +10,7 @@ Zero <- mpfr(c(0,1/-Inf), 20)
 stopifnot(mpfr.is.0(Zero))
 Zero # the "-0" should print correctly
 stopifnot(.getSign(Zero) == c(1,-1),
+          sign(Zero) == 0,
 	  identical(format(Zero, digits=1), c("0.", "-0.")))
 
 ## testing 'recycling'

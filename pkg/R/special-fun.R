@@ -3,8 +3,8 @@
 erf <- function(x) {
     if(is.numeric(x)) 2 * pnorm(x * sqrt(2)) - 1
     else if(is(x, "mpfr")) { # maybe also mpfrMatrix
-        ##new("mpfr", .Call("Math_mpfr", x, .Math.codes[["erf"]], PACKAGE="Rmpfr"))
-        x@.Data[] <- .Call("Math_mpfr", x, .Math.codes[["erf"]], PACKAGE="Rmpfr")
+        ##new("mpfr", .Call(Math_mpfr, x, .Math.codes[["erf"]]))
+        x@.Data[] <- .Call(Math_mpfr, x, .Math.codes[["erf"]])
         x
     }
     else stop("invalid class(x): ", class(x))
@@ -46,7 +46,7 @@ pnorm <- function (q, mean = 0, sd = 1, lower.tail = TRUE, log.p = FALSE)
 erfc <- function(x) {
     if(is.numeric(x)) 2 * pnorm(x * sqrt(2), lower = FALSE)
     else if(is(x, "mpfr")) {
-        x@.Data[] <- .Call("Math_mpfr", x, .Math.codes[["erfc"]], PACKAGE="Rmpfr")
+        x@.Data[] <- .Call(Math_mpfr, x, .Math.codes[["erfc"]])
         x
     }
     else stop("invalid class(x): ", class(x))
@@ -58,7 +58,7 @@ erfc <- function(x) {
 ## zeta()
 zeta <- function(x) {
     x <- as(x, "mpfr")
-    x@.Data[] <- .Call("Math_mpfr", x, .Math.codes[["zeta"]], PACKAGE="Rmpfr")
+    x@.Data[] <- .Call(Math_mpfr, x, .Math.codes[["zeta"]])
     x
 }
 
@@ -78,14 +78,14 @@ Bernoulli <- function(k, precBits = 128) {
 ## eint() "Exponential integral"
 Ei <- function(x) {
     x <- as(x, "mpfr")
-    x@.Data[] <- .Call("Math_mpfr", x, .Math.codes[["Eint"]], PACKAGE="Rmpfr")
+    x@.Data[] <- .Call(Math_mpfr, x, .Math.codes[["Eint"]])
     x
 }
 
 ## Li_2() the dilogarithm
 Li2 <- function(x) {
     x <- as(x, "mpfr")
-    x@.Data[] <- .Call("Math_mpfr", x, .Math.codes[["Li2"]], PACKAGE="Rmpfr")
+    x@.Data[] <- .Call(Math_mpfr, x, .Math.codes[["Li2"]])
     x
 }
 
@@ -95,39 +95,39 @@ Li2 <- function(x) {
 ## y0, y1, yn
 j0 <- function(x) {
     x <- as(x, "mpfr")
-    x@.Data[] <- .Call("Math_mpfr", x, .Math.codes[["j0"]], PACKAGE="Rmpfr")
+    x@.Data[] <- .Call(Math_mpfr, x, .Math.codes[["j0"]])
     x
 }
 j1 <- function(x) {
     x <- as(x, "mpfr")
-    x@.Data[] <- .Call("Math_mpfr", x, .Math.codes[["j1"]], PACKAGE="Rmpfr")
+    x@.Data[] <- .Call(Math_mpfr, x, .Math.codes[["j1"]])
     x
 }
 y0 <- function(x) {
     x <- as(x, "mpfr")
-    x@.Data[] <- .Call("Math_mpfr", x, .Math.codes[["y0"]], PACKAGE="Rmpfr")
+    x@.Data[] <- .Call(Math_mpfr, x, .Math.codes[["y0"]])
     x
 }
 y1 <- function(x) {
     x <- as(x, "mpfr")
-    x@.Data[] <- .Call("Math_mpfr", x, .Math.codes[["y1"]], PACKAGE="Rmpfr")
+    x@.Data[] <- .Call(Math_mpfr, x, .Math.codes[["y1"]])
     x
 }
 
 Ai <- function(x) {
     x <- as(x, "mpfr")
-    x@.Data[] <- .Call("Math_mpfr", x, .Math.codes[["Ai"]], PACKAGE="Rmpfr")
+    x@.Data[] <- .Call(Math_mpfr, x, .Math.codes[["Ai"]])
     x
 }
 
 jn <- function(n, x) {
     x <- as(x, "mpfr")
-    x@.Data[] <- .Call("R_mpfr_jn", x, n, PACKAGE="Rmpfr")
+    x@.Data[] <- .Call(R_mpfr_jn, x, n)
     x
 }
 yn <- function(n, x) {
     x <- as(x, "mpfr")
-    x@.Data[] <- .Call("R_mpfr_yn", x, n, PACKAGE="Rmpfr")
+    x@.Data[] <- .Call(R_mpfr_yn, x, n)
     x
 }
 
@@ -145,34 +145,34 @@ mpfrMath2setMeth.y.x <- function(fname, Csub) {
 
     setMethod(fname, signature(y = "mpfr", x = "mpfr"),
 	      function(y, x)
-	      new("mpfr", .Call(Csub, y, x, PACKAGE="Rmpfr")))
+	      new("mpfr", .Call(Csub, y, x)))
     setMethod(fname, signature(y = "mpfr", x = "ANY"),
 	      function(y, x)
-	      new("mpfr", .Call(Csub, y, as(x, "mpfr"), PACKAGE="Rmpfr")))
+	      new("mpfr", .Call(Csub, y, as(x, "mpfr"))))
     setMethod(fname, signature(y = "ANY", x = "mpfr"),
 	      function(y, x)
-	      new("mpfr", .Call(Csub, as(y, "mpfr"), x, PACKAGE="Rmpfr")))
+	      new("mpfr", .Call(Csub, as(y, "mpfr"), x)))
 
 
     setMethod(fname, signature(y = "mpfrArray", x = "mpfrArray"),
               function(y, x) {
                   if(dim(x) != dim(y))
                       stop("array dimensions differ")
-                  x@.Data[] <- .Call(Csub, y, x, PACKAGE="Rmpfr")
+                  x@.Data[] <- .Call(Csub, y, x)
                   x
               })
     setMethod(fname, signature(y = "mpfrArray", x = "ANY"),
               function(y, x) {
                   if(length(y) %% length(x) != 0)
                       stop("length of first argument (array) is not multiple of the second argument's one")
-                  y@.Data[] <- .Call(Csub, y, as(x, "mpfr"), PACKAGE="Rmpfr")
+                  y@.Data[] <- .Call(Csub, y, as(x, "mpfr"))
                   y
               })
     setMethod(fname, signature(y = "ANY", x = "mpfrArray"),
               function(y, x) {
                   if(length(x) %% length(y) != 0)
                       stop("length of second argument (array) is not multiple of the first argument's one")
-                  x@.Data[] <- .Call(Csub, as(y, "mpfr"), x, PACKAGE="Rmpfr")
+                  x@.Data[] <- .Call(Csub, as(y, "mpfr"), x)
                   x
               })
 
@@ -188,34 +188,34 @@ mpfrMath2setMeth.a.b <- function(fname, Csub) {
 
     setMethod(fname, signature(a = "mpfr", b = "mpfr"),
 	      function(a, b)
-	      new("mpfr", .Call(Csub, a, b, PACKAGE="Rmpfr")))
+	      new("mpfr", .Call(Csub, a, b)))
     setMethod(fname, signature(a = "mpfr", b = "ANY"),
 	      function(a, b)
-	      new("mpfr", .Call(Csub, a, as(b, "mpfr"), PACKAGE="Rmpfr")))
+	      new("mpfr", .Call(Csub, a, as(b, "mpfr"))))
     setMethod(fname, signature(a = "ANY", b = "mpfr"),
 	      function(a, b)
-	      new("mpfr", .Call(Csub, as(a, "mpfr"), b, PACKAGE="Rmpfr")))
+	      new("mpfr", .Call(Csub, as(a, "mpfr"), b)))
 
 
     setMethod(fname, signature(a = "mpfrArray", b = "mpfrArray"),
               function(a, b) {
                   if(dim(b) != dim(a))
                       stop("array dimensions differ")
-                  b@.Data[] <- .Call(Csub, a, b, PACKAGE="Rmpfr")
+                  b@.Data[] <- .Call(Csub, a, b)
                   b
               })
     setMethod(fname, signature(a = "mpfrArray", b = "ANY"),
               function(a, b) {
                   if(length(a) %% length(b) != 0)
                       stop("length of first argument (array) is not multiple of the second argument's one")
-                  a@.Data[] <- .Call(Csub, a, as(b, "mpfr"), PACKAGE="Rmpfr")
+                  a@.Data[] <- .Call(Csub, a, as(b, "mpfr"))
                   a
               })
     setMethod(fname, signature(a = "ANY", b = "mpfrArray"),
               function(a, b) {
                   if(length(b) %% length(a) != 0)
                       stop("length of second argument (array) is not multiple of the first argument's one")
-                  b@.Data[] <- .Call(Csub, as(a, "mpfr"), b, PACKAGE="Rmpfr")
+                  b@.Data[] <- .Call(Csub, as(a, "mpfr"), b)
                   b
               })
 
@@ -236,21 +236,20 @@ hypot <- function(x,y) {
 	if(is(y, "mpfrArray")) {
 	    if(dim(x) != dim(y))
 		stop("array dimensions differ")
-	    x@.Data[] <- .Call("R_mpfr_hypot", x, y, PACKAGE="Rmpfr")
+	    x@.Data[] <- .Call(R_mpfr_hypot, x, y)
 	    x
 	} else { ## y is not (mpfr)Array
 	    if(length(x) %% length(y) != 0)
 		stop("length of first argument (array) is not multiple of the second argument's one")
-	    x@.Data[] <- .Call("R_mpfr_hypot", x, as(y, "mpfr"), PACKAGE="Rmpfr")
+	    x@.Data[] <- .Call(R_mpfr_hypot, x, as(y, "mpfr"))
 	    x
 	}
     } else if(is(y, "mpfrArray")) {
 	if(length(y) %% length(x) != 0)
 	    stop("length of second argument (array) is not multiple of the first argument's one")
-	y@.Data[] <- .Call("R_mpfr_hypot", as(x, "mpfr"), y, PACKAGE="Rmpfr")
+	y@.Data[] <- .Call(R_mpfr_hypot, as(x, "mpfr"), y)
 	y
     }
     else
-	new("mpfr", .Call("R_mpfr_hypot", as(x, "mpfr"), as(y, "mpfr"),
-			  PACKAGE="Rmpfr"))
+	new("mpfr", .Call(R_mpfr_hypot, as(x, "mpfr"), as(y, "mpfr")))
 }

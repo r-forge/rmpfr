@@ -38,7 +38,7 @@ mpfrArray <- function(x, precBits, dim = length(x), dimnames = NULL,
     rnd.mode <- toupper(rnd.mode)
     rnd.mode <- match.arg(rnd.mode)
 
-    ml <- .Call("d2mpfr1_list", x, precBits, rnd.mode, PACKAGE="Rmpfr")
+    ml <- .Call(d2mpfr1_list, x, precBits, rnd.mode)
     vl <- prod(dim)
     if (length(x) != vl) {
         if (vl > .Machine$integer.max)
@@ -101,7 +101,7 @@ setMethod("as.vector", "mpfrArray", function(x) as(x, "mpfr"))
 setAs("mpfrArray", "vector", function(from) as(from, "mpfr"))
 
 toNum <- function(from) {
-    structure(.Call("mpfr2d", from, PACKAGE="Rmpfr"),
+    structure(.Call(mpfr2d, from),
 	      dim = dim(from),
 	      dimnames = dimnames(from))
 }
