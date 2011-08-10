@@ -1,9 +1,10 @@
 \name{integrateR}
+\title{One-Dimensional Numerical Integration - in pure R}
 \alias{integrateR}
 \alias{print.integrate}
-\title{One-Dimensional Numerical Integration - in pure R}
+\alias{show,integrate-method}
 \description{
-  Numerical integration of one-dimensional functions in pure R,
+  Numerical integration of one-dimensional functions in pure \R,
   with care so it also works for \code{"mpfr"}-numbers.
 
   Currently, only classical Romberg integration of order \code{ord} is

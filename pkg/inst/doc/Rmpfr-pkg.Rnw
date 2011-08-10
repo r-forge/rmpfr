@@ -1,5 +1,5 @@
-\documentclass[article]{jss}
-%\documentclass[nojss,article]{jss}
+%\documentclass[article]{jss}
+\documentclass[nojss,article]{jss}
 %              ----- for the package-vignette, don't use JSS logo, etc
 %
 \author{Martin M\"achler \\ ETH Zurich}
