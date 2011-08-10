@@ -1,10 +1,4 @@
-## Trivial NAMESPACE - this works, whereas a sophisticated one with
-## importsFrom(..) does not .. ?!?!
-
 useDynLib(Rmpfr, .registration=TRUE)
-
-## Export all names -- gives a CHECK warning about all the exported undocumented C symbols
-# exportPattern(".")
 
 exportClasses("mpfr1", "mpfr"
               , "mpfrArray"
@@ -85,7 +79,7 @@ export(
        , "as.vector"
        , "atan2"
        , "beta" , "lbeta"
-       , "c.mpfr"
+       ## S3 "c.mpfr"
        , "cbind"
        , "chooseMpfr", "chooseMpfr.all"
        ## .Call "const_asMpfr"
@@ -118,9 +112,9 @@ export(
        , "pnorm"
        , "pochMpfr"
        , "print.integrate"
-       , "print.mpfr"
-       , "print.mpfr1"
-       , "print.mpfrArray"
+       ## S3 "print.mpfr"
+       ## S3 "print.mpfr1"
+       ## S3 "print.mpfrArray"
        ## .Call "print_mpfr"
        ## .Call "print_mpfr1"
        , "rbind"
@@ -131,9 +125,7 @@ export(
        , "tcrossprod"
        , "toNum"
        , "unique"
-       , "y0"
-       , "y1"
-       , "yn"
+       , "y0", "y1", "yn"
        , "zeta"
        )
 
@@ -156,54 +148,8 @@ exportMethods(
               , "show", "unique"
 )
 
-## FIXME: replace with  exportMethods(...)
-## export(".__NAMESPACE__."
-       ## , ".__S3MethodsTable__."
-       ## , ".__T__%*%:base"
-       ## , ".__T__Arith:base"
-       ## , ".__T__Compare:methods"
-       ## , ".__T__Logic:base"
-       ## , ".__T__Math2:methods"
-       ## , ".__T__Math:base"
-       ## , ".__T__Ops:base"
-       ## , ".__T__Summary:base"
+S3method(c, mpfr)
 
-       ## Why don't these have to be exported?
-       ## , ".__T__[:base"
-       ## , ".__T__[<-:base"
-       ## , ".__T__[[:base"
-
-       ## , ".__T__abs:base"
-       ## , ".__T__all.equal:base"
-       ## , ".__T__aperm:base"
-       ## , ".__T__as.integer:base"
-       ## , ".__T__as.numeric:base"
-       ## , ".__T__as.vector:base"
-       ## , ".__T__atan2:base"
-       ## , ".__T__beta:base"
-       ## , ".__T__cbind:Rmpfr"
-       ## , ".__T__coerce:methods"
-       ## , ".__T__coerce<-:methods"
-       ## , ".__T__crossprod:base"
-       ## , ".__T__dim:base"
-       ## , ".__T__dim<-:base"
-       ## , ".__T__dimnames:base"
-       ## , ".__T__dimnames<-:base"
-       ## , ".__T__factorial:base"
-       ## , ".__T__format:base"
-       ## , ".__T__is.finite:base"
-       ## , ".__T__is.infinite:base"
-       ## , ".__T__is.na:base"
-       ## , ".__T__is.nan:base"
-       ## , ".__T__lbeta:base"
-       ## , ".__T__log:base"
-       ## , ".__T__mean:base"
-       ## , ".__T__pmax:Rmpfr"
-       ## , ".__T__pmin:Rmpfr"
-       ## , ".__T__rbind:Rmpfr"
-       ## , ".__T__show:methods"
-       ## , ".__T__sign:base"
-       ## , ".__T__t:base"
-       ## , ".__T__tcrossprod:base"
-       ## , ".__T__unique:base"
-       ## )
+S3method(print, mpfr)
+S3method(print, mpfr1)
+S3method(print, mpfrArray)
