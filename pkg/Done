@@ -46,3 +46,5 @@
     I think this is the MPFR library just allocating memory that's in use
     by R, but it seems hard to prove and or fix that.
 
+
+17a) as(1, "mpfr") & TRUE : no longer gives infinite recursion error

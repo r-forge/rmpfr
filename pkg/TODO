@@ -1,3 +1,11 @@
+URGENT or "DO first" :
+
+17b)  see 'Ops' in R/Arith.R  and
+     design a "test all Ops" with all combinations of "mpfr", "numeric","logical"
+     (and possibly more).
+
+---------------------------- compare to ./Done ------------------------
+
 2)
  - Now have working  "mpfrMatrix", dim(.) <- ..; t(), %*%, crossprod()...
 

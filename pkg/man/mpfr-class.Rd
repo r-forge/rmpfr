@@ -65,6 +65,8 @@
 \alias{Compare,array,mpfr-method}
 %
 \alias{Logic,mpfr,mpfr-method}
+\alias{Logic,mpfr,numeric-method}
+\alias{Logic,numeric,mpfr-method}
 \alias{Summary,mpfr-method}
 \alias{Math,mpfr-method}
 \alias{Math2,mpfr-method}
