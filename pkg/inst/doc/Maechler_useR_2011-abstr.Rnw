@@ -43,6 +43,13 @@ stopifnot(require("Rmpfr"))
 
 \begin{document}
 \pagestyle{empty}
+\vspace*{-15ex}
+\begin{flushleft}\footnotesize
+  Abstract for ``late-breaking poster'' and ``Lightning talk'' to be held at
+  ``UseR! 2011'', U.~Warwick, 16th Aug.~2011%, 17:00--18:00
+  \\[-1ex]\noindent\rule{\textwidth}{0.5pt}\\ % horizontal line
+\end{flushleft}
+\vspace*{+9ex}
 
 \title{Arbitrary Accurate Computation with R: Package 'Rmpfr'}
 
