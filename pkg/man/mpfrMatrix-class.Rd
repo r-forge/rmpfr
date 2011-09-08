@@ -15,6 +15,10 @@
 \alias{Compare,numeric,mpfrArray-method}
 %
 \alias{apply,mpfrArray-method}
+\alias{colSums,mpfrArray-method}
+\alias{colMeans,mpfrArray-method}
+\alias{rowSums,mpfrArray-method}
+\alias{rowMeans,mpfrArray-method}
 \alias{as.vector,mpfrArray,missing-method}
 \alias{coerce,mpfrArray,array-method}
 \alias{coerce,mpfrArray,matrix-method}

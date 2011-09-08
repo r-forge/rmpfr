@@ -667,3 +667,20 @@ applyMpfr <- function(X, MARGIN, FUN, ...)
 
 setGeneric("apply")
 setMethod ("apply", "mpfrArray", applyMpfr)
+
+setMethod("colSums", "mpfrArray", function(x, na.rm = FALSE, dims = 1, ...) {
+    stopifnot((rnk <- length(d <- dim(x))) >= 2, 1 <= dims, dims <= rnk - 1)
+    applyMpfr(x, (dims+1):rnk, sum)
+})
+setMethod("colMeans", "mpfrArray", function(x, na.rm = FALSE, dims = 1, ...) {
+    stopifnot((rnk <- length(d <- dim(x))) >= 2, 1 <= dims, dims <= rnk - 1)
+    applyMpfr(x, (dims+1):rnk, mean)
+})
+setMethod("rowSums", "mpfrArray", function(x, na.rm = FALSE, dims = 1, ...) {
+    stopifnot((rnk <- length(d <- dim(x))) >= 2, 1 <= dims, dims <= rnk - 1)
+    applyMpfr(x, 1:dims, sum)
+})
+setMethod("rowMeans", "mpfrArray", function(x, na.rm = FALSE, dims = 1, ...) {
+    stopifnot((rnk <- length(d <- dim(x))) >= 2, 1 <= dims, dims <= rnk - 1)
+    applyMpfr(x, 1:dims, mean)
+})

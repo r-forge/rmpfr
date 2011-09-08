@@ -149,6 +149,8 @@ exportMethods(
               , "format"
               , "mean", "pmax", "pmin"
               , "show", "unique"
+              , "colSums", "colMeans"
+              , "rowSums", "rowMeans"
 )
 
 S3method(c, mpfr)

@@ -50,5 +50,20 @@ apply(A2, 2:3, max)
 apply(A2, 2, fivenum)% works,.. whereas quantile() fails.. "R design bug"
 stopifnot(as(apply(A2, 2, range), "matrix") ==
           apply(as(A2,"array"), 2, range))
+\dontshow{
+ a2 <- as(A2, "array")
+ for(nf in c("colSums", "colMeans", "rowSums", "rowMeans")) {
+   FUN <- getFunction(nf)
+   for(di in c(1,2)) {
+     r <- FUN(a2, dims = di)
+     R <- FUN(A2, dims = di)
+     stopifnot(dim(r) == dim(R),
+               all.equal(as(R, if(is.array(r)) "array" else "numeric"),
+                         r, tol = 1e-15))
+   }
+ }
+%% TODO: also check examples with non-trivial dimnames !
+
+}%end{ dontshow }
 }
 \keyword{array}

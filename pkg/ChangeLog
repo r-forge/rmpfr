@@ -2,6 +2,7 @@
 
 	* R/array.R (applyMpfr): -> apply() method for "mfprArray"
 	(mpfr2array): fix for the case of  dim(<mpfrArray>) <- <newDim>
+	(colSums, etc): also add simple methods for colSums, rowMeans, etc.
 
 	* man/mpfrArray.Rd: add apply() examples
 
