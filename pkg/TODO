@@ -22,6 +22,8 @@ URGENT or "DO first" :
       in src/utils.c
       	 ~~~~~~~~~~~
 
+23) quantile(<mpfr>)  does not work
+
 
 
 
@@ -98,7 +100,6 @@ URGENT or "DO first" :
              {or "fix it" via assign*() in base ?? -- they will love that!}
 19) outer() fails too, (similarly I think)
 
-21)
 22)
 23)
 24)

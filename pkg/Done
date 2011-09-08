@@ -53,3 +53,5 @@
     the precision of the output should be increased a bit,
     (still depending  on rel.tol !)
 
+22) apply(<mpfrArray>, .) --> S4 method
+
