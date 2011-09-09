@@ -3,12 +3,12 @@
 %              ----- for the package-vignette, don't use JSS logo, etc
 %
 \author{Martin M\"achler \\ ETH Zurich}
-\title{Arbitrary Accurate Computation with \R: \\ The \pkg{Rmpfr} Package}
+\title{Arbitrarily Accurate Computation with \R: \\ The \pkg{Rmpfr} Package}
 % \def\mythanks{a version of this paper, for \pkg{nacopula} 0.4\_4, has been published
 %     in JSS, \url{http://www.jstatsoft.org/v39/i09}.}
 %% for pretty printing and a nice hypersummary also set:
 \Plainauthor{Martin M\"achler} %% comma-separated
-\Plaintitle{Arbitrary Accurate Computation with R---The Rmpfr Package}
+\Plaintitle{Arbitrarily Accurate Computation with R---The Rmpfr Package}
 % \Shorttitle{}
 %
 %\VignetteIndexEntry{Rmpfr}
@@ -33,10 +33,12 @@
 
  Applications by the package author include testing of Bessel or
  polylog functions and distribution computations, e.g. for stable distributions.
-%%
-%%__FIXME__ the  UseR! 2011--Late_Poster__Abstract is a bit better
-%% =====  --> ~/R/Meetings-Kurse-etc/2011-useR-Warwick/MartinMaechler.Rnw
-%%            ----------------------------------------~~~~~~~~~~~~~~~~~~~
+
+ In addition, the \pkg{Rmpfr} has been used on the \code{R-help} or
+ \code{R-devel} mailing list for high-accuracy computations, e.g., in
+ comparison with results from other software, and also in improving
+ existing \R\ functionality, e.g., fixing \R\ bug
+ \href{https://bugs.R-project.org/bugzilla3/show_bug.cgi?id=14491}{\code{PR\#14491}}.
 }
 
 \Keywords{MPFR, Abitrary Precision, Multiple Precision Floating-Point, R}
@@ -123,8 +125,7 @@ Sys.setenv(LANGUAGE = "en")
 if(.Platform$OS.type != "windows")
   Sys.setlocale("LC_MESSAGES","C")
 <<diagnose-lib, echo=FALSE>>=
-if(Sys.getenv("USER") == "maechler")## just for "testing"
-  print( .libPaths() )
+if(nzchar(Sys.getenv("R_MM_PKG_CHECKING"))) print( .libPaths() )
 @
 \section[Introduction]{Introduction}% \small~\footnote{\mythanks}}
 
@@ -139,7 +140,7 @@ given, e.g., by $e^x = \exp(x)$, you will look into
 <<exp-1>>=
 exp(1)
 @
-typically uses 7 digits for printing, as \code{getOption("digits")} is 7.
+which typically uses 7 digits for printing, as \code{getOption("digits")} is 7.
 To see \R's internal accuracy fully, you can use
 <<exp-1-dig-17>>=
 print(exp(1), digits = 17)
@@ -158,16 +159,16 @@ work with \emph{exact} factorials or binomial coefficients, where e.g. you
 may need all factorials $k!$, for $k=1,2,\dots,24$ or a full row
 of Pascal's triangle, i.e., want all $\binom{n}{k}$ for $n=80$.
 
-With \pkg{Rmpfr} this can be as simple as
+With \R{}'s double precision, and standard printing precision
 <<factorial-1>>=
 ns <- 1:24 ; factorial(ns)
 @
-where you loose the full precision of $24!$: If you display it
-with its full internal precision,
+the full precision of $24!$ is clearly not printed. However, if you display
+it with more than its full internal precision,
 <<factorial-full>>=
 noquote(sprintf("%-30.0f", factorial(24)))
 @
-it is obviously wrong in the last couple of digits as they are \code{0}.
+it is obviously wrong in the last couple of digits as they are known to be \code{0}.
 However, you can easily get full precision results with \pkg{Rmpfr}, by
 replacing ``simple'' numbers by mpfr-numbers:
 <<factorial-mpfr>>=
@@ -181,8 +182,8 @@ chooseMpfr.all(n = 80)
 co <- capture.output(chooseMpfr.all(n = 80))
 writeLines(co[1:5]);cat(" ... \n ... \n")
 writeLines(co[13:16]);cat(" ... \n ... \n");writeLines(tail(co,2))
-## For now, still use the full:
-<<chooseM-run>>=
+## Instead (above: eval=false): For now, still use the full:
+<<chooseM-run,echo=false>>=
 <<chooseM-ex-fake>>
 @
 
@@ -205,14 +206,15 @@ function with two arguments.
 The package \pkg{Rmpfr} interfaces \R\ to the C (GNU) library
 \begin{quote}
   MPFR, acronym for
- ``\emph{\textbf{M}ultiple \textbf{P}recision \textbf{F}loating-Point \textbf{R}eliably}''.
+  ``\emph{\textbf{M}ultiple \textbf{P}recision \textbf{F}loating-Point \textbf{R}eliably}''%
+  \nocite{FouLHLPZ:2007}.
 \end{quote}
 
-MPFR is Free Software, available under the LGPL license, see
-\url{http://mpfr.org/}, and
+MPFR is Free Software, available under the LGPL license, %\nocite{FousseHLPZ-MPFR:2011},
+see \url{http://mpfr.org/}, and
 MPFR itself is built on and requires the
 GNU Multiple Precision arithmetic library (GMP), see
-\url{http://gmplib.org/}. It can be obtained from there,
+\url{http://gmplib.org/}\nocite{GMP:2011}. It can be obtained from there,
 or from your operating system vendor.
 
 On some platforms, it is very simple, to install MPFR and GMP, something
@@ -222,7 +224,7 @@ it is sufficient (for \emph{both} libraries) to simply issue
 \begin{verbatim}
    sudo apt-get install libmpfr-dev
 \end{verbatim}
-The standard reference to MPFR is \cite{FouLHLPZ-2007}.
+The standard reference to MPFR is \cite{FousseHLPZ-MPFR:2011}.
 
 
 \section{Arithmetic with mpfr-numbers}
@@ -293,7 +295,7 @@ relevant ...
 
 ...
 
-\section{``All'' mathematical functions, arbitrary precise}
+\section{``All'' mathematical functions, arbitrarily precise}
 
 %% see ../../man/mfpr-class.Rd
 %%  but also ....
@@ -318,8 +320,8 @@ getGroupMembers("Math")
 
 where currently , \code{digamma}, and \code{trigamma} are not provided by
 the MPFR library, and hence the methods not implemented yet.
-\\
-Further, the \code{cum*()} methods are \emph{not yet} implemented.
+
+%% cumsum(), cumprod() now work!
 
 \code{factorial()} has a \texttt{"mpfr"} method; and in addition,
 \code{factorialMpfr()} computes ${n!}$ efficiently in arbitrary precision,
@@ -327,12 +329,42 @@ using the MPFR-internal implementation.
 This is mathematically (but not numerically) the same as
 $\Gamma(n+1) = $\code{gamma(n+1)}.
 
+Similarly to \code{factorialMpfr()}, but more generally useful,the functions
+\code{chooseMpfr(a,n)} and \code{pochMpfr(a,n)} compute (generalized!) binomial
+coefficients $\binom{a}{n}$ and
+``the'' Pochhammer symbol or ``rising factorial''
+\begin{eqnarray*}
+  a^{(n)} &:=&  a(a+1)(a+2)\cdots(a+n-1) \\
+          &=& \frac{(a+n-1)!}{(a-1)!} = \frac{\Gamma(a+n)}{\Gamma(a)}.
+\end{eqnarray*}
+Note that with this definition,
+\[ \binom{a}{n} \equiv \frac{a^{(n)}}{n!}.
+\]
 
-\section{Arbitrary precise matrices and arrays}
 
-... ...
+\section{Arbitrarily precise matrices and arrays}
 
-... ...
+%%% FIXME --> ~/R/Meetings-Kurse-etc/2011-Warwick/1_MM_/Poster/MM-poster.tex
+
+The classes \code{"mpfrMatrix"} and \code{"mpfrArray"}
+correspond to the classical numerical \R \code{"matrix"} and \code{"array"} objects,
+which basically are arrays or vectors of numbers with a dimension
+\code{dim}, possibly named by \code{dimnames}.
+As there, they can be constructed by \code{dim(.) <- ..} setting, e.g.,
+<<Matrix-ex>>=
+head(x <- mpfr(0:7, 64)/7) ; mx <-  x
+dim(mx) <- c(4,2)
+@
+and we can index and multiply such matrices, e.g.,
+<<crossprod>>=
+mx[ 1:3, ] + c(1,10,100)
+crossprod(mx)
+@
+and also \code{apply} functions,
+<<apply-mat>>=
+apply(7 * mx, 2, sum)
+@
+
 
 \section{Special mathematical functions}
 
