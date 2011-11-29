@@ -259,8 +259,8 @@ setMethod(show, "mpfrArray", function(object) print.mpfrArray(object))
 	z@Dim <- c(nrx, ncy)
 	z@.Data <- vector("list", nrx*ncy)
 	if (nrx > 0 && ncx > 0 && nry > 0 && ncy > 0)
+	    j <- 0L:(ncx - 1L)
 	    for(i in 1:nrx) {
-		j <- 0L:(ncx - 1L)
 		for (k in 0L:(ncy - 1L))
 		    z[i + k * nrx] <- sum(x[i + j * nrx] * y[1L+ j + k * nry])
 	    }
@@ -273,8 +273,8 @@ setMethod(show, "mpfrArray", function(object) print.mpfrArray(object))
 	z@Dim <- c(ncx, ncy)
 	z@.Data <- vector("list", ncx*ncy)
 	if (nrx > 0 && ncx > 0 && nry > 0 && ncy > 0)
+	    j <- 1L:nrx
 	    for(i in 0L:(ncx - 1L)) {
-		j <- 1L:nrx
 		for (k in 0L:(ncy - 1L))
 		    z[1L +i + k * ncx] <- sum(x[j + i * nrx] * y[j + k * nry])
 	    }

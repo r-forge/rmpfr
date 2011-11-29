@@ -1,8 +1,8 @@
 Package: Rmpfr
 Type: Package
 Title: R MPFR - Multiple Precision Floating-Point Reliable
-Version: 0.4-3
-Date: 2011-09-09
+Version: 0.4-4
+Date: 2011-11-28
 Author: Martin Maechler
 Maintainer: Martin Maechler <maechler@stat.math.ethz.ch>
 Depends: methods, R (>= 2.11.0)

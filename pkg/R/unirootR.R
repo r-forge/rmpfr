@@ -1,4 +1,4 @@
-### This is a translatation of R_zeroin2 in ~/R/D/r-devel/R/src/appl/zeroin.c
+### This is a translation of R_zeroin2 in ~/R/D/r-devel/R/src/appl/zeroin.c
 ### from  C to R  by John Nash,
 ### ---> file rootoned/R/zeroin.R of the new (2011-08-18) R-forge package rootoned
 ###
