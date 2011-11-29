@@ -174,9 +174,11 @@ unirootR <- function(f, interval, ...,
 
     } ## end{ while(maxit > 0) } --------------------------------------------
 
-    if(converged)
+    if(converged) {
 	iter <- val[["maxit"]]
-    else { ## (!converged) : failed!
+	if(!is.na(fb) &&  abs(fb) > 0.5*max(abs(f.lower), abs(f.upper)))# from John Nash:
+	    warning("Final function magnitude seems large -- maybe converged to sign-changing 'pole' location?")
+    } else { ## (!converged) : failed!
 	val <- list(root= b, rtol = abs(c-b))
 	iter <- maxiter
 	warning("_NOT_ converged in ", iter, " iterations")
