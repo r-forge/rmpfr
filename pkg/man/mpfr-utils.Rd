@@ -50,6 +50,8 @@ mpfr2array(x, dim, dimnames = NULL, check = FALSE)
 \value{
   \code{getPrec(x)} returns a \code{\link{integer}} vector of the same
   length as \code{x},
+  If you need to \emph{change} the precision of \code{x}, i.e., need
+  something like \dQuote{setPrec}, use \code{\link{roundMpfr}()}.
 
   \code{getD(x)} is intended to be a fast version of \code{x@.Data},
   and should not be used outside of lower level functions.

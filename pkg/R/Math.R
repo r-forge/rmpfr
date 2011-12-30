@@ -148,6 +148,7 @@ chooseMpfr.all <- function(n) { ## return   chooseMpfr(n, 1:n)  "but smartly"
 }
 
 
+
 ##' Rounding to binary bits, not decimal digits. Closer to the number
 ##' representation, this also allows to increase or decrease a number's precBits
 ##' @title Rounding to binary bits, "mpfr-internally"
@@ -157,8 +158,6 @@ chooseMpfr.all <- function(n) { ## return   chooseMpfr(n, 1:n)  "but smartly"
 ##' @author Martin Maechler
 roundMpfr <- function(x, precBits) {
     stopifnot(is(x, "mpfr"))
-    ## x@.Data[] <- .Call(R_mpfr_round, x, precBits)
-    ## x
     setDataPart(x, .Call(R_mpfr_round, x, precBits))
 }
 

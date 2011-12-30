@@ -437,10 +437,12 @@ SEXP mpfr2str(SEXP x, SEXP digits) {
 	if(n_dig) {/* use it as desired precision */
 	    dig_needed = n_dig;
 	} else { /* n_dig = 0 --> string will use "enough" digits */
-	    dig_n_max = dig_needed = p_fact * (int)R_i->_mpfr_prec;
+	    dig_needed = p_fact * (int)R_i->_mpfr_prec;
 	}
-	if (i == 0) /* first time */
+	if (i == 0) { /* first time */
+	    dig_n_max = dig_needed;
 	    ch = (char *) R_alloc(dig_needed + 2, sizeof(char));
+	}
 	else if(!n_dig && dig_needed > dig_n_max) {
 	    ch = (char *) S_realloc(ch, dig_needed + 2, dig_n_max + 2,
 				    sizeof(char));

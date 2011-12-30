@@ -1,3 +1,9 @@
+2011-12-27  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 0.4-5
+
+	* src/convert.c (mpfr2str): dig_n_max was off
+
 2011-11-28  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* DESCRIPTION (Version): 0.4-4
