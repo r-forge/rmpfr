@@ -1,3 +1,17 @@
+2012-01-14  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* src/utils.c (my_mpfr_choose, my_mpfr_poch): fix case n == 0.
+
+	* R/mpfr.R, R/array.R: add argument 'right = TRUE' to the print()
+	* man/mpfr-utils.Rd: methods which looks better, e.g., for integers.
+
+	* src/utils.c (R_MPFR_2_Numeric_Function)
+	(R_MPFR_2_Num_Long_Function): do *not* warn anymore when arguments
+	are of "non-matching" lengths.
+
+	* R/Math.R (chooseMpfr.all): new arguments 'k0', 'alternating'
+	and 'precBits'.
+
 2011-12-27  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* DESCRIPTION (Version): 0.4-5
@@ -6,7 +20,7 @@
 
 2011-11-28  Martin Maechler  <maechler@stat.math.ethz.ch>
 
-	* DESCRIPTION (Version): 0.4-4
+	* DESCRIPTION (Version): 0.4-4, released to CRAN on 2011-11-30
 
 	* src/Ops.c (Compare_mpfr, etc): fix (silly!) nx * ny integer
 	overflow; problem reported by Anton Korobeynikov.

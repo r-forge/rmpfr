@@ -177,6 +177,22 @@ SEXP d2mpfr1_list(SEXP x, SEXP prec, SEXP rnd_mode)
     return val;
 }
 
+/*
+  -- Function: int mpfr_set_z (mpfr_t ROP, mpz_t OP, mpfr_rnd_t RND)
+  -- Function: int mpfr_set_q (mpfr_t ROP, mpq_t OP, mpfr_rnd_t RND)
+
+--> would want functions
+        SEXP mpz2mpfr1_(mpz_t x, int i_prec, mp_rnd_t rnd);
+	SEXP mpz2mpfr1 (SEXP x, SEXP prec, SEXP rnd_mode);
+	SEXP mpz2mpfr1_list(SEXP x, SEXP prec, SEXP rnd_mode);
+
+   completely parallel to the d2mpfr*() functions above
+   *BUT* we cannot easily do the [R package gmp C++ code]-part of
+   SEXP -> mpz !
+*/
+
+
+
 /* From the MPFR (2.3.2, 2008) doc :
  -- Function:
 
@@ -189,7 +205,6 @@ SEXP d2mpfr1_list(SEXP x, SEXP prec, SEXP rnd_mode)
      valid number in base BASE; otherwise it returns -1, and ROP may
      have changed.
 */
-
 SEXP str2mpfr1_list(SEXP x, SEXP prec, SEXP base, SEXP rnd_mode)
 {
 /* NB: Both x and prec are "recycled" to the longer one if needed */
