@@ -33,14 +33,6 @@ echo '<?xml version="1.0" encoding="UTF-8"?>';
 <!-- get project title  -->
 <!-- own website starts here, the following may be changed as you like -->
 
-// <?php if ($handle=fopen('http://'.$domain.'/export/projtitl.php?group_name='.$group_name,'r')){
-// $contents = '';
-// while (!feof($handle)) {
-// 	$contents .= fread($handle, 8192);
-// }
-// fclose($handle);
-// echo $contents; } ?>
-
 <h2>Rmpfr: Multiple Precision Floatingpoint in R</h2>
 <p>Multiple precision numbers &amp; computations for
  <a href="http://www.r-project.org">R</a> via GNU MPFR
@@ -68,7 +60,7 @@ the LGPL ed <a href="http://www.mpfr.org">MPFR </a>(Multiple Precision Floating-
   <a href="http://mulcyber.toulouse.inra.fr/projects/gmp">
   R package <samp>gmp</samp></a>.  gmp implements <strong>exact</strong>
   arithmetic for large integers and rationals, the former also <em>"modulo m"</em>,
-  i.e., (mathematically) <em>"in Z / mZ"</em>.
+<!--  i.e., (mathematically) <em>"in Z / mZ"</em>. -->
 </p>
 
 <!-- end of project description -->
