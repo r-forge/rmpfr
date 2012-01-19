@@ -12,6 +12,7 @@ SystemReqsNotes: MPFR (MP Floating-Point Reliable Library, http://mpfr.org/)
 Imports: gmp
 Suggests: gmp, polynom
 SuggestNotes: 'polynom' is only needed for vignette
+URL: http://rmpfr.r-forge.r-project.org/
 Description: Rmpfr provides S4 classes and methods for
   arithmetic including transcendental ("special") functions for
   arbitrary precision floating point numbers. To this end, it interfaces to

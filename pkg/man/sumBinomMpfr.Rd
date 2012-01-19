@@ -12,7 +12,7 @@
   The alternating binomial sum \eqn{sB(f,n) := sumBinom(n, f, n0=0)} is
   (up to sign) equal to the \eqn{n}-th forward difference operator \eqn{\Delta^n f},
   \deqn{sB(f,n) = (-1)^n \Delta^n f,} where
-  \deqn{\Delta^n f = \sum{k=0}{n} (-1)^{n-k}{n \choose k}\cdot f(k),}{%
+  \deqn{\Delta^n f = \sum_{k=0}^{n} (-1)^{n-k}{n \choose k}\cdot f(k),}{%
     Delta^n f = sum(k = n0:n ; (-1)^(n-k) choose(n,k) * f(k)),}
   is the \eqn{n}-fold iterated forward difference
   \eqn{\Delta f(x) = f(x+1) - f(x)} (for \eqn{x = 0}).
