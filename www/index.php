@@ -33,17 +33,36 @@ echo '<?xml version="1.0" encoding="UTF-8"?>';
 <!-- get project title  -->
 <!-- own website starts here, the following may be changed as you like -->
 
-<?php if ($handle=fopen('http://'.$domain.'/export/projtitl.php?group_name='.$group_name,'r')){
-$contents = '';
-while (!feof($handle)) {
-	$contents .= fread($handle, 8192);
-}
-fclose($handle);
-echo $contents; } ?>
+// <?php if ($handle=fopen('http://'.$domain.'/export/projtitl.php?group_name='.$group_name,'r')){
+// $contents = '';
+// while (!feof($handle)) {
+// 	$contents .= fread($handle, 8192);
+// }
+// fclose($handle);
+// echo $contents; } ?>
+
+<h2>Rmpfr: Multiple Precision Floatingpoint in R</h2>
+<p>Multiple precision numbers &amp; computations for
+ <a href="http://www.r-project.org">R</a> via GNU MPFR
+ <a href="http://www.mpfr.org">www.mpfr.org</a>
+ and <a href="http://gmplib.org">GMP</a>.
+</p>
+
+<p>
+<t>Rmpfr</t> provides S4 classes and methods for
+arithmetic including transcendental ("special") functions for
+arbitrary precision floating point numbers.
+To this end, it interfaces to
+the LGPL ed <a href="http://www.mpfr.org">MPFR </a>(Multiple Precision Floating-Point Reliable) Library which itself is based on the  <a href="http://gmplib.org">GMP</a> (GNU Multiple Precision) Library.
+</p>
+
+<p>
+    In 2012, Rmpfr is also interfacing to the
+    <a href="http://mulcyber.toulouse.inra.fr/projects/gmp">
+    R package <t>gmp</t></a>.
+</p>
 
 <!-- end of project description -->
-
-<p> No content added. </p>
 
 <p> The <strong>project summary page</strong> you can find <a href="http://<?php echo $domain; ?>/projects/<?php echo $group_name; ?>/"><strong>here</strong></a>. </p>
 
