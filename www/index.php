@@ -13,7 +13,7 @@ echo '<?xml version="1.0" encoding="UTF-8"?>';
 <!DOCTYPE html
 	PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
 	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en   ">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 
   <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -49,22 +49,31 @@ echo '<?xml version="1.0" encoding="UTF-8"?>';
 </p>
 
 <p>
-<t>Rmpfr</t> provides S4 classes and methods for
+<samp>Rmpfr</samp> provides S4 classes and methods for
 arithmetic including transcendental ("special") functions for
 arbitrary precision floating point numbers.
 To this end, it interfaces to
 the LGPL ed <a href="http://www.mpfr.org">MPFR </a>(Multiple Precision Floating-Point Reliable) Library which itself is based on the  <a href="http://gmplib.org">GMP</a> (GNU Multiple Precision) Library.
 </p>
 
+<p> The (Swiss mirror of the)
+ <a href="http://cran.r-project.org/">CRAN</a> page of <samp>Rmpfr</samp>,
+ <a href="http://stat.ethz.ch/CRAN/web/packages/Rmpfr/">Rmpfr CRAN page</a>
+    contains the reference manual (help pages of all functions), vignettes
+    (in pdf) and further relevant information about the package.
+</p>
+
 <p>
-    In 2012, Rmpfr is also interfacing to the
-    <a href="http://mulcyber.toulouse.inra.fr/projects/gmp">
-    R package <t>gmp</t></a>.
+  In 2012, Rmpfr is also interfacing to the
+  <a href="http://mulcyber.toulouse.inra.fr/projects/gmp">
+  R package <samp>gmp</samp></a>.  gmp implements <strong>exact</strong>
+  arithmetic for large integers and rationals, the former also <em>"modulo m"</em>,
+  i.e., (mathematically) <em>"in Z / mZ"</em>.
 </p>
 
 <!-- end of project description -->
 
-<p> The <strong>project summary page</strong> you can find <a href="http://<?php echo $domain; ?>/projects/<?php echo $group_name; ?>/"><strong>here</strong></a>. </p>
+<p> The <samp>Rmpfr</samp> <strong>project summary page</strong> is <a href="http://<?php echo $domain; ?>/projects/<?php echo $group_name; ?>/"><strong>here</strong></a>. </p>
 
 </body>
 </html>
