@@ -33,7 +33,7 @@ echo '<?xml version="1.0" encoding="UTF-8"?>';
 <!-- get project title  -->
 <!-- own website starts here, the following may be changed as you like -->
 
-<h2>Rmpfr: Multiple Precision Floatingpoint in R</h2>
+<h2>Rmpfr: Multiple Precision Floating-point in R</h2>
 <p>Multiple precision numbers &amp; computations for
  <a href="http://www.r-project.org">R</a> via GNU MPFR
  <a href="http://www.mpfr.org">www.mpfr.org</a>

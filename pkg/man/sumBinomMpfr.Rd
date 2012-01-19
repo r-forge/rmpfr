@@ -47,9 +47,9 @@ sumBinomMpfr(n, f, n0 = 0, alternating = TRUE, precBits = 256)
   The N\"orlund-Rice integral,
   \url{http://en.wikipedia.org/wiki/N\%C3\%B6rlund\%E2\%80\%93Rice_integral}
 
-  Flajolet and Sedgewick (1995)
-  ....
-
+  Flajolet, P. and Sedgewick, R. (1995)
+  Mellin Transforms and Asymptotics: Finite Differences and Rice's Integrals,
+  \emph{Theoretical Computer Science} \bold{144}, 101--124.
 }
 \author{Martin Maechler, after conversations with Christophe Dutang.}
 \seealso{
