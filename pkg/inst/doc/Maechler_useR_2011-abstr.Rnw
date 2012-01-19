@@ -7,7 +7,7 @@
   urlcolor=blue
 }
 \SweaveOpts{eps=FALSE,pdf=TRUE,width=7,height=4,strip.white=true,keep.source=TRUE}
-%\VignetteIndexEntry{Rmpfr}
+%\VignetteIndexEntry{useR-2011-abstract}
 %\VignetteDepends{Rmpfr}
 <<preliminaries, echo=FALSE, results=hide>>=
 options(SweaveHooks= list(fig=function() par(mar=c(5.1, 4.1, 1.1, 2.1))),
