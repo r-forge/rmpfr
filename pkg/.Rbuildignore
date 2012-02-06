@@ -9,6 +9,8 @@ Savicky.*
 trace-stuff.R
 inst/doc/auto
 inst/doc/MPFR_Fousse_etal.*
+inst/doc/Maechler.*
+inst/doc/.*\.b..
 Misc
 autom4te.cache/
 tests/00.*
