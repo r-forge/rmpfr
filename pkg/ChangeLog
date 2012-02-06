@@ -1,3 +1,10 @@
+2012-02-06  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 0.4-6
+
+	* R/special-fun.R (pnorm): much improved partly bad code, thanks to
+	a report from Jerry Lewis.
+
 2012-01-14  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* src/utils.c (my_mpfr_choose, my_mpfr_poch): fix case n == 0.
