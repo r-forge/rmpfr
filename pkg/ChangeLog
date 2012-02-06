@@ -1,6 +1,7 @@
 2012-02-06  Martin Maechler  <maechler@stat.math.ethz.ch>
 
-	* DESCRIPTION (Version): 0.4-6
+	* DESCRIPTION (Version): 0.4-6, (Depends): gmp, not just "suggest"..
+	so we have a well-defined search() path order: Rmpfr comes before gmp
 
 	* R/special-fun.R (pnorm): much improved partly bad code, thanks to
 	a report from Jerry Lewis.

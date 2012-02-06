@@ -7,8 +7,8 @@ if(!is.na(r <- suppressWarnings(packageDescription("gmp", fields="Version")))
 export(.mpfr2bigz, .bigz2mpfr)
 
 importFrom("gmp",
-           crossprod, tcrossprod,# `%*%`, <- as we write (S4) methods for those
-           biginteger_as, biginteger_as_character
+           crossprod, tcrossprod# `%*%`, <- as we write (S4) methods for those
+           ## not yet (maybe never) , biginteger_as, biginteger_as_character
 	   ## more to come
 	   )
 }## if( <new gmp> )

@@ -12,6 +12,9 @@ if(!is.na(r <- suppressWarnings(packageDescription("gmp",
 
 ### FIXME: we go via character.. which is not really efficient.
 ### Directly in C, we'd need both Rmpfr and gmp's  C code (!)
+### TODO(?:  gmp should "export" its C++ API ( -> inst/include/*.hh )
+### and we should add  'LinkingTo: gmp' to DESCRIPTION and
+###  then use C++ with "C" { ...} for those parts
 .bigz2mpfr <- function(x) {
     stopifnot(inherits(x, "bigz"))
     b <- 16L
