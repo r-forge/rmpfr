@@ -10,7 +10,8 @@ trace-stuff.R
 inst/doc/auto
 inst/doc/MPFR_Fousse_etal.*
 inst/doc/Maechler.*
-inst/doc/.*\.b..
+inst/doc/.*\.bbl
+inst/doc/.*\.blg
 Misc
 autom4te.cache/
 tests/00.*
