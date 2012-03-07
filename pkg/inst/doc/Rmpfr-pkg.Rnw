@@ -17,7 +17,7 @@
 
 %% an abstract and keywords
 \Abstract{
- The \R\ package \pkg{Rmpfr} allows to use arbitrary high precision numbers
+ The \R\ package \pkg{Rmpfr} allows to use arbitrarily precise numbers
  instead of \R's double precision numbers in many \R\ computations and functions.
 
  This is achieved by defining S4 classes of such numbers and vectors,

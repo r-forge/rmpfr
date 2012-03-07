@@ -45,13 +45,13 @@ stopifnot(require("Rmpfr"))
 \pagestyle{empty}
 \vspace*{-15ex}
 \begin{flushleft}\footnotesize
-  Abstract for ``late-breaking poster'' and ``Lightning talk'' to be held at
+  Corrected abstract for ``late-breaking poster'' and ``Lightning talk'' to be held at
   ``UseR! 2011'', U.~Warwick, 16th Aug.~2011%, 17:00--18:00
   \\[-1ex]\noindent\rule{\textwidth}{0.5pt}\\ % horizontal line
 \end{flushleft}
 \vspace*{+9ex}
 
-\title{Arbitrary Accurate Computation with R: Package 'Rmpfr'}
+\title{Arbitrarily Accurate Computation with R: Package 'Rmpfr'}
 
 \begin{center}
   {\bf Martin M\"achler$^{1,2,^\star}$}
@@ -74,7 +74,7 @@ $^\star$Contact author: \href{mailto:maechler@stat.math.ethz.ch}{maechler@stat.m
 % command.  If you mention an \proglang{R} package \pkg{fooPkg}, typeset
 % the package name with the {\tt\textbackslash pkg\{\}} command.
 % Abstracts should not exceed one page.  The page should not be numbered.
- The \proglang{R}\ package \pkg{Rmpfr} allows to use arbitrary high precision numbers
+ The \proglang{R}\ package \pkg{Rmpfr} allows to use arbitrarily precise numbers
  instead of \proglang{R}'s double precision numbers in many \proglang{R}\ computations and functions.
 
  This is achieved by defining S4 classes of such numbers and vectors,
