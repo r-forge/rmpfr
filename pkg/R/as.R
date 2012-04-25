@@ -129,7 +129,7 @@ formatMpfr <-
 	iPos <- Ex >= 0	 & ii ## i.e., ex	 in {1,2..., digits}
 
 	nZeros <- function(n) ## e.g.  nZeros(2:0) gives  c("00","0", "")
-	    sapply(n, function(k) paste(rep.int("0", k), collapse = ""))
+	    vapply(n, function(k) paste(rep.int("0", k), collapse = ""), "")
 	if(any(eq <- (Ex == digits))) {
 	    r[eq] <- paste(r[eq], "0", sep="")
 	    Ex[eq] <- Ex[eq] + 1L
