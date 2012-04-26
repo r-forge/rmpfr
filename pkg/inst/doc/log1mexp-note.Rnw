@@ -13,11 +13,15 @@
 \SweaveOpts{engine=R,width=7,height=5,strip.white=true}
 
 %% an abstract and keywords
-\Abstract{
-  ..... %% FIXME
+\Abstract{In this note, we explain how $f(a) = \log(1 - e^{-a}) =\log(1 -
+  \exp(-a))$ can be computed accurately, in a simple and optimal manner,
+  building on the two related auxiliary functions
+  \code{log1p(x)} ( $=\log(1+x)$) and
+  \code{expm1(x)} ( $=\exp(x)-1 = e^x - 1$).
+  The branch cutoff, $a_0$, in use in \R{} since % version 1.9.0, April
+  2004, is shown to be optimal both empirically and theoretically.
 }
-
-\Keywords{R, MPFR, Rmpfr, Accuracy, Cancellation Error}
+\Keywords{Accuracy, Cancellation Error, R, MPFR, Rmpfr}
 %% at least one keyword must be supplied
 
 %% publication information
@@ -120,6 +124,24 @@
 %% Note: If there is markup in \(sub)section, then it has to be escape as above.
 %% Note: These are explained in '?RweaveLatex' :
 <<preliminaries, echo=FALSE, results=hide>>=
+## Our custom graphics device:
+pdfaCrop <- function(name, width, height, ...) {
+    fn <- paste(name, "pdf", sep = ".")
+    if(FALSE)## debug
+        cat("pdfaCrop: fn = ",fn,"; call:\n\t",deparse(match.call()),"\n")
+    grDevices::pdf(fn, width = width, height = height, onefile=FALSE)# ...)
+    assign(".pdfaCrop.name", fn, envir = globalenv())
+}
+## This is used automagically :
+pdfaCrop.off <- function() {
+    dev.off()# for the pdf
+    f <- get(".pdfaCrop.name", envir = globalenv())
+    ## and now crop that file:
+    pdfcrop <- "pdfcrop" # relying on PATH - fix if needed
+    pdftex  <- "pdftex"  # relying on PATH - fix if needed
+    system(paste(pdfcrop, "--pdftexcmd", pdftex, f, f, "1>/dev/null 2>&1"),
+           intern=FALSE)
+}
 op.orig <-
 options(width = 75,
         SweaveHooks= list(fig=function() par(mar=c(5.1, 4.1, 1.1, 2.1))),
@@ -139,14 +161,14 @@ library("sfsmisc")# e.g., for eaxis()
 %\section[Introduction]{Introduction \small~\footnote{\mythanks}}
 \section{Introduction: Not log() nor exp(), but log1p() and expm1()}
 
-In applied mathematics, it has been known for a very long time, that direct
+In applied mathematics, it has been known for a very long time that direct
 computation of $\log(1 + x)$ suffers from severe cancellation (in ``$1 +
 x$'') whenever $\abs{x} \ll 1$, and for that reason, we have provided
 \code{log1p(x)} in \R{}, since R version 1.0.0 (released, Feb.~29, 2000). Similarly,
 \code{log1p()} has been provided by C math libraries and become part of C
-language standards around the same time.
+language standards around the same time, e.g., \citet{ieee04:log1p}.
 
-Analogously, since \R{} 1.5.0 (April 2002), the function \code{expm1(x)}
+Analogously, since \R{}~1.5.0 (April 2002), the function \code{expm1(x)}
 computes $\exp(x) - 1 = e^x - 1$ accurately also for $\abs{x} \ll 1$, where $e^x
 \approx 1$ is (partially) cancelled by ``$-\: 1$''.
 
@@ -161,26 +183,47 @@ for small $\abs{x}$, as
   \expml(x) &= \exp(x) - 1 = x + x^2/2! + x^3/3! + \dots,
   \ \mathrm{for}\ \ \abs{x} < 1,
 \end{align}
-and $n! = n(n-1)\cdots 1$ is the usual factorial notation.
+and $n! = n(n-1)\cdots 1$ denotes factorial.
 
-We have found, however, that in some situations, the use of $\loglp()$ and
-$\expml()$ may not be sufficient to prevent loss of numerical accuracy.
-The topic of this note is to analyze the important case of computing
-$\log\left(1 - e^x \right) = \log(1 - \exp(x))$ for $x < 0$.
+We have found, however, that in some situations, the use of \code{log1p()} and
+\code{expm1()} may not be sufficient to prevent loss of numerical
+accuracy.  The topic of this note is to analyze the important case of computing
+$\log\left(1 - e^x \right) = \log(1 - \exp(x))$ for $x < 0$, computations needed
+in accurate computations of the beta, gamma, Weibull and logistic distributions,
+and % because of the latter,
+even for the (inverse logit) link function in logistic regression, see, e.g.,
+\citet{DidAM92}\footnote{In the Fortran source, file ``\code{708}'', also
+  available as \url{http://www.netlib.org/toms/708},
+  the function ALNREL() computes log1p() and REXP() computes expm1().},
+and further references mentioned in \R{}'s \code{?pgamma} and
+\code{?pbeta} help pages.
+%% FIXME?? here
+% As a consequence, we have defined an auxiliary
+% function in \R{}'s own sources, currently at the C level only.
 
 \section{log1p() and expm1() for log(1 - exp(x))}
 Contrary to expectation, for computing
 $\log\left(1 - e^x \right) = \log(1 - \exp(x))$ for $x < 0$, neither
 \begin{align}
-  \label{eq:f.log1p}
-  \log(1 - \exp(x)) &= \loglp(-\exp(x)), \ \ \mathrm{nor}\\
   \label{eq:f.expm1}
-  \log(1 - \exp(x)) &= \log(-\expml(x)),
+  \log(1 - \exp(x)) &= \log(-\expml(x)), \ \ \mathrm{nor}\\
+  \label{eq:f.log1p}
+  \log(1 - \exp(x)) &= \loglp(-\exp(x)),
 \end{align}
 are uniformly sufficient for numerical evaluation.
-To show this, we make use of the \R{} package \CRANpkg{Rmpfr} for arbitrarily
-accurate numerical computation, and use the following simple functions:
-<<def-test-funs>>=
+In (\ref{eq:f.log1p}), when $x$ approaches $0$, $\exp(x)$ approaches $1$
+and loses accuracy. In (\ref{eq:f.expm1}), when $x$ is large, $\expml(x)$
+approaches $-1$ and similarly loses accuracy.
+Because of this, we will propose to use a function \code{log1mexp(x)}
+which uses either \code{expm1} (\ref{eq:f.expm1}) or log1p (\ref{eq:f.log1p}),
+where appropriate.  Already in \R{}~1.9.0 (\cite{R-190}), % (April 2004)
+we have defined the macro \verb|R_D_LExp(x)| to provide these two branches
+automatically\footnote{look for ``log(1-exp(x))'' in \url{http://svn.r-project.org/R/branches/R-1-9-patches/src/nmath/dpq.h}}.
+
+To investigate the accuracy losses empirically, we make use of the \R{} package
+\CRANpkg{Rmpfr} for arbitrarily accurate numerical computation, and use the
+following simple functions:
+<<def-t3, echo=FALSE>>=
 library(Rmpfr)
 
 t3.l1e <- function(a)
@@ -189,17 +232,23 @@ t3.l1e <- function(a)
       expm1 = log( -expm1(-a)),
       log1p = log1p(-exp(-a)))
 }
+@
+<<def-leg, echo=FALSE>>=
 leg <- local({ r <- body(t3.l1e)[[2]]; r[[1]] <- `expression`; eval(r) })
-leg ## will be used below
-
+## will be used below
+@
+<<def-test-2, echo=FALSE, eval=FALSE>>=
 relE.l1e <- function(a, precBits = 1024) {
     stopifnot(is.numeric(a), length(a) == 1, precBits > 50)
     da <- t3.l1e(a)  ## double precision
     a. <- mpfr(a, precBits=precBits)
-    Ma <- t3.l1e(a.) ## multi.precision
-    mMa <- median(Ma)
+    mMa <- if(a <= log(2)) log(-expm1(-a.)) else log1p(-exp(-a.))
     structure(as.numeric(1 - da/mMa), names = names(da))
 }
+@
+<<def-test-funs>>=
+<<def-t3>>
+<<def-test-2>>
 @
 where the last one, \code{relE.l1e()} computes the relative error of three
 different ways to compute  $\log(1 - \exp(-a))$ for positive $a$
@@ -217,10 +266,16 @@ cbind(a.s, ra.s)
 capture.and.write(cbind(a.s, ra.s), 8, last = 6)
 @
 This is really revealing: both methods, log1p, and expm1, are not uniformly good enough.
-Note that for large $a$, the relative errors evaluate to \code{NaN}. This
+Note that for large $a$, the relative errors evaluate to \code{1}. This
 is because all three double precision methods give 0, \emph{and} that is
-the best approximation in double precision, hence no problem at all,
-and we can restrict ourselves to smaller $a$, i.e., $a < \approx 710$, here.
+the best approximation in double precision (but not in higher \code{mpfr}
+precision), hence no problem at all, and we can restrict ourselves to
+smaller $a$ ($a$ smaller than about 710, here).% < \approx 710$, here.
+<<drop-large-a, echo=FALSE>>=
+ii <- a.s < 710
+a.s  <-  a.s[ii]
+ra.s <- ra.s[ii, ]
+@
 
 What about really small $a$'s?
 <<a.small>>=
@@ -232,9 +287,7 @@ as.numeric(t3.l1e(mpfr(1e-20, 256)))
 % as.numeric():
 % ## [1] -46.0517 -46.0517 -46.0517
 so, indeed,  the \code{expm1} method is absolutely needed here.
-
-%% FIXME "cache = TRUE": ---
-%% do not show here, we need the region for adding to the plot:
+%% FIXME "cache = TRUE":  echo=FALSE: do not show already, but need (a.,ra2)
 <<zoomin-comp, echo=FALSE>>=
 a. <- (1:400)/256
 ra <- t(sapply(a., relE.l1e))
@@ -242,11 +295,17 @@ ra2 <- ra[,-1]
 @
 
 %% --- Define figure_1 here ------------------------------
+<<bigpict-setup, eval=FALSE, echo=FALSE>>=
+par(mar = c(4.1,4.1,0.6,1.6))
+cc <- adjustcolor(c(4,1,2),.8, red.f=.7)
+lt <- c("solid","33","3262")
+ll <- c(.7, 1.5, 2)
+@
 %% main = "|relative errors| of three methods for log(1 - exp(-a))"
 <<bigpict-def, eval=FALSE>>=
-matplot(a.s, abs(ra.s), type = "l", log = "xy", col = (cc <- c(4,1,2)),
-        xlab = "a", ylab = "", axes=FALSE)
-legend("top", leg, col=cc, lty=1:3, bty="n")
+matplot(a.s, abs(ra.s), type = "l", log = "xy",
+        col=cc, lty=lt, lwd=ll, xlab = "a", ylab = "", axes=FALSE)
+legend("top", leg, col=cc, lty=lt, lwd=ll, bty="n")
 draw.machEps <- function(alpha.f = 1/3, col = adjustcolor("black", alpha.f)) {
     abline(h = .Machine$double.eps, col=col, lty=3)
     axis(4, at=.Machine$double.eps, label=quote(epsilon[c]), las=1, col.axis=col)
@@ -254,27 +313,26 @@ draw.machEps <- function(alpha.f = 1/3, col = adjustcolor("black", alpha.f)) {
 eaxis(1); eaxis(2); draw.machEps(0.4)
 @
 
-Now, we zoom in the region where both methods are about of the same (good) accuracy.
+Below, we zoom in the region where all methods have about of the same
+(good) accuracy.
 <<zoomin-show, eval=FALSE>>=
 <<zoomin-comp>>
 @
 
-<<draw-zoomin, eval=FALSE, echo=FALSE>>=
+\begin{figure}[hbt!]
+\centering
+% increasing width --> effective LaTeX *height* will decrease
+<<bigpict-fig, fig=TRUE, grdevice = pdfaCrop, echo=FALSE, height=5, width=7>>=
+<<bigpict-setup>>
+<<bigpict-def>>
 ## draw the zoom-in region into the plot:
 yl <- range(pmax(1e-18, abs(ra2)))
 rect(min(a.), yl[1], max(a.), yl[2],
      col= adjustcolor("black", .05), border="gray", pch = 5)
 @
-
-\begin{figure}[hbp!]
-\centering
-<<bigpict-fig, fig=TRUE, echo=FALSE>>=
-<<bigpict-def>>
-<<draw-zoomin>>
-@
 \setcapwidth{\textwidth}%
   \caption{Absolute relative errors (with respect to 1024 bit \pkg{Rmpfr}
-    computation) of the default $\log(1 - e^{-a})$ the two methods
+    computation) of the default, $\log(1 - e^{-a})$, and the two methods
     ``\code{expm1}'' $\log(-\expml(-a))$ and ``\code{log1p}'' $\loglp(-\exp(-a))$.
     Note that the default basically gives the maximum of the two methods' errors,
     whereas the final \code{log1mexp()} function will have the minimum
@@ -284,9 +342,9 @@ rect(min(a.), yl[1], max(a.), yl[2],
   \label{fig:bigpic}
 \end{figure}
 
-Because we want to smooth the two accuracy curves, but have noticed that
-neither smoothing the original, nor the log-transformed values seems ok, as
-the errors are asymmetric in both cases,
+In addition, we want to smooth the two curves, using a method assuming
+approximately normal errors. Notice however that neither the original,
+nor the log-transformed values have approximately symmetric errors, so
 we use  \code{MASS::boxcox()} to determine the ``correct'' power transformation,
 <<boxcox>>=
 da <- cbind(a = a., as.data.frame(ra2))
@@ -294,43 +352,40 @@ library(MASS)
 bc1 <- boxcox(abs(expm1) ~ a, data = da, lambda = seq(0,1, by=.01), plotit=.plot.BC)
 bc2 <- boxcox(abs(log1p) ~ a, data = da, lambda = seq(0,1, by=.01), plotit=.plot.BC)
 c(with(bc1, x[which.max(y)]),
-  with(bc2, x[which.max(y)]))## optimal powers 0.38 and 0.30 ==> taking 1/3 :
-s1 <- with(da, smooth.spline(a, abs(expm1)^(1/3), df = 10))
-s2 <- with(da, smooth.spline(a, abs(log1p)^(1/3), df = 10))
+  with(bc2, x[which.max(y)]))## optimal powers
+## ==> taking ^ (1/3) :
+s1 <- with(da, smooth.spline(a, abs(expm1)^(1/3), df = 9))
+s2 <- with(da, smooth.spline(a, abs(log1p)^(1/3), df = 9))
 @
 and now plot a ``zoom -- in'' of the previous accuracy graphic,
-already suggesting, that the cutoff, $a_0 = \log(2)$ is empirically very close to
+already suggesting that the cutoff, $a_0 = \log(2)$ is empirically very close to
 optimal:
-<<zoom-in-def-0, eval=FALSE, echo=FALSE>>=
-cl2 <- "slateblue" # "gray35" # the color for "log(2)"
-opal <- palette("default"); palette(adjustcolor(palette(), 0.6))
 <<zoom-in-def-1, eval=FALSE>>=
 matplot(a., abs(ra2), type = "l", log = "y", # ylim = c(-1,1)*1e-12,
+        col=cc[-1], lwd=ll[-1], lty=lt[-1],
         ylim = yl, xlab = "a", ylab = "", axes=FALSE)
-legend("topright", leg[-1], col=1:3, lty=1:3, bty="n")
+legend("topright", leg[-1], col=cc[-1], lwd=ll[-1], lty=lt[-1], bty="n")
 eaxis(1); eaxis(2); draw.machEps()
-lines(a., predict(s1)$y ^ 3,               lwd=2)
-lines(a., predict(s2)$y ^ 3, col=2, lty=2, lwd=2)
+lines(a., predict(s1)$y ^ 3, col=cc[2], lwd=2)
+lines(a., predict(s2)$y ^ 3, col=cc[3], lwd=2)
 @
-<<zoom-in-def-2, eval=FALSE,echo=FALSE>>=
+%% no title here: main = "|relative errors| of two methods for log(1 - exp(-a))")
+\enlargethispage{5ex}
+\begin{figure}[hbt!]
+\centering
+<<zoom-in-fig, fig=TRUE, grdevice= pdfaCrop, height=5, width=8, echo=FALSE>>=
+cl2 <- "slateblue" # "gray35" # the color for "log(2)"
+par(mar = c(4.1,4.1,0.6,1.6))
+
+<<zoom-in-def-1>>
+
 abline(v = log(2), col = cl2, lty=4)
 axis(1, at=log(2), label=quote(log(2)), las=1, col.axis=cl2, col=cl2, lty=4)
-palette(opal)
 ## what system is it ?
 sysInf <- Sys.info()[c("sysname", "release", "nodename", "machine")]
 mtext(with(as.list(sysInf),
            paste0(sysname," ",release,"(",nodename,") -- ", machine)),
       side=1, adj=1, line=2.25, cex = 3/4)
-@
-%% no title here: main = "|relative errors| of two methods for log(1 - exp(-a))")
-%
-\enlargethispage{3ex}
-\begin{figure}[hb!]
-\centering
-<<zoom-in-fig, fig=TRUE, height=6, width=8.8, echo=FALSE>>=
-<<zoom-in-def-0>>
-<<zoom-in-def-1>>
-<<zoom-in-def-2>>
 @
 \setcapwidth{\textwidth}%
   \caption{a ``zoom in'' of Figure~\ref{fig:bigpic} showing the region
@@ -350,21 +405,25 @@ around $0.7$.
 We propose to compute
 \begin{align}
   \label{eq:def-log1mexp}
-  f(a) = \log\left(1 - e^{-a}\right) = \log(1 - \exp(-a)),
+  f(a) = \log\left(1 - e^{-a}\right) = \log(1 - \exp(-a)), \ \ a > 0,
 \end{align}
 by a new method or function \code{log1mexp(a)}.
 It needs a cutoff $a_0$ between choosing
-\code{expm1} for $a \le a_0$  and
+\code{expm1} for $0 < a \le a_0$  and
 \code{log1p} for $a > a_0$, i.e.,
 \begin{align}
   \label{eq:log1mexp}
-  \mathrm{log1mexp}(a) :=
+  f(a) = \mathrm{log1mexp}(a) :=
   \begin{cases}
-    \log(-\expml(-a))  & a \le a_0  \ \ ( := \log(2) \approx 0.693) \\
-    \loglp(-\exp(-a))  & a  >  a_0.
+    \log(-\expml(-a))  &          0 <    a \le a_0  \ \ ( := \log(2) \approx 0.693) \\
+    \loglp(-\exp(-a))  & \phantom{0 < {}}a  >  a_0.
   \end{cases}
 \end{align}
-
+The mathematical argument for chosing $a_0$ is quite simple:
+In which situations does $1 - e^{-a}$ loose any digits?
+Well, as soon as $e^{-a} < \frac 1 2 = 2^{-1}$, because then, at least one
+bit cancels. But that is equivalent to $-a < \log(2^{-1}) = -\log(2)$ or
+$a > \log(2) =: a_0$.
 
 \subsection*{Session Information}
 
@@ -373,5 +432,7 @@ toLatex(sessionInfo())
 <<finalizing, echo=FALSE>>=
 options(op.orig)
 @
+
+\bibliography{log1mexp}
 
 \end{document}
