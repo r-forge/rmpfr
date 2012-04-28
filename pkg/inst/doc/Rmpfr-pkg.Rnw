@@ -337,8 +337,8 @@ getGroupMembers("Math")
       % \code{{atanh}}, \code{{gamma}}, \code{{lgamma}},
       % \code{{digamma}}, and \code{{trigamma}}.
 
-where currently , \code{digamma}, and \code{trigamma} are not provided by
-the MPFR library, and hence the methods not implemented yet.
+where currently, \code{trigamma} is not provided by
+the MPFR library, and hence not implemented yet.
 
 %% cumsum(), cumprod() now work!
 
