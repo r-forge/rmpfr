@@ -415,7 +415,8 @@ axis(1, at=log(2), label=quote(a[0] == log~2), las=1,
 ## what system is it ?
 sysInf <- Sys.info()[c("sysname", "release", "nodename", "machine")]
 mtext(with(as.list(sysInf),
-           paste0(sysname," ",release,"(",nodename,") -- ", machine)),
+	   paste0(sysname," ",release,"(",substr(nodename,1,16),") -- ", 
+		  machine)),
       side=1, adj=1, line=2.25, cex = 3/4)
 @
 \setcapwidth{\textwidth}%
