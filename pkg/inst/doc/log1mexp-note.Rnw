@@ -5,11 +5,15 @@
 \author{Martin M\"achler \\ ETH Zurich%
 \\ April 2012 {\tiny (\LaTeX'ed \today)}%---- for now
 }
-\title{Accuractely Computing $\log(1 - \exp(-\abs{a}))$}
+\title{Accurately Computing $\log(1 - \exp(-\abs{a}))$ \\
+  Assessed by the \pkg{Rmpfr} package}
 %% for pretty printing and a nice hypersummary also set:
 \Plainauthor{Martin M\"achler} %% comma-separated
-\Plaintitle{Accurately Computing log(1 - exp(.))}
+\Plaintitle{Accurately Computing log(1 - exp(.)) -- Assessed by Rmpfr}
 %
+%\VignetteIndexEntry{Acccurately Computing log(1 - exp(.)) -- Assessed by Rmpfr}
+%\VignetteDepends{Rmpfr}
+%\VignetteDepends{sfsmisc}
 \SweaveOpts{engine=R,strip.white=true, width=7, height=5}
 \SweaveOpts{pdf=FALSE, eps=FALSE, grdevice = pdfaCrop}
 %      defined in R "<<preliminaries>>":     ^^^^^^^^
@@ -415,7 +419,7 @@ axis(1, at=log(2), label=quote(a[0] == log~2), las=1,
 ## what system is it ?
 sysInf <- Sys.info()[c("sysname", "release", "nodename", "machine")]
 mtext(with(as.list(sysInf),
-	   paste0(sysname," ",release,"(",substr(nodename,1,16),") -- ", 
+	   paste0(sysname," ",release,"(",substr(nodename,1,16),") -- ",
 		  machine)),
       side=1, adj=1, line=2.25, cex = 3/4)
 @
