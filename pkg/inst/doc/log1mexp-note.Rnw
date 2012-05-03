@@ -222,16 +222,26 @@ accuracy.  The topic of this note is to analyze the important case of computing
 $\log\left(1 - e^x \right) = \log(1 - \exp(x))$ for $x < 0$, computations needed
 in accurate computations of the beta, gamma, Weibull and logistic distributions,
 and % because of the latter,
-even for the (inverse logit) link function in logistic regression, see,
-for example,% e.g.,
+even for the logit link function in logistic regression. For the beta and
+gamma distributions, see, for example, % e.g.,
 \citet{DidAM92}\footnote{In the Fortran source, file ``\code{708}'', also
   available as \url{http://www.netlib.org/toms/708},
   the function ALNREL() computes log1p() and REXP() computes expm1().},
 and further references mentioned in \R{}'s \code{?pgamma} and
 \code{?pbeta} help pages.
-%% FIXME?? here
-% As a consequence, we have defined an auxiliary
-% function in \R{}'s own sources, currently at the C level only.
+For the logistic distribution, $F_L(x) = \frac{e^x}{1+e^x}$, the inverse,
+aka quantile function is $q_L(p) = \mathrm{logit}(p) := \log \frac{p}{1-p}$.
+If the argument $p$ is provided on the log scale,
+$\tilde p := \log p$, hence $\tilde p \le 0$, we need
+\begin{align}
+  \label{eq:qlogis}
+  \mathtt{qlogis}(\tilde p,\: \mathtt{log.p=TRUE}) =
+  q_L\!\left(e^{\tilde p}\right) = \mathrm{logit}\!\left(e^{\tilde p}\right)
+%  = \log\Bigl(\frac{e^{\tilde p}}{1-e^{\tilde p}}\Bigr)
+  = \log      \frac{e^{\tilde p}}{1-e^{\tilde p}}
+  = \tilde p - \log\left(1 - e^{\tilde p} \right),
+\end{align}
+and the last term is exactly the topic of this note.
 
 \section{log1p() and expm1() for log(1 - exp(x))}
 Contrary to what one would expec, for computing
@@ -464,10 +474,121 @@ $e^{-a} < \frac 1 2 = 2^{-1}$, because then, at least one
 bit cancels. This however is equivalent to $-a < \log(2^{-1}) = -\log(2)$ or
 $a > \log 2 =: a_0$.
 
+\section{Computation of log(1+exp(x))}
+Related to $\mathrm{log1mexp}(a)=\log(1 - e^{-a})$ is the
+log survival function of the logistic distribution % (see above)%: defined F_L
+$\log(1 - F_L(x)) = \log\frac{1}{1+e^x} = -\log(1 + e^x)$,
+\begin{align}
+  \label{eq:log1pexp}
+  g(x) := \log(1 + e^x) = \loglp(e^x),
+\end{align}
+(with a ``$+"$'' instead of a ``$-$'') which is easier to analyze and compute,
+its only problem being large $x$'s where $e^x$ % = \exp x$
+overflows numerically.
+As $g(x)= \log(1 + e^x) = \log(e^x(e^{-x} + 1)) = x + \log(1 + e^{-x})$, we see
+from (\ref{eq:Taylor-log1p}) that
+\begin{align}
+  \label{eq:log1pexp-asym}
+  g(x) = x + \log(1 + e^{-x}) = % \sim %\asymp
+%%  x + e^{-x}(1 - e^{-x}/2) + \O((e^{-x})^3),
+  x + e^{-x} + \O((e^{-x})^2),
+\end{align}
+for $x\to\infty$.
+Using double precision arithmetic, a fast and accurate computational method
+is to use
+<<uniroot-x1, echo=FALSE, results=hide>>=
+f1 <- function(x) { x <- log1p(exp(x)) - x ; x[x==0] <- -1 ; x }
+u1 <- uniroot(f1, c(5, 50), tol=1e-13)
+str(u1, digits=10)
+x1 <- u1[["root"]]
+## Not used here: find x2, such that  x + exp(-x) =.= g(x) for x > x2
+f2 <- function(x) { x <- (x + exp(-x)) - log1p(exp(x))
+                   x[x==0] <- -1 ; x }
+u2 <- uniroot(f2, c(1, 20), tol=1e-13)
+str(u2, digits=10)
+x2 <- u2[["root"]]
+## but really the above is still ``non sense'': look at
+curve(log1p(exp(x)) - x,       33.1, 33.5, n=2^10) # for x1
+curve(x+exp(-x) - log1p(exp(x)), 15, 25,   n=2^11) # for x2
+@
+\begin{align}
+  \label{eq:log1pexp}
+  g(x) = \mathrm{log1pexp}(x) :=
+  \begin{cases}
+    \loglp(\exp(x))     & x <   x_1 := 33.3, \\
+    x                   & x \ge x_1,
+  \end{cases}
+\end{align}
+where $x_1$ can be replaced by a larger number such as $34$ (and even
+$100$, but not $800$\footnote{The \R{} plot
+  \code{curve(log1p(exp(x)) - x, 33.1, 33.5, n=2\^{}10)}
+  reveals a somewhat fuzzy cutoff $x_1$}).
+%%----- Ok, still do a little analysis --- invisibly mostly (eval=FALSE) here
+<<def-test-pfuns, echo=FALSE>>=
+t4p.l1e <- function(x)
+{
+    c(def   = log(1 + exp(x)),
+      log1p = log1p(exp(x)),
+      ## xlog1p = x + log1p(exp(-x)),
+      xpexp = x + exp(-x),
+      x = x)
+}
+leg <- local({ r <- body(t4p.l1e)[[2]]; r[[1]] <- `expression`; eval(r) })
+##' The relative Error of log1pexp computations:
+relE.pl1e <- function(x, precBits = 1024) {
+    stopifnot(is.numeric(x), length(x) == 1, precBits > 50)
+    dx <- t4p.l1e(x)  ## double precision
+    x. <- mpfr(x, precBits=precBits)
+    ## high precision *and* using the correct case:
+    mMx <- if(x < 0) log1p(exp(x.)) else x. + log1p(exp(-x.))
+    structure(as.numeric(1 - dx/mMx), names = names(dx))
+}
+@
+
+%%                      vvvvvvvvvv not currently
+<<comp-big, echo=FALSE, eval=FALSE>>=
+x.s <- seq(-100, 750, by = 5)  # <- the big picture
+x.s <- seq( 5, 60, length=512) # <- the zoom in
+rx.s <- t(sapply(x.s, relE.pl1e))
+@
+
+% \begin{figure}[hbt!]
+% \centering
+%                                                        vvvvvvvvvv not currently
+<<bigpict-2-fig, fig=TRUE, echo=FALSE, height=5,width=7, eval=FALSE>>=
+par(mar = c(4.1,4.1,0.6,1.6))
+cc <- adjustcolor(c(4,1,2,5),.8, red.f=.7)
+lt <- c("solid","33","3262","dotdash")
+ll <- c(.7, 1.5, 2, 2)
+ym <- 1e-18
+yM <- 1e-13
+matplot(x.s, pmax(pmin(abs(rx.s),yM),ym), type = "l", log = "y", axes=FALSE,
+        ylim = c(ym,yM), col=cc, lty=lt, lwd=ll, xlab = "x", ylab = "")
+legend("top", leg, col=cc, lty=lt, lwd=ll, bty="n")
+eaxis(1, at=pretty(range(x.s), n =12)); eaxis(2)
+draw.machEps(0.4); abline(v=0, col=adjustcolor("brown", 0.6), lty=3)
+@
+% increasing width --> effective LaTeX *height* will decrease
+% \setcapwidth{\textwidth}%
+%   \caption{Absolute relative errors (with respect to 1024 bit \pkg{Rmpfr}
+%     computation) of the default, $\log(1 - e^{-a})$, and the two methods
+%     ``\code{expm1}'' $\log(-\expml(-a))$ and ``\code{log1p}'' $\loglp(-\exp(-a))$.
+%     Note that the default basically gives the maximum of the two methods' errors,
+%     whereas the final \code{log1mexp()} function will have the minimum
+%     (approximately) of the two. \ \
+%     Figure~\ref{fig:zoomin-pic} will be a zoom into the gray rectangular region
+%     where all three curves are close.}
+%   \label{fig:log1pexp}
+% \end{figure}
+% Figure~\ref{fig:log1pexp} visualizes the relative errors of the methods,
+
+
 \section{Conclusion}
 We have used high precision arithmetic (\R{} package \pkg{Rmpfr}) to
 empirically verify that computing $f(a) = \log\left(1 - e^{-a}\right)$ is
 accomplished best via equation (\ref{eq:log1mexp}).
+In passing, we have also shown that accurate computation of $g(x) =
+\log(1+e^x)$ can be achieved via (\ref{eq:log1pexp}).
 
 \subsection*{Session Information}
 
