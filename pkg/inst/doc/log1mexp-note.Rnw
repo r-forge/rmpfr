@@ -173,11 +173,12 @@ pdfaCrop.off <- function() {
 }
 op.orig <-
 options(width = 75,
-        SweaveHooks= list(fig=function() par(mar=c(5.1, 4.1, 1.1, 2.1))),
-        useFancyQuotes = FALSE,
-        ## for JSS, but otherwise MM does not like it:
-        ## prompt="R> ",
-        continue="  ")# 2 (or 3) blanks: use same length as 'prompt'
+	SweaveHooks= list(fig=function() par(mar=c(5.1, 4.1, 1.1, 2.1))),
+	digits = 5,
+	useFancyQuotes = "TeX",
+	## for JSS, but otherwise MM does not like it:
+	## prompt="R> ",
+	continue="  ")# 2 (or 3) blanks: use same length as 'prompt'
 
 if((p <- "package:fortunes") %in% search())
     try(detach(p, unload=TRUE, char=TRUE))
@@ -257,10 +258,12 @@ In (\ref{eq:f.log1p}), when $x$ approaches $0$, $\exp(x)$ approaches $1$
 and loses accuracy. In (\ref{eq:f.expm1}), when $x$ is large, $\expml(x)$
 approaches $-1$ and similarly loses accuracy.
 Because of this, we will propose to use a function \code{log1mexp(x)}
-which uses either \code{expm1} (\ref{eq:f.expm1}) or log1p (\ref{eq:f.log1p}),
-where appropriate.  Already in \R{}~1.9.0 (\cite{R-190}), % (April 2004)
+which uses either \code{expm1} (\ref{eq:f.expm1}) or
+\code{log1p} (\ref{eq:f.log1p}), where appropriate.  Already in
+\R{}~1.9.0 (\cite{R-190}), % (April 2004)
 we have defined the macro \verb|R_D_LExp(x)| to provide these two cases %branches
-automatically\footnote{look for ``log(1-exp(x))'' in \url{http://svn.r-project.org/R/branches/R-1-9-patches/src/nmath/dpq.h}}.
+automatically\footnote{look for ``log(1-exp(x))'' in
+  \url{http://svn.r-project.org/R/branches/R-1-9-patches/src/nmath/dpq.h}}.
 
 To investigate the accuracy losses empirically, we make use of the \R{} package
 \CRANpkg{Rmpfr} for arbitrarily accurate numerical computation, and use the
@@ -331,12 +334,11 @@ as.numeric(t3.l1e(mpfr(1e-20, 256)))
 % as.numeric():
 % ## [1] -46.0517 -46.0517 -46.0517
 so, indeed,  the \code{expm1} method is absolutely needed here.
-%% FIXME "cache = TRUE":  echo=FALSE: do not show already, but need (a.,ra2)
-<<zoomin-comp, echo=FALSE>>=
-a. <- (1:400)/256
-ra <- t(sapply(a., relE.l1e))
-ra2 <- ra[,-1]
-@
+
+Figure~\ref{fig:bigpic} visualizes the relative errors of the three methods.
+Note that the default basically gives the maximum of the two methods' errors,
+whereas the final \code{log1mexp()} function will have (approximately)
+minimal error of the two.
 %% --- Define figure_1 here ------------------------------
 <<bigpict-setup, eval=FALSE, echo=FALSE>>=
 par(mar = c(4.1,4.1,0.6,1.6))
@@ -355,8 +357,13 @@ draw.machEps <- function(alpha.f = 1/3, col = adjustcolor("black", alpha.f)) {
 }
 eaxis(1); eaxis(2); draw.machEps(0.4)
 @
-
-\begin{figure}[hbt!]
+%% FIXME "cache = TRUE":  echo=FALSE: do not show already, but need (a.,ra2)
+<<zoomin-comp, echo=FALSE>>=
+a. <- (1:400)/256
+ra <- t(sapply(a., relE.l1e))
+ra2 <- ra[,-1]
+@
+\begin{figure}[htb!]
 \centering
 % increasing width --> effective LaTeX *height* will decrease
 <<bigpict-fig, fig=TRUE, echo=FALSE, height=5, width=7>>=
@@ -371,22 +378,21 @@ rect(min(a.), yl[1], max(a.), yl[2],
   \caption{Absolute relative errors (with respect to 1024 bit \pkg{Rmpfr}
     computation) of the default, $\log(1 - e^{-a})$, and the two methods
     ``\code{expm1}'' $\log(-\expml(-a))$ and ``\code{log1p}'' $\loglp(-\exp(-a))$.
-    Note that the default basically gives the maximum of the two methods' errors,
-    whereas the final \code{log1mexp()} function will have the minimum
-    (approximately) of the two. \ \
     Figure~\ref{fig:zoomin-pic} will be a zoom into the gray rectangular region
     where all three curves are close.}
   \label{fig:bigpic}
 \end{figure}
-Figure~\ref{fig:bigpic} visualizes the relative errors of the three methods,
-where as in Figure~\ref{fig:zoomin-pic}, we zoom into the region where all
+In Figure~\ref{fig:zoomin-pic} below, we zoom into the region where all
+methods have about the same (good) accuracy. The region is the
+rectangle defined by the ranges of \code{a.} and \code{ra2}:
+In Figure~\ref{fig:zoomin-pic} below, we zoom into the region where all
 methods have about the same (good) accuracy. The region is the
 rectangle defined by the ranges of \code{a.} and \code{ra2}:
 <<zoomin-show, eval=FALSE>>=
 <<zoomin-comp>>
 @
-
-In addition, we want to smooth the two curves, using a method assuming
+In addition to zooming in Figure~\ref{fig:bigpic}, we want to smooth the
+two curves, using a method assuming
 approximately normal errors. Notice however that neither the original,
 nor the log-transformed values have approximately symmetric errors, so
 we use  \code{MASS::boxcox()} to determine the ``correct'' power transformation,
@@ -496,6 +502,7 @@ from (\ref{eq:Taylor-log1p}) that
 for $x\to\infty$.
 Using double precision arithmetic, a fast and accurate computational method
 is to use
+%% The following is experimentation, not strictly needed for paper
 <<uniroot-x1, echo=FALSE, results=hide>>=
 f1 <- function(x) { x <- log1p(exp(x)) - x ; x[x==0] <- -1 ; x }
 u1 <- uniroot(f1, c(5, 50), tol=1e-13)
