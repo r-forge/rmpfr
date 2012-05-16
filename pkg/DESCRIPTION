@@ -2,13 +2,13 @@ Package: Rmpfr
 Type: Package
 Title: R MPFR - Multiple Precision Floating-Point Reliable
 Version: 0.4-7
-Date: 2012-05-07
+Date: 2012-05-15
 Author: Martin Maechler
 Maintainer: Martin Maechler <maechler@stat.math.ethz.ch>
 SystemRequirements: gmp (>= 4.2.3), mpfr (>= 3.0.0)
 SystemReqsNotes: MPFR (MP Floating-Point Reliable Library, http://mpfr.org/)
   and GMP (GNU Multiple Precision library, http://gmplib.org/), see README
-Depends: methods, gmp (>= 0.5-2), R (>= 2.11.0)
+Depends: methods, gmp (>= 0.5-2), R (>= 2.12.0)
 Imports: gmp
 Suggests: MASS, polynom, sfsmisc
 SuggestNotes: MASS, polynom, sfsmisc are only needed for vignette
