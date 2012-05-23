@@ -1,6 +1,7 @@
 .*--
 .*_unneeded
 .*_not_yet
+.*mail
 _INSTALL
 .Rhistory
 svn-todo
@@ -10,6 +11,9 @@ trace-stuff.R
 inst/doc/auto
 inst/doc/MPFR_Fousse_etal.*
 inst/doc/Maechler.*
+inst/doc/20[12].*
+inst/doc/.*nb-m.*
+inst/doc/.*\.tex
 inst/doc/.*\.bbl
 inst/doc/.*\.blg
 Misc
