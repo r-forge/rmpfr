@@ -468,19 +468,20 @@ diff.mpfr <- function(x, lag = 1L, differences = 1L, ...)
     x
 }
 
-str.mpfr <- function(object, nest.lev, ...) {
+str.mpfr <- function(object, nest.lev, give.head=TRUE, ...) {
     ## utils:::str.default() gives  "Formal class 'mpfr' [package "Rmpfr"] with 1 slots"
     cl <- class(object)
     le <- length(object)
     if(isArr <- is(object, "mpfrArray")) di <- dim(object)
     r.pr <- range(pr <- getPrec(object))
     onePr <- r.pr[1] == r.pr[2]
-    cat("Class", " '", paste(cl, collapse = "', '"),
-	"' [package \"", attr(cl, "package"), "\"] of ",
-	if(isArr) paste("dimension", deparse(di, control=NULL))
-	else paste("length", le), "  and precision",
-	if(onePr) paste("", r.pr[1]) else paste0("s ", r.pr[1],"..",r.pr[2]),
-	"\n", sep = "")
+    if(give.head)
+	cat("Class", " '", paste(cl, collapse = "', '"),
+	    "' [package \"", attr(cl, "package"), "\"] of ",
+	    if(isArr) paste("dimension", deparse(di, control=NULL))
+	    else paste("length", le), "	 and precision",
+	    if(onePr) paste("", r.pr[1]) else paste0("s ", r.pr[1],"..",r.pr[2]),
+	    "\n", sep = "")
     if(missing(nest.lev)) nest.lev <- 0
     ## maybe add a formatNum() which adds "  " as give.head=TRUE suppresses all
     utils:::str.default(as.numeric(object),

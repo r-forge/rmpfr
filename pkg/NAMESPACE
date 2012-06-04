@@ -86,6 +86,7 @@ export(
        , "mpfrArray"
        , "mpfrVersion"
        , "mpfr_default_prec"
+       , "optimizeR"
        , "pmax", "pmin"
        , "pnorm"
        , "pochMpfr"
