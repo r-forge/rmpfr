@@ -8,8 +8,9 @@
 ## but there's also fibonacci search,  direct1d, ....
 optimizeR <- function(f, lower, upper, ..., tol = 1e-20,
 		      method = c("GoldenRatio"),
-		      extraBits = 30,
-		      precBits = -log2(tol) + extraBits, maxiter = 1000)
+		      precFactor = 2.0,
+		      precBits = -log2(tol) * precFactor, maxiter = 1000,
+                      trace = FALSE)
 {
     stopifnot(length(lower) == 1, length(upper) == 1, lower <= upper)
     fun <- match.fun(f)
@@ -29,6 +30,8 @@ optimizeR <- function(f, lower, upper, ..., tol = 1e-20,
 	n <- 0; convergence <- TRUE
 	while ((d.x <- x[3] - x[2]) > tol) {
 	    n <- n + 1
+	    if(trace && n %% trace == 0)
+		message(sprintf("it.:%4d, delta(x) = %12.8g", n, as.numeric(d.x)))
 	    if (y3 > y2) {
 		x[2:4] <- c(x[1]+phi*(x[3]-x[1]), x[2:3])
 		y3 <- y2
@@ -47,8 +50,8 @@ optimizeR <- function(f, lower, upper, ..., tol = 1e-20,
 	}
 	xm <- (x[2]+x[3])/2
 	fxm <- if (abs(f. <- f(xm)) <= tol^2) 0. else f.
-	list(min = xm, objective = fxm, iter = n,
-	     convergence = convergence, estim.prec=abs(d.x))
+	list(minimum = xm, objective = fxm, iter = n,
+	     convergence = convergence, estim.prec = abs(d.x))
     },
 	   stop(sprintf("Method '%s' is not implemented (yet)", method)))
 }

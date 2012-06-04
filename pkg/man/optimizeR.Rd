@@ -10,7 +10,8 @@
 \usage{
 optimizeR(f, lower, upper, ..., tol = 1e-20,
           method = c("GoldenRatio"),
-          extraBits = 30, precBits = -log2(tol) + extraBits, maxiter = 1000)
+          precFactor = 2.0, precBits = -log2(tol) * precFactor,
+          maxiter = 1000, trace = FALSE)
 }
 \arguments{
   \item{f}{the function to be minimized. \code{f(x)} must work
@@ -26,11 +27,14 @@ optimizeR(f, lower, upper, ..., tol = 1e-20,
     precision, i.e., \code{tol < 2e-16}.}
   \item{method}{\code{\link{character}} string specifying the
     optimization method.  Currently, only "GoldenRatio" is available.}
-  \item{extraBits}{only for default \code{precBits} construction: number
-    of extra bits in addition those directly needed for \code{tol}.}
+  \item{precFactor}{only for default \code{precBits} construction: a factor
+    to multiply with the number of bits directly needed for \code{tol}.}
   \item{precBits}{number of bits to be used for
     \code{\link[Rmpfr]{mpfr}} numbers used internally.}
   \item{maxiter}{maximal number of iterations to be used.}
+  \item{trace}{integer or logical indicating if and how iterations
+    should be monitored; if an integer \eqn{k}, print every \eqn{k}-th
+    iteration.}
 }
 \details{
   %%\describe{\item{\code{"GoldenRatio"}:}{..........}
@@ -60,11 +64,27 @@ optimizeR(f, lower, upper, ..., tol = 1e-20,
   \R's standard \code{\link{optimize}}; \pkg{Rmpfr}'s \code{\link{unirootR}}.
 }
 \examples{
-## Testing on the sine curve with 40 correct digits:
-sol <- optimizeR(sin, 2, 6, tol = 10^-40)
-str(sol)
+optimizeR(function(x) exp(-(x-5)^2/2), 0, 10) #->  5 of course
 
-print(rbind(2*sol$min/3, Const("pi", 256)),
-      digits=40)
+## Testing on the sine curve with 40 correct digits:
+sol <- optimizeR(sin, 2, 6, tol = 1e-40)
+str(sol)
+sol <- optimizeR(sin, 2, 6, tol = 1e-50,
+                 precFactor = 3.0, trace = 10)
+pi.. <- 2*sol$min/3
+print(pi.., digits=51)
+stopifnot(all.equal(pi.., Const("pi", 256), tol = 10*1e-50))
+
+## a hard one to get precisely:
+
+curve(exp(-1/(x-8)^2), -3, 13, n=1001)
+(opt. <- optimizeR(function(x) exp(-1/(x-8)^2), -3, 13))
+## -> close to 8 {but not very close!}
+ff <- function(x) exp(-1/(x-8)^2)
+ff(opt.$minimum) # gives 0
+## try harder ... in vain ..
+str(opt1 <- optimizeR(ff, -3,13, tol = 1e-60, precFactor = 4))
+print(opt1$minimum, digits=20)
+## still just  8.000036655...
 }
 \keyword{optimize}
