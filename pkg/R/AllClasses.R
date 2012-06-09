@@ -120,4 +120,3 @@ setValidity("mNumber",
                 ## else
                 "Not a valid 'mNumber' class object"
 		})
-

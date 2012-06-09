@@ -175,7 +175,7 @@ setMethod("unique", signature(x="mpfr", incomparables="missing"),
 setGeneric("pmin", signature = "...")# -> message about override ...
 setGeneric("pmax", signature = "...")
 
-setMethod("pmin", "Mnumber",
+setMethod("pmin", "mNumber",
 	  function(..., na.rm = FALSE) {
 	      args <- list(...)
 	      if(all(vapply(args, is.atomic, NA)))
@@ -216,7 +216,7 @@ setMethod("pmin", "Mnumber",
 	      r
 	  })
 
-setMethod("pmax", "Mnumber",
+setMethod("pmax", "mNumber",
 	  function(..., na.rm = FALSE) {
 	      args <- list(...)
 	      if(all(vapply(args, is.atomic, NA)))
