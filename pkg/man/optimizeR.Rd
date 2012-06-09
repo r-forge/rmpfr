@@ -9,16 +9,16 @@
 }
 \usage{
 optimizeR(f, lower, upper, ..., tol = 1e-20,
-          method = c("GoldenRatio"),
+          method = c("Brent", "GoldenRatio"),
+          maximum = FALSE,
           precFactor = 2.0, precBits = -log2(tol) * precFactor,
           maxiter = 1000, trace = FALSE)
 }
 \arguments{
-  \item{f}{the function to be minimized. \code{f(x)} must work
-    \dQuote{in \pkg{Rmpfr} arithmetic} for \code{optimizer()} to make sense.}
-    % optimized .. The function is
-    % either minimized or maximized over its first argument
-    % depending on the value of \code{maximum}.}
+  \item{f}{the function to be optimized. \code{f(x)} must work
+    \dQuote{in \pkg{Rmpfr} arithmetic} for \code{optimizer()} to make sense.
+    The function is either minimized or maximized over its first argument
+    depending on the value of \code{maximum}.}
   \item{\dots}{additional named or unnamed arguments to be passed
     to \code{f}.}
   \item{lower}{the lower end point of the interval to be searched.}
@@ -26,7 +26,9 @@ optimizeR(f, lower, upper, ..., tol = 1e-20,
   \item{tol}{the desired accuracy, typically higher than double
     precision, i.e., \code{tol < 2e-16}.}
   \item{method}{\code{\link{character}} string specifying the
-    optimization method.  Currently, only "GoldenRatio" is available.}
+    optimization method.}%
+  \item{maximum}{logical indicating if \eqn{f()} should be maximized or
+    minimized (the default).}
   \item{precFactor}{only for default \code{precBits} construction: a factor
     to multiply with the number of bits directly needed for \code{tol}.}
   \item{precBits}{number of bits to be used for
@@ -37,11 +39,21 @@ optimizeR(f, lower, upper, ..., tol = 1e-20,
     iteration.}
 }
 \details{
-  %%\describe{\item{\code{"GoldenRatio"}:}{..........}
-  Currently, there is method \code{"GoldenRatio"}, which from a given
-  interval containing the solution, constructs the next point in the
-  golden ratio between the interval boundaries.
-  %%}% end{describe}
+  \describe{
+    \item{\code{"Brent"}:}{Brent(1973)'s simple and robust algorithm
+      is a hybrid, using a combination of the golden ratio and local
+      quadratic (\dQuote{parabolic}) interpolation.  This is the same
+      algorithm as standard \R's \code{\link{optimize}()}, adapted to
+      high precision numbers.
+
+      In smooth cases, the convergence is considerably faster than the golden
+      section or Fibonacci ratio algorithms.
+    }
+    \item{\code{"GoldenRatio"}:}{The golden ratio method works as follows:
+      from a given interval containing the solution, it constructs the
+      next point in the golden ratio between the interval boundaries.
+    }
+  }% end{describe}
 }
 \value{
   A \code{\link{list}} with components \code{minimum} % (or \code{maximum})
@@ -64,13 +76,26 @@ optimizeR(f, lower, upper, ..., tol = 1e-20,
   \R's standard \code{\link{optimize}}; \pkg{Rmpfr}'s \code{\link{unirootR}}.
 }
 \examples{
-optimizeR(function(x) exp(-(x-5)^2/2), 0, 10) #->  5 of course
+iG5 <- function(x) -exp(-(x-5)^2/2)
+curve(iG5, 0, 10, 200)
+o.dp  <- optimize (iG5, c(0, 10)) #->  5 of course
+oM.gs <- optimizeR(iG5, 0, 10, method="Golden")
+oM.Br <- optimizeR(iG5, 0, 10, method="Brent", trace=TRUE)
+oM.gs$min ; oM.gs$iter
+oM.Br$min ; oM.Br$iter
+## more accuracy:
+oM.gs <- optimizeR(iG5, 0, 10, method="Golden", tol = 1e-70)
+oM.Br <- optimizeR(iG5, 0, 10,                  tol = 1e-70)
+rbind(Golden = c(err = as.numeric(oM.gs$min -5), iter = oM.gs$iter),
+      Brent  = c(err = as.numeric(oM.Br$min -5), iter = oM.Br$iter))
+
+## ==> Brent is orders of magnitude more efficient !
 
 ## Testing on the sine curve with 40 correct digits:
 sol <- optimizeR(sin, 2, 6, tol = 1e-40)
 str(sol)
 sol <- optimizeR(sin, 2, 6, tol = 1e-50,
-                 precFactor = 3.0, trace = 10)
+                 precFactor = 3.0, trace = TRUE)
 pi.. <- 2*sol$min/3
 print(pi.., digits=51)
 stopifnot(all.equal(pi.., Const("pi", 256), tol = 10*1e-50))
