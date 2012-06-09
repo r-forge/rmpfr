@@ -479,7 +479,7 @@ str.mpfr <- function(object, nest.lev, give.head=TRUE, ...) {
 	cat("Class", " '", paste(cl, collapse = "', '"),
 	    "' [package \"", attr(cl, "package"), "\"] of ",
 	    if(isArr) paste("dimension", deparse(di, control=NULL))
-	    else paste("length", le), "	 and precision",
+	    else paste("length", le), " and precision",
 	    if(onePr) paste("", r.pr[1]) else paste0("s ", r.pr[1],"..",r.pr[2]),
 	    "\n", sep = "")
     if(missing(nest.lev)) nest.lev <- 0
