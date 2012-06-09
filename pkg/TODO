@@ -1,5 +1,7 @@
 URGENT or "DO first" :
 
+xx) sumBinomMpfr()  accept  f.x
+
 17b)  see 'Ops' in R/Arith.R  and
      design a "test all Ops" with all combinations of "mpfr", "numeric","logical"
      (and possibly more).
