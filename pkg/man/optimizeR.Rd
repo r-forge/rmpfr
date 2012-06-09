@@ -56,19 +56,21 @@ optimizeR(f, lower, upper, ..., tol = 1e-20,
   }% end{describe}
 }
 \value{
-  A \code{\link{list}} with components \code{minimum} % (or \code{maximum})
-  and \code{objective} which give the location of the minimum % (or maximum)
+  A \code{\link{list}} with components \code{minimum} (or \code{maximum})
+  and \code{objective} which give the location of the minimum (or maximum)
   and the value of the function at that point;
   \code{iter} specifiying the number of iterations, the logical
   \code{convergence} indicating if the iterations converged and
-  \code{estim.prec} which is an estimate of the final precision (in \eqn{x}).
+  \code{estim.prec} which is an estimate or an upper bound of the final
+  precision (in \eqn{x}).
+  \code{method} the string of the method used.
 }
-
 % \references{
 % }
 \author{
-  Based on Hans W Borchert's \code{\link[pracma]{golden_ratio}};
-  modifications by Martin Maechler.
+  \code{"GoldenRatio"} is based on Hans W Borchert's
+  \code{\link[pracma]{golden_ratio}};
+  modifications and \code{"Brent"} by Martin Maechler.
 }
 % \note{
 % }
@@ -106,9 +108,16 @@ curve(f.sq, 0, 4.5, n=1000)
 msq <- optimizeR(f.sq, 0, 5, tol = 1e-50, trace=5)
 str(msq) # ok
 stopifnot(abs(msq$minimum - 2) < 1e-49)
+
 ## find the other local minimum: -- non-smooth ==> Golden-section is used
 msq2 <- optimizeR(f.sq, 3.5, 5, tol = 1e-50, trace=10)
 stopifnot(abs(msq2$minimum - 4) < 1e-49)
+
+## and a local maximum:
+msq3 <- optimizeR(f.sq, 3, 4, maximum=TRUE, trace=2)
+stopifnot(abs(msq3$maximum - 3.57) < 1e-2)
+
+
 
 
 ##----- "impossible" one to get precisely ------------------------

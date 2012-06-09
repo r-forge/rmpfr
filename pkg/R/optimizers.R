@@ -164,6 +164,7 @@ optimizeR <- function(f, lower, upper, ..., tol = 1e-20,
 
 	   stop(sprintf("Method '%s' is not implemented (yet)", method)))
 
-    list(minimum = xm, objective = fxm, iter = n,
-	 convergence = convergence, estim.prec = abs(d.x))
+    c(if(maximum)list(maximum = xm) else list(minimum = xm),
+      list(objective = fxm, iter = n,
+	   convergence = convergence, estim.prec = abs(d.x), method=method))
 }
