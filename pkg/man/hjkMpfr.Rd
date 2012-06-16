@@ -4,7 +4,7 @@
 \description{
   An implementation of the Hooke-Jeeves algorithm for derivative-free
   optimization.
-  %% TODO:  hjkb() A bounded and an unbounded version are provided.
+  %% TODO:  hjkb() A bounded and an unbounded version are provided. --> ~/R/Pkgs/dfoptim/R/
 
   This is a slight adaption \code{\link[dfoptim]{hjk}()} from package
   \pkg{dfoptim}
@@ -84,16 +84,24 @@ hjkMpfr(par, fn, control = list(), ...)
   methods that work with \code{\linkS4class{mpfr}}-class numbers.
 }
 \examples{
-## Hooke-Jeeves solves high-dim. Rosenbrock function:
+## simple smooth example:
+ff <- function(x) sum((x - c(2:4))^2)
+str(rr <- hjkMpfr(rep(mpfr(0,128), 3), ff, control=list(info=TRUE)))
+
+
+## Hooke-Jeeves solves high-dim. Rosenbrock function  {but slowly!}
 rosenbrock <- function(x) {
     n <- length(x)
     sum (100*((x1 <- x[1:(n-1)])^2 - x[2:n])^2 + (x1 - 1)^2)
 }
+
 par0 <- rep(0, 10)
 str(rb.db <- hjkMpfr(rep(0, 10), rosenbrock, control=list(info=TRUE)))
+\donttest{
 ## rosenbrook() is quite slow with mpfr-numbers:
 str(rb.M. <- hjkMpfr(mpfr(numeric(10), prec=128), rosenbrock,
                      control = list(tol = 1e-8, info=TRUE)))
+}
 
 %% Once we have it: *bounded* version:
 %% hjkbMpfr(c(0, 0, 0), rosenbrock, upper = 0.5)
@@ -107,9 +115,10 @@ nsf <- function(x) {
 }
 par0 <- c(1, 1) # true min 7.2 at (1.2, 2.4)
 h.d <- hjkMpfr(par0,            nsf) # fmin=8 at xmin=(2,2)
-## and this is not at all better:
+\donttest{
+## and this is not at all better (but slower!)
 h.M <- hjkMpfr(mpfr(c(1,1), 128), nsf, control = list(tol = 1e-15))
-
+}
 %% --> ../demo/hjkMpfr.R :
 ## --> demo(hjkMpfr) # -> Fletcher's chebyquad function m = n -- residuals
 }
