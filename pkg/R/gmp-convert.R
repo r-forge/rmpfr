@@ -27,7 +27,7 @@ if(!is.na(r <- suppressWarnings(packageDescription("gmp",
 {
     b <- 16L
     cx <- .Call(gmp:::biginteger_as_character, x, b)
-    if(is.null(precB)) precB <- 4L*nchar(cx
+    if(is.null(precB)) precB <- 4L*nchar(cx)
     new("mpfr", .Call(str2mpfr1_list, cx, precB, b, "N"))
 }
 setAs("bigz", "mpfr", function(from) ..bigz2mpfr(from))
@@ -48,8 +48,8 @@ as.bigz.mpfr <-
 
 ## Fast, no-checking (and not exported) version:
 ..bigq2mpfr <- function(x, precB = NULL) {
-    N <- numerator(from)
-    D <- denominator(from)
+    N <- numerator(x)
+    D <- denominator(x)
     if(is.null(precB)) {
         eN <- frexpZ(N)$exp
         eD <- frexpZ(D)$exp
@@ -62,7 +62,7 @@ as.bigz.mpfr <-
     stopifnot(inherits(x, "bigq"))
     ..bigq2mpfr(x, precB)
 }
-setAs("bigq", "mpfr", function(from) .bigq2mpfr(from))
+setAs("bigq", "mpfr", function(from) ..bigq2mpfr(from))
 
 
 }# only if gmp ..
