@@ -15,6 +15,15 @@ mpfr <- function(x, precBits, base = 10, rnd.mode = c('N','D','U','Z'))
     rnd.mode <- toupper(rnd.mode)
     rnd.mode <- match.arg(rnd.mode)
 
+    if(is.raw(x)) { # is.raw() is faster
+	if(inherits(x, "bigz")) {
+	    warning("mpfr(<bigz>) --> .bigz2mpfr()")
+	    return(..bigz2mpfr(x, precBits))
+	} else if(inherits(x, "bigq")) {
+	    warning("mpfr(<bigq>) --> .bigq2mpfr()")
+	    return(..bigq2mpfr(x, precBits))
+	}
+    }
     ml <-
 	if(is.numeric(x) || is.logical(x) || is.raw(x))
 	    .Call(d2mpfr1_list, x, precBits, rnd.mode)
