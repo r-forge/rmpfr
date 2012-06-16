@@ -10,7 +10,7 @@ SystemReqsNotes: MPFR (MP Floating-Point Reliable Library, http://mpfr.org/)
   and GMP (GNU Multiple Precision library, http://gmplib.org/), see README
 Depends: methods, gmp (>= 0.5-2), R (>= 2.12.0)
 Imports: gmp, stats, utils
-Suggests: MASS, polynom, sfsmisc
+Suggests: MASS, polynom, sfsmisc (>= 1.0-20)
 SuggestNotes: MASS, polynom, sfsmisc are only needed for vignette
 URL: http://rmpfr.r-forge.r-project.org/
 Description: Rmpfr provides S4 classes and methods for
