@@ -397,8 +397,17 @@ getPrec <- function(x, base = 10, doNumeric = TRUE, is.mpfr = NA) {
 	ceiling(log2(base) * nchar(gsub("[-.]", '', x)))
     else if(is.logical(x))
 	2L # even 1 would suffice - but need 2 (in C ?)
-    else if(is.raw(x))
-	8L
+    else if(is.raw(x)) {
+	if(is.object(x)) { ## Now deal with 'bigz' and 'bigq'
+	    if(inherits(x,"bigz"))
+		frexpZ(x)$exp
+	    else if(inherits(x,"bigq")) {
+		warning("default precision for 'bigq' arbitrarily chosen as 128")
+		128L
+	    }
+	    else 8L
+	} else 8L
+    }
     else {
 	if(!doNumeric) stop("must specify 'precBits' for numeric 'x'")
 	## else

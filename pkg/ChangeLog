@@ -1,5 +1,9 @@
 2012-06-16  Martin Maechler  <maechler@stat.math.ethz.ch>
 
+	* DESCRIPTION (Version): 0.5-0, released to CRAN, ...
+
+	* R/as.R (mpfr): <bigz> or <bigq> arguments now "work" (with a warning).
+
 	* R/gmp-convert.R (.bigz2mpfr, .bigq2mpfr): new optional argument
 	\code{precB}, typically for increasing the default precision.
 
