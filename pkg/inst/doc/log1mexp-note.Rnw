@@ -352,7 +352,7 @@ ll <- c(.7, 1.5, 2)
 <<bigpict-def, eval=FALSE>>=
 matplot(a.s, abs(ra.s), type = "l", log = "xy",
         col=cc, lty=lt, lwd=ll, xlab = "a", ylab = "", axes=FALSE)
-legend("top", leg, col=cc, lty=lt, lwd=ll, bty="n")
+legend("topright", leg, col=cc, lty=lt, lwd=ll, bty="n")
 draw.machEps <- function(alpha.f = 1/3, col = adjustcolor("black", alpha.f)) {
     abline(h = .Machine$double.eps, col=col, lty=3)
     axis(4, at=.Machine$double.eps, label=quote(epsilon[c]), las=1, col.axis=col)
@@ -487,12 +487,15 @@ Related to $\mathrm{log1mexp}(a)=\log(1 - e^{-a})$ is the
 log survival function of the logistic distribution % (see above)%: defined F_L
 $\log(1 - F_L(x)) = \log\frac{1}{1+e^x} = -\log(1 + e^x)$,
 \begin{align}
-  \label{eq:log1pexp}
+  \label{eq:def-log1pexp}
   g(x) := \log(1 + e^x) = \loglp(e^x),
 \end{align}
 (with a ``$+"$'' instead of a ``$-$'') which is easier to analyze and compute,
 its only problem being large $x$'s where $e^x$ % = \exp x$
-overflows numerically.
+overflows numerically\footnote{Indeed, $\log(1 - F_L(x)) = -g(x)$, for $x=800$,
+  \code{plogis(800, lower=FALSE, log.p=TRUE)},
+  underflowed to \code{-Inf} in \R, up to version 2.15.1 (June 2012) where
+  (\ref{eq:log1pexp}) is used.}
 As $g(x)= \log(1 + e^x) = \log(e^x(e^{-x} + 1)) = x + \log(1 + e^{-x})$, we see
 from (\ref{eq:Taylor-log1p}) that
 \begin{align}
@@ -509,30 +512,31 @@ is to use
 f1 <- function(x) { x <- log1p(exp(x)) - x ; x[x==0] <- -1 ; x }
 u1 <- uniroot(f1, c(5, 50), tol=1e-13)
 str(u1, digits=10)
-x1 <- u1[["root"]]
+x1 <- u1[["root"]] ## 33.27835
 ## Not used here: find x2, such that  x + exp(-x) =.= g(x) for x > x2
 f2 <- function(x) { x <- (x + exp(-x)) - log1p(exp(x))
                    x[x==0] <- -1 ; x }
 u2 <- uniroot(f2, c(1, 20), tol=1e-13)
 str(u2, digits=10)
-x2 <- u2[["root"]]
+x2 <- u2[["root"]] ## 16.408226
 ## but really the above is still ``non sense'': look at
 curve(log1p(exp(x)) - x,       33.1, 33.5, n=2^10) # for x1
 curve(x+exp(-x) - log1p(exp(x)), 15, 25,   n=2^11) # for x2
 @
 \begin{align}
   \label{eq:log1pexp}
-  g(x) = \mathrm{log1pexp}(x) :=
+  \hat{g}(x) = \mathrm{log1pexp}(x) :=
   \begin{cases}
-    \loglp(\exp(x))     & x <   x_1 := 33.3, \\
-    x                   & x \ge x_1,
+    \loglp(\exp(x))     & x \le  x_1 := 18, \\
+    x + \exp(-x))       & x_1 < x \le x_2 := 33.3, \\
+    x                   & x > x_2,
   \end{cases}
 \end{align}
-where $x_1$ can be replaced by a larger number such as $34$ (and even
+where $x_2$ could be replaced by a larger number such as $34$ (and even
 $100$, but not $800$\footnote{The \R{} plot
   \code{curve(log1p(exp(x)) - x, 33.1, 33.5, n=2\^{}10)}
   reveals a somewhat fuzzy cutoff $x_1$}).
-%%----- Ok, still do a little analysis --- invisibly mostly (eval=FALSE) here
+%%----- Ok, still do a little analysis --- invisibly mostly (echo=FALSE) here
 <<def-test-pfuns, echo=FALSE>>=
 t4p.l1e <- function(x)
 {
@@ -553,18 +557,22 @@ relE.pl1e <- function(x, precBits = 1024) {
     structure(as.numeric(1 - dx/mMx), names = names(dx))
 }
 @
+Figure~\ref{fig:log1pexp} visualizes the relative errors of the careless
+``default'', $\log\bigl(1 + e^{x}\bigr)$, its straightforward correction
+$\log1p\bigl(e^x\bigr)$, the intermediate approximation $x + e^{-x}$, and
+the large $x$ ($ = x$), i.e., the methods in (\ref{eq:log1pexp}),
+depicting that the (easy to remember) cutoffs $x_1$ and $x_2$ in
+(\ref{eq:log1pexp}) are valid.
 
-%%                      vvvvvvvvvv not currently
-<<comp-big, echo=FALSE, eval=FALSE>>=
+<<comp-big, echo=FALSE>>=
 x.s <- seq(-100, 750, by = 5)  # <- the big picture
 x.s <- seq( 5, 60, length=512) # <- the zoom in
 rx.s <- t(sapply(x.s, relE.pl1e))
 @
 
-% \begin{figure}[hbt!]
-% \centering
-%                                                        vvvvvvvvvv not currently
-<<bigpict-2-fig, fig=TRUE, echo=FALSE, height=5,width=7, eval=FALSE>>=
+\begin{figure}[hbt!]
+  \centering
+<<bigpict-2-fig, fig=TRUE, echo=FALSE, height=5,width=7>>=
 par(mar = c(4.1,4.1,0.6,1.6))
 cc <- adjustcolor(c(4,1,2,5),.8, red.f=.7)
 lt <- c("solid","33","3262","dotdash")
@@ -573,23 +581,22 @@ ym <- 1e-18
 yM <- 1e-13
 matplot(x.s, pmax(pmin(abs(rx.s),yM),ym), type = "l", log = "y", axes=FALSE,
         ylim = c(ym,yM), col=cc, lty=lt, lwd=ll, xlab = "x", ylab = "")
-legend("top", leg, col=cc, lty=lt, lwd=ll, bty="n")
+legend("topright", leg, col=cc, lty=lt, lwd=ll, bty="n")
 eaxis(1, at=pretty(range(x.s), n =12)); eaxis(2)
-draw.machEps(0.4); abline(v=0, col=adjustcolor("brown", 0.6), lty=3)
+draw.machEps(0.4)
+x12 <- c(18, 33.3)
+abline(v=x12, col=(ct <- adjustcolor("brown", 0.6)), lty=3)
+axis(1, at=x12, labels=formatC(x12), padj = -3.2, hadj = -.1, tcl = +.8,
+     col=ct, col.axis=ct, col.ticks=ct)
 @
 % increasing width --> effective LaTeX *height* will decrease
-% \setcapwidth{\textwidth}%
-%   \caption{Absolute relative errors (with respect to 1024 bit \pkg{Rmpfr}
-%     computation) of the default, $\log(1 - e^{-a})$, and the two methods
-%     ``\code{expm1}'' $\log(-\expml(-a))$ and ``\code{log1p}'' $\loglp(-\exp(-a))$.
-%     Note that the default basically gives the maximum of the two methods' errors,
-%     whereas the final \code{log1mexp()} function will have the minimum
-%     (approximately) of the two. \ \
-%     Figure~\ref{fig:zoomin-pic} will be a zoom into the gray rectangular region
-%     where all three curves are close.}
-%   \label{fig:log1pexp}
-% \end{figure}
-% Figure~\ref{fig:log1pexp} visualizes the relative errors of the methods,
+\setcapwidth{\textwidth}%
+  \caption{Absolute relative errors (with respect to 1024 bit \pkg{Rmpfr}
+    computation) of four different ways to numerically compute
+    $\log\bigl(1 + e^{x}\bigr)$.  Vertical bars at $x_1 = 18$ and $x_2 =
+    33.3$ visualize the cutpoints of (\ref{eq:log1pexp}).}
+  \label{fig:log1pexp}
+\end{figure}
 
 
 \section{Conclusion}
@@ -602,7 +609,7 @@ In passing, we have also shown that accurate computation of $g(x) =
 \subsection*{Session Information}
 
 <<sessionInfo, results=tex>>=
-toLatex(sessionInfo())
+toLatex(sessionInfo(), locale=FALSE)
 <<finalizing, echo=FALSE>>=
 options(op.orig)
 @
