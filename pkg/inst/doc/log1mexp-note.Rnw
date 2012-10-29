@@ -1,9 +1,10 @@
-\documentclass[article,nojss]{jss}
+\documentclass[article]{jss}
+%% \documentclass[article,nojss]{jss}
 %% NOTA BENE: More definitions --> further down
 %%%%%%%%%%%%
 %
 \author{Martin M\"achler \\ ETH Zurich%
-\\ April 2012 {\tiny (\LaTeX'ed \today)}%---- for now
+\\ April, Oct.\ 2012 {\tiny (\LaTeX'ed \today)}%---- for now
 }
 \title{Accurately Computing $\log(1 - \exp(-\abs{a}))$ \\
   Assessed by the \pkg{Rmpfr} package}
@@ -495,7 +496,7 @@ its only problem being large $x$'s where $e^x$ % = \exp x$
 overflows numerically\footnote{Indeed, $\log(1 - F_L(x)) = -g(x)$, for $x=800$,
   \code{plogis(800, lower=FALSE, log.p=TRUE)},
   underflowed to \code{-Inf} in \R, up to version 2.15.1 (June 2012) where
-  (\ref{eq:log1pexp}) is used.}
+  (\ref{eq:log1pexp}) has been used.}
 As $g(x)= \log(1 + e^x) = \log(e^x(e^{-x} + 1)) = x + \log(1 + e^{-x})$, we see
 from (\ref{eq:Taylor-log1p}) that
 \begin{align}
@@ -563,16 +564,14 @@ $\log1p\bigl(e^x\bigr)$, the intermediate approximation $x + e^{-x}$, and
 the large $x$ ($ = x$), i.e., the methods in (\ref{eq:log1pexp}),
 depicting that the (easy to remember) cutoffs $x_1$ and $x_2$ in
 (\ref{eq:log1pexp}) are valid.
-
 <<comp-big, echo=FALSE>>=
 x.s <- seq(-100, 750, by = 5)  # <- the big picture
 x.s <- seq( 5, 60, length=512) # <- the zoom in
 rx.s <- t(sapply(x.s, relE.pl1e))
 @
-
-\begin{figure}[hbt!]
+\begin{figure}[hb!]
   \centering
-<<bigpict-2-fig, fig=TRUE, echo=FALSE, height=5,width=7>>=
+<<bigpict-2-fig, fig=TRUE, echo=FALSE, height=4.0,width=7>>=
 par(mar = c(4.1,4.1,0.6,1.6))
 cc <- adjustcolor(c(4,1,2,5),.8, red.f=.7)
 lt <- c("solid","33","3262","dotdash")
