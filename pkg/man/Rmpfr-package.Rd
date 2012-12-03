@@ -87,7 +87,9 @@ Further information is available in the following vignettes:
   and see the vignettes mentioned above.
 }
 \seealso{
-  The \R package \code{\link[gmp:gmp-package]{gmp}} on which \pkg{Rmpfr} now depends.
+  The \R package \code{\link[gmp:biginteger]{gmp}} for big integer and
+  rational numbers (\code{\link[gmp]{bigrational}}) on which \pkg{Rmpfr}
+  now depends.
 }
 \examples{
 ## Using  "mpfr" numbers instead of regular numbers...
