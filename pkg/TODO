@@ -2,10 +2,6 @@ URGENT or "DO first" :
 
 xx) sumBinomMpfr()  accept  f.x
 
-17a) Write a 'Rmpfr-package' help page that mentions that we have *many*
-     Math etc functions, including  gamma, digamma, ....  {which are not
-     quickly visible on the help pages now}.
-
 17b)  see 'Ops' in R/Arith.R  ,  Rmpfr:::.Math.codes,  and
      design a "test all Ops" with all combinations of "mpfr", "numeric","logical"
      (and possibly more).
