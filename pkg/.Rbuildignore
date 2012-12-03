@@ -1,3 +1,6 @@
+cyqlong.R
+trace-stuff.R
+Savicky.*
 .*--
 .*_unneeded
 .*_not_yet
@@ -6,13 +9,11 @@ _INSTALL
 .Rhistory
 svn-todo
 svn-log.*
-Savicky.*
-trace-stuff.R
 inst/doc/auto
 inst/doc/MPFR_Fousse_etal.*
 inst/doc/Maechler.*
 inst/doc/20[12].*
-inst/doc/.*nb-m.*
+inst/doc/.*(lynne|nb-m).*
 inst/doc/.*\.tex
 inst/doc/.*\.bbl
 inst/doc/.*\.blg
