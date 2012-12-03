@@ -27,7 +27,8 @@
   \code{expm1(x)} ($=\exp(x)-1 = e^x - 1$).
   The cutoff, $a_0$, in use in \R{} since % version 1.9.0, April
   2004, is shown to be optimal both theoretically and empirically, using
-  \pkg{Rmpfr} high precision arithmetic.
+  \pkg{Rmpfr} high precision arithmetic. As an aside, we also show how to
+  compute $\log\bigl(1 + e^x \bigr)$ accurately and efficiently.
 }
 \Keywords{Accuracy, Cancellation Error, R, MPFR, Rmpfr}
 %% at least one keyword must be supplied
@@ -248,7 +249,7 @@ $\tilde p := \log p$, hence $\tilde p \le 0$, we need
 and the last term is exactly the topic of this note.
 
 \section{log1p() and expm1() for log(1 - exp(x))}
-Contrary to what one would expec, for computing
+Contrary to what one would expect, for computing
 $\log\left(1 - e^x \right) = \log(1 - \exp(x))$ for $x < 0$, neither
 \begin{align}
   \label{eq:f.expm1}
@@ -495,8 +496,8 @@ $\log(1 - F_L(x)) = \log\frac{1}{1+e^x} = -\log(1 + e^x)$,
 its only problem being large $x$'s where $e^x$ % = \exp x$
 overflows numerically\footnote{Indeed, $\log(1 - F_L(x)) = -g(x)$, for $x=800$,
   \code{plogis(800, lower=FALSE, log.p=TRUE)},
-  underflowed to \code{-Inf} in \R, up to version 2.15.1 (June 2012) where
-  (\ref{eq:log1pexp}) has been used.}
+  underflowed to \code{-Inf} in \R, before version 2.15.1 (June 2012) from
+  when on (\ref{eq:log1pexp}) has been used.}
 As $g(x)= \log(1 + e^x) = \log(e^x(e^{-x} + 1)) = x + \log(1 + e^{-x})$, we see
 from (\ref{eq:Taylor-log1p}) that
 \begin{align}
@@ -604,6 +605,9 @@ empirically verify that computing $f(a) = \log\left(1 - e^{-a}\right)$ is
 accomplished best via equation (\ref{eq:log1mexp}).
 In passing, we have also shown that accurate computation of $g(x) =
 \log(1+e^x)$ can be achieved via (\ref{eq:log1pexp}).
+Note that a version of this note is available as vignette (in
+\texttt{Sweave}, i.e., with complete \R{} source)
+from the \pkg{Rmpfr} package vignettes.
 
 \subsection*{Session Information}
 
