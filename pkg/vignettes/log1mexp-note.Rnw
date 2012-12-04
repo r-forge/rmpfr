@@ -389,9 +389,6 @@ rect(min(a.), yl[1], max(a.), yl[2],
 In Figure~\ref{fig:zoomin-pic} below, we zoom into the region where all
 methods have about the same (good) accuracy. The region is the
 rectangle defined by the ranges of \code{a.} and \code{ra2}:
-In Figure~\ref{fig:zoomin-pic} below, we zoom into the region where all
-methods have about the same (good) accuracy. The region is the
-rectangle defined by the ranges of \code{a.} and \code{ra2}:
 <<zoomin-show, eval=FALSE>>=
 <<zoomin-comp>>
 @
