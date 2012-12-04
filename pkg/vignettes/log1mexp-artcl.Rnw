@@ -1,4 +1,5 @@
-\documentclass[article,nojss]{jss}
+\documentclass[article]{jss}
+%% \documentclass[article,nojss]{jss}
 %% NOTA BENE: More definitions --> further down
 %%%%%%%%%%%%
 %
@@ -6,7 +7,7 @@
 \\ April, Oct.\ 2012 {\tiny (\LaTeX'ed \today)}%---- for now
 }
 \title{Accurately Computing $\log(1 - \exp(-\abs{a}))$ \\
-  Assessed by the \pkg{Rmpfr} package}
+  (using \R{} package \pkg{Rmpfr})}
 %% for pretty printing and a nice hypersummary also set:
 \Plainauthor{Martin M\"achler} %% comma-separated
 \Plaintitle{Accurately Computing log(1 - exp(.)) -- Assessed by Rmpfr}
@@ -92,7 +93,7 @@
 %To kill all extra spacing between the environments, use {0pt} in all these
 %MM: When all three(!) are {0pt}, there's a large gap *after* Schunk (nothing in %between)
 %--  and that (end gap) get's smaller when I set all to {1pt} -- logic??
-%___TODO: Set of experiments (with smaller Sweave file)___
+%___TODO/FIXME: Set of experiments (with smaller Sweave file)___
 \setlength{\FVtopsep}{1pt}
 \setlength{\FVpartopsep}{1pt}
 \setlength{\FVparskip}{\parskip}% default: \parskip
@@ -304,38 +305,33 @@ where the last one, \code{relE.l1e()} computes the relative error of three
 different ways to compute  $\log(1 - \exp(-a))$ for positive $a$
 (instead of computing   $\log(1 - \exp(x))$ for negative $x$).
 
-%% TODO? "cache = TRUE": ---
-<<comp-big,eval=FALSE, echo=FALSE>>=
+As can be seen (see \cite{MaeM12-Rmpfr-log1mexp}),
+%% FIXME "cache = TRUE": ---
+<<comp-big, echo=FALSE>>=
 a.s <- 2^seq(-55, 10, length = 256)
 ra.s <- t(sapply(a.s, relE.l1e))
-<<bigpic-show, eval=FALSE>>=
-<<comp-big>>
-cbind(a.s, ra.s) # comparison of the three approaches
-<<bigpic-do, echo=FALSE>>=
-<<comp-big>>
-capture.and.write(cbind(a.s, ra.s), 8, last = 6)
 @
-This is revealing: Neither method, log1p or expm1, is uniformly good enough.
-Note that for large $a$, the relative errors evaluate to \code{1}. This
-is because all three double precision methods give 0, \emph{and} that is
-the best approximation in double precision (but not in higher \code{mpfr}
-precision), hence no problem at all, and we can restrict ourselves to
-smaller $a$ (smaller than about 710, here).% < \approx 710$, here.
+%This is revealing: N%
+neither method, log1p or expm1, is uniformly good enough, and for
+for very large $a$, all three double precision methods give 0, \emph{and} that is
+the best approximation in double precision and we can restrict ourselves to
+smaller $a$, i.e., smaller than about 710.% < \approx 710$, here.
 <<drop-large-a, echo=FALSE>>=
 ii <- a.s < 710
 a.s  <-  a.s[ii]
 ra.s <- ra.s[ii, ]
 @
 
-What about really small $a$'s?
-<<a.small>>=
-t3.l1e(1e-20)
-as.numeric(t3.l1e(mpfr(1e-20, 256)))
-@
+Further note that for really small $a$'s,
+%% <<a.small>>=
+%% t3.l1e(1e-20)
+%% as.numeric(t3.l1e(mpfr(1e-20, 256)))
+%% @
 % ##    expm1      def    log1p
 % ## -46.0517     -Inf     -Inf
 % as.numeric():
 % ## [1] -46.0517 -46.0517 -46.0517
+both the default and the \code{log1p} method return \code{-Inf},
 so, indeed,  the \code{expm1} method is absolutely needed here.
 
 Figure~\ref{fig:bigpic} visualizes the relative errors of the three methods.
@@ -350,7 +346,7 @@ lt <- c("solid","33","3262")
 ll <- c(.7, 1.5, 2)
 @
 %% main = "|relative errors| of three methods for log(1 - exp(-a))"
-<<bigpict-def, eval=FALSE>>=
+<<bigpict-def, eval=FALSE, echo=FALSE>>=
 matplot(a.s, abs(ra.s), type = "l", log = "xy",
         col=cc, lty=lt, lwd=ll, xlab = "a", ylab = "", axes=FALSE)
 legend("topright", leg, col=cc, lty=lt, lwd=ll, bty="n")
@@ -360,7 +356,7 @@ draw.machEps <- function(alpha.f = 1/3, col = adjustcolor("black", alpha.f)) {
 }
 eaxis(1); eaxis(2); draw.machEps(0.4)
 @
-%% TODO? "cache = TRUE":  echo=FALSE: do not show already, but need (a.,ra2)
+%% FIXME "cache = TRUE":  echo=FALSE: do not show already, but need (a.,ra2)
 <<zoomin-comp, echo=FALSE>>=
 a. <- (1:400)/256
 ra <- t(sapply(a., relE.l1e))
@@ -386,17 +382,18 @@ rect(min(a.), yl[1], max(a.), yl[2],
   \label{fig:bigpic}
 \end{figure}
 In Figure~\ref{fig:zoomin-pic} below, we zoom into the region where all
-methods have about the same (good) accuracy. The region is the
-rectangle defined by the ranges of \code{a.} and \code{ra2}:
-<<zoomin-show, eval=FALSE>>=
-<<zoomin-comp>>
-@
+methods have about the same (good) accuracy.
+%% The region is the
+%% rectangle defined by the ranges of \code{a.} and \code{ra2}:
+%% <<zoomin-show, eval=FALSE>>=
+%% <<zoomin-comp>>
+%% @
 In addition to zooming in Figure~\ref{fig:bigpic}, we want to smooth the
 two curves, using a method assuming
 approximately normal errors. Notice however that neither the original,
 nor the log-transformed values have approximately symmetric errors, so
-we use  \code{MASS::boxcox()} to determine the ``correct'' power transformation,
-<<boxcox>>=
+we use  \code{MASS::boxcox()} to determine the ``correct'' power transformation.
+<<boxcox, echo=FALSE, results=hide>>=
 da <- cbind(a = a., as.data.frame(ra2))
 library(MASS)
 bc1 <- boxcox(abs(expm1) ~ a, data = da, lambda = seq(0,1, by=.01), plotit=.plot.BC)
@@ -407,10 +404,10 @@ c(with(bc1, x[which.max(y)]),
 s1 <- with(da, smooth.spline(a, abs(expm1)^(1/3), df = 9))
 s2 <- with(da, smooth.spline(a, abs(log1p)^(1/3), df = 9))
 @
-and now plot a ``zoom--in'' of Figure~\ref{fig:bigpic}. This
-already suggests that the cutoff, $a_0 = \log 2$ is empirically very close to
-optimal.
-<<zoom-in-def-1, eval=FALSE>>=
+The optimal boxcox exponent turns out to be close to $\frac 1 3$,
+Then, the crossover point of the two curves already suggests that the
+cutoff, $a_0 = \log 2$ is empirically very close to optimal.
+<<zoom-in-def-1, eval=FALSE, echo=FALSE>>=
 matplot(a., abs(ra2), type = "l", log = "y", # ylim = c(-1,1)*1e-12,
         col=cc[-1], lwd=ll[-1], lty=lt[-1],
         ylim = yl, xlab = "a", ylab = "", axes=FALSE)
@@ -601,22 +598,18 @@ empirically verify that computing $f(a) = \log\left(1 - e^{-a}\right)$ is
 accomplished best via equation (\ref{eq:log1mexp}).
 In passing, we have also shown that accurate computation of $g(x) =
 \log(1+e^x)$ can be achieved via (\ref{eq:log1pexp}).
-%
-Note that
-%% FIXME: 
-%% a short version of this note has been published ....
-%% \cite{....}
-a version of this note is available as vignette (in
-\texttt{Sweave}, i.e., with complete \R{} source)
-from the \pkg{Rmpfr} package vignettes.
+Note that an extended version of this paper is available as
+vignette (in \texttt{Sweave}, i.e., with complete \R{} source,
+in \R{} package \pkg{Rmpfr}, as \citet{MaeM12-Rmpfr-log1mexp}.
 
-\subsection*{Session Information}
+%% \subsection*{Session Information}
 
-<<sessionInfo, results=tex>>=
+<<sessionInfo, results=hide, echo=FALSE>>=
 toLatex(sessionInfo(), locale=FALSE)
 <<finalizing, echo=FALSE>>=
 options(op.orig)
 @
+%\clearpage
 
 \bibliography{log1mexp}
 
