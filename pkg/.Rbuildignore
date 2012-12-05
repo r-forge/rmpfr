@@ -9,6 +9,7 @@ _INSTALL
 .Rhistory
 svn-todo
 svn-log.*
+vignettes/log1mexp-artcl.*
 inst/doc/auto
 inst/doc/MPFR_Fousse_etal.*
 inst/doc/Maechler.*
