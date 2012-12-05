@@ -353,7 +353,7 @@ ll <- c(.7, 1.5, 2)
 <<bigpict-def, eval=FALSE>>=
 matplot(a.s, abs(ra.s), type = "l", log = "xy",
         col=cc, lty=lt, lwd=ll, xlab = "a", ylab = "", axes=FALSE)
-legend("topright", leg, col=cc, lty=lt, lwd=ll, bty="n")
+legend("top", leg, col=cc, lty=lt, lwd=ll, bty="n")
 draw.machEps <- function(alpha.f = 1/3, col = adjustcolor("black", alpha.f)) {
     abline(h = .Machine$double.eps, col=col, lty=3)
     axis(4, at=.Machine$double.eps, label=quote(epsilon[c]), las=1, col.axis=col)
@@ -603,7 +603,7 @@ In passing, we have also shown that accurate computation of $g(x) =
 \log(1+e^x)$ can be achieved via (\ref{eq:log1pexp}).
 %
 Note that
-%% FIXME: 
+%% FIXME:
 %% a short version of this note has been published ....
 %% \cite{....}
 a version of this note is available as vignette (in
