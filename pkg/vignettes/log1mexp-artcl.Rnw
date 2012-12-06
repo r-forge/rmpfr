@@ -15,7 +15,7 @@
 %\VignetteIndexEntry{Acccurately Computing log(1 - exp(.)) -- Assessed by Rmpfr}
 %\VignetteDepends{Rmpfr}
 %\VignetteDepends{sfsmisc}
-\SweaveOpts{engine=R,strip.white=true, width=7, height=5}
+\SweaveOpts{engine=R,strip.white=true, width=8.5, height=6}
 \SweaveOpts{pdf=FALSE, eps=FALSE, grdevice = pdfaCrop}
 %      defined in R "<<preliminaries>>":     ^^^^^^^^
 
@@ -306,17 +306,17 @@ where the last one, \code{relE.l1e()} computes the relative error of three
 different ways to compute  $\log(1 - \exp(-a))$ for positive $a$
 (instead of computing   $\log(1 - \exp(x))$ for negative $x$).
 
-As can be seen (see \cite{MaeM12-Rmpfr-log1mexp}),
+As can be seen in Figure~\ref{fig:bigpic}, details in \cite{MaeM12-Rmpfr-log1mexp},
 %% FIXME "cache = TRUE": ---
 <<comp-big, echo=FALSE>>=
 a.s <- 2^seq(-55, 10, length = 256)
 ra.s <- t(sapply(a.s, relE.l1e))
 @
 %This is revealing: N%
-neither method, log1p or expm1, is uniformly good enough, and for
-for very large $a$, all three double precision methods give 0, \emph{and} that is
+neither method, log1p or expm1, is uniformly good enough, and for very
+large $a$, all three double precision methods give 0, \emph{and} that is 
 the best approximation in double precision and we can restrict ourselves to
-smaller $a$, i.e., smaller than about 710.% < \approx 710$, here.
+smaller $a$, i.e., smaller than about 710.% < 709.78271289338403 (lynne 64b)
 <<drop-large-a, echo=FALSE>>=
 ii <- a.s < 710
 a.s  <-  a.s[ii]
@@ -366,7 +366,7 @@ ra2 <- ra[,-1]
 \begin{figure}[htb!]
 \centering
 % increasing width --> effective LaTeX *height* will decrease
-<<bigpict-fig, fig=TRUE, echo=FALSE, height=5, width=7>>=
+<<bigpict-fig, fig=TRUE, echo=FALSE>>=
 <<bigpict-setup>>
 <<bigpict-def>>
 ## draw the zoom-in region into the plot:
@@ -421,7 +421,7 @@ lines(a., predict(s2)$y ^ 3, col=cc[3], lwd=2)
 \enlargethispage{5ex}
 \begin{figure}[hbt!]
 \centering
-<<zoom-in-fig, fig=TRUE, height=5, width=8, echo=FALSE>>=
+<<zoom-in-fig, fig=TRUE, width=9, echo=FALSE>>=
 cl2 <- "slateblue" # "gray35" # the color for "log(2)"
 par(mar = c(4.1,4.1,0.6,1.6))
 
@@ -503,22 +503,6 @@ from (\ref{eq:Taylor-log1p}) that
 for $x\to\infty$.
 Using double precision arithmetic, a fast and accurate computational method
 is to use
-%% The following is experimentation, not strictly needed for paper
-<<uniroot-x1, echo=FALSE, results=hide>>=
-f1 <- function(x) { x <- log1p(exp(x)) - x ; x[x==0] <- -1 ; x }
-u1 <- uniroot(f1, c(5, 50), tol=1e-13)
-str(u1, digits=10)
-x1 <- u1[["root"]] ## 33.27835
-## Not used here: find x2, such that  x + exp(-x) =.= g(x) for x > x2
-f2 <- function(x) { x <- (x + exp(-x)) - log1p(exp(x))
-                   x[x==0] <- -1 ; x }
-u2 <- uniroot(f2, c(1, 20), tol=1e-13)
-str(u2, digits=10)
-x2 <- u2[["root"]] ## 16.408226
-## but really the above is still ``non sense'': look at
-curve(log1p(exp(x)) - x,       33.1, 33.5, n=2^10) # for x1
-curve(x+exp(-x) - log1p(exp(x)), 15, 25,   n=2^11) # for x2
-@
 \begin{align}
   \label{eq:log1pexp}
   \hat{g}(x) = \mathrm{log1pexp}(x) :=
@@ -559,16 +543,17 @@ $\log1p\bigl(e^x\bigr)$, the intermediate approximation $x + e^{-x}$, and
 the large $x$ ($ = x$), i.e., the methods in (\ref{eq:log1pexp}),
 depicting that the (easy to remember) cutoffs $x_1$ and $x_2$ in
 (\ref{eq:log1pexp}) are valid.
-<<comp-big, echo=FALSE>>=
-x.s <- seq(-100, 750, by = 5)  # <- the big picture
-x.s <- seq( 5, 60, length=512) # <- the zoom in
+<<comp-big, echo=FALSE, results=hide>>=
+x.s <- seq(-100, 750, by = 5)  # <- the big picture ==> problem for default
+x.s <- seq( 5, 60, length=512) # <- the zoom in     ==> *no* problem for def.
 rx.s <- t(sapply(x.s, relE.pl1e))
+signif(cbind(x.s, rx.s),3)
 @
 \begin{figure}[hb!]
-  \centering
-<<bigpict-2-fig, fig=TRUE, echo=FALSE, height=4.0,width=7>>=
-par(mar = c(4.1,4.1,0.6,1.6))
-cc <- adjustcolor(c(4,1,2,5),.8, red.f=.7)
+  \centering %% using "blue" for the default method, *as* in Figure 1 above
+<<bigpict-2-fig, fig=TRUE, echo=FALSE, height=5>>=
+par(mar = c(4.1,4.1,0.6,1.6), mgp = c(1.6, 0.75, 0))
+cc <- adjustcolor(c(4,1,2,3),.8, red.f=.7, blue.f=.8)
 lt <- c("solid","33","3262","dotdash")
 ll <- c(.7, 1.5, 2, 2)
 ym <- 1e-18
@@ -588,7 +573,8 @@ axis(1, at=x12, labels=formatC(x12), padj = -3.2, hadj = -.1, tcl = +.8,
   \caption{Absolute relative errors (with respect to 1024 bit \pkg{Rmpfr}
     computation) of four different ways to numerically compute
     $\log\bigl(1 + e^{x}\bigr)$.  Vertical bars at $x_1 = 18$ and $x_2 =
-    33.3$ visualize the cutpoints of (\ref{eq:log1pexp}).}
+    33.3$ visualize the cutpoints of (\ref{eq:log1pexp}).  Note that
+    the default method is fully accurate on this $x$ range.}
   \label{fig:log1pexp}
 \end{figure}
 
@@ -604,7 +590,7 @@ vignette (in \texttt{Sweave}, i.e., with complete \R{} source,
 in \R{} package \pkg{Rmpfr}, as \citet{MaeM12-Rmpfr-log1mexp}.
 
 %% \subsection*{Session Information}
-
+%% \nopagebreak
 <<sessionInfo, results=hide, echo=FALSE>>=
 toLatex(sessionInfo(), locale=FALSE)
 <<finalizing, echo=FALSE>>=
