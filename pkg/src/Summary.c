@@ -15,13 +15,11 @@
 
 /*------------------------------------------------------------------------*/
 
-#define R_mpfr_prec(x) INTEGER(GET_SLOT(x, Rmpfr_precSym))[0]
-
 SEXP Summary_mpfr(SEXP x, SEXP na_rm, SEXP op)
 {
 /* FIXME: use  enum type for the op codes */
 
-    mp_prec_t current_prec = mpfr_get_default_prec();
+    mpfr_prec_t current_prec = mpfr_get_default_prec();
     int n = length(x), i_op = asInteger(op),
 	return_list = (i_op <= 5),
 	remove_na = asLogical(na_rm), n_valid = 0, i;
@@ -46,8 +44,8 @@ SEXP Summary_mpfr(SEXP x, SEXP na_rm, SEXP op)
 	mpfr_set_inf(Summ, +1);/* := +Inf for min() */
 	mpfr_set_inf(Sum2, -1);/* := -Inf for max() */
 	Rmpfr_set(2);
-    case 4: /* prod */mpfr_set_d (Summ, 1., GMP_RNDZ); Rmpfr_set(1);
-    case 5: /* sum */ mpfr_set_d (Summ, 0., GMP_RNDZ); Rmpfr_set(1);
+    case 4: /* prod */mpfr_set_d (Summ, 1., MPFR_RNDZ); Rmpfr_set(1);
+    case 5: /* sum */ mpfr_set_d (Summ, 0., MPFR_RNDZ); Rmpfr_set(1);
 
     case 6: /* any */ val = ScalarLogical(FALSE); break;
     case 7: /* all */ val = ScalarLogical(TRUE);  break;
@@ -99,12 +97,12 @@ SEXP Summary_mpfr(SEXP x, SEXP na_rm, SEXP op)
 	else n_valid++;
 
 	if(return_list) { /* hence using  Summ */
-	    mp_prec_t i_prec = mpfr_get_prec(R_i);
+	    mpfr_prec_t i_prec = mpfr_get_prec(R_i);
 	    if(current_prec < i_prec) /* increase precision */ {
 		current_prec = i_prec;
-		mpfr_prec_round(Summ, i_prec, GMP_RNDN);
+		mpfr_prec_round(Summ, i_prec, MPFR_RNDN);
 		if(i_op == 3)
-		    mpfr_prec_round(Sum2, i_prec, GMP_RNDN);
+		    mpfr_prec_round(Sum2, i_prec, MPFR_RNDN);
 	    }
 	}
 
@@ -113,15 +111,15 @@ SEXP Summary_mpfr(SEXP x, SEXP na_rm, SEXP op)
 	       precision, even though in some cases the result may
 	       need higher precision */
 
-	case 1: /* max */ mpfr_max(Summ, Summ, R_i, GMP_RNDN); break;
-	case 2: /* min */ mpfr_min(Summ, Summ, R_i, GMP_RNDN); break;
+	case 1: /* max */ mpfr_max(Summ, Summ, R_i, MPFR_RNDN); break;
+	case 2: /* min */ mpfr_min(Summ, Summ, R_i, MPFR_RNDN); break;
 	case 3: /* range */
-	    mpfr_min(Summ, Summ, R_i, GMP_RNDN);
-	    mpfr_max(Sum2, Sum2, R_i, GMP_RNDN);
+	    mpfr_min(Summ, Summ, R_i, MPFR_RNDN);
+	    mpfr_max(Sum2, Sum2, R_i, MPFR_RNDN);
 	    break;
 
-	case 4: /* prod */ mpfr_mul(Summ, Summ, R_i, GMP_RNDN); break;
-	case 5: /* sum */  mpfr_add(Summ, Summ, R_i, GMP_RNDN); break;
+	case 4: /* prod */ mpfr_mul(Summ, Summ, R_i, MPFR_RNDN); break;
+	case 5: /* sum */  mpfr_add(Summ, Summ, R_i, MPFR_RNDN); break;
 
 	case 6: /* any */ if(!mpfr_zero_p(R_i)) *ans = TRUE; break;
 	case 7: /* all */ if( mpfr_zero_p(R_i)) *ans = FALSE; break;

@@ -92,7 +92,7 @@
 %To kill all extra spacing between the environments, use {0pt} in all these
 %MM: When all three(!) are {0pt}, there's a large gap *after* Schunk (nothing in %between)
 %--  and that (end gap) get's smaller when I set all to {1pt} -- logic??
-%___TODO: Set of experiments (with smaller Sweave file)___
+%___TODO/FIXME: Set of experiments (with smaller Sweave file)___
 \setlength{\FVtopsep}{1pt}
 \setlength{\FVpartopsep}{1pt}
 \setlength{\FVparskip}{\parskip}% default: \parskip
@@ -264,6 +264,8 @@ Because of this, we will propose to use a function \code{log1mexp(x)}
 which uses either \code{expm1} (\ref{eq:f.expm1}) or
 \code{log1p} (\ref{eq:f.log1p}), where appropriate.  Already in
 \R{}~1.9.0 (\cite{R-190}), % (April 2004)
+% now, both  R_Log1_Exp() and --> R_D_LExp(x) :=  (log_p ? R_Log1_Exp(x) : log1p(-x))
+
 we have defined the macro \verb|R_D_LExp(x)| to provide these two cases %branches
 automatically\footnote{look for ``log(1-exp(x))'' in
   \url{http://svn.r-project.org/R/branches/R-1-9-patches/src/nmath/dpq.h}}.
