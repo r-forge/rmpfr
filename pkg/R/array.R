@@ -117,9 +117,11 @@ setMethod("as.vector", "mpfrArray", function(x) as(x, "mpfr"))
 setAs("mpfrArray", "vector", function(from) as(from, "mpfr"))
 
 toNum <- function(from) {
-    structure(.Call(mpfr2d, from),
-	      dim = dim(from),
-	      dimnames = dimnames(from))
+    if(is.null(dn <- dimnames(from)) || identical(dn, list(NULL,NULL)))
+	## --> result has NULL dimnames
+	structure(.Call(mpfr2d, from), dim = dim(from))
+    else
+	structure(.Call(mpfr2d, from), dim = dim(from), dimnames = dn)
 }
 
 setAs("mpfrArray", "array", toNum)
