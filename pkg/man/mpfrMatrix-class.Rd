@@ -77,12 +77,14 @@
   \code{Dimnames} slot.
 }
 \section{Objects from the Class}{
-  Objects can be created by calls of the form
+  Objects should typically be created by \code{\link{mpfrArray}()}, but
+  can also be created by
   \code{new("mpfrMatrix", ...)} or \code{new("mpfrArray", ...)}, or also
-  by \code{dim(x) <- dd} or \code{t(x)} where \code{x} is a an
-  \code{\linkS4class{mpfr}} \dQuote{number vector}.
+  by \code{t(x)}, \code{dim(x) <- dd}, or \code{\link{mpfr2array}(x,
+    dim=dd)} where \code{x} is a an \code{\linkS4class{mpfr}}
+  \dQuote{number vector}.
 
-  A (slightly more) alternative to \code{dim(x) <- dd} is
+  A (slightly more flexible) alternative to \code{dim(x) <- dd} is
   \code{\link{mpfr2array}(x, dd, dimnames)}.
 }
 \section{Slots}{

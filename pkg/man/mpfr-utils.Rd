@@ -82,6 +82,10 @@ mpfr2array(x, dim, dimnames = NULL, check = FALSE)
 }
 \seealso{
   Start using \code{\link{mpfr}(..)}, and compute with these numbers.
+
+  \code{\link{mpfrArray}(x)} is for numeric (\dQuote{non-mpfr})
+  \code{x}, whereas \code{mpfr2array(x)} is for \code{"mpfr"} classed
+  \code{x}, only.
 }
 \examples{
 getPrec(as(c(1,pi), "mpfr")) # 128 for both
