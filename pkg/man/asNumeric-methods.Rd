@@ -8,7 +8,8 @@
   Methods for function \code{\link[gmp]{asNumeric}} (in package \pkg{gmp}).
 }
 \usage{
-asNumeric(x)
+%\S4method{asNumeric}{mpfr}(x)
+\S4method{asNumeric}{mpfrArray}(x)
 }
 \arguments{
   \item{x}{a \dQuote{number-like} object, here, a
