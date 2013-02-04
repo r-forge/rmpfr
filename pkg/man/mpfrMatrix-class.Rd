@@ -28,6 +28,10 @@
 \alias{coerce,mpfrArray,vector-method}
 \alias{coerce<-,mpfrArray,vector-method}
 %
+\alias{det}% "the function" (our copy of base::det)
+\alias{determinant,mpfrMatrix,missing-method}
+\alias{determinant,mpfrMatrix,logical-method}
+%
 \alias{[<-,mpfrArray,ANY,ANY,ANY-method}
 \alias{[<-,mpfrArray,ANY,ANY,mpfr-method}
 \alias{[<-,mpfrArray,ANY,missing,ANY-method}
@@ -127,7 +131,12 @@ class \code{"\linkS4class{vector}"}, by class "mpfrArray", distance 4.
     \item{[}{\code{signature(x = "mpfrArray", i = "ANY", j = "missing", drop = "missing")}:
       \code{"mpfrArray"}s can be subset (\dQuote{indexed}) as regular \R
       \code{\link{array}}s.}
-
+    \item{determinant}{\code{(signature(x = "mpfrMatrix", logarithm =
+	"logical"), asNumeric = (d[1] > 3))}: Compute the determinant of the
+      mpfr square matrix \code{x}.  Work via coercion to \code{"numeric"},
+      i.e., compute \code{determinant(\link{asNumeric}(x), logarithm)},
+      if \code{asNumeric} is true, by default, if the dimension is larger
+      than three.}
     \item{\%*\%}{\code{signature(x = "mpfr", y = "mpfrMatrix")}: Compute
       the matrix/vector product \eqn{x y} when the dimensions
       (\code{\link{dim}}) of \code{x} and \code{y} match.  If \code{x}
@@ -200,5 +209,9 @@ which(m6 == 3, arr.ind = TRUE) # |-->  (1, 2)
 ## Coercion back to "vector": Both of these work:
 stopifnot(identical(as(m6, "mpfr"), v6),
           identical(as.vector(m6), v6)) # < but this is a "coincidence"
+
+m4 <- m6[,-3] # 2 x 2
+det(m4)
+str(determinant(m4))
 }
 \keyword{classes}

@@ -73,6 +73,7 @@ export(
        , "cbind"
        , "chooseMpfr", "chooseMpfr.all", "sumBinomMpfr"
        , "crossprod"
+       , "det" # << "identical" as base - but with correct determinant()
        , "erf" , "erfc"
        , "factorial"
        , "factorialMpfr"
@@ -119,6 +120,7 @@ exportMethods(
               , "all.equal", "aperm"
               , "as.vector", "as.integer", "as.numeric"
               , "coerce", "coerce<-"
+	      , "determinant"
               , "cbind", "rbind"
               , "dim", "dim<-", "dimnames", "dimnames<-"
               , "atan2", "beta", "lbeta"

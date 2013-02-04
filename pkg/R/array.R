@@ -688,3 +688,50 @@ setMethod("rowMeans", "mpfrArray", function(x, na.rm = FALSE, dims = 1, ...) {
     stopifnot((rnk <- length(d <- dim(x))) >= 2, 1 <= dims, dims <= rnk - 1)
     applyMpfr(x, 1:dims, mean)
 })
+
+## Cut'n'paste from  ~/R/Pkgs/Matrix/R/Auxiliaries.R {FIXME? load Matrix:::mkDet}
+mkDet <- function(d, logarithm = TRUE, ldet = sum(log(abs(d))),
+                  sig = -1L+2L*as.integer(prod(sign(d)) >= 0))
+{		# sig: -1 or +1 (not 0 !)
+    modulus <- if (logarithm) ldet else exp(ldet)
+    attr(modulus, "logarithm") <- logarithm
+    val <- list(modulus = modulus, sign = sig)
+    class(val) <- "det"
+    val
+}
+
+setMethod("determinant", signature(x="mpfrMatrix", logarithm="logical"),
+	  function (x, logarithm, asNumeric = (d[1] > 3), ...) {
+	      d <- x@Dim
+	      if(d[1] != d[2]) stop("'x' must ba a square matrix")
+	      if(d[1] == 0) determinant(matrix(1,0,0), logarithm=logarithm)
+	      else if(d[1] == 1)
+		  mkDet(x[1], logarithm=logarithm)
+	      else { ## n x n,	for  n >= 2
+		  if(asNumeric)
+		      return(determinant(asNumeric(x), logarithm=logarithm, ...))
+		  ## else use recursive (horribly slow for non-small n!)
+		  Det <- function(x, n = dim(x)[1]) {
+		      if(n == 1) x[1]
+		      else if(n == 2) x[1]*x[4] - x[2]*x[3]
+		      else {
+			  a <- mpfr(numeric(n), precBits=3L)# dummy to fill
+			  n1 <- n-1L
+			  for(i in seq_len(n))
+			      a[i] <- Det(x[-i,-1], n=n1)
+			  sum(x[,1] * a)
+		      }
+		  }
+		  mkDet(Det(x), logarithm=logarithm)
+	      }
+	  })
+
+setMethod("determinant", signature(x="mpfrMatrix", logarithm="missing"),
+	  function (x, logarithm, ...)
+	  determinant(x, logarithm = TRUE, ...))
+
+## The ``Right Thing'' to do :
+## base::det() calls [base::]determinant();
+## our det() should call our determinant() :
+det <- base::det
+environment(det) <- environment()## == asNamespace("Rmpfr")
