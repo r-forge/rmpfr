@@ -1,7 +1,5 @@
 URGENT or "DO first" :
 
-xx) sumBinomMpfr()  accept  f.x
-
 17b)  see 'Ops' in R/Arith.R  ,  Rmpfr:::.Math.codes,  and
      design a "test all Ops" with all combinations of "mpfr", "numeric","logical"
      (and possibly more).
@@ -117,15 +115,11 @@ xx) sumBinomMpfr()  accept  f.x
 	 res.mpfr <- lapply(1:length(n), function(i) binomsum.mpfr.MM(n[i], f, n0, precBits=precBits[i], ...))
 	 sapply(res.mpfr, as, "double")
 
-28) determinant() and hence det() "fail" (with a reasonable error message).
-    Easy: go via asNumeric(.) with a  warning() that can be suppressed
-    Standard R uses LAPACK's  LU() decomposition.  Would be cool to have
-    that in C (using MPFR).
-    Alternatively, do it for 2x2 and via recursion mxm for small m.
-    (but it is *really* ineffcient: complexity  \propto  m! )
+
+29) Our sum() should use   mpfr_sum() :
+   mpfr_sum (mpfr_t ROP, mpfr_ptr const TAB[], unsigned long int N, mpfr_rnd_t RND)
 
 
-29)
 
 
 50) For *complex* arithmetic, build interface to the  "MPC" library

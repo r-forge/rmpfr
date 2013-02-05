@@ -68,3 +68,10 @@
 
 23x) sumBinomMpfr()  accept  f.x
 
+28) determinant() and hence det() "fail" (with a reasonable error message).
+    Easy: go via asNumeric(.) with a  warning() that can be suppressed
+    Standard R uses LAPACK's  LU() decomposition.  Would be cool to have
+    that in C (using MPFR).
+    Alternatively, do it for 2x2 and via recursion mxm for small m.
+    (but it is *really* inefficient: complexity  \propto  m! )
+

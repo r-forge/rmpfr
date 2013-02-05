@@ -194,6 +194,8 @@ static int R_mpfr_mod(mpfr_t r, mpfr_t x, mpfr_t y, mpfr_rnd_t RND)
 	mpfr_set_nan(r); return 0;
     }
 
+    mpfr_t rr; mpfr_init_set (rr, r, RND);// a copy
+
     int s = mpfr_fmod(r, x, y, RND);// CARE: if(r is x) will thrash x
     if((s_y > 0 && mpfr_sgn(r) < 0) || // as R :  (-5) %%   3   |-->  1
        (s_y < 0 && mpfr_sgn(r) > 0))   // as R :    5  %% (-3)  |--> -1
@@ -216,15 +218,10 @@ SEXP Arith_mpfr(SEXP x, SEXP y, SEXP op)
 	n = (nx == 0 || ny == 0) ? 0 : imax2(nx, ny), mismatch = 0;
 
     SEXP val = PROTECT(allocVector(VECSXP, n));
-    mpfr_t x_i, y_i, r;
-    mpfr_prec_t r_prec = 0/* Wall */;
+    mpfr_t x_i, y_i;
 
     mpfr_init(x_i); /* with default precision */
     mpfr_init(y_i);
-    if(i_op == 6) { // "%/%"
-	mpfr_init(r);
-	r_prec = mpfr_get_prec(r);
-    }
 
     SET_MISMATCH;
     for(i=0; i < n; i++) {
@@ -247,17 +244,18 @@ SEXP Arith_mpfr(SEXP x, SEXP y, SEXP op)
 	case  4: /*  ^  */  mpfr_pow (x_i, x_i, y_i, MPFR_RNDN); break;
 	case  5: /* %%  */ R_mpfr_mod(x_i, x_i, y_i, MPFR_RNDN); break;
 	case  6: /* %/% */ {
-	    if(r_prec < x_prec) {
+	    mpfr_t r;
+	    mpfr_init(r);
+	    if(mpfr_get_prec(r) < x_prec)
 		mpfr_set_prec (r, x_prec);
-		r_prec = x_prec;
-	    }
+
 	    // want to ensure   x  ==  (x %% y) +  y * ( x %/% y )
 	    //        <==>      x - (x %% y)  ==   y * ( x %/% y )
 	    //        <==>    [ x - (x %% y) ] / y  == ( x %/% y )
 	    R_mpfr_mod(r, x_i, y_i, MPFR_RNDN);// r := x %% y,
 	    mpfr_sub (x_i, x_i, r, MPFR_RNDN); // x~ = x - r =  x - (x %% y)
 	    mpfr_div (x_i, x_i,y_i,MPFR_RNDN); // x = x~ / y = (x - (x %% y))/y
-	    break;
+	    mpfr_clear(r); break;
 	}
 	case  7: /*  /  */ mpfr_div(x_i, x_i, y_i, MPFR_RNDN); break;
 
@@ -270,7 +268,6 @@ SEXP Arith_mpfr(SEXP x, SEXP y, SEXP op)
     MISMATCH_WARN;
 
     mpfr_clear (x_i); mpfr_clear (y_i);
-    if(i_op == 6) mpfr_clear(r);
     mpfr_free_cache();
 #ifdef using_Data_slot
     UNPROTECT(3);
@@ -292,10 +289,11 @@ SEXP Arith_mpfr_i(SEXP x, SEXP y, SEXP op)
     int nx = length(xD), ny = length(y), i_op = asInteger(op), i,
 	n = (nx == 0 || ny == 0) ? 0 : imax2(nx, ny), mismatch = 0;
 
-    SEXP val = PROTECT(allocVector(VECSXP, n));
-    mpfr_t x_i;
     if(TYPEOF(y) != INTSXP)
 	error("Arith[%d](mpfr,i): 'y' is not a \"integer\"", i_op);
+
+    SEXP val = PROTECT(allocVector(VECSXP, n));
+    mpfr_t x_i;
     mpfr_init(x_i); /* with default precision */
 
 #define NOT_YET error("Arith(mpfr,i) op. %d not yet implemented", i_op)
@@ -318,7 +316,20 @@ SEXP Arith_mpfr_i(SEXP x, SEXP y, SEXP op)
 	    R_mpfr_mod(x_i, x_i, yy_i, MPFR_RNDN);
 	    mpfr_clear(yy_i); break;
 	}
-	case  6: /* %/% */ NOT_YET; break;
+	case  6: /* %/% */ {
+	    mpfr_t r, yy_i;
+	    mpfr_init(r);
+	    mpfr_prec_t x_prec = mpfr_get_prec(x_i);
+	    if(mpfr_get_prec(r) < x_prec)
+		mpfr_set_prec (r, x_prec);
+
+	    mpfr_init_set_si(yy_i, (long) yy[i_], MPFR_RNDN);
+	    R_mpfr_mod(r, x_i, yy_i, MPFR_RNDN);
+	    mpfr_sub (x_i, x_i,  r, MPFR_RNDN); // x~ = x - r =  x - (x %% y)
+	    mpfr_div (x_i, x_i,yy_i,MPFR_RNDN); // x = x~ / y = (x - (x %% y))/y
+	    mpfr_clear(r); mpfr_clear(yy_i); break;
+	}
+
 	case  7: /*  /  */ mpfr_div_si(x_i, x_i, (long) yy[i_], MPFR_RNDN); break;
 
 	default:
@@ -351,10 +362,11 @@ SEXP Arith_i_mpfr(SEXP x, SEXP y, SEXP op)
     int nx = length(x), ny = length(yD), i_op = asInteger(op), i,
 	n = (nx == 0 || ny == 0) ? 0 : imax2(nx, ny), mismatch = 0;
 
-    SEXP val = PROTECT(allocVector(VECSXP, n));
-    mpfr_t y_i;
     if(TYPEOF(x) != INTSXP)
 	error("Arith[%d](i,mpfr): 'x' is not a \"integer\"", i_op);
+
+    SEXP val = PROTECT(allocVector(VECSXP, n));
+    mpfr_t y_i;
     mpfr_init(y_i); /* with default precision */
 
 #define NOT_YET error("Arith(i,mpfr) op. %d not yet implemented", i_op)
@@ -386,12 +398,24 @@ SEXP Arith_i_mpfr(SEXP x, SEXP y, SEXP op)
 	    R_MPFR_SI_POW(xx[i_], y_i);
 	}
 	case  5: /* %%  */ {
-	    mpfr_t xx_i;
+	    mpfr_t xx_i, r;
 	    mpfr_init_set_si(xx_i, (long) xx[i_], MPFR_RNDN);
-	    R_mpfr_mod(y_i, y_i, xx_i, MPFR_RNDN);
-	    mpfr_clear(xx_i); break;
+	    mpfr_init(r);
+	    R_mpfr_mod(r, xx_i, y_i, MPFR_RNDN);
+	    mpfr_set(y_i, r, MPFR_RNDN);
+	    mpfr_clear(r); mpfr_clear(xx_i); break;
 	}
-	case  6: /* %/% */ NOT_YET; break;
+	case  6: /* %/% */ {
+	    mpfr_t r, xx_i; mpfr_init(r);
+	    mpfr_prec_t y_prec = mpfr_get_prec(y_i);
+	    if(mpfr_get_prec(r) < y_prec)
+		mpfr_set_prec (r, y_prec);
+	    mpfr_init_set_si(xx_i, (long) xx[i_], MPFR_RNDN);
+	    R_mpfr_mod(r, xx_i, y_i, MPFR_RNDN);
+	    mpfr_sub (xx_i,xx_i, r, MPFR_RNDN); // x~ = x - r =  x - (x %% y)
+	    mpfr_div (y_i, xx_i,y_i,MPFR_RNDN); // y = x~ / y = (x - (x %% y))/y
+	    mpfr_clear(r); mpfr_clear(xx_i); break;
+	}
 	case  7: /*  /  */ mpfr_si_div(y_i, (long) xx[i_], y_i, MPFR_RNDN); break;
 
 	default:
@@ -424,11 +448,12 @@ SEXP Arith_mpfr_d(SEXP x, SEXP y, SEXP op)
     int nx = length(xD), ny = length(y), i_op = asInteger(op), i,
 	n = (nx == 0 || ny == 0) ? 0 : imax2(nx, ny), mismatch = 0;
 
+    if(TYPEOF(y) != REALSXP)
+	error("Arith[%d](mpfr,d): 'y' is not a \"double\"", i_op);
+
     SEXP val = PROTECT(allocVector(VECSXP, n));
     mpfr_t x_i, yy_i;
 
-    if(TYPEOF(y) != REALSXP)
-	error("Arith[%d](mpfr,d): 'y' is not a \"double\"", i_op);
     mpfr_init(x_i);
     mpfr_init(yy_i); /* with default precision */
 
@@ -451,7 +476,20 @@ SEXP Arith_mpfr_d(SEXP x, SEXP y, SEXP op)
 		R_mpfr_mod(x_i, x_i, yy_i, MPFR_RNDN);
 		break;
 	    }
-	    case  6: /* %/% */ NOT_YET; break;
+	    case  6: /* %/% */ {
+		mpfr_t r;
+		mpfr_init(r);
+		mpfr_prec_t x_prec = mpfr_get_prec(x_i);
+		if(mpfr_get_prec(r) < x_prec)
+		    mpfr_set_prec (r, x_prec);
+
+		mpfr_set_si(yy_i, (long) yi, MPFR_RNDN);
+		R_mpfr_mod(r,  x_i, yy_i, MPFR_RNDN);
+		mpfr_sub (x_i, x_i,  r,   MPFR_RNDN); // x~ = x - r =  x - (x %% y)
+		mpfr_div (x_i, x_i, yy_i, MPFR_RNDN); // x = x~ / y = (x - (x %% y))/y
+		mpfr_clear(r); break;
+	    }
+
 	    case  7: /*  /  */ mpfr_div_si(x_i, x_i, (long)yi, MPFR_RNDN); break;
 	    default:
 		error("invalid op code (%d) in Arith_mpfr_d", i_op);
@@ -468,7 +506,16 @@ SEXP Arith_mpfr_d(SEXP x, SEXP y, SEXP op)
 	    case  3: /*  *  */ mpfr_mul(x_i, x_i, yy_i, MPFR_RNDN); break;
 	    case  4: /*  ^  */ mpfr_pow(x_i, x_i, yy_i, MPFR_RNDN); break;
 	    case  5: /* %% */ R_mpfr_mod(x_i, x_i, yy_i, MPFR_RNDN); break;
-	    case  6: /* %/% */ NOT_YET; break;
+	    case  6: /* %/% */ {
+		mpfr_t r; mpfr_init(r);
+		mpfr_prec_t x_prec = mpfr_get_prec(x_i);
+		if(mpfr_get_prec(r) < x_prec)
+		    mpfr_set_prec (r, x_prec);
+		R_mpfr_mod(r,  x_i, yy_i, MPFR_RNDN);
+		mpfr_sub (x_i, x_i,  r,   MPFR_RNDN); // x~ = x - r =  x - (x %% y)
+		mpfr_div (x_i, x_i, yy_i, MPFR_RNDN); // x = x~ / y = (x - (x %% y))/y
+		mpfr_clear(r); break;
+	    }
 	    case  7: /*  /  */ mpfr_div(x_i, x_i, yy_i, MPFR_RNDN); break;
 	    default:
 		error("invalid op code (%d) in Arith_mpfr_d", i_op);
@@ -500,13 +547,12 @@ SEXP Arith_d_mpfr(SEXP x, SEXP y, SEXP op)
     int nx = length(x), ny = length(yD), i_op = asInteger(op), i,
 	n = (nx == 0 || ny == 0) ? 0 : imax2(nx, ny), mismatch = 0;
 
-    SEXP val = PROTECT(allocVector(VECSXP, n));
-    mpfr_t y_i, xx_i;
-
     if(TYPEOF(x) != REALSXP)
 	error("Arith[%d](d,mpfr): 'x' is not a \"double\"", i_op);
+
+    SEXP val = PROTECT(allocVector(VECSXP, n));
+    mpfr_t y_i;
     mpfr_init(y_i);
-    mpfr_init(xx_i); /* with default precision */
 
 #define NOT_YET error("Arith(d,mpfr) op. %d not yet implemented", i_op)
 
@@ -526,19 +572,32 @@ SEXP Arith_d_mpfr(SEXP x, SEXP y, SEXP op)
 		R_MPFR_SI_POW((long)xi, y_i);
 	    }
 	    case  5: /* %%  */ {
-		mpfr_t xx_i;
+		mpfr_t xx_i, r;
 		mpfr_init_set_si(xx_i, (long)xi, MPFR_RNDN);
-		R_mpfr_mod(y_i, y_i, xx_i, MPFR_RNDN);
-		mpfr_clear(xx_i); break;
+		mpfr_init(r);
+		R_mpfr_mod(r, xx_i, y_i, MPFR_RNDN);
+		mpfr_set(y_i, r, MPFR_RNDN);
+		mpfr_clear(r); mpfr_clear(xx_i); break;
 	    }
-	    case  6: /* %/% */ NOT_YET; break;
+	    case  6: /* %/% */ {
+		mpfr_t r, xx_i; mpfr_init(r);
+		mpfr_prec_t y_prec = mpfr_get_prec(y_i);
+		if(mpfr_get_prec(r) < y_prec)
+		    mpfr_set_prec (r, y_prec);
+		mpfr_init_set_si(xx_i, (long) xi, MPFR_RNDN);
+		R_mpfr_mod(r,  xx_i, y_i, MPFR_RNDN);
+		mpfr_sub (xx_i,xx_i,  r,  MPFR_RNDN); // x~ = x - r =  x - (x %% y)
+		mpfr_div (y_i, xx_i, y_i, MPFR_RNDN); // y = x~ / y = (x - (x %% y))/y
+		mpfr_clear(r); mpfr_clear(xx_i); break;
+	    }
 	    case  7: /*  /  */ mpfr_si_div(y_i, (long)xi, y_i, MPFR_RNDN); break;
 	    default:
 		error("invalid op code (%d) in Arith_d_mpfr", i_op);
 	    }
 	}
 	else {
-	    mpfr_set_d (xx_i, xi, MPFR_RNDD);
+	    mpfr_t xx_i;
+	    mpfr_init_set_d (xx_i, xi, MPFR_RNDD);
 	    switch(i_op) {
 		/* Note we assign use y_i as "input and output" ==> *same*
 		   precision, even though in some cases the result may
@@ -547,18 +606,33 @@ SEXP Arith_d_mpfr(SEXP x, SEXP y, SEXP op)
 	    case  2: /*  -  */ mpfr_sub(y_i, xx_i, y_i, MPFR_RNDN); break;
 	    case  3: /*  *  */ mpfr_mul(y_i, xx_i, y_i, MPFR_RNDN); break;
 	    case  4: /*  ^  */ mpfr_pow(y_i, xx_i, y_i, MPFR_RNDN); break;
-	    case  5: /* %% */R_mpfr_mod(y_i, xx_i, y_i, MPFR_RNDN); break;
-	    case  6: /* %/% */ NOT_YET; break;
+	    case  5: /* %%  */ {
+		mpfr_t r; mpfr_init(r);
+		R_mpfr_mod(r, xx_i, y_i, MPFR_RNDN);
+		mpfr_set(y_i, r, MPFR_RNDN);
+		mpfr_clear(r); break;
+	    }
+	    case  6: /* %/% */ {
+		mpfr_t r; mpfr_init(r);
+		mpfr_prec_t y_prec = mpfr_get_prec(y_i);
+		if(mpfr_get_prec(r) < y_prec)
+		    mpfr_set_prec (r, y_prec);
+		R_mpfr_mod(r,  xx_i, y_i, MPFR_RNDN);
+		mpfr_sub (xx_i,xx_i,  r,  MPFR_RNDN); // x~ = x - r =  x - (x %% y)
+		mpfr_div (y_i, xx_i, y_i, MPFR_RNDN); // y = x~ / y = (x - (x %% y))/y
+		mpfr_clear(r); break;
+	    }
 	    case  7: /*  /  */ mpfr_div(y_i, xx_i, y_i, MPFR_RNDN); break;
 	    default:
 		error("invalid op code (%d) in Arith_d_mpfr", i_op);
 	    }
+	    mpfr_clear(xx_i);
 	}
 	SET_VECTOR_ELT(val, i, MPFR_as_R(y_i));
     }
     MISMATCH_WARN;
 
-    mpfr_clear (y_i); mpfr_clear (xx_i);
+    mpfr_clear (y_i);
     mpfr_free_cache();
 #ifdef using_Data_slot
     UNPROTECT(2);

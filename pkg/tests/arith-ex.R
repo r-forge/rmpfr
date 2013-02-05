@@ -146,19 +146,29 @@ for(n in seq_len(N)) {
 
 ## mpfr  o  <number>  now implemented, for  '%%', too :
 r <- as.double(i <- -10:20)
+
 stopifnot(
-    mpfr(i, prec=100) %% 7  ==
-    mpfr(i, prec=100) %% 7L
+    ## %% -------------------------------------
+    mpfr(i, prec=99) %% 7  == i %% 7
     , ##
-    (i %%  mpfr(27, prec=100)) %=N=%
-    (r %%  mpfr(27, prec=100))
-## TODO
-    ## , ##
-    ## mpfr(i, prec=100) %/% 7  ==
-    ## mpfr(i, prec=100) %/% 7L
-    ## , ##
-    ## (i %/%  mpfr(27, prec=100)) %=N=%
-    ## (r %/%  mpfr(27, prec=100))
+    mpfr(i, prec=99) %% 7  ==
+    mpfr(i, prec=99) %% 7L
+    , ##
+    i %% mpfr(27, prec=99) == i %% 27
+    , ##
+    r %% mpfr(27, prec=99) == r %% 27
+    , ## %/% -------------------------------------
+    mpfr(i, prec=99) %/% 7  == i %/% 7
+    , ##
+    mpfr(i, prec=99) %/% 7  ==
+    mpfr(i, prec=99) %/% 7L
+    , ##
+    mpfr(i, prec=99) %/% mpfr(27, prec=99) == i %/% 27
+    , ##
+    i %/% mpfr(27, prec=99) == i %/% 27
+    , ##
+    i %/% mpfr(27, prec=99) ==
+    r %/% mpfr(27, prec=99)
     , TRUE ##
     )
 
