@@ -392,7 +392,7 @@ setMethod("seq", c(from="ANY", to="ANY", by = "mpfr"), seqMpfr)
 ## the user version
 getPrec <- function(x, base = 10, doNumeric = TRUE, is.mpfr = NA) {
     if(isTRUE(is.mpfr) || is(x,"mpfr"))
-	vapply(getD(x), slot, 1L, "prec")
+	vapply(getD(x), slot, 1L, "prec")# possibly of length 0
     else if(is.character(x)) ## number of digits --> number of bits
 	ceiling(log2(base) * nchar(gsub("[-.]", '', x)))
     else if(is.logical(x))

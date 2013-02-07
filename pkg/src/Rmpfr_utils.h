@@ -113,6 +113,7 @@ SEXP Compare_mpfr_i(SEXP x, SEXP y, SEXP op);
 SEXP Compare_mpfr_d(SEXP x, SEXP y, SEXP op);
 
 SEXP Summary_mpfr(SEXP x, SEXP na_rm, SEXP op);
+SEXP R_mpfr_sumprod(SEXP x, SEXP y, SEXP minPrec, SEXP alternating);
 
 #ifdef __NOT_ANY_MORE__
 /* deprecated: */

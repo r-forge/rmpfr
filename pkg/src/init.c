@@ -44,6 +44,7 @@ static R_CallMethodDef CallEntries[] = {
     CALLDEF(Compare_mpfr_d, 3),
 
     CALLDEF(Summary_mpfr, 3),
+    CALLDEF(R_mpfr_sumprod, 4),
 
     CALLDEF(R_mpfr_set_debug, 1),
     CALLDEF(R_mpfr_set_default_prec, 1),
@@ -111,6 +112,7 @@ R_init_Rmpfr(DllInfo *dll)
     RREGDEF(Compare_mpfr_i);
     RREGDEF(Compare_mpfr_d);
     RREGDEF(Summary_mpfr);
+    RREGDEF(R_mpfr_sumprod);
 
     RREGDEF(R_mpfr_set_debug);
     RREGDEF(R_mpfr_set_default_prec);
