@@ -1,6 +1,17 @@
 2013-02-05  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* DESCRIPTION (Version): 0.5-2
+	* R/as.R (asNumeric): new function; mainly for 'mpfrArray'
+
+	* src/Ops.c (R_mpfr_mod): for Arith_mpfr[_i|_d]), R's %% and %/%:
+	now working correctly, checked in
+	* tests/arith-ex.R:
+
+	* R/array.R (mkDet, determinant): provide recursive method for
+	determinant() and hence det(). *Only* for small matrices !!
+
+	* src/Summary.c (R_mpfr_sumprod): new for sum(x * y)  ==  x %*% y
+	-> 20-40% faster matrix multiplication {still not fast!}.
 
 2012-12-03  Martin Maechler  <maechler@stat.math.ethz.ch>
 

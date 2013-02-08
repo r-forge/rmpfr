@@ -175,6 +175,7 @@ setMethod("unique", signature(x="mpfr", incomparables="missing"),
 setGeneric("pmin", signature = "...")# -> message about override ...
 setGeneric("pmax", signature = "...")
 
+## FIXME: "This" (?) is terribly slow --> ~/R/MM/Pkg-ex/Rmpfr/SLOW-pmin.R
 setMethod("pmin", "mNumber",
 	  function(..., na.rm = FALSE) {
 	      args <- list(...)
