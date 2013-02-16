@@ -120,7 +120,6 @@ exportMethods(
               , "all.equal", "aperm"
               , "as.vector", "as.integer", "as.numeric"
               , "coerce", "coerce<-"
-	      , "determinant"
               , "cbind", "rbind"
               , "dim", "dim<-", "dimnames", "dimnames<-"
               , "atan2", "beta", "lbeta"
@@ -139,6 +138,8 @@ S3method(c, mpfr)
 
 S3method(as.array, mpfr)
 S3method(as.matrix, mpfr)
+
+S3method(determinant, mpfrMatrix)
 
 S3method(diff, mpfr)
 S3method(str,  mpfr)

@@ -1,5 +1,7 @@
 \name{asNumeric-methods}
 \docType{methods}
+%% FIXME??  Should this migrate to base ?? --> have implicit generic and S3 generic there!
+%% ----- there, with semantic  storage.mode(x) <- "numeric"
 \alias{asNumeric-methods}
 \alias{asNumeric,mpfr-method}
 \alias{asNumeric,mpfrArray-method}
@@ -30,6 +32,7 @@
 }
 \author{Martin Maechler}
 \seealso{
+  our lower level (non-generic) \code{\link{toNum}()}. Further,
   \code{\link[gmp]{asNumeric}} (package \pkg{gmp}),
   standard \R's \code{\link{as.numeric}()}.
 }

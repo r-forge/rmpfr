@@ -28,10 +28,6 @@
 \alias{coerce,mpfrArray,vector-method}
 \alias{coerce<-,mpfrArray,vector-method}
 %
-\alias{det}% "the function" (our copy of base::det)
-\alias{determinant,mpfrMatrix,missing-method}
-\alias{determinant,mpfrMatrix,logical-method}
-%
 \alias{[<-,mpfrArray,ANY,ANY,ANY-method}
 \alias{[<-,mpfrArray,ANY,ANY,mpfr-method}
 \alias{[<-,mpfrArray,ANY,missing,ANY-method}
@@ -131,14 +127,6 @@ class \code{"\linkS4class{vector}"}, by class "mpfrArray", distance 4.
     \item{[}{\code{signature(x = "mpfrArray", i = "ANY", j = "missing", drop = "missing")}:
       \code{"mpfrArray"}s can be subset (\dQuote{indexed}) as regular \R
       \code{\link{array}}s.}
-    \item{determinant}{\code{(signature(x = "mpfrMatrix", logarithm =
-	"logical"), asNumeric = (d[1] > 3), precBits = max(.getPrex(x)))}:
-      Compute the determinant of the mpfr square matrix \code{x}.  Work
-      via coercion to \code{"numeric"}, i.e., compute
-      \code{determinant(\link{asNumeric}(x), logarithm)}, if
-      \code{asNumeric} is true, by default, if the dimension is larger
-      than three. Otherwise, use precision \code{precBits} for the
-      \dQuote{accumulator} of the result.}
     \item{\%*\%}{\code{signature(x = "mpfr", y = "mpfrMatrix")}: Compute
       the matrix/vector product \eqn{x y} when the dimensions
       (\code{\link{dim}}) of \code{x} and \code{y} match.  If \code{x}
@@ -167,7 +155,6 @@ class \code{"\linkS4class{vector}"}, by class "mpfrArray", distance 4.
     \item{tcrossprod}{\code{signature(x = "mpfrMatrix", y = "mpfr")}: ... }
     \item{tcrossprod}{\code{signature(x = "mpfr", y = "mpfrMatrix")}: ... }
 
-
     \item{coerce}{\code{signature(from = "mpfrArray", to = "array")}:
       coerces \code{from} to a \emph{numeric} array of the same dimension.}
     \item{coerce}{\code{signature(from = "mpfrArray", to = "vector")}:
@@ -190,7 +177,6 @@ class \code{"\linkS4class{vector}"}, by class "mpfrArray", distance 4.
 	perm)} is a generalization of \code{t(.)} to \emph{perm}ute the
       dimensions of an mpfrArray; it has the same semantics as the
       standard \code{\link{aperm}()} method for simple \R \code{\link{array}}s.}
-
   }
 }
 \author{Martin Maechler}

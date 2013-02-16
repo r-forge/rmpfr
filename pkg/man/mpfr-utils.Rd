@@ -75,7 +75,8 @@ mpfr2array(x, dim, dimnames = NULL, check = FALSE)
   \code{\link{matrix}}, when \code{m} is of class
   \code{"\linkS4class{mpfrArray}"} or \code{"\linkS4class{mpfrMatrix}"},
   respectively.  It should be equivalent to \code{as(m, "array")} or
-  \code{... "matrix"}.
+  \code{... "matrix"}.   Note that the slightly more general
+  \code{\link{asNumeric}()} is preferred now.
 
   \code{mpfr2array()} a slightly more flexible alternative to
   \code{dim(.) <- dd}.
