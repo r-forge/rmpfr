@@ -183,7 +183,8 @@ sumBinomMpfr <- function(n, f, n0=0, alternating=TRUE, precBits = 256,
     stopifnot(0 <= n0, n0 <= n,
 	      is.function(f) || (is(f.k, "mpfr") && length(f.k) == n-n0+1))
     k <- n0:n
-    sum(chooseZ(n, k) * (-1)^(n-k) * f.k)
+    sum(if(alternating) chooseZ(n, k) * (-1)^(n-k) * f.k
+        else chooseZ(n, k) * f.k)
 }
 
 

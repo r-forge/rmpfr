@@ -1,3 +1,12 @@
+2013-02-28  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/Math.R (sumBinomMpfr): oops: docu had (-1)^k instead of (-1)^(n-k);
+	alternating=FALSE has been wrong, since (r101, 2012-05-15)
+
+2013-02-14  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/gmp-convert.R (..bigq2mpfr): precB = NULL --> at least 128
+
 2013-02-05  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* DESCRIPTION (Version): 0.5-2
