@@ -258,3 +258,34 @@ hypot <- function(x,y) {
     else
 	new("mpfr", .Call(R_mpfr_hypot, as(x, "mpfr"), as(y, "mpfr")))
 }
+
+## The Beta(a,b)  Cumulative Probabilities are exactly computable for *integer* a,b:
+pbetaI <- function(q, shape1, shape2, ncp = 0, lower.tail = TRUE, log.p = FALSE,
+		   precBits = NULL) {
+    stopifnot(is.whole(shape1), is.whole(shape2),
+	      length(shape1) == 1, length(shape2) == 1,
+	      0 <= q, q <= 1, ncp == 0,
+	      is.null(precBits) ||
+	      (is.numeric(precBits) && is.whole(precBits) && precBits >= 2))
+    pr.x <- getPrec(q)
+    if(is.null(precBits))
+	precBits <- max(128L, pr.x, getPrec(shape1), getPrec(shape2))
+    if(pr.x < precBits || !is(q, "mpfr"))
+	q <- mpfr(q, precBits=precBits)
+    n0 <- shape1     # = a
+    n <- n0+shape2-1 # = a+b-1
+    ## "vapply() for "mpfr" :
+    mpfr1 <- list(.Call(const_asMpfr, 1, 16L))
+    F <- if(lower.tail) {
+	if(log.p) log else identity
+    } else {
+	if(log.p) function(X) log1p(-X) else function(X) 1-X
+    }
+    ## reduce the precision, in order to not "claim wrongly":
+    roundMpfr(F(new("mpfr",
+		    vapply(q, function(x)
+			   sumBinomMpfr(n, function(k) x^k * (1-x)^(n-k),
+					n0=n0, alternating=FALSE, precBits=precBits),
+			   mpfr1))),
+	      precBits=precBits)
+}
