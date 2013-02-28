@@ -161,102 +161,150 @@ setReplaceMethod("[", signature(x = "mpfr", i = "ANY", j = "missing",
 ## but this works "magically"  when the first argument is an mpfr :
 c.mpfr <- function(...) new("mpfr", unlist(lapply(list(...), as, Class = "mpfr")))
 
+##  duplicated() now works, checked in ../man/mpfr-class.Rd
+
+## sort() works too  (but could be made faster via faster
+## ------  xtfrm() method !  [ TODO ]
 
 setMethod("unique", signature(x="mpfr", incomparables="missing"),
 	  function(x, incomparables = FALSE, ...)
 	  new("mpfr", unique(getD(x), incomparables, ...)))
 
-## -> duplicated() now work
+## This is practically identical to  grid's rep.unit :
+rep.mpfr <- function(x, times=1, length.out=NA, each=1, ...)
+    ## Determine an appropriate index, then call subsetting code
+    x[ rep(seq_along(x), times=times, length.out=length.out, each=each) ]
 
-## sort() works too  (but could be made faster via faster
-## ------  xtfrm() method !  [ TODO ]
 
 
 setGeneric("pmin", signature = "...")# -> message about override ...
 setGeneric("pmax", signature = "...")
 
-## FIXME: "This" (?) is terribly slow --> ~/R/MM/Pkg-ex/Rmpfr/SLOW-pmin.R
+### FIXME: These should also work with  'bigq' and 'bigz'
+### Note: base::pmin() works (for "bigq", "bigz") already *when* the "big" is the first arg
 setMethod("pmin", "mNumber",
 	  function(..., na.rm = FALSE) {
 	      args <- list(...)
-	      if(all(vapply(args, is.atomic, NA)))
+	      ok.base <- function(x) is.atomic(x) && !is(x, "bigq")
+	      if(all(vapply(args, ok.base, NA)))
 		  return( base::pmin(..., na.rm = na.rm) )
-	      ## else: at least one is "mpfr(Matrix/Array)"
+	      ## else: at least one is "mpfr(Matrix/Array)" or "bigq"
 	      is.m <- vapply(args, is, NA, "mpfr")
-	      if(!any(is.m))
-		  stop("no \"mpfr\" argument -- wrong method chosen")
-
+	      is.q <- vapply(args, is, NA, "bigq")
+	      is.N <- vapply(args, function(x) is.numeric(x) || is.logical(x), NA)
+	      if(!any(is.mq <- is.m | is.q))
+		  stop("no \"mpfr\" or \"bigq\" argument -- wrong method chosen; please report!")
 	      N <- max(lengths <- vapply(args, length, 1L))
+	      any.m <- any(is.m)
+	      any.q <- any(is.q)
 	      ## precision needed -- FIXME: should be *vector*
 	      mPrec <- max(unlist(lapply(args[is.m], .getPrec)),# not vapply
 			   if(any(vapply(args[!is.m], is.double, NA)))
-			   .Machine$double.digits)
+			   .Machine$double.digits,
+			   if(any.q) 128L)# arbitrary as in getPrec()
 	      ## to be the result :
-	      r <- mpfr(rep.int(Inf, N), precBits = mPrec)
+	      ## r <- mpfr(rep.int(Inf, N), precBits = mPrec)
+	      ## more efficient (?): start with the first 'mpfr' argument
+	      i.frst.m <- which(if(any.m) is.m else is.q)[1L]
+	      ## ==> r is "mpfr" if there's any, otherwise "bigq"
+	      r <- args[[i.frst.m]]
+	      if((n.i <- lengths[i.frst.m]) != N)
+		  r <- r[rep(seq_len(n.i), length.out = N)]
 
 	      ## modified from ~/R/D/r-devel/R/src/library/base/R/pmax.R
 	      has.na <- FALSE
-	      for(i in seq_along(args)) {
+	      ii <- seq_along(lengths) ## = seq_along(args)
+	      ii <- ii[ii != i.frst.m]
+	      for(i in ii) {
 		  x <- args[[i]]
 		  if((n.i <- lengths[i]) != N)
 		      x <- x[rep(seq_len(n.i), length.out = N)]
-		  nas <- cbind(is.na(r), is.na(x))
-		  if(!is.m[i]) x <- mpfr(x, precBits = mPrec)
-		  if(has.na || (has.na <- any(nas))) {
-		      r[nas[, 1L]] <- x[nas[, 1L]]
-		      x[nas[, 2L]] <- r[nas[, 2L]]
+		  n.r <- is.na(r); n.x <- is.na(x)
+		  ## mpfr() is relatively expensive
+		  if(doM <- any.m && !is.m[i] && !is.N[i]) # "bigz", "bigq"
+		      ## r is "mpfr"
+		      x <- mpfr(x, precBits = mPrec)
+		  else if(doQ <- !any.m && !is.q[i] && !is.N[i]) # "bigz"
+		      ## r is "bigq"
+		      x <- as.bigq(x)
+		  if(has.na || (has.na <- any(n.r, n.x))) {
+		      r[n.r] <- x[n.r]
+		      x[n.x] <- if(!doM && !doQ) as(r[n.x],class(x)) else r[n.x]
 		  }
 		  change <- r > x
-		  change <- change & !is.na(change)
+		  change <- which(change & !is.na(change))
 		  r[change] <- x[change]
 		  if (has.na && !na.rm)
-		      r[nas[, 1L] | nas[, 2L]] <- NA
+		      r[n.r | n.x] <- NA
 	      }
-
-	      mostattributes(r) <- attributes(args[[1L]])
+	      ## this is *not* ok, e.g for 'bigq' r and args[[1]]:
+	      ## mostattributes(r) <- attributes(args[[1L]])
+	      ## instead :
+	      if(!is.null(d <- dim(args[[1L]]))) dim(r) <- d
 	      r
-	  })
+	  })## end { pmin }
 
 setMethod("pmax", "mNumber",
 	  function(..., na.rm = FALSE) {
 	      args <- list(...)
-	      if(all(vapply(args, is.atomic, NA)))
+	      ok.base <- function(x) is.atomic(x) && !is(x, "bigq")
+	      if(all(vapply(args, ok.base, NA)))
 		  return( base::pmax(..., na.rm = na.rm) )
-	      ## else: at least one is "mpfr(Matrix/Array)"
+	      ## else: at least one is "mpfr(Matrix/Array)" or "bigq"
 	      is.m <- vapply(args, is, NA, "mpfr")
-	      if(!any(is.m))
-		  stop("no \"mpfr\" argument -- wrong method chosen")
-
+	      is.q <- vapply(args, is, NA, "bigq")
+	      is.N <- vapply(args, function(x) is.numeric(x) || is.logical(x), NA)
+	      if(!any(is.mq <- is.m | is.q))
+		  stop("no \"mpfr\" or \"bigq\" argument -- wrong method chosen; please report!")
 	      N <- max(lengths <- vapply(args, length, 1L))
+	      any.m <- any(is.m)
+	      any.q <- any(is.q)
 	      ## precision needed -- FIXME: should be *vector*
 	      mPrec <- max(unlist(lapply(args[is.m], .getPrec)),# not vapply
 			   if(any(vapply(args[!is.m], is.double, NA)))
-			   .Machine$double.digits)
+			   .Machine$double.digits,
+			   if(any.q) 128L)# arbitrary as in getPrec()
 	      ## to be the result :
-	      r <- mpfr(rep.int(-Inf, N), precBits = mPrec)
+	      ## r <- mpfr(rep.int(Inf, N), precBits = mPrec)
+	      ## more efficient (?): start with the first 'mpfr' argument
+	      i.frst.m <- which(if(any.m) is.m else is.q)[1L]
+	      ## ==> r is "mpfr" if there's any, otherwise "bigq"
+	      r <- args[[i.frst.m]]
+	      if((n.i <- lengths[i.frst.m]) != N)
+		  r <- r[rep(seq_len(n.i), length.out = N)]
 
 	      ## modified from ~/R/D/r-devel/R/src/library/base/R/pmax.R
 	      has.na <- FALSE
-	      for(i in seq_along(args)) {
+	      ii <- seq_along(lengths) ## = seq_along(args)
+	      ii <- ii[ii != i.frst.m]
+	      for(i in ii) {
 		  x <- args[[i]]
 		  if((n.i <- lengths[i]) != N)
 		      x <- x[rep(seq_len(n.i), length.out = N)]
-		  nas <- cbind(is.na(r), is.na(x))
-		  if(!is.m[i]) x <- mpfr(x, precBits = mPrec)
-		  if(has.na || (has.na <- any(nas))) {
-		      r[nas[, 1L]] <- x[nas[, 1L]]
-		      x[nas[, 2L]] <- r[nas[, 2L]]
+		  n.r <- is.na(r); n.x <- is.na(x)
+		  ## mpfr() is relatively expensive
+		  if(doM <- any.m && !is.m[i] && !is.N[i]) # "bigz", "bigq"
+		      ## r is "mpfr"
+		      x <- mpfr(x, precBits = mPrec)
+		  else if(doQ <- !any.m && !is.q[i] && !is.N[i]) # "bigz"
+		      ## r is "bigq"
+		      x <- as.bigq(x)
+		  if(has.na || (has.na <- any(n.r, n.x))) {
+		      r[n.r] <- x[n.r]
+		      x[n.x] <- if(!doM && !doQ) as(r[n.x],class(x)) else r[n.x]
 		  }
 		  change <- r < x
-		  change <- change & !is.na(change)
+		  change <- which(change & !is.na(change))
 		  r[change] <- x[change]
 		  if (has.na && !na.rm)
-		      r[nas[, 1L] | nas[, 2L]] <- NA
+		      r[n.r | n.x] <- NA
 	      }
-
-	      mostattributes(r) <- attributes(args[[1L]])
+	      ## this is *not* ok, e.g for 'bigq' r and args[[1]]:
+	      ## mostattributes(r) <- attributes(args[[1L]])
+	      ## instead :
+	      if(!is.null(d <- dim(args[[1L]]))) dim(r) <- d
 	      r
-	  })
+	  })## end { pmax }
 
 
 ### seq() :

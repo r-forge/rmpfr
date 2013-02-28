@@ -53,7 +53,7 @@ as.bigz.mpfr <-
     if(is.null(precB)) {
         eN <- frexpZ(N)$exp
         eD <- frexpZ(D)$exp
-        precB <- eN + eD + 1L # precision of result
+        precB <- pmax(128L, eN + eD + 1L) # precision of result
     }
     ..bigz2mpfr(N, precB) / ..bigz2mpfr(D, precB)
 }

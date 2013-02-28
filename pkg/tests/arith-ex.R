@@ -1,4 +1,5 @@
 require("Rmpfr")
+## includes ("gmp")# want to check "mixed arithmetic" too  __ TODO __
 
 `%=N=%` <- function(x,y) (x == y) | (is.na(x) & is.na(y))
 all.EQ <- function(x,y, tolerance = 2^-98, ...) # very small tol. for MPFR
@@ -51,23 +52,48 @@ stopifnot(all.equal(as.numeric(x+1),
 
 ## When we compute with 100 bits,
 ## we should compare relative errors with  2^-100 :
-prettyNum(format(abs((x+pi)-pi - x) / 2^-100), drop0 = TRUE)
+del <- abs((x+pi)-pi - x) / 2^-100
+stopifnot(del <= 4) ## <= 2 already
+(fd <- format(del, drop0 = TRUE))
+if(print(Sys.info()[["machine"]]) == "x86_64")
+    stopifnot(fd %in% as.character(c(0:2, c(2,7)/4)))
+
 
 checkPmin <- function(x, nx = as(x, "numeric")) {
+    rx <- if(is(x,"mpfr")) round(x, 25) else x
+    isZ <- is(x, "bigz") || is(nx, "bigz")
+    M.X <- max(x, na.rm=TRUE)
+    m.x <- min(x, na.rm=TRUE)
     stopifnot(all.equal(x, nx),
-	      pmin(x, x, 1) %=N=% x, x %=N=% pmax(x, 0, x),
-	      all.equal(x, pmin(x, nx, x, 1)),
-	      all.equal(x, pmax(0, nx, x, round(x, 25), 0)),
-	      all.equal(pmin(x, 0.75), pmin(nx, 0.75)),
-	      all.equal(pmax(x, 0.25), pmax(nx, 0.25)))
+	      pmin(x, x, M.X) %=N=% x, x %=N=% pmax(x, m.x, x),
+	      all.equal(x, pmin(x, nx, x, M.X)),
+	      all.equal(x, pmax(m.x, nx, x, rx, m.x)),
+	      if(isZ)TRUE else all.equal(pmin(x, 0.75), pmin(nx, 0.75)),
+	      if(isZ)TRUE else all.equal(pmax(x, 0.25), pmax(nx, 0.25)))
 }
 
+x <- mpfr(0:7, 100) / 7
 checkPmin(x)
 
 nx <- (0:7)/7
+(qx <- as.bigq(0:7, 7))
  x[c(2,5)] <- NA
 nx[c(2,5)] <- NA
+qx[c(2,5)] <- NA
+
+Z <- as.bigz(1:7)
+mZ <- mpfr(Z, 64)
+stopifnot(Z == mZ, mZ == Z)
+
 checkPmin(x, nx)
+if(packageVersion("gmp") >= "0.5-5") {
+    cat("checking pmin(. bigq ): ")
+    checkPmin(x, qx); cat("[Ok]\n")
+    ##
+    print( base::pmin(Z, Z, max(Z)) )# via  gmp:: rep.bigz(x, length.out = *)
+    cat("checking pmin(. bigq ): ")
+    checkPmin(Z); cat("[Ok]\n") # via gmp:: all.equal.bigz()
+}
 
 stopifnot(all.equal( round(x, 10),  round(nx, 10)),
           all.equal(signif(x, 10), signif(nx, 10)))

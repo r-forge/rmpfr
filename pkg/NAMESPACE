@@ -73,7 +73,6 @@ export(
        , "cbind"
        , "chooseMpfr", "chooseMpfr.all", "sumBinomMpfr"
        , "crossprod"
-       , "det" # << "identical" as base - but with correct determinant()
        , "erf" , "erfc"
        , "factorial"
        , "factorialMpfr"
@@ -94,6 +93,7 @@ export(
        , "mpfr_default_prec"
        , "optimizeR"
        , "hjkMpfr" ## <-- FIXME, rather part of an  optimR(...., method = "hjk")
+       , "pbetaI"
        , "pmax", "pmin"
        , "pnorm"
        , "pochMpfr"
@@ -112,10 +112,20 @@ export(
 
 
 exportMethods(
-              ## "own generics":
+              ##___ "own generics" ___
               "apply", "asNumeric",
 
-              ## "other generics"
+              ##___ "other generics" ___
+
+	      ## Group Methods
+	      "Arith",
+	      "Compare",
+	      "Logic",
+	      "Math",
+	      "Math2",
+	      "Ops",
+	      "Summary",
+
               "abs", "log", "sign"
               , "all.equal", "aperm"
               , "as.vector", "as.integer", "as.numeric"
@@ -150,3 +160,9 @@ S3method(formatN, mpfr)
 S3method(print, mpfr)
 S3method(print, mpfr1)
 S3method(print, mpfrArray)
+
+## useful, to have  base::outer() work automatically:
+S3method(rep, mpfr)
+S3method(t, mpfr)
+S3method(t, mpfrMatrix)
+S3method(aperm, mpfrArray)

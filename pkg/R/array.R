@@ -78,7 +78,7 @@ setMethod("dimnames<-", signature(x = "mpfrArray", value = "ANY"),
 	      x
 	  })
 
-setMethod("t", "mpfrMatrix",
+setMethod("t", "mpfrMatrix", t.mpfrMatrix <-
 	  function(x) {
 	      d <- x@Dim; n <- d[1]; m <- d[2]
 	      ## These are the indices to get the transpose of m {n x m} :
@@ -88,7 +88,7 @@ setMethod("t", "mpfrMatrix",
 	      ## faster than { x@.Data <- x@.Data[rep.int(1:n, rep(m,n)) + n*(0:(m-1))] ; x } :
 	      setDataPart(x, getD(x)[rep.int(1:n, rep(m,n)) + n*(0:(m-1))], check=FALSE)
 	  })
-setMethod("t", "mpfr",
+setMethod("t", "mpfr", t.mpfr <-
 	  function(x) { # t(<n-vector>) |-->  {1 x n} matrix
 	      r <- new("mpfrMatrix")
 	      r@Dim <- c(1L, length(x))
@@ -96,8 +96,8 @@ setMethod("t", "mpfr",
 	      setDataPart(r, getD(x), check=FALSE)
 	  })
 
-setMethod("aperm", signature(a="mpfrArray"),
-	  function(a, perm, resize=TRUE) {
+setMethod("aperm", signature(a="mpfrArray"), aperm.mpfrArray <-
+	  function(a, perm, resize=TRUE, ...) {
 	      stopifnot(1 <= (k <- length(d <- a@Dim)))
 	      if(missing(perm)) perm <- k:1
 	      else stopifnot(length(perm <- as.integer(perm)) == k, 1 <= perm, perm <= k)

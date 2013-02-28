@@ -1,5 +1,8 @@
 URGENT or "DO first" :
 
+19) outer() now works  always ? {as rep() now S3 dispatches
+    ---> need systematic checks *AND* docu changes!
+
 17b)  see 'Ops' in R/Arith.R  ,  Rmpfr:::.Math.codes,  and
      design a "test all Ops" with all combinations of "mpfr", "numeric","logical"
      (and possibly more).
@@ -41,7 +44,6 @@ URGENT or "DO first" :
 
  -->  want things to work like
           which(<mpfrMatrix> == ., arr.ind = TRUE)  - ok
-          outer(....)                               - not yet
 
  [No longer sure if this is true :]
  For this, we must ensure that the methods are used, instead of the
@@ -49,7 +51,6 @@ URGENT or "DO first" :
 
  One way: --> see ~/R/MM/NUMERICS/bessel-large-x.R
                   --------------------------------
-
   ## really interesting is  bI(x., nu)  {for "mpfr" argument}:
   ## it uses outer(), but that needs to dispatch on, e.g. "^",
   ## i.e., not only look at "base"
@@ -87,8 +88,6 @@ URGENT or "DO first" :
     and correctly *jointly* formats and aligns  columns !
     drop0trailing is not really sensible there
 
-13) implement the  NOT_YET  in src/Ops.c
-
 16) psigamma(x, n)  {and  digamma(), trigamma() aliases}
     --> experiments in ~/R/MM/Pkg-ex/Rmpfr/psigamma.R )
     Note that since, MPFR 3.0.0, there is a digamma(); .. which we now interface to
@@ -97,7 +96,6 @@ URGENT or "DO first" :
              {or "fix it" via assign*() in base ?? -- they will love that!}
     or provide ifelse2() -- a fast simplified version ?
 
-19) outer() fails too, (similarly I think)
 
 22) *do* test rank(), sort(), order() : we claim they work in man/mpfr-class.Rd
     quantile() should work from R 2.15.1 (June 2012) on       ~~~~~~~~~~~~~~~~~
@@ -119,7 +117,8 @@ URGENT or "DO first" :
 29) Our sum() should use   mpfr_sum() :
    mpfr_sum (mpfr_t ROP, mpfr_ptr const TAB[], unsigned long int N, mpfr_rnd_t RND)
 
-
+31) Use ./LUP.R  to compute the lu() decomposition of an mpfrMatrix
+    ---> use this for determinant() for larger (n >= 4 ?) dimensions!
 
 
 50) For *complex* arithmetic, build interface to the  "MPC" library

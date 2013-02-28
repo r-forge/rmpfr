@@ -39,9 +39,9 @@ setMethod("Ops", signature(e1 = "bigz", e2 = "mpfr"),
 	  function(e1, e2) callGeneric(.bigz2mpfr(e1), e2))
 
 setMethod("Ops", signature(e1 = "mpfr", e2 = "bigq"),
-	  function(e1, e2) callGeneric(e1, .bigq2mpfr(e2)))
+	  function(e1, e2) callGeneric(e1, ..bigq2mpfr(e2, pmax(.getPrec(e1), 128L))))
 setMethod("Ops", signature(e1 = "bigq", e2 = "mpfr"),
-	  function(e1, e2) callGeneric(.bigq2mpfr(e1), e2))
+	  function(e1, e2) callGeneric(..bigq2mpfr(e1, pmax(.getPrec(e1), 128L)), e2))
 
 
 setMethod("Logic", signature(e1 = "mpfr", e2 = "mpfr"),
@@ -65,7 +65,7 @@ setMethod("Logic", signature(e1 = "numeric", e2 = "mpfr"),
 }
 .mpfr.negative <- function(x) .Call(Rmpfr_minus, x)
 
-setMethod("Arith",signature(e1 = "mpfr", e2="missing"),
+setMethod("Arith", signature(e1 = "mpfr", e2="missing"),
 	  function(e1,e2) {
 	    switch(.Generic,
 		   "+" = e1,

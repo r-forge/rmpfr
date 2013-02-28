@@ -296,8 +296,6 @@ SEXP Arith_mpfr_i(SEXP x, SEXP y, SEXP op)
     mpfr_t x_i;
     mpfr_init(x_i); /* with default precision */
 
-#define NOT_YET error("Arith(mpfr,i) op. %d not yet implemented", i_op)
-
     SET_MISMATCH;
     for(i=0; i < n; i++) {
 	int i_ = i % ny;
@@ -349,7 +347,6 @@ SEXP Arith_mpfr_i(SEXP x, SEXP y, SEXP op)
 #endif
     return val;
 } /* Arith_mpfr_i */
-#undef NOT_YET
 
 SEXP Arith_i_mpfr(SEXP x, SEXP y, SEXP op)
 {
@@ -368,8 +365,6 @@ SEXP Arith_i_mpfr(SEXP x, SEXP y, SEXP op)
     SEXP val = PROTECT(allocVector(VECSXP, n));
     mpfr_t y_i;
     mpfr_init(y_i); /* with default precision */
-
-#define NOT_YET error("Arith(i,mpfr) op. %d not yet implemented", i_op)
 
     SET_MISMATCH;
     for(i=0; i < n; i++) {
@@ -435,7 +430,6 @@ SEXP Arith_i_mpfr(SEXP x, SEXP y, SEXP op)
 #endif
     return val;
 } /* Arith_i_mpfr */
-#undef NOT_YET
 
 SEXP Arith_mpfr_d(SEXP x, SEXP y, SEXP op)
 {
@@ -456,8 +450,6 @@ SEXP Arith_mpfr_d(SEXP x, SEXP y, SEXP op)
 
     mpfr_init(x_i);
     mpfr_init(yy_i); /* with default precision */
-
-#define NOT_YET error("Arith(mpfr,d) op. %d not yet implemented", i_op)
 
     SET_MISMATCH;
     for(i=0; i < n; i++) {
@@ -534,7 +526,6 @@ SEXP Arith_mpfr_d(SEXP x, SEXP y, SEXP op)
 #endif
     return val;
 } /* Arith_mpfr_d */
-#undef NOT_YET
 
 SEXP Arith_d_mpfr(SEXP x, SEXP y, SEXP op)
 {
@@ -553,8 +544,6 @@ SEXP Arith_d_mpfr(SEXP x, SEXP y, SEXP op)
     SEXP val = PROTECT(allocVector(VECSXP, n));
     mpfr_t y_i;
     mpfr_init(y_i);
-
-#define NOT_YET error("Arith(d,mpfr) op. %d not yet implemented", i_op)
 
     SET_MISMATCH;
     for(i=0; i < n; i++) {
@@ -641,7 +630,6 @@ SEXP Arith_d_mpfr(SEXP x, SEXP y, SEXP op)
 #endif
     return val;
 } /* Arith_d_mpfr */
-#undef NOT_YET
 
 
 

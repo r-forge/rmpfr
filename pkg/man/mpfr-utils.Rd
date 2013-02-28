@@ -1,6 +1,6 @@
 \name{mpfr-utils}
-\alias{getD}
 \alias{getPrec}
+\alias{getD}
 \alias{mpfr_default_prec}
 \alias{mpfr2array}
 \alias{print.mpfr}

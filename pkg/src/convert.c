@@ -186,10 +186,14 @@ SEXP d2mpfr1_list(SEXP x, SEXP prec, SEXP rnd_mode)
         SEXP mpz2mpfr1_(mpz_t x, int i_prec, mpfr_rnd_t rnd);
 	SEXP mpz2mpfr1 (SEXP x, SEXP prec, SEXP rnd_mode);
 	SEXP mpz2mpfr1_list(SEXP x, SEXP prec, SEXP rnd_mode);
+    {and the same for 'q' instead of 'z'}
 
    completely parallel to the d2mpfr*() functions above
+
    *BUT* we cannot easily do the [R package gmp C++ code]-part of
    SEXP -> mpz !
+
+   MM: still do it .. should not be so hard to "guess"
 */
 
 
@@ -224,12 +228,15 @@ SEXP str2mpfr1_list(SEXP x, SEXP prec, SEXP base, SEXP rnd_mode)
     iprec = INTEGER(prec);
 
     for(int i = 0; i < n; i++) {
-	int ierr;
 	mpfr_set_prec(r_i, (mpfr_prec_t) iprec[i % np]);
-	ierr = mpfr_set_str(r_i, CHAR(STRING_ELT(x, i % nx)), ibase, rnd);
-	if(ierr)
-	    error("str2mpfr1_list(x, *): x[%d] cannot be made into MPFR",
-		  i+1);
+	int ierr = mpfr_set_str(r_i, CHAR(STRING_ELT(x, i % nx)), ibase, rnd);
+	if(ierr) {
+	    if (!strcmp("NA", CHAR(STRING_ELT(x, i % nx))))
+		mpfr_set_nan(r_i); // "NA" <=> "NaN" (which *are* treated well, by mpfr_set_str)
+	    else
+		error("str2mpfr1_list(x, *): x[%d] cannot be made into MPFR",
+		      i+1);
+	}
 	/* FIXME: become more efficient by doing R_..._2R_init() only once*/
 	SET_VECTOR_ELT(val, i, MPFR_as_R(r_i));
     }
