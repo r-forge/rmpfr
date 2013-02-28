@@ -309,6 +309,7 @@ void R_asMPFR(SEXP x, mpfr_ptr r)
     return;
 }
 
+#ifdef R_had_R_Outputfile_in_API
 #ifndef WIN32
 /* This only works on  "unix-alikes" ... but we don't really need it */
 /* for R_Outputfile : */
@@ -366,6 +367,8 @@ SEXP print_mpfr(SEXP x, SEXP digits)
 
 #endif
 /* ^^^ Unix-alike only */
+#endif
+
 
 /* Convert R "mpfr" object (list of "mpfr1")  to R "double" vector : */
 SEXP mpfr2d(SEXP x) {
