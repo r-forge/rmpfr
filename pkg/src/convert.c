@@ -315,7 +315,6 @@ void R_asMPFR(SEXP x, mpfr_ptr r)
 /* for R_Outputfile : */
 #include <Rinterface.h>
 
-
 SEXP print_mpfr1(SEXP x, SEXP digits)
 {
     mpfr_t r;

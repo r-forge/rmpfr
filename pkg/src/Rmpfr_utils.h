@@ -95,8 +95,12 @@ SEXP mpfr2i(SEXP x);
 SEXP mpfr2str(SEXP x, SEXP digits);
 SEXP str2mpfr1_list(SEXP x, SEXP prec, SEXP base, SEXP rnd_mode);
 
+#ifdef R_had_R_Outputfile_in_API
+# ifndef WIN32
 SEXP print_mpfr (SEXP x, SEXP digits);
 SEXP print_mpfr1(SEXP x, SEXP digits);
+# endif
+#endif
 
 SEXP Rmpfr_minus(SEXP x);
 SEXP Rmpfr_abs(SEXP x);

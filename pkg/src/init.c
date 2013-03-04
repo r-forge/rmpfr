@@ -19,10 +19,12 @@ static R_CallMethodDef CallEntries[] = {
     CALLDEF(mpz2mpfr1, 3),
     CALLDEF(mpz2mpfr1_list, 3),
 #endif
+#ifdef R_had_R_Outputfile_in_API
 #ifndef WIN32
     /* only works on "unix-alikes" */
     CALLDEF(print_mpfr, 2),
     CALLDEF(print_mpfr1, 2),
+#endif
 #endif
     CALLDEF(mpfr2d, 1),
     CALLDEF(mpfr2i, 1),
@@ -91,9 +93,11 @@ R_init_Rmpfr(DllInfo *dll)
     RREGDEF(mpz2mpfr1);
     RREGDEF(mpz2mpfr1_list);
 #endif
+#ifdef R_had_R_Outputfile_in_API
 #ifndef WIN32
     RREGDEF(print_mpfr);
     RREGDEF(print_mpfr1);
+#endif
 #endif
     RREGDEF(mpfr2d);
     RREGDEF(mpfr2i);

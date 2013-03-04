@@ -50,6 +50,7 @@ print.mpfr1 <- function(x, digits = NULL, drop0trailing = TRUE, ...) {
 
 setMethod(show, "mpfr1", function(object) print.mpfr1(object))
 
+if(FALSE) ## no longer -- as R CMD check complains about use of non-API R_Outputfile
 ## For testing, debugging etc
 if(.Platform$OS.type != "windows") {## No R_Outputfile (in C) on Windows
 
