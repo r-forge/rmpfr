@@ -34,7 +34,7 @@ URGENT or "DO first" :
 2)
  - Now have working  "mpfrMatrix", dim(.) <- ..; t(), %*%, crossprod()...
 
- -  <mpfr> %*% <mpfr>    should work like with numeric vectors
+ -  <mpfr> %*% <mpfr>    should work the same as with numeric vectors
  -  <mpfr> %*% t(<mpfr>)  ditto
 
   Note that matrix multiplication seems too slow --> ./Savicky-matrix-mult_tst.R
@@ -100,13 +100,17 @@ URGENT or "DO first" :
 22) *do* test rank(), sort(), order() : we claim they work in man/mpfr-class.Rd
     quantile() should work from R 2.15.1 (June 2012) on       ~~~~~~~~~~~~~~~~~
 
-24)  Bernoulli() should really happen in 'gmp', using "bigq" (and "bigz")
+24) Bernoulli(): we use builtin zeta(); alternatively, use *exact*
+     rationals from 'gmp', using "bigq" (and "bigz") -- and R code from ~/R/Pkgs/copula/R/special-func.R
 25) mpfr(<mpfr>, ...) should work: return argument unchanged *if* precision
     and rounding mode are ok; otherwise use roundMpfr() *BUT* that needs an
     additional rnd.mode  argument -- as mpfr
 26) (?) Revert the decision to *not* care about rounding mode in Ops/function,
     and rather expose that as in mpfr(), e.g., in R/Math.R  roundMpfr
-    -- see  GMP_RNDN in src/utils.c and others; see also src/convert.c  R_rnd2GMP()
+    -- see  MPFR_RNDN in src/utils.c and others; --> use src/convert.c  R_rnd2MP()
+    -- and all the SEXP functions get an additional   SEXP rnd_mode
+       argument, the same as   SEXP d2mpfr1() in src/convert.c has already.
+
 
 27) sapply(), vapply() etc do not work with mpfr --- show workaround
     e.g. from ~/R/MM/Pkg-ex/Rmpfr/Dutang_test_v6.R

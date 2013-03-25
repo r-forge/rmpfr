@@ -285,9 +285,9 @@ pbetaI <- function(q, shape1, shape2, ncp = 0, lower.tail = TRUE, log.p = FALSE,
     F <- if(log.p) log else identity
 
     if(lower.tail) {
-	## The prob. is	  P[ X <= q ] = \sum_{k=a}^ n    (n \\ k) x^k (1-x)^(n-k)
+	## The prob. is	  P[ X <= x ] = \sum_{k=a}^ n    (n \\ k) x^k (1-x)^(n-k)
         ## but we want to sum from 0 {smallest --> largest} as well:
-        ##                P[ X <= q ] = \sum_{k=0}^{b-1} (n \\ k) (1-x)^k x^(n-k)
+        ##                P[ X <= x ] = \sum_{k=0}^{b-1} (n \\ k) (1-x)^k x^(n-k)
 	k <- 0:(b - 1L)
         FUN.x <- function(x) sum(n.choose.k * (1-x)^k * x^(n-k))
     } else { ## upper tail

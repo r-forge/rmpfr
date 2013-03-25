@@ -6,6 +6,7 @@ all.EQ <- function(x,y, tolerance = 2^-98, ...) # very small tol. for MPFR
     all.equal(x, y, tolerance=tolerance, ...)
 warningI <- function(...) warning(..., immediate. = TRUE)
 
+options(warn = 1)# warnings *immediately*
 (doExtras <- Rmpfr:::doExtras())
 eps2 <-   2 * .Machine$double.eps
 eps8 <-   8 * .Machine$double.eps
@@ -91,7 +92,7 @@ if(packageVersion("gmp") >= "0.5-5") {
     checkPmin(x, qx); cat("[Ok]\n")
     ##
     print( base::pmin(Z, Z, max(Z)) )# via  gmp:: rep.bigz(x, length.out = *)
-    cat("checking pmin(. bigq ): ")
+    cat("checking pmin(. bigz )  [currently with *warnings*]: ")
     checkPmin(Z); cat("[Ok]\n") # via gmp:: all.equal.bigz()
 }
 

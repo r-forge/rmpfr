@@ -135,7 +135,7 @@ SEXP d2mpfr1_(double x, int i_prec, mpfr_rnd_t rnd)
  *
  * @return one of the (currently 4) different  MPFR_RND[DNUZ] modes.
  */
-mpfr_rnd_t R_rnd2GMP(SEXP rnd_mode) {
+mpfr_rnd_t R_rnd2MP(SEXP rnd_mode) {
     const char* r_ch = CHAR(asChar(rnd_mode));
     switch(r_ch[0]) {
     case 'D': return MPFR_RNDD;
@@ -152,7 +152,7 @@ mpfr_rnd_t R_rnd2GMP(SEXP rnd_mode) {
 SEXP d2mpfr1(SEXP x, SEXP prec, SEXP rnd_mode) {
     if(LENGTH(x) != 1)
 	error("length(x) (=%d) is not 1", LENGTH(x));
-    return d2mpfr1_(asReal(x), asInteger(prec), R_rnd2GMP(rnd_mode));
+    return d2mpfr1_(asReal(x), asInteger(prec), R_rnd2MP(rnd_mode));
 }
 
 SEXP d2mpfr1_list(SEXP x, SEXP prec, SEXP rnd_mode)
@@ -162,7 +162,7 @@ SEXP d2mpfr1_list(SEXP x, SEXP prec, SEXP rnd_mode)
 	nprot = 1;
     SEXP val = PROTECT(allocVector(VECSXP, n));
     if(nx > 0) {
-	mpfr_rnd_t rnd = R_rnd2GMP(rnd_mode);
+	mpfr_rnd_t rnd = R_rnd2MP(rnd_mode);
 	int *iprec; double *dx;
 	if(!isReal(x))       { PROTECT(x    = coerceVector(x,   REALSXP)); nprot++; }
 	if(!isInteger(prec)) { PROTECT(prec = coerceVector(prec, INTSXP)); nprot++; }
@@ -218,7 +218,7 @@ SEXP str2mpfr1_list(SEXP x, SEXP prec, SEXP base, SEXP rnd_mode)
 	n = (nx == 0 || np == 0) ? 0 : imax2(nx, np),
 	nprot = 1;
     SEXP val = PROTECT(allocVector(VECSXP, n));
-    mpfr_rnd_t rnd = R_rnd2GMP(rnd_mode);
+    mpfr_rnd_t rnd = R_rnd2MP(rnd_mode);
     mpfr_t r_i;
     mpfr_init(r_i);
 

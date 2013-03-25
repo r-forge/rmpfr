@@ -54,7 +54,8 @@ lIp <- log1p(-pp) ## = pbetaI(x, a, b, lower.tail=FALSE, log.p=TRUE)
 if(Rmpfr:::doExtras()) { ## somewhat slow
    stopifnot(
      all.equal(lp,  pbetaI(x, a, b, precBits = 2048, log.p=TRUE)),
-     all.equal(lIp, pbetaI(x, a, b, precBits = 2048, lower.tail=FALSE, log.p=TRUE)),
+     all.equal(lIp, pbetaI(x, a, b, precBits = 2048, lower.tail=FALSE, log.p=TRUE),
+               tol = 1e-230),
      all.equal( Ip, pbetaI(x, a, b, precBits = 2048, lower.tail=FALSE))
    )
 }
@@ -80,7 +81,6 @@ stopifnot(
   a.EQ(lIp, pbeta(x, a, b, lower.tail=FALSE, log.p=TRUE)),
   a.EQ( Ip, pbeta(x, a, b, lower.tail=FALSE))
  )
-
 }
 \keyword{arith}
 \keyword{distribution}

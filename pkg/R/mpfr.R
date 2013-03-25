@@ -181,20 +181,35 @@ rep.mpfr <- function(x, times=1, length.out=NA, each=1, ...)
 setGeneric("pmin", signature = "...")# -> message about override ...
 setGeneric("pmax", signature = "...")
 
-### FIXME: These should also work with  'bigq' and 'bigz'
-### Note: base::pmin() works (for "bigq", "bigz") already *when* the "big" is the first arg
+## Check if we should "dispatch" to base
+## should be fast, as it should not slow down "base pmin() / pmax()"
+## Semantically:  <==> is.atomic(x) && !(is(x, "bigz") || is(x, "bigq"))
+pm.ok.base <- function(x, cld = getClassDef(class(x))) is.atomic(x) &&
+    (!is.object(x) || { !(extends(cld, "bigz") || extends(cld, "bigq")) })
+
 setMethod("pmin", "mNumber",
 	  function(..., na.rm = FALSE) {
 	      args <- list(...)
-	      ok.base <- function(x) is.atomic(x) && !is(x, "bigq")
-	      if(all(vapply(args, ok.base, NA)))
-		  return( base::pmin(..., na.rm = na.rm) )
-	      ## else: at least one is "mpfr(Matrix/Array)" or "bigq"
-	      is.m <- vapply(args, is, NA, "mpfr")
-	      is.q <- vapply(args, is, NA, "bigq")
+              ## Fast(*) check if "base dispatch" should happen (* "fast" for base cases):
+	      ## if((allA <- all(vapply(args, is.atomic, NA))) &&
+              ##    ((nonO <- !any(is.obj <- vapply(args, is.object, NA))) ||
+              ## {
+              ##     cld <- lapply(args, function(.) getClassDef(class(.)))
+              ##     cld.o <- cld[is.obj]
+              ##     all(vapply(cld.o, extends, NA, "bigz") |
+              ##         vapply(cld.o, extends, NA, "bigq")) }))
+              if(all(vapply(args, pm.ok.base, NA)))
+                  return( base::pmin(..., na.rm = na.rm) )
+	      ## else: at least one is "mpfr(Matrix/Array)", "bigz" or "bigq"
+	      ## if(!allA || nonO)
+              cld <- lapply(args, function(.) getClassDef(class(.)))
+              ## else have defined cld above
+	      is.m <- vapply(cld, extends, NA, "mpfr")
+	      is.q <- vapply(cld, extends, NA, "bigq")
+	      is.z <- vapply(cld, extends, NA, "bigz")
 	      is.N <- vapply(args, function(x) is.numeric(x) || is.logical(x), NA)
-	      if(!any(is.mq <- is.m | is.q))
-		  stop("no \"mpfr\" or \"bigq\" argument -- wrong method chosen; please report!")
+	      if(!any(is.mq <- is.m | is.q | is.z)) # should not be needed -- TODO: "comment out"
+		  stop("no \"mpfr\", \"bigz\", or \"bigq\" argument -- wrong method chosen; please report!")
 	      N <- max(lengths <- vapply(args, length, 1L))
 	      any.m <- any(is.m)
 	      any.q <- any(is.q)
@@ -202,12 +217,14 @@ setMethod("pmin", "mNumber",
 	      mPrec <- max(unlist(lapply(args[is.m], .getPrec)),# not vapply
 			   if(any(vapply(args[!is.m], is.double, NA)))
 			   .Machine$double.digits,
-			   if(any.q) 128L)# arbitrary as in getPrec()
+			   if(any.q) 128L,# arbitrary as in getPrec()
+			   unlist(lapply(args[is.z], function(z) frexpZ(z)$exp))# as in getPrec()
+			   )
 	      ## to be the result :
 	      ## r <- mpfr(rep.int(Inf, N), precBits = mPrec)
 	      ## more efficient (?): start with the first 'mpfr' argument
-	      i.frst.m <- which(if(any.m) is.m else is.q)[1L]
-	      ## ==> r is "mpfr" if there's any, otherwise "bigq"
+	      i.frst.m <- which(if(any.m) is.m else if(any.q) is.q else is.z)[1L]
+	      ## ==> r is "mpfr" if there's any, otherwise "bigq", or "bigz"
 	      r <- args[[i.frst.m]]
 	      if((n.i <- lengths[i.frst.m]) != N)
 		  r <- r[rep(seq_len(n.i), length.out = N)]
@@ -238,7 +255,7 @@ setMethod("pmin", "mNumber",
 		  if (has.na && !na.rm)
 		      r[n.r | n.x] <- NA
 	      }
-	      ## this is *not* ok, e.g for 'bigq' r and args[[1]]:
+	      ## wouldn't be ok, e.g for 'bigq' r and args[[1]]:
 	      ## mostattributes(r) <- attributes(args[[1L]])
 	      ## instead :
 	      if(!is.null(d <- dim(args[[1L]]))) dim(r) <- d
@@ -248,15 +265,26 @@ setMethod("pmin", "mNumber",
 setMethod("pmax", "mNumber",
 	  function(..., na.rm = FALSE) {
 	      args <- list(...)
-	      ok.base <- function(x) is.atomic(x) && !is(x, "bigq")
-	      if(all(vapply(args, ok.base, NA)))
-		  return( base::pmax(..., na.rm = na.rm) )
-	      ## else: at least one is "mpfr(Matrix/Array)" or "bigq"
-	      is.m <- vapply(args, is, NA, "mpfr")
-	      is.q <- vapply(args, is, NA, "bigq")
+              ## Fast(*) check if "base dispatch" should happen (* "fast" for base cases):
+	      ## if((allA <- all(vapply(args, is.atomic, NA))) &&
+              ##    ((nonO <- !any(is.obj <- vapply(args, is.object, NA))) ||
+              ## {
+              ##     cld <- lapply(args, function(.) getClassDef(class(.)))
+              ##     cld.o <- cld[is.obj]
+              ##     all(vapply(cld.o, extends, NA, "bigz") |
+              ##         vapply(cld.o, extends, NA, "bigq")) }))
+              if(all(vapply(args, pm.ok.base, NA)))
+                  return( base::pmax(..., na.rm = na.rm) )
+	      ## else: at least one is "mpfr(Matrix/Array)", "bigz" or "bigq"
+	      ## if(!allA || nonO)
+              cld <- lapply(args, function(.) getClassDef(class(.)))
+              ## else have defined cld above
+	      is.m <- vapply(cld, extends, NA, "mpfr")
+	      is.q <- vapply(cld, extends, NA, "bigq")
+	      is.z <- vapply(cld, extends, NA, "bigz")
 	      is.N <- vapply(args, function(x) is.numeric(x) || is.logical(x), NA)
-	      if(!any(is.mq <- is.m | is.q))
-		  stop("no \"mpfr\" or \"bigq\" argument -- wrong method chosen; please report!")
+	      if(!any(is.mq <- is.m | is.q | is.z)) # should not be needed -- TODO: "comment out"
+		  stop("no \"mpfr\", \"bigz\", or \"bigq\" argument -- wrong method chosen; please report!")
 	      N <- max(lengths <- vapply(args, length, 1L))
 	      any.m <- any(is.m)
 	      any.q <- any(is.q)
@@ -264,12 +292,14 @@ setMethod("pmax", "mNumber",
 	      mPrec <- max(unlist(lapply(args[is.m], .getPrec)),# not vapply
 			   if(any(vapply(args[!is.m], is.double, NA)))
 			   .Machine$double.digits,
-			   if(any.q) 128L)# arbitrary as in getPrec()
+			   if(any.q) 128L,# arbitrary as in getPrec()
+			   unlist(lapply(args[is.z], function(z) frexpZ(z)$exp))# as in getPrec()
+			   )
 	      ## to be the result :
 	      ## r <- mpfr(rep.int(Inf, N), precBits = mPrec)
 	      ## more efficient (?): start with the first 'mpfr' argument
-	      i.frst.m <- which(if(any.m) is.m else is.q)[1L]
-	      ## ==> r is "mpfr" if there's any, otherwise "bigq"
+	      i.frst.m <- which(if(any.m) is.m else if(any.q) is.q else is.z)[1L]
+	      ## ==> r is "mpfr" if there's any, otherwise "bigq", or "bigz"
 	      r <- args[[i.frst.m]]
 	      if((n.i <- lengths[i.frst.m]) != N)
 		  r <- r[rep(seq_len(n.i), length.out = N)]
@@ -300,7 +330,7 @@ setMethod("pmax", "mNumber",
 		  if (has.na && !na.rm)
 		      r[n.r | n.x] <- NA
 	      }
-	      ## this is *not* ok, e.g for 'bigq' r and args[[1]]:
+	      ## wouldn't be ok, e.g for 'bigq' r and args[[1]]:
 	      ## mostattributes(r) <- attributes(args[[1L]])
 	      ## instead :
 	      if(!is.null(d <- dim(args[[1L]]))) dim(r) <- d
