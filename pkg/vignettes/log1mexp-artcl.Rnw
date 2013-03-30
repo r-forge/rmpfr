@@ -482,12 +482,13 @@ $a > \log 2 =: a_0$.
 \section{Computation of log(1+exp(x))}
 Related to $\mathrm{log1mexp}(a)=\log(1 - e^{-a})$ is the
 log survival function of the logistic distribution % (see above)%: defined F_L
-$\log(1 - F_L(x)) = \log\frac{1}{1+e^x} = -\log(1 + e^x)$,
+$\log(1 - F_L(x)) = \log\frac{1}{1+e^x} = -\log(1 + e^x) = -g(x)$, where
 \begin{align}
   \label{eq:def-log1pexp}
   g(x) := \log(1 + e^x) = \loglp(e^x),
 \end{align}
-(with a ``$+"$'' instead of a ``$-$'') which is easier to analyze and compute,
+which has a ``$+"$'' instead of a ``$-$'', compared to $\mathrm{log1mexp}$, and
+is easier to analyze and compute,
 its only problem being large $x$'s where $e^x$ % = \exp x$
 overflows numerically\footnote{Indeed, $\log(1 - F_L(x)) = -g(x)$, for $x=800$,
   \code{plogis(800, lower=FALSE, log.p=TRUE)},
@@ -517,7 +518,7 @@ where $x_2$ could be replaced by a larger number such as $34$ (and even
 $100$, but not $800$\footnote{The \R{} plot
   \code{curve(log1p(exp(x)) - x, 33.1, 33.5, n=2\^{}10)}
   reveals a somewhat fuzzy cutoff $x_1$}).
-%%--- Ok, still do a little analysis --- invisibly mostly (echo=FALSE) here
+%%--- Ok, still do a little analysis --- invisibly mostly (echo=FALSE) here:
 <<def-test-pfuns, echo=FALSE>>=
 t4p.l1e <- function(x)
 {
