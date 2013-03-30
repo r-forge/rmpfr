@@ -1,4 +1,4 @@
-\documentclass[article,nojss]{jss}
+\documentclass[article,nojss]{jss}%-- the LONGER version
 %% NOTA BENE: More definitions --> further down
 %%%%%%%%%%%%
 %
@@ -265,7 +265,6 @@ which uses either \code{expm1} (\ref{eq:f.expm1}) or
 \code{log1p} (\ref{eq:f.log1p}), where appropriate.  Already in
 \R{}~1.9.0 (\cite{R-190}), % (April 2004)
 % now, both  R_Log1_Exp() and --> R_D_LExp(x) :=  (log_p ? R_Log1_Exp(x) : log1p(-x))
-
 we have defined the macro \verb|R_D_LExp(x)| to provide these two cases %branches
 automatically\footnote{look for ``log(1-exp(x))'' in
   \url{http://svn.r-project.org/R/branches/R-1-9-patches/src/nmath/dpq.h}}.
@@ -409,8 +408,9 @@ c(with(bc1, x[which.max(y)]),
 s1 <- with(da, smooth.spline(a, abs(expm1)^(1/3), df = 9))
 s2 <- with(da, smooth.spline(a, abs(log1p)^(1/3), df = 9))
 @
-and now plot a ``zoom--in'' of Figure~\ref{fig:bigpic}. This
-already suggests that the cutoff, $a_0 = \log 2$ is empirically very close to
+The optimal boxcox exponent turns out to be close to $\frac 1 3$,
+and now plot a ``zoom--in'' of Figure~\ref{fig:bigpic}.
+Then, the crossover point of the two curves already suggests that the cutoff, $a_0 = \log 2$ is empirically very close to
 optimal.
 <<zoom-in-def-1, eval=FALSE>>=
 matplot(a., abs(ra2), type = "l", log = "y", # ylim = c(-1,1)*1e-12,
@@ -485,12 +485,13 @@ $a > \log 2 =: a_0$.
 \section{Computation of log(1+exp(x))}
 Related to $\mathrm{log1mexp}(a)=\log(1 - e^{-a})$ is the
 log survival function of the logistic distribution % (see above)%: defined F_L
-$\log(1 - F_L(x)) = \log\frac{1}{1+e^x} = -\log(1 + e^x)$,
+$\log(1 - F_L(x)) = \log\frac{1}{1+e^x} = -\log(1 + e^x) = -g(x)$, where
 \begin{align}
   \label{eq:def-log1pexp}
   g(x) := \log(1 + e^x) = \loglp(e^x),
 \end{align}
-(with a ``$+"$'' instead of a ``$-$'') which is easier to analyze and compute,
+which has a ``$+"$'' instead of a ``$-$'', compared to $\mathrm{log1mexp}$, and
+is easier to analyze and compute,
 its only problem being large $x$'s where $e^x$ % = \exp x$
 overflows numerically\footnote{Indeed, $\log(1 - F_L(x)) = -g(x)$, for $x=800$,
   \code{plogis(800, lower=FALSE, log.p=TRUE)},
@@ -547,7 +548,8 @@ is to use
 where $x_2$ could be replaced by a larger number such as $34$ (and even
 $100$, but not $800$\footnote{The \R{} plot
   \code{curve(log1p(exp(x)) - x, 33.1, 33.5, n=2\^{}10)}
-  reveals a somewhat fuzzy cutoff $x_1$})., still do a little analysis --- invisibly mostly (echo=FALSE) here
+  reveals a somewhat fuzzy cutoff $x_1$}).
+%%--- Ok, still do a little analysis --- invisibly mostly (echo=FALSE) here:
 <<def-test-pfuns, echo=FALSE>>=
 t4p.l1e <- function(x)
 {
