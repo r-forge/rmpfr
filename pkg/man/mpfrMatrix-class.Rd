@@ -27,6 +27,8 @@
 %% *and* needed by codoc().  Behavior seems a bit bogous :
 \alias{coerce,mpfrArray,vector-method}
 \alias{coerce<-,mpfrArray,vector-method}
+\alias{diag,mpfrMatrix-method}
+\alias{diag<-,mpfrMatrix-method}
 %
 \alias{[<-,mpfrArray,ANY,ANY,ANY-method}
 \alias{[<-,mpfrArray,ANY,ANY,mpfr-method}
@@ -36,9 +38,12 @@
 \alias{[<-,mpfrArray,missing,ANY,mpfr-method}
 \alias{[<-,mpfrArray,missing,missing,ANY-method}
 \alias{[<-,mpfrArray,missing,missing,mpfr-method}
+\alias{[<-,mpfrArray,matrix,missing,ANY-method}
+\alias{[<-,mpfrArray,matrix,missing,mpfr-method}
 %
 \alias{[,mpfrArray,ANY,ANY,ANY-method}
 \alias{[,mpfrArray,ANY,missing,missing-method}
+\alias{[,mpfrArray,matrix,missing,missing-method}
 
 \alias{\%*\%,Mnumber,mpfr-method}
 \alias{\%*\%,mpfrMatrix,mpfr-method}
@@ -199,11 +204,31 @@ stopifnot(identical(as(m6, "mpfr"), v6),
           identical(as.vector(m6), v6)) # < but this is a "coincidence"
 
 S2 <- m6[,-3] # 2 x 2
-S3 <- rbind(m6, c(1:2,10))
+S3 <- rbind(m6, c(1:2,10)) ; s3 <- asNumeric(S3)
 det(S2)
 str(determinant(S2))
 det(S3)
 stopifnot(all.equal(det(S2), det(asNumeric(S2)), tol=1e-15),
-	  all.equal(det(S3), det(asNumeric(S3)), tol=1e-15))
+	  all.equal(det(S3), det(s3), tol=1e-15))
+
+## 2-column matrix indexing and replacement:
+(sS <- S3[i2 <- cbind(1:2, 2:3)])
+stopifnot(identical(asNumeric(sS), s3[i2]))
+C3 <- S3; c3 <- s3
+C3[i2] <- 10:11
+c3[i2] <- 10:11
+stopifnot(identical(asNumeric(C3), c3))
+
+AA <- new("mpfrArray", as.vector(cbind(S3, -S3)), Dim=c(3L,3:2))
+stopifnot(identical(AA[,,1] , S3), identical(AA[,,2] , -S3))
+aa <- asNumeric(AA)
+
+i3 <- cbind(3:1, 1:3, c(2L, 1:2))
+ii3 <- Rmpfr:::.mat2ind(i3, dim(AA), dimnames(AA))
+stopifnot(aa[i3] == new("mpfr", getD(AA)[ii3]))
+stopifnot(identical(aa[i3], asNumeric(AA[i3])))
+CA <- AA; ca <- aa
+ca[i3] <- ca[i3] ^ 3
+CA[i3] <- CA[i3] ^ 3
 }
 \keyword{classes}

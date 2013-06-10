@@ -91,13 +91,42 @@ print.mpfr <- function(x, digits = NULL, drop0trailing = TRUE,
 }
 setMethod(show, "mpfr", function(object) print.mpfr(object))
 
+## Proposal by Serguei Sokol in order to make  diag() work:
+if(FALSE)## << MM is in line with our "as.matrix" methods, but is extreme
+setMethod("is.matrix", "mpfr",
+          function(x) length(dim(x)) == 2L)
+## e.g. M0 <- (M <- cbind(mpfr(1.1, 100)^(98:99)))[,FALSE]; diag(M0)
+## gives list() instead of length 0 mpfr
+
+## For matrix indexing:  matrix i |-->  regular i :
+.mat2ind <- function(i, dim.x, dimnms.x) {
+    ndx <- length(dim.x)
+    if(!is.null(di <- dim(i))) {
+        if(di[2L] == ndx) {
+	    ## k-column Matrix subsetting for array of rank k
+	    if(is.character(i)) {
+		i <- vapply(seq_along(dim.x), function(j)
+			    match(i[,j], dimnms.x[[j]]), seq_len(di[1]))
+		if(any(is.na(i)))
+		    stop("character matrix index out of limits")
+	    }
+	    i <- if(is.numeric(i))
+		i[,1L] + colSums(t(i[,-1L]-1L)* cumprod(dim.x)[-ndx])
+	    else getD(i)
+	} else {
+	    i <- getD(i)
+	}
+    }
+    i
+}
 
 ## "[" which also keeps names ... JMC says that names are not support(ed|able)
 ## ---	for such objects..
 .mpfr.subset <- function(x,i,j, ..., drop) {
     nA <- nargs()
     if(nA == 2) { ## x[i] etc -- vector case -- to be fast, need C! --
-        xd <- structure(getD(x)[i], names=names(x)[i])
+        ## i <- .mat2ind(i, dim(x), dimnames(x))
+        xd <- structure(getD(x)[i], names = names(x)[i])
         if(any(iN <- vapply(xd, is.null, NA))) # e.g. i > length(x)
             xd[iN] <- mpfr(NA, precBits = 2L)
         ## faster than  { x@.Data <- xd ; x }:
@@ -113,10 +142,29 @@ setMethod(show, "mpfr", function(object) print.mpfr(object))
         ##		     new("mpfr", D)
     }
     else
-        stop(sprintf("invalid 'mpfr' subsetting (nargs = %d)",nA))
-}
+        stop(gettextf("invalid 'mpfr' subsetting (nargs = %d)",nA))
+} ## .mpfr.subset()
+
+.mpfr.msubset <- function(x,i,j, ..., drop) {
+    nA <- nargs()
+    if(nA == 2) {
+        i <- .mat2ind(i, dim(x), dimnames(x))
+        xd <- structure(getD(x)[i], names=names(x)[i])
+        if(any(iN <- vapply(xd, is.null, NA))) # e.g. i > length(x)
+            xd[iN] <- mpfr(NA, precBits = 2L)
+        ## faster than  { x@.Data <- xd ; x }:
+        setDataPart(x[i], xd, check=FALSE)
+    }
+    else
+        stop(gettext("invalid 'mpfr' matrix subsetting with a matrix (nargs = %d)",nA))
+} ## .mpfr.msubset()
+
+### ---------- FIXME:  ./array.R  has other  "mpfrArray" methods for "[" and "[<-" !!!!!!-----------
+
 setMethod("[", signature(x = "mpfr", i = "ANY", j = "missing", drop = "missing"),
           .mpfr.subset)
+setMethod("[", signature(x = "mpfrArray", i = "matrix", j = "missing", drop = "missing"),
+          .mpfr.msubset)
 
 setMethod("[[", signature(x = "mpfr", i = "ANY"),
 	  function(x,i) {
@@ -128,10 +176,11 @@ setMethod("[[", signature(x = "mpfr", i = "ANY"),
 	  })
 
 ## "[<-" :
-.mpfr.repl <- function(x, i, ..., value, check=TRUE) {
+.mpfr.repl <- function(x, i, ..., value, check = TRUE) {
     if(length(list(...))) ## should no longer happen:
 	stop("extra replacement arguments ", deparse(list(...)),
 	     " not dealt with")
+    ## if(!missing(i)) i <- .mat2ind(i, dim(x), dimnames(x))
     n <- length(xD <- getD(x))
     xD[i] <- value
     if((nn <- length(xD)) > n+1)
@@ -139,9 +188,28 @@ setMethod("[[", signature(x = "mpfr", i = "ANY"),
 	xD[setdiff((n+1):(nn-1), i)] <- mpfr(NA, precBits = 2L)
     setDataPart(x, xD, check=check)
 }
+## FIXME: Should not need this; rather add .mat2ind to .mpfr.repl() above
+.mpfr.mrepl <- function(x, i, ..., value, check=TRUE) {
+    if(length(list(...))) ## should no longer happen:
+	stop("extra replacement arguments ", deparse(list(...)),
+	     " not dealt with")
+    i <- .mat2ind(i, dim(x), dimnames(x))
+    n <- length(xD <- getD(x))
+    xD[i] <- value
+    if((nn <- length(xD)) > n+1)
+	## must "fill" the newly created NULL entries
+	xD[setdiff((n+1):(nn-1), i)] <- mpfr(NA, precBits = 2L)
+    setDataPart(x, xD, check=check)
+}
+
+## value = "mpfr"
 setReplaceMethod("[", signature(x = "mpfr", i = "ANY", j = "missing",
 				value = "mpfr"),
-                 function(x, i, j, ..., value) .mpfr.repl(x, i, ..., value=value))
+		 function(x, i, j, ..., value) .mpfr.repl(x, i, ..., value=value))
+setReplaceMethod("[", signature(x = "mpfrArray", i = "matrix", j = "missing",
+				value = "mpfr"),
+		 function(x, i, j, ..., value) .mpfr.mrepl(x, i, ..., value=value))
+
 ## for non-"mpfr", i.e. "ANY" 'value', coerce to mpfr with correct prec:
 setReplaceMethod("[", signature(x = "mpfr", i = "missing", j = "missing",
 				value = "ANY"),
@@ -156,6 +224,14 @@ setReplaceMethod("[", signature(x = "mpfr", i = "ANY", j = "missing",
 				   pmax(getPrec(value), .getPrec(xi))))
 	      else x # nothing to replace
 	  })
+setReplaceMethod("[", signature(x = "mpfrArray", i = "matrix", j = "missing",
+				value = "ANY"),
+	  function(x,i,j, ..., value) {
+	      if(length(xi <- x[i]))
+		  .mpfr.mrepl(x, i, value = mpfr(value, precBits =
+				    pmax(getPrec(value), .getPrec(xi))))
+	      else x # nothing to replace
+	  })
 
 
 ## I don't see how I could use setMethod("c", ...)
@@ -167,12 +243,12 @@ c.mpfr <- function(...) new("mpfr", unlist(lapply(list(...), as, Class = "mpfr")
 ## sort() works too  (but could be made faster via faster
 ## ------  xtfrm() method !  [ TODO ]
 
-setMethod("unique", signature(x="mpfr", incomparables="missing"),
+setMethod("unique", signature(x = "mpfr", incomparables = "missing"),
 	  function(x, incomparables = FALSE, ...)
 	  new("mpfr", unique(getD(x), incomparables, ...)))
 
 ## This is practically identical to  grid's rep.unit :
-rep.mpfr <- function(x, times=1, length.out=NA, each=1, ...)
+rep.mpfr <- function(x, times = 1, length.out = NA, each = 1, ...)
     ## Determine an appropriate index, then call subsetting code
     x[ rep(seq_along(x), times=times, length.out=length.out, each=each) ]
 
@@ -223,7 +299,7 @@ setMethod("pmin", "mNumber",
 	      ## to be the result :
 	      ## r <- mpfr(rep.int(Inf, N), precBits = mPrec)
 	      ## more efficient (?): start with the first 'mpfr' argument
-	      i.frst.m <- which(if(any.m) is.m else if(any.q) is.q else is.z)[1L]
+	      i.frst.m <- which.max(if(any.m) is.m else if(any.q) is.q else is.z)
 	      ## ==> r is "mpfr" if there's any, otherwise "bigq", or "bigz"
 	      r <- args[[i.frst.m]]
 	      if((n.i <- lengths[i.frst.m]) != N)
@@ -298,7 +374,7 @@ setMethod("pmax", "mNumber",
 	      ## to be the result :
 	      ## r <- mpfr(rep.int(Inf, N), precBits = mPrec)
 	      ## more efficient (?): start with the first 'mpfr' argument
-	      i.frst.m <- which(if(any.m) is.m else if(any.q) is.q else is.z)[1L]
+	      i.frst.m <- which.max(if(any.m) is.m else if(any.q) is.q else is.z)
 	      ## ==> r is "mpfr" if there's any, otherwise "bigq", or "bigz"
 	      r <- args[[i.frst.m]]
 	      if((n.i <- lengths[i.frst.m]) != N)
@@ -412,7 +488,7 @@ seqMpfr <- function(from = 1, to = 1, by = ((to - from)/(length.out - 1)),
 	as(from,"mpfr")[FALSE] # of same precision
     ## else if (One) 1:length.out
     else if(missing(by)) {
-	# if(from == to || length.out < 2) by <- 1
+	## if(from == to || length.out < 2) by <- 1
         length.out <- as.integer(length.out)
 	if(missing(to))
 	    to <- as(from,"mpfr") + length.out - 1
@@ -422,7 +498,8 @@ seqMpfr <- function(from = 1, to = 1, by = ((to - from)/(length.out - 1)),
 	    if(from == to)
 		rep.int(as(from,"mpfr"), length.out)
 	    else { f <- as(from,"mpfr")
-		   as.vector(c(f, f + (1:(length.out - 2)) * by, to)) }
+		   as.vector(c(f, f + (1:(length.out - 2)) * by, to))
+}
 	else as.vector(c(as(from,"mpfr"), to))[seq_len(length.out)]
     }
     else if(missing(to))
@@ -445,22 +522,22 @@ setGeneric("seq", function(from, to, by, ...) standardGeneric("seq"),
 
 setGeneric("seq", function(from, to, by, ...) standardGeneric("seq"),
 	   useAsDefault =
-	   function(from=1, to=1, by=((to-from)/(length.out-1)), ...)
+	   function(from = 1, to = 1, by = ((to-from)/(length.out-1)), ...)
 	   base::seq(from, to, by, ...))
 
 setGeneric("seq", function (from, to, by, length.out, along.with, ...)
 	   standardGeneric("seq"),
 	   signature = c("from", "to", "by"),
 	   useAsDefault = {
-	       function(from=1, to=1, by=((to-from)/(length.out-1)),
-			length.out=NULL, along.with=NULL, ...)
+	       function(from = 1, to = 1, by = ((to-from)/(length.out-1)),
+			length.out = NULL, along.with = NULL, ...)
 		   base::seq(from, to, by,
 			     length.out=length.out, along.with=along.with, ...)
 	   })
 
-setMethod("seq", c(from="mpfr", to="ANY", by = "ANY"), seqMpfr)
-setMethod("seq", c(from="ANY", to="mpfr", by = "ANY"), seqMpfr)
-setMethod("seq", c(from="ANY", to="ANY", by = "mpfr"), seqMpfr)
+setMethod("seq", c(from = "mpfr", to = "ANY", by = "ANY"), seqMpfr)
+setMethod("seq", c(from = "ANY", to = "mpfr", by = "ANY"), seqMpfr)
+setMethod("seq", c(from = "ANY", to = "ANY", by = "mpfr"), seqMpfr)
 
 }##--not yet-- defining seq() methods -- as it fails
 
@@ -557,7 +634,7 @@ diff.mpfr <- function(x, lag = 1L, differences = 1L, ...)
     x
 }
 
-str.mpfr <- function(object, nest.lev, give.head=TRUE, ...) {
+str.mpfr <- function(object, nest.lev, give.head = TRUE, ...) {
     ## utils:::str.default() gives  "Formal class 'mpfr' [package "Rmpfr"] with 1 slots"
     cl <- class(object)
     le <- length(object)
@@ -567,14 +644,14 @@ str.mpfr <- function(object, nest.lev, give.head=TRUE, ...) {
     if(give.head)
 	cat("Class", " '", paste(cl, collapse = "', '"),
 	    "' [package \"", attr(cl, "package"), "\"] of ",
-	    if(isArr) paste("dimension", deparse(di, control=NULL))
+	    if(isArr) paste("dimension", deparse(di, control = NULL))
 	    else paste("length", le), " and precision",
 	    if(onePr) paste("", r.pr[1]) else paste0("s ", r.pr[1],"..",r.pr[2]),
 	    "\n", sep = "")
     if(missing(nest.lev)) nest.lev <- 0
     ## maybe add a formatNum() which adds "  " as give.head=TRUE suppresses all
     utils:::str.default(as.numeric(object),
-			give.head=FALSE, nest.lev = nest.lev+1, ...)
+			give.head = FALSE, nest.lev = nest.lev+1, ...)
     ##                   max.level = NA, vec.len = strO$vec.len, digits.d = strO$digits.d,
     ## nchar.max = 128, give.attr = TRUE, give.head = TRUE, give.length = give.head,
     ## width = getOption("width"), nest.lev = 0, indent.str = paste(rep.int(" ",

@@ -13,6 +13,7 @@
 %
 %\VignetteIndexEntry{Acccurately Computing log(1 - exp(.)) -- Assessed by Rmpfr}
 %\VignetteDepends{Rmpfr}
+%\VignetteDepends{gmp}
 %\VignetteDepends{sfsmisc}
 \SweaveOpts{engine=R,strip.white=true, width=8.5, height=6}
 \SweaveOpts{pdf=FALSE, eps=FALSE, grdevice = pdfaCrop}

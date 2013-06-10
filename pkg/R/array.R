@@ -463,6 +463,16 @@ for(it in c("ANY", "missing"))
 				   n.a=nargs(), isMpfr = FALSE))
 rm(it,jt)
 
+setMethod("diag", signature(x = "mpfrMatrix"),
+	  function(x, nrow, ncol) {
+              n <- min(dim(x)); i <- seq_len(n); x[cbind(i,i)] })
+
+setMethod("diag<-", signature(x = "mpfrMatrix"),
+	  function(x, value) {
+	      n <- min(dim(x)); i <- seq_len(n); x[cbind(i,i)] <-  value; x })
+
+
+
 ###-----------
 
 setGeneric("cbind", signature = "...")# -> message about override & deparse.level

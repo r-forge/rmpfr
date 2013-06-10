@@ -1,3 +1,10 @@
+2013-05-04  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/mpfr.R (.mat2ind): from a proposal by Serguei Sokol,
+	new utility, to be used for matrix subsetting and replacement,
+	in .mpfr.subset() and .mpfr.repl().
+__FIXME__ add checking code!
+
 2013-02-28  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* R/Math.R (sumBinomMpfr): oops: docu had (-1)^k instead of (-1)^(n-k);
