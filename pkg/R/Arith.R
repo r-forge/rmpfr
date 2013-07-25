@@ -169,21 +169,23 @@ setMethod("Arith", signature(e1 = "mpfrArray", e2 = "mpfr"),
 	      e1
 	  })
 
+if(getRversion() < "3.1.0") dontCheck <- identity
+
 ## "macro-like	encapsulation
 .Arith.num.mpfr <- function(x,y, FUN)
-    .Call(if(is.integer(x)) "Arith_i_mpfr" else "Arith_d_mpfr",
+    .Call(dontCheck(if(is.integer(x)) Arith_i_mpfr else Arith_d_mpfr),
 	  x,y, .Arith.codes[FUN])
 
 .Arith.mpfr.num <- function(x,y, FUN)
-    .Call(if(is.integer(y)) "Arith_mpfr_i" else "Arith_mpfr_d",
+    .Call(dontCheck(if(is.integer(y)) Arith_mpfr_i else Arith_mpfr_d),
 	  x, y, .Arith.codes[FUN])
 
 .Compare.num.mpfr <- function(x,y, FUN)
-    .Call(if(is.integer(x)) "Compare_mpfr_i" else "Compare_mpfr_d",
+    .Call(dontCheck(if(is.integer(x)) Compare_mpfr_i else Compare_mpfr_d),
 	  y, x, .Compare.codesRev[FUN])
 
 .Compare.mpfr.num <- function(x,y, FUN)
-    .Call(if(is.integer(y)) "Compare_mpfr_i" else "Compare_mpfr_d",
+    .Call(dontCheck(if(is.integer(y)) Compare_mpfr_i else Compare_mpfr_d),
 	  x, y, .Compare.codes[FUN])
 
 setMethod("Arith", signature(e1 = "array", e2 = "mpfr"),# incl "mpfrArray"
