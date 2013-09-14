@@ -101,6 +101,9 @@
 \alias{tcrossprod,array_or_vector,mpfr-method}
 \alias{tcrossprod,mpfr,array_or_vector-method}
 
+\alias{which.min,mpfr-method}
+\alias{which.max,mpfr-method}
+
 \alias{show,mpfr-method}
 \alias{show,mpfr1-method}
 \alias{print.mpfr1}
@@ -260,6 +263,11 @@
 
     \item{t}{\code{signature(x = "mpfr")}: makes \code{x} into an \eqn{n
 	\times 1}{n x 1} \code{\linkS4class{mpfrMatrix}}.}
+
+    \item{which.min}{\code{signature(x = "mpfr")}: gives the index of
+	the first minimum, see \code{\link{which.min}}.}
+    \item{which.max}{\code{signature(x = "mpfr")}: gives the index of
+	the first maximum, see \code{\link{which.max}}.}
   }
 }
 \author{Martin Maechler}
@@ -329,5 +337,11 @@ stopifnot(all(diff(sort(p)) >= 0),
       tol = 1e-3),# quantiles: interpolated in orig. <--> log scale
  TRUE)
 
+m0 <- mpfr(numeric(), 99)
+stopifnot(identical(which.min(m0), integer(0)),
+	  identical(which.max(m0), integer(0)),
+	  max(m0) == mpfr(-Inf, 53), # hmm, the 53 is not a feature
+	  min(m0) == mpfr(+Inf, 53), #	 (ditto)
+	  sum(m0) == 0, prod(m0) == 1)
 }
 \keyword{classes}

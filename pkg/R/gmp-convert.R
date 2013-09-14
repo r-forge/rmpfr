@@ -1,10 +1,9 @@
 #### Conversions   bigz  <-> mpfr   // also bigq <--> mpfr
 
-## The following code is experimental, hence the "." :
+if(packageVersion("gmp") < "0.5.8")## <-> ../NAMESPACE
+    is.matrixZQ <- function(x) !is.null(attr(x, "nrow"))
 
-if(!is.na(r <- suppressWarnings(packageDescription("gmp",
-                                                   fields="Version")))
-   && package_version(r) >= 0.5) {
+## The following code is experimental, hence the "." :
 
 ### FIXME: we go via character.. which is not really efficient.
 ### Directly in C, we'd need both Rmpfr and gmp's  C code (!)
@@ -20,9 +19,13 @@ if(!is.na(r <- suppressWarnings(packageDescription("gmp",
     ## precB: 4 == log2(16) = log(base)
 {
     b <- 16L
-    cx <- .Call(biginteger_as_character, x, b)
+    cx <- .as.char.bigz(x, b)
     if(is.null(precB)) precB <- 4L*nchar(cx)
-    new("mpfr", .Call(str2mpfr1_list, cx, precB, b, "N"))
+    if(is.matrixZQ(x))
+	new("mpfrMatrix", .Call(str2mpfr1_list, cx, precB, b, "N"),
+	    Dim = dim(x))# "bigz" has no dimnames
+    else
+	new("mpfr", .Call(str2mpfr1_list, cx, precB, b, "N"))
 }
 setAs("bigz", "mpfr", function(from) ..bigz2mpfr(from))
 
@@ -35,8 +38,7 @@ as.bigz.mpfr <-
     dx <- dim(x)
     cx <- format(trunc(x), drop0trailing=TRUE)
     dim(cx) <- dx ## needed?? {should *not* be, as in base R!}
-    ## .Call(biginteger_as, cx, mod)
-    .Call(biginteger_as, cx, mod)
+    ..as.bigz(cx, mod)
 }
 
 
@@ -57,6 +59,3 @@ as.bigz.mpfr <-
     ..bigq2mpfr(x, precB)
 }
 setAs("bigq", "mpfr", function(from) ..bigq2mpfr(from))
-
-
-}# only if gmp ..
