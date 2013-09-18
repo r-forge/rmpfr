@@ -8,12 +8,12 @@ warningI <- function(...) warning(..., immediate. = TRUE)
 
 ## Check that we got the "which.*" methods also from "bigq":
 bcl <- c("ANY", "bigq", "bigz", "mpfr")
-if(packageVersion("gmp") >= "0.5-8") {
+##if(packageVersion("gmp") >= "0.5-8") {
 stopifnot(identical(bcl,
 		    sort(unlist(findMethods("which.max")@signatures))),
 	  identical(bcl,
 		    sort(unlist(findMethods("which.min")@signatures))))
-}
+##}
 
 options(warn = 1)# warnings *immediately*
 (doExtras <- Rmpfr:::doExtras())
