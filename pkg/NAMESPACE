@@ -163,6 +163,7 @@ S3method(as.array, mpfr)
 S3method(as.matrix, mpfr)
 
 S3method(determinant, mpfrMatrix)
+S3method(scale, mpfrMatrix)
 
 S3method(diff, mpfr)
 S3method(str,  mpfr)
