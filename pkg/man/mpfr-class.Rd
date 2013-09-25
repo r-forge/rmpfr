@@ -29,6 +29,7 @@
 %
 \alias{coerce,mpfr,character-method}
 \alias{coerce,mpfr,numeric-method}
+\alias{coerce,mpfr,bigz-method}
 \alias{coerce,mpfr,integer-method}
 \alias{coerce,mpfr1,numeric-method}
 \alias{coerce,mpfr1,mpfr-method}
@@ -255,6 +256,8 @@
       \code{\link{character}} strings, \code{\link{numeric}}, \code{\link{integer}},
       \code{\link{logical}}, and even \code{\link{raw}}.  Note however,
       that \code{\link{mpfr}(., precBits, base)} is more flexible.}
+    \item{coerce}{\code{signature(from = "mpfr", to = "bigz")}: coerces
+      to biginteger, see \code{\link[gmp]{bigz}} in package \pkg{gmp}.}
     \item{coerce}{\code{signature(from = "mpfr", to = "numeric")}: ... }
     \item{coerce}{\code{signature(from = "mpfr", to = "character")}: ... }
 
@@ -333,7 +336,7 @@ stopifnot(all(diff(sort(p)) >= 0),
    identical(rank (p), rank (np)),
    all.equal(sapply(1:9, function(Typ) quantile(np, type=Typ, names=FALSE)),
       sapply(lapply(1:9, function(Typ) quantile( p, type=Typ, names=FALSE)),
-             function(x) as.numeric(log(x))),
+	     function(x) as.numeric(log(x))),
       tol = 1e-3),# quantiles: interpolated in orig. <--> log scale
  TRUE)
 

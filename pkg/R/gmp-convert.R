@@ -6,10 +6,16 @@ if(packageVersion("gmp") < "0.5.8")## <-> ../NAMESPACE
 ## The following code is experimental, hence the "." :
 
 ### FIXME: we go via character.. which is not really efficient.
-### Directly in C, we'd need both Rmpfr and gmp's  C code (!)
-### TODO(?:  gmp should "export" its C++ API ( -> inst/include/*.hh )
-### and we should add  'LinkingTo: gmp' to DESCRIPTION and
-###  then use C++ with "C" { ...} for those parts
+## ------  rather "should" use  MPFR Functions
+## int mpfr_set_z (mpfr_t ROP, mpz_t OP, mpfr_rnd_t RND)
+## int mpfr_set_q (mpfr_t ROP, mpq_t OP, mpfr_rnd_t RND)
+##
+## Set the value of ROP from OP, rounded toward the given direction RND.
+##
+## Directly in C, we'd need both Rmpfr and gmp's  C code (!)
+## TODO(?:  gmp should "export" its C++ API ( -> inst/include/*.hh )
+## and we should add  'LinkingTo: gmp' to DESCRIPTION and
+##  then use C++ with "C" { ...} for those parts
 .bigz2mpfr <- function(x, precB = NULL) {
     stopifnot(inherits(x, "bigz"))
     ..bigz2mpfr(x, precB)
@@ -30,16 +36,22 @@ if(packageVersion("gmp") < "0.5.8")## <-> ../NAMESPACE
 setAs("bigz", "mpfr", function(from) ..bigz2mpfr(from))
 
 
+## FIXME: rather should use MPFR -- Function :
+## ----   int mpfr_get_z (mpz_t ROP, mpfr_t OP, mpfr_rnd_t RND)
+## Convert OP to a `mpz_t', after rounding it with respect to RND.  ....
+## FIXME(2): should 'gmp' change as.bigz into an S3 generic, so this becomes S3 method?
 as.bigz.mpfr <-
 .mpfr2bigz <- function(x, mod=NA) {
     if(is.null(mod)) mod <- NA_integer_
     stopifnot(is(x, "mpfr"),
 	      is.na(mod) || (length(mod) == 1L && is.numeric(mod)))
     dx <- dim(x)
+### FIXME or rather  roundMpfr()  [or even round "RND" as in mpfr_get_z() above] ??
     cx <- format(trunc(x), drop0trailing=TRUE)
     dim(cx) <- dx ## needed?? {should *not* be, as in base R!}
     ..as.bigz(cx, mod)
 }
+setAs("mpfr", "bigz", function(from) .mpfr2bigz(from))
 
 
 ## Fast, no-checking (and not exported) version:
@@ -59,3 +71,7 @@ as.bigz.mpfr <-
     ..bigq2mpfr(x, precB)
 }
 setAs("bigq", "mpfr", function(from) ..bigq2mpfr(from))
+
+## TODO(?)  "mpfr" ->  "bigq"
+## a) in the spirit  MASS::fractions()    or
+## b) "native" MPFR "support" -- not yet available: has mpfr_get_z() but not get_q()
