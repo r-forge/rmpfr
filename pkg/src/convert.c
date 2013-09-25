@@ -280,7 +280,7 @@ SEXP d2mpfr(SEXP x, SEXP prec)
 void R_asMPFR(SEXP x, mpfr_ptr r)
 {
     SEXP prec_R = GET_SLOT(x, Rmpfr_precSym);
-    SEXP sign_R = GET_SLOT(x, Rmpfr_signSym);
+    // SEXP sign_R = GET_SLOT(x, Rmpfr_signSym);// only used once
     SEXP exp_R  = GET_SLOT(x, Rmpfr_expSym);
     SEXP d_R    = GET_SLOT(x, Rmpfr_d_Sym);
 
@@ -300,7 +300,7 @@ void R_asMPFR(SEXP x, mpfr_ptr r)
     } else ex1 = ex[1];
 
     mpfr_set_prec(r, (mpfr_prec_t) x_prec);
-    r->_mpfr_sign = (mpfr_sign_t) INTEGER(sign_R)[0];
+    r->_mpfr_sign = (mpfr_sign_t) INTEGER(GET_SLOT(x, Rmpfr_signSym))[0];
     R_mpfr_GET_EXP;
     /* the full *vector* of limbs : */
     for(i=0; i < nr_limbs; i++) {
