@@ -150,13 +150,29 @@
   \describe{
     \item{abs}{\code{signature(x = "mpfr")}: ... }
 
+    \item{lbeta}{\code{signature(a = "ANY", b = "mpfrArray")}, is
+      \eqn{\log(|B(a,b)|)}{log(abs(B(a,b)))} where \eqn{B(a,b)} is the
+      Beta function, \code{beta(a,b)}.}
     \item{beta}{\code{signature(a = "mpfr", b = "ANY")},}
-    \item{lbeta}{\code{signature(a = "ANY", b = "mpfrArray")},}
     \item{beta}{\code{signature(a = "mpfr", b = "mpfr")}, \dots, etc:
       Compute the beta function \eqn{B(a,b)}, using high precision,
       building on internal \code{\link{gamma}} or \code{\link{lgamma}}.
       See the help for \R's base function \code{\link[base]{beta}} for
-      more.}
+      more.  Currently, there, \eqn{a,b \ge 0}{a,b >= 0} is required.
+      Here, we provide (non-\code{\link{NaN}}) for all numeric \code{a, b}.
+
+      When either \eqn{a}, \eqn{b}, or \eqn{a+b} is a negative
+      \emph{integer}, \eqn{\Gamma(.)} has a pole there and is undefined
+      (\code{NaN}).  However the Beta function can be defined there as
+      \dQuote{limit}, in some cases.  Following other software such as
+      SAGE, Maple or Mathematica, we provide finite values in these
+      cases.  However, note that these are not proper limits
+      (two-dimensional in \eqn{(a,b)}), but useful for some
+      applications.  E.g., \eqn{B(a,b)} is defined as zero when
+      \eqn{a+b} is a negative integer, but neither \eqn{a} nor \eqn{b} is.
+      Further, if \eqn{a > b > 0} are integers, \eqn{B(-a,b)= B(b,-a)}
+      can be seen as \eqn{(-1)^b * B(a-b+1,b)}.
+    }
     \item{dim<-}{\code{signature(x = "mpfr")}: Setting a dimension
       \code{\link{dim}} on an \code{"mpfr"} object makes it into an object
       of class \code{"\linkS4class{mpfrArray}"} or (more specifically)
