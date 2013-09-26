@@ -166,7 +166,7 @@ formatMpfr <-
 		rr <- r[iNeg]
 		rr[isMin] <- substring(rr[isMin], 2)
 		r[iNeg] <- paste0(c("","-")[1+isMin], "0.",
-                                  nZeros(-ex[iNeg]), rr)
+				  nZeros(-ex[iNeg]), rr)
 	    }
 	    else {
 		r[iNeg] <- paste0("0.", nZeros(-ex[iNeg]), r[iNeg])
@@ -175,12 +175,14 @@ formatMpfr <-
 	if(any(iPos)) ## "xy.nnnn" :
 	    r[iPos] <- patch(r[iPos], (hasMinus + Ex+1L)[iPos])
     }
-    prettyNum(r, big.mark = big.mark, big.interval = big.interval,
-	      small.mark = small.mark,
-	      small.interval = small.interval,
-	      decimal.mark = decimal.mark,
-	      zero.print = zero.print, drop0trailing = drop0trailing,
-	      preserve.width = if (trim) "individual" else "common")
+    r <- prettyNum(r, big.mark = big.mark, big.interval = big.interval,
+		   small.mark = small.mark,
+		   small.interval = small.interval,
+		   decimal.mark = decimal.mark,
+		   zero.print = zero.print, drop0trailing = drop0trailing,
+		   preserve.width = if (trim) "individual" else "common")
+    if(is.null(d <- dim(x))) r
+    else array(r, dim=d, dimnames = dimnames(x))
 }
 setMethod("format", "mpfr", formatMpfr)
 

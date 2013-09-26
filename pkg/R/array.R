@@ -157,7 +157,9 @@ print.mpfrArray <- function(x, digits = NULL, drop0trailing = FALSE,
     if(n >= 1) {
 	## FIXME: really need a 'format' method for mpfrArrays
 	## -----  which properly alings columns !!
-	fx <- format(x, digits=digits, drop0trailing=drop0trailing)
+
+	## Build character array fx, and print that
+	fx <- formatMpfr(x, digits=digits, drop0trailing=drop0trailing)
 	dim(fx) <- dim(x)
 	dimnames(fx) <- dimnames(x)
 	print(fx, ..., right=right, quote = FALSE)
