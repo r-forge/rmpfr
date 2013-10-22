@@ -11,8 +11,8 @@ _INSTALL
 ^svn-todo
 ^svn-log
 src/Makevars$
-vignettes/log1mexp-artcl
-inst/doc/log1mexp-artcl
+vignettes/log1mexp-artcl.*
+inst/doc/log1mexp-artcl.*
 inst/doc/auto
 inst/doc/MPFR_Fousse_etal
 inst/doc/20[12]

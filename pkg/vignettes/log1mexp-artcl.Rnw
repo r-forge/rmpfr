@@ -270,6 +270,8 @@ which uses either \code{expm1} (\ref{eq:f.expm1}) or
 we have defined the macro \verb|R_D_LExp(x)| to provide these two cases %branches
 automatically\footnote{look for ``log(1-exp(x))'' in
   \url{http://svn.r-project.org/R/branches/R-1-9-patches/src/nmath/dpq.h}}.
+% R-1.8.1: pgamma(30,100, lower=FALSE, log=TRUE)  gave 0 instead of -...
+
 
 To investigate the accuracy losses empirically, we make use of the \R{} package
 \CRANpkg{Rmpfr} for arbitrarily accurate numerical computation, and use the
