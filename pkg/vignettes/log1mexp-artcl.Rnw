@@ -12,7 +12,7 @@
 \Plainauthor{Martin M\"achler} %% comma-separated
 \Plaintitle{Accurately Computing log(1 - exp(.)) -- Assessed by Rmpfr}
 %
-%\VignetteIndexEntry{Acccurately Computing log(1 - exp(.)) -- Assessed by Rmpfr}
+%no_VignetteIndexEntry{Acccurately Computing log(1 - exp(.)) -- Assessed by Rmpfr}
 %\VignetteDepends{Rmpfr}
 %\VignetteDepends{sfsmisc}
 \SweaveOpts{engine=R,strip.white=true, width=8.5, height=6}
