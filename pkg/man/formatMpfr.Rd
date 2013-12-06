@@ -22,9 +22,10 @@ formatMpfr(x, digits = NULL, trim = FALSE, scientific = NA,
 }
 \arguments{
   \item{x}{an MPFR number (vector or array).}
-  \item{digits}{how many significant digits are to be used for
-    numeric and complex \code{x}.  The default, \code{NULL}, uses
-    enough digits to represent the full precission.}
+  \item{digits}{how many significant digits are to be used.  The
+    default, \code{NULL}, uses enough digits to represent the full
+    precision, often one or two digits more than \dQuote{you} would
+    expect.}
   \item{trim}{logical; if \code{FALSE}, numbers are right-justified to a
     common width: if \code{TRUE} the leading blanks for justification
     are suppressed.}
@@ -47,7 +48,6 @@ formatMpfr(x, digits = NULL, trim = FALSE, scientific = NA,
   \code{\linkS4class{mpfrArray}}, then \code{cx} is a character
   \code{\link{array}} with the same \code{\link{dim}} and
   \code{\link{dimnames}} as \code{x}.
-}
 \references{
   The MPFR manual's description of \samp{mpfr_get_str()} which is the
   C-internal workhorse for the (internal) \R function \code{.mpfr2str()}
