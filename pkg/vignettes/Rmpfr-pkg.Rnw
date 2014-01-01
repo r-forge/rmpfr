@@ -109,7 +109,7 @@
 \newcommand*{\R}{\proglang{R}}%{\textsf{R}}
 \newcommand*{\Arg}[1]{\texttt{\itshape $\langle$#1$\rangle$}}
 \newcommand*{\eps}{\varepsilon}
-\newcommand{\CRANpkg}{\href{http://CRAN.R-project.org/package=#1}{\pkg{#1}}}
+\newcommand*{\CRANpkg}[1]{\href{http://CRAN.R-project.org/package=#1}{\pkg{#1}}}
 
 %% end of declarations %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -439,7 +439,7 @@ abline(h=0, v=0, lty=3); abline(v=c(-1,1), lty=3, lwd=.8, col="gray")
 legend(-3,1, c("erf(x)", "erfc(x)"), col = c("red","blue"), lty=1)
 @
 \subsection{Applications}
-The CRAN package \CRANpkg{Bessel} 
+The CRAN package \CRANpkg{Bessel}
 
 \section{Integration highly precisely}
 Sometimes, important functions are defined as integrals of
@@ -501,7 +501,7 @@ as.numeric(Itrue - c(Im$value, Id$value))
 @
 
 \section{Conclusion}
-The \R package{Rmpfr}, available from CRAN since August 2009,
+The \R\ package \pkg{Rmpfr}, available from CRAN since August 2009,
 provides the possibility to run many computations in R with (arbitrarily)
 high accuracy, though typically with substantial speed penalty.
 
