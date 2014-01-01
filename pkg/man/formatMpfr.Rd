@@ -48,6 +48,7 @@ formatMpfr(x, digits = NULL, trim = FALSE, scientific = NA,
   \code{\linkS4class{mpfrArray}}, then \code{cx} is a character
   \code{\link{array}} with the same \code{\link{dim}} and
   \code{\link{dimnames}} as \code{x}.
+}
 \references{
   The MPFR manual's description of \samp{mpfr_get_str()} which is the
   C-internal workhorse for the (internal) \R function \code{.mpfr2str()}
