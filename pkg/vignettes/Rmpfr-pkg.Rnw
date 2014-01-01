@@ -510,6 +510,6 @@ numerical stability and appropriateness of mathematical formulae that are
 translated to a computer language like \R, often without very careful
 consideration of the limits of computer arithmetic.
 
-\bibliography{Rmpfr, log1mexp}
+\bibliography{Rmpfr,log1mexp}
 
 \end{document}
