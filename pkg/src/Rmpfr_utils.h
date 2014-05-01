@@ -78,14 +78,15 @@ static R_INLINE int R_mpfr_nr_limbs(mpfr_t r)
     return nr;
 }
 
+// Note: "in theory" we could set precBits > INT_MAX, but currently not in Rmpfr:
 static R_INLINE void R_mpfr_check_prec(int prec)
 {
     if(prec == NA_INTEGER)
-	error("Precision bits are NA (probably from coercion)");
+	error("Precision(bit) is NA (probably from coercion)");
     if(prec < MPFR_PREC_MIN)
-	error("Precision bits %d < %d (= MPFR_PREC_MIN)", prec, MPFR_PREC_MIN);
+	error("Precision(bit) = %d < %ld (= MPFR_PREC_MIN)", prec, (long)MPFR_PREC_MIN);
     if(prec > MPFR_PREC_MAX)
-	error("Precision bits %d > %d (= MPFR_PREC_MAX)", prec, MPFR_PREC_MAX);
+	error("Precision(bit) = %d > %ld (= MPFR_PREC_MAX)", prec, (long)MPFR_PREC_MAX);
     return;
 }
 

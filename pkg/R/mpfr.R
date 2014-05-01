@@ -569,7 +569,7 @@ setMethod("seq", c(from = "ANY", to = "ANY", by = "mpfr"), seqMpfr)
     else mpfr_default_prec()
 }
 ## the user version
-getPrec <- function(x, base = 10, doNumeric = TRUE, is.mpfr = NA) {
+getPrec <- function(x, base = 10, doNumeric = TRUE, is.mpfr = NA, bigq. = 128L) {
     if(isTRUE(is.mpfr) || is(x,"mpfr"))
 	vapply(getD(x), slot, 1L, "prec")# possibly of length 0
     else if(is.character(x)) ## number of digits --> number of bits
@@ -581,8 +581,11 @@ getPrec <- function(x, base = 10, doNumeric = TRUE, is.mpfr = NA) {
 	    if(inherits(x,"bigz"))
 		frexpZ(x)$exp
 	    else if(inherits(x,"bigq")) {
-		warning("default precision for 'bigq' arbitrarily chosen as 128")
-		128L
+		if(missing(bigq.)) {
+		    warning("default precision for 'bigq' arbitrarily chosen as", bigq.)
+		    big.q
+		}
+		else as.integer(bigq.)
 	    }
 	    else 8L
 	} else 8L

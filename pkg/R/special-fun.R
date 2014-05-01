@@ -319,18 +319,22 @@ hypot <- function(x,y) {
 pbetaI <- function(q, shape1, shape2, ncp = 0, lower.tail = TRUE, log.p = FALSE,
 		   precBits = NULL)
 {
-    stopifnot(is.whole(shape1), is.whole(shape2),
-	      length(shape1) == 1, length(shape2) == 1,
+    stopifnot(length(shape1) == 1, length(shape2) == 1,
+	      is.whole(shape1), is.whole(shape2),
+	      shape1 >= 0, shape2 >= 0,
 	      length(lower.tail) == 1, length(log.p) == 1,
 	      0 <= q, q <= 1, ncp == 0,
 	      is.null(precBits) ||
 	      (is.numeric(precBits) && is.whole(precBits) && precBits >= 2))
-    ## take some care to protect against "integer overflow"
-    if(is.na(a <- as.integer(shape1))) a <- as.bigz(shape1)
-    if(is.na(b <- as.integer(shape2))) b <- as.bigz(shape2)
-    if(is.na(n <- a+b-1L)) n <- as.bigz(a) + as.bigz(b) - 1L
-    stopifnot(!is.na(a), !is.na(b), !is.na(n))
-    pr.x <- getPrec(q)
+    ## Care for too large (a,b) and "integer overflow".
+    ## NB:  below have 0:(b - 1) or 0:(a - 1)
+    max.ab <- 2^20
+    if(is.na(a <- as.integer(shape1)) || (!lower.tail && a > max.ab))
+        stop("a = shape1 is too large for 'lower.tail=FALSE' and the current algorithm")
+    if(is.na(b <- as.integer(shape2)) || (lower.tail && b > max.ab))
+        stop("b = shape2 is too large for 'lower.tail=TRUE' and the current algorithm")
+    n <- a + b - 1L
+    pr.x <- getPrec(q, bigq. = 256L)
     if(is.null(precBits)) {
         aq <- abs(as.numeric(q))
         mq <- if(any(po <- aq > 0)) min(aq[po]) else 1 # ==> log = 0
