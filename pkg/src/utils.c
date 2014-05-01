@@ -242,7 +242,7 @@ int my_mpfr_choose (mpfr_t R, long n, mpfr_t X, mpfr_rnd_t RND)
     int ans;
     long i;
     mpfr_t r, x;
-    mp_prec_t p_X = mpfr_get_prec(X);
+    mpfr_prec_t p_X = mpfr_get_prec(X);
 
     mpfr_init2(x, p_X); mpfr_set(x, X, RND);
     mpfr_init2(r, p_X);
@@ -275,7 +275,7 @@ int my_mpfr_poch (mpfr_t R, long n, mpfr_t X, mpfr_rnd_t RND)
     int ans;
     long i;
     mpfr_t r, x;
-    mp_prec_t p_X = mpfr_get_prec(X);
+    mpfr_prec_t p_X = mpfr_get_prec(X);
 
     mpfr_init2(x, p_X); mpfr_set(x, X, RND);
     mpfr_init2(r, p_X);
@@ -308,7 +308,7 @@ int my_mpfr_round (mpfr_t R, long prec, mpfr_t X, mpfr_rnd_t RND)
     if(prec > MPFR_PREC_MAX)
 	error("prec = %d > %d  is too large", prec, MPFR_PREC_MAX);
     mpfr_set(R, X, RND);
-    ans = mpfr_prec_round(R, (mp_prec_t) prec, RND);
+    ans = mpfr_prec_round(R, (mpfr_prec_t) prec, RND);
     return ans;
 }
 
@@ -333,8 +333,54 @@ SEXP R_mpfr_get_default_prec(void) {
 
 SEXP R_mpfr_set_default_prec(SEXP prec) {
     SEXP ans = ScalarInteger((int) mpfr_get_default_prec());
-    mpfr_set_default_prec((mp_prec_t) asInteger(prec));
+    mpfr_set_default_prec((mpfr_prec_t) asInteger(prec));
     return ans;
+}
+
+typedef enum { E_min = 1, E_max,
+	       min_emin, max_emin, min_emax, max_emax } erange_kind;
+
+SEXP R_mpfr_get_erange(SEXP kind_) {
+    erange_kind kind = asInteger(kind_);
+/* MUST be sync'ed with  ../R/mpfr.R
+ *                       ~~~~~~~~~~~ where  .Summary.codes <-
+
+ */
+    mpfr_exp_t r;
+    switch(kind) {
+    case E_min:    r = mpfr_get_emin();     break;
+    case E_max:    r = mpfr_get_emax();     break;
+    case min_emin: r = mpfr_get_emin_min(); break;
+    case max_emin: r = mpfr_get_emin_max(); break;
+    case min_emax: r = mpfr_get_emax_min(); break;
+    case max_emax: r = mpfr_get_emax_max(); break;
+    default:
+	error("invalid kind (code = %d) in R_mpfr_get_erange()", kind);
+    }
+    return ScalarInteger((int) r);
+}
+
+SEXP R_mpfr_set_erange(SEXP kind_, SEXP val) {
+    erange_kind kind = asInteger(kind_);
+    mpfr_exp_t exp_val = asInteger(val);
+    int i_err;
+    switch(kind) {
+    case E_min: i_err = mpfr_set_emin(exp_val); break;
+    case E_max: i_err = mpfr_set_emax(exp_val); break;
+    default:
+	error("invalid kind (code = %d) in R_mpfr_set_erange()", kind);
+    }
+    if(i_err) warning("e%s exponent could not be set to %ld (code %d)",
+		      (kind == E_min) ? "min" : "max", (long)exp_val, i_err);
+    return ScalarInteger(i_err);
+}
+
+SEXP R_mpfr_prec_range(SEXP ind) {
+    return ScalarInteger(
+	(int) (
+	    (INTEGER(ind)[0] == 1)
+	    ? MPFR_PREC_MIN
+	    : MPFR_PREC_MAX));
 }
 
 
@@ -355,7 +401,9 @@ SEXP const_asMpfr(SEXP I, SEXP prec)
 {
     SEXP val;
     mpfr_t r;
-    mpfr_init2(r, asInteger(prec));
+    int i_p = asInteger(prec);
+    R_mpfr_check_prec(i_p);
+    mpfr_init2(r, i_p);
 
     switch(asInteger(I)) {
     case 1: mpfr_const_pi     (r, MPFR_RNDN); break;
@@ -406,7 +454,9 @@ SEXP R_mpfr_fac (SEXP n_, SEXP prec)
     } else {
 	nn = INTEGER(n_);
     }
-    mpfr_init2(r_i, (mp_prec_t) asInteger(prec));
+    int i_p = asInteger(prec);
+    R_mpfr_check_prec(i_p);
+    mpfr_init2(r_i, i_p);
     for(i=0; i < n; i++) {
 	// never happens when called from R:
 	if(nn[i] < 0) error("R_mpfr_fac(%d): negative n.", nn[i]);

@@ -3,7 +3,6 @@
 
 ### "Math" are done in ./Math.R , "Ops", "Arith", "Logic", "Compare" in ./Arith.R
 
-###--> "max"   "min"   "range" "prod"  "sum"   "any"   "all"
 .Summary.codes <-
     c("max" = 1, "min" = 2, "range" = 3, "prod" = 4, "sum" = 5,
       "any" = 10, "all" = 11)

@@ -78,6 +78,17 @@ static R_INLINE int R_mpfr_nr_limbs(mpfr_t r)
     return nr;
 }
 
+static R_INLINE void R_mpfr_check_prec(int prec)
+{
+    if(prec == NA_INTEGER)
+	error("Precision bits are NA (probably from coercion)");
+    if(prec < MPFR_PREC_MIN)
+	error("Precision bits %d < %d (= MPFR_PREC_MIN)", prec, MPFR_PREC_MIN);
+    if(prec > MPFR_PREC_MAX)
+	error("Precision bits %d > %d (= MPFR_PREC_MAX)", prec, MPFR_PREC_MAX);
+    return;
+}
+
 #define R_mpfr_prec(x) INTEGER(GET_SLOT(x, Rmpfr_precSym))[0]
 
 #define N_LIMBS(_PREC_) ceil(((double)_PREC_)/mp_bits_per_limb)
@@ -116,7 +127,6 @@ SEXP print_mpfr1(SEXP x, SEXP digits);
 SEXP Rmpfr_minus(SEXP x);
 SEXP Rmpfr_abs(SEXP x);
 SEXP Math_mpfr(SEXP x, SEXP op);
-SEXP Math_mpfr(SEXP x, SEXP op);
 SEXP Arith_mpfr(SEXP x, SEXP y, SEXP op);
 SEXP Arith_mpfr_i(SEXP x, SEXP y, SEXP op);
 SEXP Arith_i_mpfr(SEXP x, SEXP y, SEXP op);
@@ -143,6 +153,9 @@ SEXP MPFR_as_R(mpfr_t r);
 SEXP R_mpfr_set_debug(SEXP I);
 SEXP R_mpfr_set_default_prec(SEXP prec);
 SEXP R_mpfr_get_default_prec(void);
+SEXP R_mpfr_get_erange(SEXP kind);
+SEXP R_mpfr_set_erange(SEXP kind, SEXP val);
+SEXP R_mpfr_prec_range(SEXP ind);
 SEXP R_mpfr_get_version(void);
 
 

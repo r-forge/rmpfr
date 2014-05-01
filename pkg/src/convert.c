@@ -113,6 +113,8 @@ SEXP d2mpfr1_(double x, int i_prec, mpfr_rnd_t rnd)
     mpfr_t r;
     int nr_limbs = N_LIMBS(i_prec), i;
 
+    R_mpfr_check_prec(i_prec);
+
     R_mpfr_MPFR_2R_init(val);
 
     mpfr_init2 (r, (mpfr_prec_t)i_prec);
@@ -224,11 +226,12 @@ SEXP str2mpfr1_list(SEXP x, SEXP prec, SEXP base, SEXP rnd_mode)
 
     if(!isString(x))     { PROTECT(x    = coerceVector(x,    STRSXP)); nprot++; }
     if(!isInteger(prec)) { PROTECT(prec = coerceVector(prec, INTSXP)); nprot++; }
-
     iprec = INTEGER(prec);
 
     for(int i = 0; i < n; i++) {
-	mpfr_set_prec(r_i, (mpfr_prec_t) iprec[i % np]);
+	int prec_i = iprec[i % np];
+	R_mpfr_check_prec(prec_i);
+	mpfr_set_prec(r_i, (mpfr_prec_t) prec_i);
 	int ierr = mpfr_set_str(r_i, CHAR(STRING_ELT(x, i % nx)), ibase, rnd);
 	if(ierr) {
 	    if (!strcmp("NA", CHAR(STRING_ELT(x, i % nx))))

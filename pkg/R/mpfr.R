@@ -35,6 +35,28 @@ mpfr_default_prec <- function(prec) {
 	.Call(R_mpfr_set_default_prec, prec)
     }
 }
+.mpfr.maxPrec <- function() .Call(R_mpfr_prec_range, 1L)
+.mpfr.minPrec <- function() .Call(R_mpfr_prec_range, 2L)
+
+## must be sync'ed with enum def. in R_mpfr_get_erange in ../src/utils.c
+.erange.codes <- c("Emin", "Emax",
+                   "min.emin", "max.emin",
+                   "min.emax", "max.emax")
+.erange.codes <- setNames(seq_along(.erange.codes), .erange.codes)
+## FIXME? better function name ??
+.mpfr.erange <- function(kind) {
+    stopifnot(length(kind) == 1, is.character(kind))
+    if(!any(iseq <- kind == names(.erange.codes)))
+        stop("'kind' must be one of ",
+             paste(paste0('"', names(.erange.codes), '"'), collapse=", "))
+    .Call(R_mpfr_get_erange, .erange.codes[[kind]])
+}
+
+`.mpfr.erange<-` <- function(kind = c("Emin", "Emax"), value) {
+    kind <- match.arg(kind)
+    .Call(R_mpfr_set_erange, .erange.codes[[kind]], value)
+}
+
 
 .mpfrVersion <- function() .Call(R_mpfr_get_version)
 mpfrVersion <- function()
