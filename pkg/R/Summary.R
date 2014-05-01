@@ -6,7 +6,7 @@
 ###--> "max"   "min"   "range" "prod"  "sum"   "any"   "all"
 .Summary.codes <-
     c("max" = 1, "min" = 2, "range" = 3, "prod" = 4, "sum" = 5,
-      "any" = 6, "all" = 7)
+      "any" = 10, "all" = 11)
 storage.mode(.Summary.codes) <- "integer"
 
 setMethod("Summary", "mpfr",
