@@ -35,8 +35,9 @@ mpfr_default_prec <- function(prec) {
 	.Call(R_mpfr_set_default_prec, prec)
     }
 }
-.mpfr.maxPrec <- function() .Call(R_mpfr_prec_range, 1L)
-.mpfr.minPrec <- function() .Call(R_mpfr_prec_range, 2L)
+
+.mpfr.minPrec <- function() .Call(R_mpfr_prec_range, 1L)
+.mpfr.maxPrec <- function() .Call(R_mpfr_prec_range, 2L)
 
 ## must be sync'ed with enum def. in R_mpfr_get_erange in ../src/utils.c
 .erange.codes <- c("Emin", "Emax",
@@ -90,8 +91,7 @@ if(.Platform$OS.type != "windows") {## No R_Outputfile (in C) on Windows
 getD <- function(x) { attributes(x) <- NULL; x }
 
 ## Get or Set the C-global  'R_mpfr_debug_' variable:
-.mpfr.debug <- function(i = NA)
-    .Call(R_mpfr_set_debug, as.integer(i))
+.mpfr.debug <- function(i = NA) .Call(R_mpfr_set_debug, as.integer(i))
 
 print.mpfr <- function(x, digits = NULL, drop0trailing = TRUE,
 		       right = TRUE, ...) {
@@ -588,10 +588,12 @@ getPrec <- function(x, base = 10, doNumeric = TRUE, is.mpfr = NA) {
 	} else 8L
     }
     else {
-	if(!doNumeric) stop("must specify 'precBits' for numeric 'x'")
+	if(!doNumeric)
+            stop("No default precision for numeric 'x' when 'doNumeric' is false")
 	## else
 	if(is.integer(x)) 32L
 	else if(is.double(x)) 53L
+	else if(length(x) == 0) mpfr_default_prec()
 	else stop(sprintf("cannot determine 'precBits' for x of type '%s'",
 			  typeof(x)))
     }

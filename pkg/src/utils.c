@@ -318,13 +318,17 @@ SEXP R_mpfr_get_version(void) {
     return mkString(mpfr_get_version());
 }
 
-SEXP R_mpfr_set_debug(SEXP I) {
-    /* Set or get the C-global debugging level : */
+/* Set or get the C-global debugging level --
+ * only used in R_mpfr_dbg_printf() --> ./Rmpfr_utils.h
+*/
+SEXP R_mpfr_set_debug(SEXP I)
+{
     if(LENGTH(I) < 1 || INTEGER(I)[0] == NA_INTEGER)
 	return ScalarInteger(R_mpfr_debug_);
     /* else : */
+    int prev = R_mpfr_debug_;
     R_mpfr_debug_ = asInteger(I);
-    return I;
+    return ScalarInteger(prev);
 }
 
 SEXP R_mpfr_get_default_prec(void) {
@@ -332,9 +336,10 @@ SEXP R_mpfr_get_default_prec(void) {
 }
 
 SEXP R_mpfr_set_default_prec(SEXP prec) {
-    SEXP ans = ScalarInteger((int) mpfr_get_default_prec());
+    // return the previous value
+    int prev = (int) mpfr_get_default_prec();
     mpfr_set_default_prec((mpfr_prec_t) asInteger(prec));
-    return ans;
+    return ScalarInteger(prev);
 }
 
 typedef enum { E_min = 1, E_max,
@@ -357,12 +362,22 @@ SEXP R_mpfr_get_erange(SEXP kind_) {
     default:
 	error("invalid kind (code = %d) in R_mpfr_get_erange()", kind);
     }
-    return ScalarInteger((int) r);
+    R_mpfr_dbg_printf(1,"R_mpfr_get_erange(%d): %ld\n", kind, (long)r);
+    return (kind <= E_max) ? ScalarInteger((int) r) : ScalarReal((double) r);
 }
 
 SEXP R_mpfr_set_erange(SEXP kind_, SEXP val) {
     erange_kind kind = asInteger(kind_);
-    mpfr_exp_t exp_val = asInteger(val);
+    mpfr_exp_t exp_val;
+    if(isInteger(val))
+	exp_val = asInteger(val);// assume this is always valid to set
+
+    else { // we allow larger values from the R side
+	PROTECT(val = coerceVector(val, REALSXP));
+	exp_val = (mpfr_exp_t) asReal(val);
+	UNPROTECT(1);
+    }
+
     int i_err;
     switch(kind) {
     case E_min: i_err = mpfr_set_emin(exp_val); break;
@@ -376,11 +391,13 @@ SEXP R_mpfr_set_erange(SEXP kind_, SEXP val) {
 }
 
 SEXP R_mpfr_prec_range(SEXP ind) {
-    return ScalarInteger(
-	(int) (
-	    (INTEGER(ind)[0] == 1)
-	    ? MPFR_PREC_MIN
-	    : MPFR_PREC_MAX));
+    long r = (long) (
+	(INTEGER(ind)[0] == 1)
+	? MPFR_PREC_MIN
+	: MPFR_PREC_MAX);
+    R_mpfr_dbg_printf(1,"R_mpfr_prec_range(): %ld\n", r);
+    // in 64 bit, int << long, so go "2nd best":
+    return ScalarReal((double)r);
 }
 
 
