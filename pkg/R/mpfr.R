@@ -583,7 +583,7 @@ getPrec <- function(x, base = 10, doNumeric = TRUE, is.mpfr = NA, bigq. = 128L) 
 	    else if(inherits(x,"bigq")) {
 		if(missing(bigq.)) {
 		    warning("default precision for 'bigq' arbitrarily chosen as", bigq.)
-		    big.q
+		    bigq.
 		}
 		else as.integer(bigq.)
 	    }
