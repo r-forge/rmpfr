@@ -153,6 +153,7 @@ exportMethods(
 	      "Summary",
 
               "abs", "log", "sign"
+              , "Re", "Im", "Mod", "Arg", "Conj"
               , "all.equal", "aperm"
               , "as.vector", "as.integer", "as.numeric"
               , "coerce", "coerce<-"

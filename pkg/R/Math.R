@@ -90,6 +90,21 @@ setMethod("sign", "mpfr", .mpfr.sign)
 setMethod("abs", "mpfr",
 	  function(x) .Call(Rmpfr_abs, x))
 
+## Simple methods for "complex" numbers, just so "they work"
+setMethod("Re",  "mpfr", function(z) z)
+setMethod("Im",  "mpfr", function(z) 0*z)
+setMethod("Conj","mpfr", function(z) z)
+setMethod("Mod", "mpfr", function(z) abs(z))
+setMethod("Arg", "mpfr", function(z) {
+    prec <- .getPrec(z)
+    r <- mpfr(0, prec)
+    neg <- !mpfr.is.0(z) & .getSign(z) == -1
+    r[neg] <- Const("pi", prec = prec[neg])
+    r
+})
+
+
+
 ## Note that  factorial() and lfactorial() automagically work through  [l]gamma()
 ## but for the sake of "exact for integer"
 setMethod("factorial", "mpfr",
