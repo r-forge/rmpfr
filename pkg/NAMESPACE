@@ -123,7 +123,6 @@ export(.mpfr, .mpfr.
        , "pmax", "pmin"
        , "pnorm"
        , "pochMpfr"
-       , "print.integrate"
        , "rbind"
        , "roundMpfr"
        , "seqMpfr"
@@ -190,9 +189,11 @@ S3method(formatN, mpfr)
 S3method(print, mpfr)
 S3method(print, mpfr1)
 S3method(print, mpfrArray)
+S3method(print, integrateR)
 
 ## useful, to have  base::outer() work automatically:
 S3method(rep, mpfr)
 S3method(t, mpfr)
 S3method(t, mpfrMatrix)
 S3method(aperm, mpfrArray)
+
