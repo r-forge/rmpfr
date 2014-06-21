@@ -1,6 +1,30 @@
+2014-06-19  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 0.5-5  released to CRAN, 2014-06-19, r190
+
+	* R/integrate-Romberg.R (print.integrateR): own print method: print
+	  _value_ even when warning.
+
+2014-05-19  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* vignettes/log1mexp-note.Rnw: update to log1pexp(); cosmetics
+
+2014-05-01  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/special-fun.R: pbetaI(a,b) for larger (a,b); new mpfr versions of
+	* man/distr-etc.Rd: dbinom(), dpois(), dnorm()
+
+	* R/mpfr.R (mpfr_default_prec, .mpfr.minPrec, .mpfr.erange, ..):
+	* src/utils.c (R_mpfr_get_default_prec, ...): new functions to
+	get, check, (and partly working) set default exponent ranges and precision.
+
+2014-01-01  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* src/Ops.c (Math_mpfr): new sinpi(), cospi() for R >= 3.1.0
+
 2013-10-21  Martin Maechler  <maechler@stat.math.ethz.ch>
 
-	* DESCRIPTION (Version): 0.5-4, released to CRAN, 2013-10-22
+	* DESCRIPTION (Version): 0.5-4, released to CRAN, 2013-10-22, r173
 	Now again depends on 'methods' (instead of just importing).
 
 2013-05-04  Martin Maechler  <maechler@stat.math.ethz.ch>

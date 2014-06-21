@@ -1,5 +1,6 @@
 		-*- org -*-->  Emacs [Tab] key + [Org] menu; C-c C-o follows links
 * Very Short Term
+** TODO 31) Valgrind problems + leaks: Brian's e-mail 2014-06-19; ~/R/Pkgs/Rmpfr.Rcheck_valgrind/
 ** TODO 19) outer() now works  always ? {as rep() now S3 dispatches
     ---> need systematic checks *AND* docu changes!
 
