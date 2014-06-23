@@ -3,12 +3,11 @@
 if(getRversion() < "2.15")
     paste0 <- function(...) paste(..., sep = '')
 
-mpfr <- function(x, precBits, base = 10, rnd.mode = c('N','D','U','Z'))
+mpfr <- function(x, precBits, base = 10, rnd.mode = c('N','D','U','Z','A'))
 {
     if(is.character(x))
 	stopifnot(length(base) == 1, 2 <= base, base <= 36)
-    stopifnot(is.character(rnd.mode))
-    rnd.mode <- toupper(rnd.mode)
+    stopifnot(is.character(rnd.mode <- toupper(rnd.mode)))
     rnd.mode <- match.arg(rnd.mode)
 
     if(is.raw(x)) { # is.raw() is faster
@@ -63,13 +62,14 @@ setAs("logical", "mpfr", function(from) .mpfr(from,   2L))
 ## TODO?  base=16 for "0x" or "0X" prefix -- but base must have length 1 ..
 setAs("character", "mpfr", function(from) mpfr(from))
 
-setAs("mpfr", "numeric", function(from) .Call(mpfr2d, from))
-setAs("mpfr", "integer", function(from) .Call(mpfr2i, from))
-setMethod("as.numeric", "mpfr", function(x) .Call(mpfr2d, x))
-setMethod("as.integer", "mpfr", function(x) .Call(mpfr2i, x))
+setAs("mpfr", "numeric", function(from) .Call(mpfr2d, from, rnd.mode="N"))
+setAs("mpfr", "integer", function(from) .Call(mpfr2i, from, rnd.mode="N"))
+setMethod("as.numeric", "mpfr", function(x, rnd.mode="N") .Call(mpfr2d, x, rnd.mode))
+setMethod("as.integer", "mpfr", function(x, rnd.mode="N") .Call(mpfr2i, x, rnd.mode))
 
-setMethod("asNumeric", "mpfr",      function(x) .Call(mpfr2d, x))
-setMethod("asNumeric", "mpfrArray", function(x) toNum(x))
+## FIXME (in gmp!!): asNumeric() should get "..." argument
+setMethod("asNumeric", "mpfr",      function(x) .Call(mpfr2d, x, rnd.mode="N"))
+setMethod("asNumeric", "mpfrArray", function(x) toNum(x, rnd.mode="N"))
 
 setAs("mpfr1", "numeric",  ## just for user-de-confusion :
       function(from) {

@@ -1,4 +1,5 @@
 \name{mpfr-utils}
+\title{Rmpfr -- Utilities for Precision Setting, Printing, etc}
 \alias{getPrec}
 \alias{getD}
 \alias{mpfr_default_prec}
@@ -6,12 +7,10 @@
 \alias{print.mpfr}
 \alias{print.mpfrArray}
 \alias{toNum}
-\title{
-  Rmpfr -- Utilities for Precision Setting, Printing, etc
-}
 \description{
   This page documents utilities from package \pkg{Rmpfr} which are
-  typically not called by the user.  In some case the may come handy.
+  typically not called by the user, but may come handy in some
+  situations.
 }
 \usage{
 getPrec(x, base = 10, doNumeric = TRUE, is.mpfr = NA, bigq. = 128L)
@@ -21,7 +20,7 @@ mpfr_default_prec(prec)
       right = TRUE, \dots)
 \S3method{print}{mpfr}(x, digits = NULL, drop0trailing = TRUE,
       right = TRUE, \dots)
-toNum(from)
+toNum(from, rnd.mode = c('N','D','U','Z','A'))
 mpfr2array(x, dim, dimnames = NULL, check = FALSE)
 }
 \arguments{
@@ -45,6 +44,9 @@ mpfr2array(x, dim, dimnames = NULL, check = FALSE)
     justify the strings; see \code{\link{print.default}()} to which it
     is passed.}
   \item{digits, \dots}{further arguments to print methods.}
+  \item{rnd.mode}{a 1-letter string specifying how \emph{rounding}
+    should happen at C-level conversion to MPFR, see details of
+    \code{\link{mpfr}}.}
   \item{dim, dimnames}{for \code{"\linkS4class{mpfrArray}"}
     construction.}
   \item{check}{logical indicating if the mpfrArray construction should
@@ -101,6 +103,14 @@ stopifnot(opr == (oprec <- mpfr_default_prec(70)),
           70  == mpfr_default_prec())
 ## and reset it:
 mpfr_default_prec(opr)
+
+## Explore behavior of rounding modes 'rnd.mode':
+x <- mpfr(10,99)^512 # too large for regular (double prec. / numeric):
+sapply(c("N", "D", "U", "Z", "A"), function(RM)
+       sapply(list(-x,x), function(.) toNum(., RM)))
+##    N             D              U              Z    A
+## -Inf          -Inf -1.797693e+308 -1.797693e+308 -Inf
+##  Inf 1.797693e+308            Inf  1.797693e+308  Inf
 
 ## Printing of "MPFR" matrices is less nice than R's usual matrix printing:
 m <- outer(c(1, 3.14, -1024.5678), c(1, 1e-3, 10,100))

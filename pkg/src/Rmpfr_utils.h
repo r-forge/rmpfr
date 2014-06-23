@@ -14,6 +14,7 @@
 #include <Rversion.h>
 /* for NEW_OBJECT(), GET_SLOT + Rinternals.h : */
 #include <Rdefines.h>
+#include <R_ext/Print.h>
 
 /* must come *after* the above, e.g., for
    mpfr_out_str()  (which needs stdio): */
@@ -33,6 +34,7 @@
 # define MPFR_RNDN GMP_RNDN
 # define MPFR_RNDU GMP_RNDU
 # define MPFR_RNDZ GMP_RNDZ
+// # define MPFR_RNDA GMP_RNDA
 
 # define mpfr_exp_t mp_exp_t
 
@@ -113,8 +115,8 @@ mpfr_rnd_t R_rnd2MP(SEXP rnd_mode);
 SEXP d2mpfr1 (SEXP x, SEXP prec, SEXP rnd_mode);
 SEXP d2mpfr1_(double x, int i_prec, mpfr_rnd_t rnd);
 SEXP d2mpfr1_list(SEXP x, SEXP prec, SEXP rnd_mode);
-SEXP mpfr2d(SEXP x);
-SEXP mpfr2i(SEXP x);
+SEXP mpfr2d(SEXP x, SEXP rnd_mode);
+SEXP mpfr2i(SEXP x, SEXP rnd_mode);
 SEXP mpfr2str(SEXP x, SEXP digits);
 SEXP str2mpfr1_list(SEXP x, SEXP prec, SEXP base, SEXP rnd_mode);
 
