@@ -68,7 +68,7 @@ export(.mpfr, .mpfr.
        ## , ".dimCheck"
        , .getPrec
        , .getSign
-       , .mpfr.erange, ".mpfr.erange<-", .mpfr.maxPrec, .mpfr.minPrec
+       , .mpfr.erange, .mpfr.erange.set, .mpfr.maxPrec, .mpfr.minPrec
        ## , ".mA.subAssign"
        ## , ".matmult.R"
        ## , ".mpfr.debug"
@@ -79,7 +79,8 @@ export(.mpfr, .mpfr.
        ## , ".mpfr.subset"
        , ".mpfr2str"
        ## , ".mpfrA.subset"
-       ## , ".mpfrVersion"
+       , .mpfrVersion, .mpfr.gmp.numbbits
+       , .mpfr2list, .mpfr1tolist, mpfrXport # <- experimental: for a possible save format
        ## , ".packageName"
        ## , ".print.mpfr"
        ## , ".requireCachedGenerics"
@@ -176,6 +177,9 @@ S3method(c, mpfr)
 
 S3method(as.array, mpfr)
 S3method(as.matrix, mpfr)
+## Would break the working of vapply(<mpfr>, FUN)  e.g. in pbetaI():
+## S3method(as.list, mpfr1)
+## S3method(as.list, mpfr)
 
 S3method(determinant, mpfrMatrix)
 S3method(scale, mpfrMatrix)

@@ -160,7 +160,7 @@ SEXP R_mpfr_get_erange(SEXP kind);
 SEXP R_mpfr_set_erange(SEXP kind, SEXP val);
 SEXP R_mpfr_prec_range(SEXP ind);
 SEXP R_mpfr_get_version(void);
-
+SEXP R_mpfr_get_GMP_numb_bits(void);
 
 SEXP const_asMpfr(SEXP I, SEXP prec);
 

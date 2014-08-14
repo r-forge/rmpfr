@@ -55,6 +55,7 @@ static R_CallMethodDef CallEntries[] = {
     CALLDEF(R_mpfr_set_erange, 2),
     CALLDEF(R_mpfr_prec_range, 1),
     CALLDEF(R_mpfr_get_version, 0),
+    CALLDEF(R_mpfr_get_GMP_numb_bits, 0),
 
     CALLDEF(const_asMpfr, 2),
 
@@ -125,6 +126,7 @@ R_init_Rmpfr(DllInfo *dll)
     RREGDEF(R_mpfr_set_default_prec);
     RREGDEF(R_mpfr_get_default_prec);
     RREGDEF(R_mpfr_get_version);
+    RREGDEF(R_mpfr_get_GMP_numb_bits);
 
     RREGDEF(const_asMpfr);
 
