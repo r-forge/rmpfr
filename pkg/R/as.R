@@ -78,10 +78,28 @@ setAs("mpfr1", "numeric",  ## just for user-de-confusion :
 
 setAs("mpfr1", "mpfr", function(from) new("mpfr", list(from)))
 setAs("mpfr", "mpfr1", function(from) {
-    if(length(from) == 1) from[[1]] else
+    if(length(from) == 1) getD(from)[[1]] else
     stop("only \"mpfr\" objects of length 1 can be coerced to \"mpfr1\"")
 })
 
+.mpfr1tolist <- function(x)
+    sapply(.slotNames(x), slot, object=x, simplify=FALSE)
+.mpfr2list <- function(x) lapply(getD(x), .mpfr1tolist)
+
+## Breaks the working of vapply(q, FUN.x) in pbetaI() in ./special-fun.R :
+## as.list.mpfr1 <- function(x, ...) .mpfr1tolist(x)
+## as.list.mpfr  <- function(x, ...) .mpfr2list(x)
+
+## and then
+mpfrXport <- function(x) {
+    structure(class = "mpfrXport",
+              list(gmp.numb.bits = .mpfr.gmp.numbbits(),
+                   mpfr.version  = .mpfrVersion(),
+                   ## not sure if needed, but in case:
+                   Machine  = .Machine[grepl("sizeof",names(.Machine))],
+                   Sys.info = Sys.info()[c("sysname", "machine")],
+                   mpfr1 = lapply(getD(x), .mpfr1tolist)))
+}
 
 .mpfr2str <- function(x, digits = NULL) {
     stopifnot(is.null(digits) ||

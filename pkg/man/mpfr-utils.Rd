@@ -4,6 +4,7 @@
 \alias{getD}
 \alias{mpfr_default_prec}
 \alias{mpfr2array}
+\alias{.mpfr1list}% for now only mentioned in example
 \alias{print.mpfr}
 \alias{print.mpfrArray}
 \alias{toNum}
@@ -120,5 +121,13 @@ mpfr(m, 50)
 
 mpfr2array(Bernoulli(1:6, 60), c(2,3),
            dimnames = list(LETTERS[1:2], letters[1:3]))
+
+i8 <- mpfr(-2:5, 32)
+x4 <- mpfr(c(NA, NaN, -Inf, Inf), 32)
+## Looking at internal representation:
+## The output of the following depends on the GMP "numb" size
+## (32 bit vs. 64 bit), and maybe even more platform specifics:
+str(lapply(getD(i8), .mpfr1tolist))
+str(lapply(getD(x4), .mpfr1tolist))
 }
 \keyword{utilities}
