@@ -155,8 +155,10 @@ R_init_Rmpfr(DllInfo *dll)
     Rmpfr_d_Sym = install("d");
     Rmpfr_Data_Sym = install(".Data");
 
+/* not suppressable, hence moved to suppressable R startup code:
     Rprintf("Loading C code of R package 'Rmpfr': GMP using %d bits per limb\n",
 	    GMP_NUMB_BITS);
+*/
 /*     if(GMP_NUMB_BITS != 32) */
 /* 	error("The Rmpfr package currently needs 32-bit limbs"); */
 }
