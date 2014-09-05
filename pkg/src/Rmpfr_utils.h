@@ -72,12 +72,11 @@ SEXP ALLOC_SLOT(SEXP obj, SEXP nm, SEXPTYPE type, int length)
     return val;
 }
 
+#define N_LIMBS(_PREC_) ceil(((double)_PREC_)/mp_bits_per_limb)
+
 static R_INLINE int R_mpfr_nr_limbs(mpfr_t r)
 {
-    int d = (int)mpfr_get_prec(r),
-	nr = d/mp_bits_per_limb;
-    if (d % mp_bits_per_limb) nr++;
-    return nr;
+    return N_LIMBS(mpfr_get_prec(r));
 }
 
 // Note: "in theory" we could set precBits > INT_MAX, but currently not in Rmpfr:
@@ -93,8 +92,6 @@ static R_INLINE void R_mpfr_check_prec(int prec)
 }
 
 #define R_mpfr_prec(x) INTEGER(GET_SLOT(x, Rmpfr_precSym))[0]
-
-#define N_LIMBS(_PREC_) ceil(((double)_PREC_)/mp_bits_per_limb)
 
 
 #define MISMATCH_WARN							\
