@@ -19,9 +19,14 @@ setClass("mpfr1", ## a single Multi-precision float number
 		 "invalid 'exp' slot for 32-bit gmp.numbbits: must have length 1"
 	     else if(length(sig <- object@sign) != 1 || is.na(sig) || abs(sig) > 1)
 		 "'sign' slot not in {-1,1} is invalid"
-	     else if(length(d <- object@d) != ceiling(pr / 32))
-		 "length('d' slot) does not match 'prec'"
-	     else TRUE
+	     else {
+		 nd <- length(d <- object@d)
+		 need.d <- ceiling(pr / 32)
+		 if((gmp.numb == 32 && nd != need.d) ||
+		    (gmp.numb == 64 && !any((nd - need.d) == 0:1)))
+		     "length('d' slot) does not match 'prec'"
+		 else TRUE
+	     }
 	 })
 
 setClass("mpfr", ## a *vector* of "mpfr1", i.e., multi-precision float numbers
