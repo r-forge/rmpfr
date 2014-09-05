@@ -30,9 +30,9 @@ importFrom("stats"  # import *and* rename -- we extend these :
 
 importClassesFrom("gmp", "bigz", "bigq")
 importFrom("gmp"
-           , asNumeric, as.bigz, .as.char.bigz, ..as.bigz
+           , asNumeric, as.bigz, as.bigq, .as.char.bigz, ..as.bigz
            , crossprod, tcrossprod# `%*%`, <- as we write (S4) methods for those
-	   ## more to come
+           , numerator, denominator, frexpZ, chooseZ
            , is.whole, formatN # because we add own S3 methods
 	   )
 if(packageVersion("gmp") >= "0.5.8")
