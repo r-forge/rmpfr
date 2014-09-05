@@ -43,6 +43,10 @@ r2 <- r^100
 r2
 L <- r^-100000
 
+## quite platform dependent {valgrind ==> bug? even in mpfr/gmp/.. ?}
+str(.mpfr2list(x4))
+x4 ## "similar info" as .mpfr2list(.)
+
 ## Increase maximal exponent:
 
 tools:::assertWarning(
