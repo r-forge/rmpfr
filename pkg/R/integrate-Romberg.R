@@ -1,6 +1,9 @@
 ####  Romberg integration in pure R
 ####  ===================    ====== so it can be used with  Rmpfr
 
+## TODO: Lauren K  would like to get return()ed all the intermediate sums as well
+## ----  I agree: but only if  'all.sums = TRUE'
+
 integrateR <- function(f, lower, upper, ..., ord = NULL,
 		       rel.tol = .Machine$double.eps^0.25, abs.tol = rel.tol,
 		       max.ord = 19, verbose = FALSE)

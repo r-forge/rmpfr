@@ -120,6 +120,13 @@ integrateR(exp,      0     , 1, rel.tol=1e-15, verbose=TRUE)
 (I.true <- exp(mpfr(1, 200)) - 1)
 ## true absolute error:
 stopifnot(print(as.numeric(I.true - I$value)) < 4e-25)
+
+## Want absolute tolerance check only (=> set 'rel.tol' very high, e.g. 1):
+(Ia <- integrateR(exp, mpfr(0,200), 1, abs.tol = 1e-6, rel.tol=1, verbose=TRUE))
+
+## Set 'ord' (but no  '*.tol') --> Using 'ord'; no convergence checking
+(I <- integrateR(exp, mpfr(0,200), 1,  ord = 13, verbose=TRUE))
+
 }
 \keyword{math}
 \keyword{utilities}

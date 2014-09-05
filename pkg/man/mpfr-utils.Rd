@@ -4,7 +4,10 @@
 \alias{getD}
 \alias{mpfr_default_prec}
 \alias{mpfr2array}
-\alias{.mpfr1list}% for now only mentioned in example
+\alias{mpfrImport}
+\alias{mpfrXport}
+\alias{.mpfr2list}% for now only mentioned in example
+%\alias{.mpfr1tolist}% not exported
 \alias{print.mpfr}
 \alias{print.mpfrArray}
 \alias{toNum}
@@ -23,6 +26,9 @@ mpfr_default_prec(prec)
       right = TRUE, \dots)
 toNum(from, rnd.mode = c('N','D','U','Z','A'))
 mpfr2array(x, dim, dimnames = NULL, check = FALSE)
+
+mpfrXport(x)
+mpfrImport(mxp)
 }
 \arguments{
   \item{x, from}{typically, an \R object of class \code{"\linkS4class{mpfr}"}, or
@@ -53,6 +59,8 @@ mpfr2array(x, dim, dimnames = NULL, check = FALSE)
   \item{check}{logical indicating if the mpfrArray construction should
     happen with internal safety check.  Previously, the implicit default
     used to be true.}
+  \item{mxp}{an \code{"mpfrXport"} object, as resulting from
+    \code{mpfrXport()}.}
 }
 \details{
   The \code{print} method is currently built on the \code{\link{format}}
@@ -89,6 +97,16 @@ mpfr2array(x, dim, dimnames = NULL, check = FALSE)
   \code{mpfr2array()} a slightly more flexible alternative to
   \code{dim(.) <- dd}.
 }
+\note{
+  \code{mpfrXport()} and \code{mpfrImport()} are \bold{experimental} and
+  used to explore reported platform incompatibilities of
+  \code{\link{save}()}d and \code{\link{load}()}ed \code{"mpfr"}
+  objects between Windows and non-Windows platforms.
+
+  In other words, the format of the result of \code{mpfrXport()} and
+  hence the \code{mxp} argument to \code{mpfrImport()} are considered
+  internal, not part of the API and subject to change.
+}
 \seealso{
   Start using \code{\link{mpfr}(..)}, and compute with these numbers.
 
@@ -119,15 +137,23 @@ m[3,3] <- round(m[3,3])
 m
 mpfr(m, 50)
 
-mpfr2array(Bernoulli(1:6, 60), c(2,3),
-           dimnames = list(LETTERS[1:2], letters[1:3]))
+B6 <- mpfr2array(Bernoulli(1:6, 60), c(2,3),
+                 dimnames = list(LETTERS[1:2], letters[1:3]))
+B6
+
+## Looking at internal representation [for power users only!]:
 
 i8 <- mpfr(-2:5, 32)
 x4 <- mpfr(c(NA, NaN, -Inf, Inf), 32)
-## Looking at internal representation:
 ## The output of the following depends on the GMP "numb" size
-## (32 bit vs. 64 bit), and maybe even more platform specifics:
-str(lapply(getD(i8), .mpfr1tolist))
-str(lapply(getD(x4), .mpfr1tolist))
+## (32 bit vs. 64 bit), and may be even more platform specifics:
+str( .mpfr2list(i8) )
+str( .mpfr2list(x4) )
+
+str(xp4 <- mpfrXport(x4))
+stopifnot(identical(x4, mpfrImport(mpfrXport(x4))),
+          identical(i8, mpfrImport(mpfrXport(i8))))
+if(FALSE) ## FIXME: not yet working:
+  stopifnot(identical(B6, mpfrImport(mpfrXport(B6))))
 }
 \keyword{utilities}

@@ -80,7 +80,7 @@ export(.mpfr, .mpfr.
        , ".mpfr2str"
        ## , ".mpfrA.subset"
        , .mpfrVersion, .mpfr.gmp.numbbits
-       , .mpfr2list, .mpfr1tolist, mpfrXport # <- experimental: for a possible save format
+       , .mpfr2list, mpfrImport, mpfrXport # <- experimental: for a possible save format
        ## , ".packageName"
        ## , ".print.mpfr"
        ## , ".requireCachedGenerics"

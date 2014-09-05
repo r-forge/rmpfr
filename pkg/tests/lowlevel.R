@@ -1,8 +1,23 @@
 #### Low level stuff - debugging etc
 #### =========         =========
-##  NB: Currently all not documented, not even .mpfr.erange()
+
 require("Rmpfr")
 options(warn = 2)# warning -> error
+
+identical3 <- function(x,y,z)	  identical(x,y) && identical (y,z)
+identical4 <- function(a,b,c,d)   identical(a,b) && identical3(b,c,d)
+
+###----- _1_ mpfr1 , import, xport etc -----------------------------------------
+i8 <- mpfr(-2:5, 32)
+x4 <- mpfr(c(NA, NaN, -Inf, Inf), 32); x4 # NA -> NaN as well
+stopifnot(identical3(is.na(x4), is.nan(x4), c(T,T,F,F)))
+
+o1 <- as(x4[1], "mpfr1")
+stopifnot(is(o1, "mpfr1")) # failed previously
+validObject(o1)            # ditto (failed on 64-bit only)
+
+###----- _2_ Debugging, changing MPFR defaults, .. -----------------------------
+##  NB: Currently mostly  *not* documented, not even .mpfr.erange()
 
 stopifnot(Rmpfr:::.mpfr.debug() == 0,# the default level
           ## Debugging level 1:

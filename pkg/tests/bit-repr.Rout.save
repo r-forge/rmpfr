@@ -1,5 +1,5 @@
 
-R version 3.1.0 Patched (2014-04-28 r65512) -- "Spring Dance"
+R version 3.1.1 Patched (2014-09-03 r66517) -- "Sock it to Me"
 Copyright (C) 2014 The R Foundation for Statistical Computing
 Platform: x86_64-unknown-linux-gnu (64-bit)
 
@@ -15,28 +15,8 @@ Type 'demo()' for some demos, 'help()' for on-line help, or
 'help.start()' for an HTML browser interface to help.
 Type 'q()' to quit R.
 
-> stopifnot(require("Rmpfr"))
-Loading required package: Rmpfr
-Loading required package: gmp
-
-Attaching package: 'gmp'
-
-The following objects are masked from 'package:base':
-
-    %*%, apply, crossprod, matrix, tcrossprod
-
-Loading C code of R package 'Rmpfr': GMP using 64 bits per limb
-
-Attaching package: 'Rmpfr'
-
-The following objects are masked from 'package:stats':
-
-    dbinom, dnorm, dpois, pnorm
-
-The following objects are masked from 'package:base':
-
-    cbind, pmax, pmin, rbind
-
+> stopifnot(suppressPackageStartupMessages(require("Rmpfr")))
+> ## (checking the the 32 / 64 bit  GMP message does *not* show here)
 > 
 > ### Try to look at the internal bit-representation of the limbs
 > 
@@ -49,12 +29,42 @@ The following objects are masked from 'package:base':
 +     sapply(x@.Data, slot, "exp")
 + }
 > 
+> ## The "non-finite" mpfr value internals :
+> str(.mpfr2list(x <- mpfr(r <- c(NA,NaN, Inf, -Inf), 64)))
+List of 4
+ $ :List of 4
+  ..$ prec: int 64
+  ..$ exp : int [1:2] 2 NA
+  ..$ sign: int 1
+  ..$ d   : int [1:2] 0 0
+ $ :List of 4
+  ..$ prec: int 64
+  ..$ exp : int [1:2] 2 NA
+  ..$ sign: int 1
+  ..$ d   : int [1:2] 0 0
+ $ :List of 4
+  ..$ prec: int 64
+  ..$ exp : int [1:2] 3 NA
+  ..$ sign: int 1
+  ..$ d   : int [1:2] 0 0
+ $ :List of 4
+  ..$ prec: int 64
+  ..$ exp : int [1:2] 3 NA
+  ..$ sign: int -1
+  ..$ d   : int [1:2] 0 0
+> ## --> 'exp' always has NA
+> 
 > Bits <- function(x) {
 +     L <- .limbs(x)# list(length n) each of "k(prec)" 32-bit ints
++     ## NB:  mpfr(2, .) and all mpfr(2^k, .) also have a 'd' ending in NA integer!
++     ##     [reason: after all, R's NA_integer_ is INT_MAX+1 = 2^31 ]
++     ## and  the  mpfr(c(NA,NaN, Inf, -Inf), .)   have *no* NA in 'd' (but all in 'exp'!
++     ## see .mpfr2list) example above
++ 
 +     hasNA <- any(iNA <- sapply(lapply(L, is.na), any)) # iNA: TRUE if there's an NA
 +     ## need to catch them later
 +     CC <- function(ch) paste(ch, collapse="")
-+     hex <- sapply(L, function(I) CC(sprintf("%x", rev(I))))
++     hex <- sapply(L, function(.) CC(sprintf("%x", rev(.))))
 +     if(hasNA) hex[iNA] <- NA_character_
 +     hex <- strsplit(hex, NULL)
 + 
@@ -64,21 +74,23 @@ The following objects are masked from 'package:base':
 +     ## db is  4 x 16  matrix  with col.names "0" "1" .. "9" "a" "b" ... "f"
 + 
 +     ex <- .expo(x)
-+     if(is.matrix(ex))
++     if(is.matrix(ex)) {
 +         ## 64-bit case: exponent is long == two ints
-+         ## -----------  but currently the 2nd int is always 0 (or NA for '0')
++         ## -----------  the 2nd int is in {0, -1, NA} (NA : for 0)
++         ex2 <- ex[2,]
 +         ex <- ex[1,]
++     }
 +     pat <- paste("(", sapply(pmax(0, ex),
 +                              function(n) CC(rep.int(".", n))),
 +                  ")0+$", sep="")
-+     pat <- ifelse(iNA, NA_character_, pat)
++     ## pat <- ifelse(iNA, NA_character_, pat)
 + 
 +     if(hasNA) {
-+ 	r <- as.list(iNA)
-+ 	r[!iNA] <- lapply(hex[!iNA], function(ch) CC(as.vector(db[,ch])))
-+ 	r[iNA ] <- NA_character_
-+         ## now keep correct number of trailing zeros :
++         r <- as.list(iNA)
++         r[!iNA] <- lapply(hex[!iNA], function(ch) CC(as.vector(db[,ch])))
++         ## now do drop trailing zeros :
 +         r[!iNA] <- lapply(which(!iNA), function(i) sub(pat[i], "\\1", r[[i]]))
++         r[iNA ] <- NA_character_ # FIXME this is wrong -- really have powers of 2, and want their (easy) bits!
 +         unlist(r)
 +     }
 +     else {
@@ -89,10 +101,11 @@ The following objects are masked from 'package:base':
 + 
 + }
 > 
-> x <- mpfr(c(3:5,11:15, 59, 125:127, 1025), 64)
+> x <- mpfr(c(3:5,11:16, 59, 125:128, 1024:1025), 64)
 > x
-13 'mpfr' numbers of precision  64   bits 
- [1]    3    4    5   11   12   13   14   15   59  125  126  127 1025
+16 'mpfr' numbers of precision  64   bits 
+ [1]    3    4    5   11   12   13   14   15   16   59  125  126  127  128 1024
+[16] 1025
 > data.frame(x= as.numeric(x), I(Bits(x)))
       x     Bits.x.
 1     3          11
@@ -103,14 +116,17 @@ The following objects are masked from 'package:base':
 6    13        1101
 7    14        1110
 8    15        1111
-9    59      111011
-10  125     1111101
-11  126     1111110
-12  127     1111111
-13 1025 10000000001
+9    16        <NA>
+10   59      111011
+11  125     1111101
+12  126     1111110
+13  127     1111111
+14  128        <NA>
+15 1024        <NA>
+16 1025 10000000001
 > 
 > x <- mpfr(c(-20:30),64)
-> x <- x[x != 0] # mpfr(0, *) has "random" bits
+> x <- x[x != 0] # mpfr(0, *) has "random" bits -- still ??
 > data.frame(x= as.numeric(x), I(Bits(x)))
      x Bits.x.
 1  -20   10100
@@ -164,9 +180,19 @@ The following objects are masked from 'package:base':
 49  29   11101
 50  30   11110
 > 
+> (half <- mpfr(0.5, 64)*(1 + mpfr(2, 64)^-16 * (-3:3)))
+7 'mpfr' numbers of precision  64   bits 
+[1] 0.49997711181640625  0.4999847412109375 0.49999237060546875
+[4]                 0.5 0.50000762939453125  0.5000152587890625
+[7] 0.50002288818359375
+> Bits(half)
+[1] "1111111111111101"  "111111111111111"   "1111111111111111" 
+[4] NA                  "10000000000000001" "1000000000000001" 
+[7] "10000000000000011"
+> 
 > ## pi, in varying number of bits :
 > p. <- round(pi* 2^c(10,16,5*(4:8)))
-> dput(p.)
+> dput(p.)#-> the definition of p :
 c(3217, 205887, 3294199, 105414357, 3373259426, 107944301636, 
 3454217652358)
 > p <- c(mpfr(c(3217, 205887, 3294199, 105414357,
@@ -184,11 +210,11 @@ c(3217, 205887, 3294199, 105414357, 3373259426, 107944301636,
 > 
 > 
 > cat('Time elapsed: ', proc.time(),'\n') # "stats"
-Time elapsed:  0.725 0.018 0.805 0 0 
+Time elapsed:  0.75 0.023 0.853 0 0 
 > 
 > if(!interactive()) warnings()
 NULL
 > 
 > proc.time()
    user  system elapsed 
-  0.726   0.018   0.805 
+  0.750   0.023   0.853 

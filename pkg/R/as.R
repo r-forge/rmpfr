@@ -92,13 +92,24 @@ setAs("mpfr", "mpfr1", function(from) {
 
 ## and then
 mpfrXport <- function(x) {
+    if(!is(x, "mpfr")) stop("argument is not a \"mpfr\" object")
     structure(class = "mpfrXport",
-              list(gmp.numb.bits = .mpfr.gmp.numbbits(),
-                   mpfr.version  = .mpfrVersion(),
-                   ## not sure if needed, but in case:
-                   Machine  = .Machine[grepl("sizeof",names(.Machine))],
-                   Sys.info = Sys.info()[c("sysname", "machine")],
-                   mpfr1 = lapply(getD(x), .mpfr1tolist)))
+	      list(gmp.numb.bits = .mpfr.gmp.numbbits(),
+		   ## currently unused, but in case:
+		   mpfr.version	 = .mpfrVersion(),
+		   Machine  = .Machine[grepl("sizeof",names(.Machine))],
+		   Sys.info = Sys.info()[c("sysname", "machine")],
+		   mpfr = .mpfr2list(x)))
+}
+
+mpfrImport <- function(mxp) {
+    if(!inherits(mxp, "mpfrXport")) stop("need an \"mpfrXport\" object")
+    nbits <- .mpfr.gmp.numbbits()
+    if(!identical(nbits, mxp$gmp.numb.bits))
+	stop("GMP bits not matching: 'x' has ", mxp$gmp.numb.bits,
+	     "; the loaded 'Rmpfr' package has ", nbits)
+    m1 <- lapply(mxp$mpfr, function(o) do.call(new, c("mpfr1", o)))
+    new("mpfr", m1)
 }
 
 .mpfr2str <- function(x, digits = NULL) {

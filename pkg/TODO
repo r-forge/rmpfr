@@ -12,6 +12,10 @@
 *** TODO Split this section into  Short | Mid  (?)
 ** TODO 33) We cannot specify the rounding mode in as(.) etc.  Currently use "N"; alternatively
    could specify a "global" default rounding mode via 'options(Rmpfr.default.rounding)'
+** TODO 34) tests/bit-repr.R : Bits() fails to work with 2^k
+
+** TODO 36) mpfrXport()/*Import() should work for arrays.  Test Windows-portability:
+ -  as save() seems not portable; see ~/R/MM/Pkg-ex/Rmpfr/save-load-ex.R
 ** TODO 2) Now have working  "mpfrMatrix", dim(.) <- ..; t(), %*%, crossprod()...
  -  <mpfr> %*% <mpfr>    should work the same as with numeric vectors
  -  <mpfr> %*% t(<mpfr>)  ditto
@@ -206,3 +210,6 @@
 ** DONE 30) pmin() and pmax(), for simple cases pmin(x,n) are now, 2013-02, quite "fast",
         (see also --> ~/R/MM/Pkg-ex/Rmpfr/SLOW-pmin.R)
 ** DONE 32) asNumeric(mpfr(10, 99)^500) gives 1.797693e+308 without warning. Should (warn or) give Inf
+** DONE 35) got mpfrImport(), reading mpfrXport()
+
+
