@@ -91,6 +91,10 @@
 \alias{is.infinite,mpfr-method}
 \alias{is.na,mpfr-method}
 \alias{is.nan,mpfr-method}
+\alias{is.finite,mpfrArray-method}
+\alias{is.infinite,mpfrArray-method}
+\alias{is.na,mpfrArray-method}
+\alias{is.nan,mpfrArray-method}
 \alias{unique,mpfr,missing-method}
 %
 \alias{all.equal,mpfr,mpfr-method}

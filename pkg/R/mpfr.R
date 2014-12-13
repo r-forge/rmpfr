@@ -11,11 +11,16 @@ setMethod("is.na", "mpfr",
 setMethod("is.nan", "mpfr",
           function(x) .Call(R_mpfr_is_na, x))
 
-mpfr.is.0 <- function(x) .Call(R_mpfr_is_zero, x)
+mpfr.is.0 <- function(x) {
+    if(is(x, "mpfrArray")) .Call(R_mpfr_is_zero_A, x)
+    else .Call(R_mpfr_is_zero, x)
     ## sapply(x, function(.) .@exp == - .Machine$integer.max)
+}
 
-mpfr.is.integer <- function(x)
-    .Call(R_mpfr_is_integer, x)
+mpfr.is.integer <- function(x) {
+    if(is(x, "mpfrArray")) .Call(R_mpfr_is_integer_A, x)
+    else .Call(R_mpfr_is_integer, x)
+}
 
 ## is.whole() is now S3 generic, with default method in gmp
 ## is.whole <- function(x) {
@@ -26,6 +31,17 @@ mpfr.is.integer <- function(x)
 ##     else rep.int(FALSE, length(x))
 ## }
 is.whole.mpfr <- function(x) mpfr.is.integer(x)
+
+## The above for "mpfrArray" :
+setMethod("is.finite", "mpfrArray",
+	  function(x) .Call(R_mpfr_is_finite_A, x))
+setMethod("is.infinite", "mpfrArray",
+	  function(x) .Call(R_mpfr_is_infinite_A, x))
+## MPFR has only "NaN" ( == "NA"  -- hence these two are identical :
+setMethod("is.na", "mpfrArray",
+	  function(x) .Call(R_mpfr_is_na_A, x))
+setMethod("is.nan", "mpfrArray",
+	  function(x) .Call(R_mpfr_is_na_A, x))
 
 mpfr_default_prec <- function(prec) {
     if(missing(prec) || is.null(prec))

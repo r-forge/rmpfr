@@ -161,11 +161,11 @@ SEXP R_mpfr_get_GMP_numb_bits(void);
 
 SEXP const_asMpfr(SEXP I, SEXP prec);
 
-SEXP R_mpfr_is_finite(SEXP x);
-SEXP R_mpfr_is_infinite(SEXP x);
-SEXP R_mpfr_is_integer(SEXP x);
-SEXP R_mpfr_is_na(SEXP x);
-SEXP R_mpfr_is_zero(SEXP x);
+SEXP R_mpfr_is_finite(SEXP x);	SEXP R_mpfr_is_finite_A(SEXP x);
+SEXP R_mpfr_is_infinite(SEXP x);SEXP R_mpfr_is_infinite_A(SEXP x);
+SEXP R_mpfr_is_integer(SEXP x);	SEXP R_mpfr_is_integer_A(SEXP x);
+SEXP R_mpfr_is_na(SEXP x);	SEXP R_mpfr_is_na_A(SEXP x);
+SEXP R_mpfr_is_zero(SEXP x);    SEXP R_mpfr_is_zero_A(SEXP x);
 
 SEXP R_mpfr_jn(SEXP x, SEXP n);
 SEXP R_mpfr_yn(SEXP x, SEXP n);

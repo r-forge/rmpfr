@@ -59,11 +59,11 @@ static R_CallMethodDef CallEntries[] = {
 
     CALLDEF(const_asMpfr, 2),
 
-    CALLDEF(R_mpfr_is_finite, 1),
-    CALLDEF(R_mpfr_is_infinite, 1),
-    CALLDEF(R_mpfr_is_integer, 1),
-    CALLDEF(R_mpfr_is_na, 1),
-    CALLDEF(R_mpfr_is_zero, 1),
+    CALLDEF(R_mpfr_is_finite, 1),	CALLDEF(R_mpfr_is_finite_A, 1),
+    CALLDEF(R_mpfr_is_infinite, 1),	CALLDEF(R_mpfr_is_infinite_A, 1),
+    CALLDEF(R_mpfr_is_integer, 1),	CALLDEF(R_mpfr_is_integer_A, 1),
+    CALLDEF(R_mpfr_is_na, 1),		CALLDEF(R_mpfr_is_na_A, 1),
+    CALLDEF(R_mpfr_is_zero, 1),      	CALLDEF(R_mpfr_is_zero_A, 1),
 
     CALLDEF(R_mpfr_jn, 2),
     CALLDEF(R_mpfr_yn, 2),
@@ -130,11 +130,11 @@ R_init_Rmpfr(DllInfo *dll)
 
     RREGDEF(const_asMpfr);
 
-    RREGDEF(R_mpfr_is_finite);
-    RREGDEF(R_mpfr_is_infinite);
-    RREGDEF(R_mpfr_is_integer);
-    RREGDEF(R_mpfr_is_na);
-    RREGDEF(R_mpfr_is_zero);
+    RREGDEF(R_mpfr_is_finite);	 RREGDEF(R_mpfr_is_finite_A);
+    RREGDEF(R_mpfr_is_infinite); RREGDEF(R_mpfr_is_infinite_A);
+    RREGDEF(R_mpfr_is_integer);	 RREGDEF(R_mpfr_is_integer_A);
+    RREGDEF(R_mpfr_is_na);	 RREGDEF(R_mpfr_is_na_A);
+    RREGDEF(R_mpfr_is_zero);	 RREGDEF(R_mpfr_is_zero_A);
 
     RREGDEF(R_mpfr_jn);
     RREGDEF(R_mpfr_yn);
@@ -154,6 +154,8 @@ R_init_Rmpfr(DllInfo *dll)
     Rmpfr_expSym = install("exp");
     Rmpfr_d_Sym = install("d");
     Rmpfr_Data_Sym = install(".Data");
+    Rmpfr_Dim_Sym = install("Dim");
+    Rmpfr_Dimnames_Sym = install("Dimnames");
 
 /* not suppressable, hence moved to suppressable R startup code:
     Rprintf("Loading C code of R package 'Rmpfr': GMP using %d bits per limb\n",

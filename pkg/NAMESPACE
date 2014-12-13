@@ -188,6 +188,7 @@ S3method(diff, mpfr)
 S3method(str,  mpfr)
 
 S3method(is.whole, mpfr)
+#S3method(is.whole, mpfrArray)
 S3method(formatN, mpfr)
 
 S3method(print, mpfr)

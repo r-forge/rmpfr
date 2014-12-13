@@ -8,6 +8,8 @@ m.[,2] <- Const("pi", 80)
 m.[,] <- exp(mpfr(1, 90))
 stopifnot(is(mx, "mpfrMatrix"), dim(mx) == c(4,2),
           is(m., "mpfrMatrix"), dim(m.) == dim(mx),
+	  dim(is.finite(mx)) == dim(mx),
+	  dim(is.nan(mx)) == dim(mx),
           getPrec(m.) == 90)
 
 xx <- (0:7)/7

@@ -465,6 +465,37 @@ R_MPFR_Logic_Function(R_mpfr_is_integer,  mpfr_integer_p)
 R_MPFR_Logic_Function(R_mpfr_is_na,       mpfr_nan_p)
 R_MPFR_Logic_Function(R_mpfr_is_zero,     mpfr_zero_p)
 
+#define R_MPFRarray_Logic_Function(_FNAME, _MPFR_NAME)			\
+SEXP _FNAME(SEXP x) {							\
+    SEXP D = PROTECT(GET_SLOT(x, Rmpfr_Data_Sym)),/* R list() */	\
+       dim = PROTECT(GET_SLOT(x, Rmpfr_Dim_Sym)),			\
+        dn = PROTECT(GET_SLOT(x, Rmpfr_Dimnames_Sym));			\
+    int n = length(D), i;						\
+    SEXP val = PROTECT(allocVector(LGLSXP, n));				\
+    int *r = LOGICAL(val);						\
+    mpfr_t r_i;								\
+    mpfr_init(r_i);							\
+									\
+    for(i=0; i < n; i++) {						\
+	R_asMPFR(VECTOR_ELT(D, i), r_i);				\
+	r[i] = _MPFR_NAME (r_i);					\
+    }									\
+									\
+    mpfr_clear (r_i);							\
+    mpfr_free_cache();							\
+    setAttrib(val, R_DimSymbol,      duplicate(dim));			\
+    setAttrib(val, R_DimNamesSymbol, duplicate(dn));			\
+    UNPROTECT(4);							\
+    return val;								\
+}
+
+R_MPFRarray_Logic_Function(R_mpfr_is_finite_A,   mpfr_number_p)
+R_MPFRarray_Logic_Function(R_mpfr_is_infinite_A, mpfr_inf_p)
+R_MPFRarray_Logic_Function(R_mpfr_is_integer_A,  mpfr_integer_p)
+R_MPFRarray_Logic_Function(R_mpfr_is_na_A,       mpfr_nan_p)
+R_MPFRarray_Logic_Function(R_mpfr_is_zero_A,     mpfr_zero_p)
+
+
 SEXP R_mpfr_fac (SEXP n_, SEXP prec)
 {
     int n = length(n_), i, *nn;
@@ -491,45 +522,6 @@ SEXP R_mpfr_fac (SEXP n_, SEXP prec)
     UNPROTECT(nprot);
     return val;
 }
-
-#ifdef __NOT_ANY_MORE__
-//       ------------ as we deal with these "as if Math() group"
-// via Math_mpfr() in ./Ops.c
-
-#define R_MPFR_1_Numeric_Function(_FNAME, _MPFR_NAME)			\
-SEXP _FNAME(SEXP x) {							\
-    SEXP D = PROTECT(GET_SLOT(x, Rmpfr_Data_Sym));/* an R list() */	\
-    int n = length(D), i;						\
-    SEXP val = PROTECT(allocVector(VECSXP, n));				\
-    mpfr_t r_i;								\
-    mpfr_init(r_i);							\
-									\
-    for(i=0; i < n; i++) {						\
-	R_asMPFR(VECTOR_ELT(D, i), r_i);				\
-	_MPFR_NAME(r_i, r_i, MPFR_RNDN);					\
-	SET_VECTOR_ELT(val, i, MPFR_as_R(r_i));				\
-    }									\
-									\
-    mpfr_clear (r_i);							\
-    mpfr_free_cache();							\
-    UNPROTECT(2);							\
-    return val;								\
-}
-
-R_MPFR_1_Numeric_Function(R_mpfr_erf, mpfr_erf)
-R_MPFR_1_Numeric_Function(R_mpfr_erfc, mpfr_erfc)
-R_MPFR_1_Numeric_Function(R_mpfr_zeta, mpfr_zeta)
-
-R_MPFR_1_Numeric_Function(R_mpfr_eint, mpfr_eint)
-R_MPFR_1_Numeric_Function(R_mpfr_j0, mpfr_j0)
-R_MPFR_1_Numeric_Function(R_mpfr_j1, mpfr_j1)
-R_MPFR_1_Numeric_Function(R_mpfr_y0, mpfr_y0)
-R_MPFR_1_Numeric_Function(R_mpfr_y1, mpfr_y1)
-
-R_MPFR_1_Numeric_Function(R_mpfr_ai, mpfr_ai)
-
-#endif
-/* __NOT_ANY_MORE__ */
 
 
 #define R_MPFR_2_Numeric_Function(_FNAME, _MPFR_NAME)	\
