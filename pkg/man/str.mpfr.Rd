@@ -7,13 +7,21 @@
   the default method \code{\link{str.default}}.
 }
 \usage{
-\method{str}{mpfr}(object, nest.lev, give.head=TRUE, \dots)
+\method{str}{mpfr}(object, nest.lev, give.head=TRUE,
+    digits.d = 12, vec.len = 3, \dots)
 }
 \arguments{
   \item{object}{an object of class \code{\linkS4class{mpfr}}.}
   \item{nest.lev}{for \code{\link{str}()}, typically only used when
     called by a higher level \code{str()}.}
-  \item{give.head}{logical indicating if the \dQuote{header} should be printed.}
+  \item{give.head}{logical indicating if the \dQuote{header} should be
+    printed.}
+  \item{digits.d}{the number of digits to be used, will be passed
+    \code{\link{formatMpfr}()} and hence \code{NULL} will use \dQuote{as
+      many as needed}, i.e. often too many.  If this is a number, as per
+    default, less digits will be used in case the precision
+    (\code{\link{getPrec}(object)}) is smaller.}
+  \item{vec.len}{the number of \emph{elements} that will be shown.}
   \item{\dots}{further arguments passed to \code{\link{str}}.}
 }
 \seealso{
@@ -23,5 +31,10 @@
 (x <- c(Const("pi", 64), mpfr(-2:2, 64)))
 str(x)
 str(list(pi = pi, x.mpfr = x))
+str(x ^ 1000)
+str(x ^ -1e4, digits=NULL) # full precision
+
+uu <- Const("pi", 16)# unaccurate
+str(uu) # not using default of 12 digits
 }
 \keyword{utilities}

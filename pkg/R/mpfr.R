@@ -681,7 +681,7 @@ diff.mpfr <- function(x, lag = 1L, differences = 1L, ...)
     x
 }
 
-str.mpfr <- function(object, nest.lev, give.head = TRUE, ...) {
+str.mpfr <- function(object, nest.lev, give.head = TRUE, digits.d = 12, vec.len = 3, ...) {
     ## utils:::str.default() gives  "Formal class 'mpfr' [package "Rmpfr"] with 1 slots"
     cl <- class(object)
     le <- length(object)
@@ -696,12 +696,13 @@ str.mpfr <- function(object, nest.lev, give.head = TRUE, ...) {
 	    if(onePr) paste("", r.pr[1]) else paste0("s ", r.pr[1],"..",r.pr[2]),
 	    "\n", sep = "")
     if(missing(nest.lev)) nest.lev <- 0
-    ## maybe add a formatNum() which adds "  " as give.head=TRUE suppresses all
-    str(as.numeric(object), give.head = FALSE, nest.lev = nest.lev+1, ...)
-    ##                   max.level = NA, vec.len = strO$vec.len, digits.d = strO$digits.d,
-    ## nchar.max = 128, give.attr = TRUE, give.head = TRUE, give.length = give.head,
-    ## width = getOption("width"), nest.lev = 0, indent.str = paste(rep.int(" ",
-    ##     max(0, nest.lev + 1)), collapse = ".."), comp.str = "$ ",
-    ## no.list = FALSE, envir = baseenv(), strict.width = strO$strict.width,
-    ## formatNum = strO$formatNum, list.len = 99, ...)
+    cat(paste(rep.int(" ", max(0,nest.lev+1)), collapse= ".."))
+    fits <- le <= vec.len
+    if(!fits)
+        object <- object[seq_len(vec.len)]
+    if(!is.null(digits.d))## reduce digits where precision is smaller:
+	digits.d <- pmin(digits.d,
+			 ceiling(log(2)/log(10) * .getPrec(object)))
+    f.obj <- formatMpfr(object, digits=digits.d)
+    cat(f.obj, if(fits) "\n" else "...\n")
 }
