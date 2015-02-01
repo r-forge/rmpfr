@@ -11,6 +11,10 @@
 \description{
   Bessel functions of integer orders, provided via arbitrary precision
   algorithms from the MPFR library.
+
+  Note that the computation can be very slow when \code{n} \emph{and}
+  \code{x} are large (and of similar magnitude).
+  % e.g. on nb-mm3,  jn(4e4, 4e4)  takes 14 sec [1.1. 2015]
 }
 \usage{
 Ai(x)

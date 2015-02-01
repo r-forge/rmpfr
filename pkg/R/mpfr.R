@@ -612,7 +612,7 @@ getPrec <- function(x, base = 10, doNumeric = TRUE, is.mpfr = NA, bigq. = 128L) 
     }
     else {
 	if(!doNumeric)
-            stop("No default precision for numeric 'x' when 'doNumeric' is false")
+	    stop("must specify 'precBits' for numeric 'x' when 'doNumeric' is false")
 	## else
 	if(is.integer(x)) 32L
 	else if(is.double(x)) 53L
