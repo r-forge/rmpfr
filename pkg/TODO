@@ -11,12 +11,13 @@
 
 * Short or Mid Term
 *** TODO Split this section into  Short | Mid  (?)
-** TODO 33) We cannot specify the rounding mode in as(.) etc.  Currently use "N"; alternatively
+** TODO 34) We cannot specify the rounding mode in as(.) etc.  Currently use "N"; alternatively
    could specify a "global" default rounding mode via 'options(Rmpfr.default.rounding)'
-** TODO 34) tests/bit-repr.R : Bits() fails to work with 2^k
+** TODO 35) tests/bit-repr.R : Bits() fails to work with 2^k
 
-** TODO 36) mpfrXport()/*Import() should work for arrays.  Test Windows-portability:
+** TODO 37) mpfrXport()/*Import() should work for arrays.  Test Windows-portability:
  -  as save() seems not portable; see ~/R/MM/Pkg-ex/Rmpfr/save-load-ex.R
+** TODO 38) Define a  norm() method {maybe more?} --> so  expm(*, "Higham08") works ?!
 ** TODO 2) Now have working  "mpfrMatrix", dim(.) <- ..; t(), %*%, crossprod()...
  -  <mpfr> %*% <mpfr>    should work the same as with numeric vectors
  -  <mpfr> %*% t(<mpfr>)  ditto
@@ -100,7 +101,7 @@
 
 ** TODO 29) Our sum() should use system mpfr_sum() :
    mpfr_sum (mpfr_t ROP, mpfr_ptr const TAB[], unsigned long int N, mpfr_rnd_t RND)
-** TODO 31) Use ./LUP.R  to compute the lu() decomposition of an mpfrMatrix
+** TODO 32) Use ./LUP.R  to compute the lu() decomposition of an mpfrMatrix
     ---> use this for determinant() for larger (n >= 4 ?) dimensions!
 ** TODO 50) For *complex* arithmetic, build interface to the  "MPC" library
    ---> http://www.multiprecision.org/mpc -- which is LGPL and itself
@@ -209,7 +210,7 @@
 
 ** DONE 30) pmin() and pmax(), for simple cases pmin(x,n) are now, 2013-02, quite "fast",
         (see also --> ~/R/MM/Pkg-ex/Rmpfr/SLOW-pmin.R)
-** DONE 32) asNumeric(mpfr(10, 99)^500) gives 1.797693e+308 without warning. Should (warn or) give Inf
-** DONE 35) got mpfrImport(), reading mpfrXport()
+** DONE 33) asNumeric(mpfr(10, 99)^500) gives 1.797693e+308 without warning. Should (warn or) give Inf
+** DONE 36) got mpfrImport(), reading mpfrXport()
 
 
