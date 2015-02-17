@@ -1,3 +1,21 @@
+2015-02-16  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/array.R (norm): new matrix norm()'s of "all kinds"
+
+2014-12-13  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 0.6-0
+	* is.finite(M), is.na(M) now keep dim() for "mpfrArray" inputs.
+
+2014-11-27  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* DESCRIPTION (Version): 0.5-7, released to CRAN, 2014-11-27, r205
+	* R/as.R (as.integer): fix bug, ensuring that "Z" rounding is used
+
+2014-09-05  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/as.R (mpfrImport, mpfrXport): new utilities, somewhat experimental
+
 2014-06-23  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* R/integrate-Romberg.R (integrateR): when 'ord' is specified and
@@ -7,7 +25,7 @@
 	explosion). The default (none of these specified) is to try
 	convergence up to 'ord = 13'.
 
-	* DESCRIPTION (Version): 0.5-6
+	* DESCRIPTION (Version): 0.5-6, released to CRAN, 2014-09-05, r203
 
 	* R/as.R (mpfr): also allow rounding mode "A" (= "Away from zero")
 	* R/array.R (mpfrArray): as that is supported from MPFR 3.0.0 on
