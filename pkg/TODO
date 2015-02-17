@@ -17,7 +17,6 @@
 
 ** TODO 37) mpfrXport()/*Import() should work for arrays.  Test Windows-portability:
  -  as save() seems not portable; see ~/R/MM/Pkg-ex/Rmpfr/save-load-ex.R
-** TODO 38) Define a  norm() method {maybe more?} --> so  expm(*, "Higham08") works ?!
 ** TODO 2) Now have working  "mpfrMatrix", dim(.) <- ..; t(), %*%, crossprod()...
  -  <mpfr> %*% <mpfr>    should work the same as with numeric vectors
  -  <mpfr> %*% t(<mpfr>)  ditto
@@ -102,7 +101,7 @@
 ** TODO 29) Our sum() should use system mpfr_sum() :
    mpfr_sum (mpfr_t ROP, mpfr_ptr const TAB[], unsigned long int N, mpfr_rnd_t RND)
 ** TODO 32) Use ./LUP.R  to compute the lu() decomposition of an mpfrMatrix
-    ---> use this for determinant() for larger (n >= 4 ?) dimensions!
+    ---> solve() and use this for determinant() for larger (n >= 4 ?) dimensions!
 ** TODO 50) For *complex* arithmetic, build interface to the  "MPC" library
    ---> http://www.multiprecision.org/mpc -- which is LGPL and itself
    builds on MPFR and GMP.
@@ -212,5 +211,4 @@
         (see also --> ~/R/MM/Pkg-ex/Rmpfr/SLOW-pmin.R)
 ** DONE 33) asNumeric(mpfr(10, 99)^500) gives 1.797693e+308 without warning. Should (warn or) give Inf
 ** DONE 36) got mpfrImport(), reading mpfrXport()
-
-
+** DONE 38) Define a norm() method.  For expm(*, "Higham08") need  solve() !

@@ -243,7 +243,10 @@
       \samp{mpfr_fac_ui}.}
 
     \item{Math2}{\code{signature(x = "mpfr")}: \code{\link{round}(x,
-	digits)} and \code{\link{signif}(x, digits)} methods.}
+	digits)} and \code{\link{signif}(x, digits)} methods.  Note that
+	these do not change the formal precision (\code{'prec'} slot),
+	and you may often want to apply \code{\link{roundMpfr}()} in
+	addition or preference.}
 
     \item{as.numeric}{\code{signature(x = "mpfr")}: ... }
 
@@ -323,7 +326,9 @@
   \code{"mpfr"} one.
 
   \code{\link{roundMpfr}} to \emph{change} precision of an \code{"mpfr"}
-  object; \code{\link{is.whole}()} etc.
+  object which is typically desirable \emph{instead} of or in addition
+  to \code{signif()} or \code{round()};
+  \code{\link{is.whole}()} etc.
 
   Special mathematical functions such as some Bessel ones, e.g., \code{\link{jn}};
   further, \code{\link{zeta}(.)} \eqn{(= \zeta(.))}, \code{Ei()} etc.

@@ -7,6 +7,7 @@ _not_yet
 mail$
 _INSTALL
 \.Rhistory
+^valgrind
 ^\.Rmpfr
 ^svn-todo
 ^svn-log

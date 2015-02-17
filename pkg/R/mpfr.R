@@ -63,7 +63,7 @@ mpfr_default_prec <- function(prec) {
 ## FIXME? better function name ??
 .mpfr.erange <- function(kind) {
     stopifnot(length(kind) == 1, is.character(kind))
-    if(!any(iseq <- kind == names(.erange.codes)))
+    if(!any(kind == names(.erange.codes)))
         stop("'kind' must be one of ",
              paste(paste0('"', names(.erange.codes), '"'), collapse=", "))
     .Call(R_mpfr_get_erange, .erange.codes[[kind]])
@@ -326,7 +326,7 @@ setMethod("pmin", "mNumber",
 	      is.q <- vapply(cld, extends, NA, "bigq")
 	      is.z <- vapply(cld, extends, NA, "bigz")
 	      is.N <- vapply(args, function(x) is.numeric(x) || is.logical(x), NA)
-	      if(!any(is.mq <- is.m | is.q | is.z)) # should not be needed -- TODO: "comment out"
+	      if(!any(is.m | is.q | is.z)) # should not be needed -- TODO: "comment out"
 		  stop("no \"mpfr\", \"bigz\", or \"bigq\" argument -- wrong method chosen; please report!")
 	      N <- max(lengths <- vapply(args, length, 1L))
 	      any.m <- any(is.m)
@@ -401,7 +401,7 @@ setMethod("pmax", "mNumber",
 	      is.q <- vapply(cld, extends, NA, "bigq")
 	      is.z <- vapply(cld, extends, NA, "bigz")
 	      is.N <- vapply(args, function(x) is.numeric(x) || is.logical(x), NA)
-	      if(!any(is.mq <- is.m | is.q | is.z)) # should not be needed -- TODO: "comment out"
+	      if(!any(is.m | is.q | is.z)) # should not be needed -- TODO: "comment out"
 		  stop("no \"mpfr\", \"bigz\", or \"bigq\" argument -- wrong method chosen; please report!")
 	      N <- max(lengths <- vapply(args, length, 1L))
 	      any.m <- any(is.m)
@@ -469,7 +469,7 @@ seqMpfr <- function(from = 1, to = 1, by = ((to - from)/(length.out - 1)),
 	lf <- length(from)
 	if(lf != 1) stop("'from' must be of length 1")
     }
-    if ((One <- nargs() == 1L) && h.from) {
+    if (nargs() == 1L && h.from) { # 'One'
 	if(is.numeric(from) || is(from,"mpfr")) {
 	    to <- from; from <- mpfr(1, getPrec(from))
 	} else stop("'from' is neither numeric nor \"mpfr\"")
@@ -686,7 +686,7 @@ str.mpfr <- function(object, nest.lev, give.head = TRUE, digits.d = 12, vec.len 
     cl <- class(object)
     le <- length(object)
     if(isArr <- is(object, "mpfrArray")) di <- dim(object)
-    r.pr <- range(pr <- getPrec(object))
+    r.pr <- range(getPrec(object))
     onePr <- r.pr[1] == r.pr[2]
     if(give.head)
 	cat("Class", " '", paste(cl, collapse = "', '"),

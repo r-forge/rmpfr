@@ -60,9 +60,7 @@ pnorm <- function (q, mean = 0, sd = 1, lower.tail = TRUE, log.p = FALSE)
 dnorm <- function (x, mean = 0, sd = 1, log = FALSE) {
     if(is.numeric(x) && is.numeric(mean) && is.numeric(sd))
 	stats__dnorm(x, mean, sd, log=log)
-    else if((x.mp <- is(x, "mpfr")) |
-	    (m.mp <- is(mean, "mpfr")) |
-	    (s.mp <- is(sd, "mpfr"))) {
+    else if((x.mp <- is(x, "mpfr")) || is(mean, "mpfr") || (s.mp <- is(sd, "mpfr"))) {
 	## stopifnot(length(log) == 1)
 	prec <- pmax(53, getPrec(x), getPrec(mean), getPrec(sd))
 	if(!x.mp) x <- mpfr(x, prec)
@@ -79,7 +77,7 @@ dnorm <- function (x, mean = 0, sd = 1, log = FALSE) {
 dpois <- function (x, lambda, log = FALSE) {
     if(is.numeric(x) && is.numeric(lambda)) ## standard R
 	stats__dpois(x, lambda, log=log)
-    else if((l.mp <- is(lambda, "mpfr")) | (x.mp <- is(x, "mpfr"))) {
+    else if((l.mp <- is(lambda, "mpfr")) || (x.mp <- is(x, "mpfr"))) {
 	prec <- pmax(53, getPrec(lambda), getPrec(x))
 	if(!l.mp) lambda <- mpfr(lambda, prec)
 	if(!x.mp) x <- mpfr(x, prec)

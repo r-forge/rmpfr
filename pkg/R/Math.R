@@ -72,7 +72,7 @@ if(FALSE)
 ## and is always +/- 1 , but R's sign(0) |--> 0
 .getSign <- function(x) vapply(getD(x), slot, 1L, "sign")
 .mpfr.sign <- function(x) {
-    r <- numeric(n <- length(x))# all 0
+    r <- numeric(length(x))# all 0
     not0 <- !mpfr.is.0(x)
     r[not0] <- .getSign(x[not0])
     r
