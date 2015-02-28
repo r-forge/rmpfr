@@ -27,9 +27,9 @@ pnorm <- function (q, mean = 0, sd = 1, lower.tail = TRUE, log.p = FALSE)
 {
     if(is.numeric(q) && is.numeric(mean) && is.numeric(sd))
 	stats__pnorm(q, mean, sd, lower.tail=lower.tail, log.p=log.p)
-    else if(is(q, "mpfr") || is(mean, "mpfr") || is(sd, "mpfr")) {
+    else if((q.mp <- is(q, "mpfr")) || is(mean, "mpfr") || is(sd, "mpfr")) {
 	stopifnot(length(lower.tail) == 1, length(log.p) == 1)
-	rr <- q <- (as(q, "mpfr") - mean) / sd
+	rr <- q <- ((if(q.mp) q else as(q, "mpfr")) - mean) / sd
 	if(any(neg <- (q < 0))) ## swap those:	Phi(-z) = 1 - Phi(z)
 	    rr[neg] <- pnorm(-q[neg], lower.tail = !lower.tail, log.p=log.p)
 	if(any(pos <- !neg)) {
@@ -110,7 +110,7 @@ dbinom <- function (x, size, prob, log = FALSE) {
 
 ## zeta()
 zeta <- function(x) {
-    x <- as(x, "mpfr")
+    if(!inherits(x, "mpfr")) x <- as(x, "mpfr") # keep "mpfrArray"
     x@.Data[] <- .Call(Math_mpfr, x, .Math.codes[["zeta"]])
     x
 }
@@ -131,14 +131,14 @@ Bernoulli <- function(k, precBits = 128) {
 
 ## eint() "Exponential integral"
 Ei <- function(x) {
-    x <- as(x, "mpfr")
+    if(!inherits(x, "mpfr")) x <- as(x, "mpfr") # keep "mpfrArray"
     x@.Data[] <- .Call(Math_mpfr, x, .Math.codes[["Eint"]])
     x
 }
 
 ## Li_2() the dilogarithm
 Li2 <- function(x) {
-    x <- as(x, "mpfr")
+    if(!inherits(x, "mpfr")) x <- as(x, "mpfr") # keep "mpfrArray"
     x@.Data[] <- .Call(Math_mpfr, x, .Math.codes[["Li2"]])
     x
 }
@@ -148,39 +148,39 @@ Li2 <- function(x) {
 ## j0, j1, jn
 ## y0, y1, yn
 j0 <- function(x) {
-    x <- as(x, "mpfr")
+    if(!inherits(x, "mpfr")) x <- as(x, "mpfr") # keep "mpfrArray"
     x@.Data[] <- .Call(Math_mpfr, x, .Math.codes[["j0"]])
     x
 }
 j1 <- function(x) {
-    x <- as(x, "mpfr")
+    if(!inherits(x, "mpfr")) x <- as(x, "mpfr")
     x@.Data[] <- .Call(Math_mpfr, x, .Math.codes[["j1"]])
     x
 }
 y0 <- function(x) {
-    x <- as(x, "mpfr")
+    if(!inherits(x, "mpfr")) x <- as(x, "mpfr")
     x@.Data[] <- .Call(Math_mpfr, x, .Math.codes[["y0"]])
     x
 }
 y1 <- function(x) {
-    x <- as(x, "mpfr")
+    if(!inherits(x, "mpfr")) x <- as(x, "mpfr")
     x@.Data[] <- .Call(Math_mpfr, x, .Math.codes[["y1"]])
     x
 }
 
 Ai <- function(x) {
-    x <- as(x, "mpfr")
+    if(!inherits(x, "mpfr")) x <- as(x, "mpfr")
     x@.Data[] <- .Call(Math_mpfr, x, .Math.codes[["Ai"]])
     x
 }
 
 jn <- function(n, x) {
-    x <- as(x, "mpfr")
+    if(!inherits(x, "mpfr")) x <- as(x, "mpfr")
     x@.Data[] <- .Call(R_mpfr_jn, x, n)
     x
 }
 yn <- function(n, x) {
-    x <- as(x, "mpfr")
+    if(!inherits(x, "mpfr")) x <- as(x, "mpfr")
     x@.Data[] <- .Call(R_mpfr_yn, x, n)
     x
 }
