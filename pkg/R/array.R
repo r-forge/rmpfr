@@ -41,6 +41,8 @@ setMethod("dim<-", signature(x = "mpfr", value = "ANY"),
 mpfrArray <- function(x, precBits, dim = length(x), dimnames = NULL,
 		      rnd.mode = c('N','D','U','Z','A'))
 {
+    if(!is.atomic(x))
+	stop("'x' must be (coercable to) a numeric vector, possibly consider mpfr2array()")
     dim <- as.integer(dim)
     rnd.mode <- toupper(rnd.mode)
     rnd.mode <- match.arg(rnd.mode)
@@ -68,6 +70,24 @@ as.matrix.mpfr <- function(x, ...) {
     if(is(x, "mpfrMatrix")) x else ## is(x, "mpfr") :
     as.matrix.default(x, ...)
 }
+
+## matrix is S3 generic from 'gmp' anyway:
+matrix.mpfr <- function (data = NA, nrow = 1, ncol = 1, byrow = FALSE, ...) {
+    dim(data) <- c(nrow, ncol)
+    if(length(dots <- list(...))) {
+	if(!is.null(dn <- dots$dimnames)) {
+	    dimnames(data) <- dn # assign and delete from "dots":
+	    dots$dimnames <- NULL
+	}
+	if(nx <- length(dots)) # a simplified  Matrix:::chk.s()
+	    warning(sprintf(ngettext(nx,
+				     "extra argument %s will be disregarded",
+				     "extra arguments %s will be disregarded"),
+			sub(")$", '', sub("^list\\(", '', deparse(dots, control=c())))))
+    }
+    data
+}
+
 
 setMethod("dimnames<-", signature(x = "mpfrArray", value = "ANY"),
 	  function(x, value) {
