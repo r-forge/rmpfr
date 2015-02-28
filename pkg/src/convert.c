@@ -166,11 +166,10 @@ SEXP d2mpfr1_list(SEXP x, SEXP prec, SEXP rnd_mode)
     SEXP val = PROTECT(allocVector(VECSXP, n));
     if(nx > 0) {
 	mpfr_rnd_t rnd = R_rnd2MP(rnd_mode);
-	int *iprec; double *dx;
 	if(!isReal(x))       { PROTECT(x    = coerceVector(x,   REALSXP)); nprot++; }
 	if(!isInteger(prec)) { PROTECT(prec = coerceVector(prec, INTSXP)); nprot++; }
-	dx = REAL(x);
-	iprec = INTEGER(prec);
+	double *dx = REAL(x);
+	int *iprec = INTEGER(prec);
 	for(int i = 0; i < n; i++) {
 	    /* FIXME: become more efficient by doing R_..._2R_init() only once*/
 	    SET_VECTOR_ELT(val, i, d2mpfr1_(dx[i % nx], iprec[i % np], rnd));

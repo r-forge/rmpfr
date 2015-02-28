@@ -1,3 +1,11 @@
+2015-02-28  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* R/array.R (matrix.mpfr): new S3 method for 'matrix(<mpfr>, ...)',
+	mostly to help confused users.
+
+	* R/special-fun.R (pnorm, j0, ...): do *NOT* use as(x, "mpfr") when
+	'x' is an "mpfrMatrix" / "mpfrArray" (-> uses dim(), etc!)
+
 2015-02-16  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* R/array.R (norm): new matrix norm()'s of "all kinds"
