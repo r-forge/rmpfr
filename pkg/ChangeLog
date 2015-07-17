@@ -1,3 +1,7 @@
+2015-04-29  Martin Maechler  <maechler@stat.math.ethz.ch>
+
+	* inst/NEWS.Rd: new; this 'ChangeLog' should not be used anymore
+
 2015-02-28  Martin Maechler  <maechler@stat.math.ethz.ch>
 
 	* R/array.R (matrix.mpfr): new S3 method for 'matrix(<mpfr>, ...)',

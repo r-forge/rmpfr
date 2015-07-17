@@ -8,7 +8,7 @@
 }
 \usage{
 \method{str}{mpfr}(object, nest.lev, give.head=TRUE,
-    digits.d = 12, vec.len = 3, \dots)
+    digits.d = 12, vec.len = 3, drop0trailing=TRUE, \dots)
 }
 \arguments{
   \item{object}{an object of class \code{\linkS4class{mpfr}}.}
@@ -22,7 +22,9 @@
     default, less digits will be used in case the precision
     (\code{\link{getPrec}(object)}) is smaller.}
   \item{vec.len}{the number of \emph{elements} that will be shown.}
-  \item{\dots}{further arguments passed to \code{\link{str}}.}
+  \item{drop0trailing}{logical, passed to \code{\link{formatMpfr}()} (with a
+    different default here).}
+  \item{\dots}{further arguments, passed to \code{\link{formatMpfr}()}.}
 }
 \seealso{
   \code{\link{mpfr.is.0}} for many more utilities.

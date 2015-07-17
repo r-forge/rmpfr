@@ -7,7 +7,7 @@
   used in arithmetic and mathematical computations with \R.
 }
 \usage{
-mpfr(x, precBits, base = 10, rnd.mode = c("N","D","U","Z","A"))
+mpfr(x, precBits, base = 10, rnd.mode = c("N","D","U","Z","A"), scientific = TRUE)
 Const(name = c("pi", "gamma", "catalan", "log2"), prec = 120L)
 }
 \arguments{
@@ -23,6 +23,11 @@ Const(name = c("pi", "gamma", "catalan", "log2"), prec = 120L)
     \eqn{b} must fulfill \eqn{2 \le b \le 36}{2 <= b <= 36}.}
   \item{rnd.mode}{a 1-letter string specifying how \emph{rounding}
     should happen at C-level conversion to MPFR, see details.}
+  \item{scientific}{(used only when \code{x} is the result of
+    \code{\link{formatBin}()}, i.e., of class \code{"Bcharacter"}:)
+    logical indicating that the binary representation of \code{x} is in
+    scientific notation.  When \code{TRUE}, \code{mpfr()} will substitute
+    \code{0} for \code{_}; see also \code{\link{formatBin}}.}
   \item{name}{a string specifying the mpfrlib - internal constant
     computation.  \code{"gamma"} is Euler's gamma \eqn{(\gamma)}{}, and
     \code{"catalan"} Catalan's constant.}
@@ -54,6 +59,9 @@ Const(name = c("pi", "gamma", "catalan", "log2"), prec = 120L)
   to (10.0)=2 with a precision of two bits, and not to (11.0)=3.  This
   rule avoids the "drift" phenomenon mentioned by Knuth in volume 2 of
   The Art of Computer Programming (Section 4.2.2).
+
+  When \code{x} is \code{\link{character}}, \code{mpfr()}
+  will detect the precision of the input object. %% FIXME examples
 }
 \references{
   The MPFR team. (2009).

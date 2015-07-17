@@ -7,12 +7,13 @@ export(.mpfr2bigz, .bigz2mpfr, .bigq2mpfr)
 
 ## Radical(but gets all): import("methods")
 ## try to import all we need, but not more
-importFrom("methods", coerce, "coerce<-",
-           setClass, setClassUnion, setMethod, setOldClass,
-	   setValidity, slot, "slot<-",
+importFrom("methods",
+	   as, "as<-", coerce, "coerce<-",
+	   callGeneric, callNextMethod,
+           is, extends, new, validObject,
+	   setClass, setClassUnion, setMethod, setOldClass, setValidity,
+	   slot, "slot<-", .slotNames,
 	   getDataPart, setDataPart, getClass, getClassDef,
-	   callGeneric, as, is, extends,
-	   new, validObject,
 	   signature, representation, prototype
            ## as we define methods for them:
            , show
@@ -104,7 +105,7 @@ export(.mpfr, .mpfr.
        , "factorial"
        , "factorialMpfr"
        , "format"
-       , "formatMpfr"
+       , formatMpfr, formatBin, formatDec, formatHex
        , "getD"
        , "getPrec"
        , "hypot"
@@ -112,10 +113,8 @@ export(.mpfr, .mpfr.
        , "j0" , "j1" , "jn"
        , "mean"
        , "mpfr"
-       , "mpfr.is.0"
-       , "mpfr.is.integer"
-       , "mpfr2array"
-       , "mpfrArray"
+       , "mpfr.is.0", "mpfr.is.integer"
+       , "mpfr2array", "mpfrArray"
        , "mpfrVersion"
        , "mpfr_default_prec"
        , "optimizeR"
@@ -195,6 +194,7 @@ S3method(print, mpfr)
 S3method(print, mpfr1)
 S3method(print, mpfrArray)
 S3method(print, integrateR)
+S3method(print, Bcharacter)
 
 S3method(matrix, mpfr)
 ## useful, to have  base::outer() work automatically:

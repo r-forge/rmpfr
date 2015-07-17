@@ -3,10 +3,10 @@
 if(getRversion() < "2.15")
     paste0 <- function(...) paste(..., sep = '')
 
-mpfr <- function(x, precBits, base = 10, rnd.mode = c('N','D','U','Z','A'))
+mpfr <- function(x, precBits, base = 10, rnd.mode = c('N','D','U','Z','A'), scientific=TRUE)
 {
-    if(is.character(x))
-	stopifnot(length(base) == 1, 2 <= base, base <= 36)
+    if(is.ch <- is.character(x))
+	stopifnot(length(base) == 1, 2 <= base, base <= 36)## FIXME now can go up to 62 (10 + 2*26)
     stopifnot(is.character(rnd.mode <- toupper(rnd.mode)))
     rnd.mode <- match.arg(rnd.mode)
 
@@ -22,8 +22,15 @@ mpfr <- function(x, precBits, base = 10, rnd.mode = c('N','D','U','Z','A'))
 	    if(getOption("verbose"))
 		warning("mpfr(<bigq>) --> .bigq2mpfr()")# via character
 	    return(..bigq2mpfr(x, precBits))
-	}
+	} ## else warning("unrecognized raw 'x'") # <- ?? {see use in ../tests/create.R }
     } ## else
+    if(is.ch) {
+	if(inherits(x, "Bcharacter"))
+	    return(mpfrBchar(x, precBits=precBits, scientific=scientific, rnd.mode=rnd.mode))
+	if(inherits(x, "Hcharacter"))
+	    return(mpfrHchar(x, precBits=precBits, scientific=scientific, rnd.mode=rnd.mode))
+    }
+
     if(missing(precBits)) {
 	precBits <- getPrec(x, base = base, doNumeric = FALSE)
     }
@@ -33,7 +40,7 @@ mpfr <- function(x, precBits, base = 10, rnd.mode = c('N','D','U','Z','A'))
     ml <-
 	if(is.numeric(x) || is.logical(x) || is.raw(x))
 	    .Call(d2mpfr1_list, x, precBits, rnd.mode)
-	else if(is.character(x))
+	else if(is.ch)
 	    .Call(str2mpfr1_list,x, precBits, base, rnd.mode)
 	else stop("invalid 'x'. Must be numeric (logical, raw) or character")
     if(is.array(x)) {
@@ -43,7 +50,7 @@ mpfr <- function(x, precBits, base = 10, rnd.mode = c('N','D','U','Z','A'))
 	    Dimnames = if(is.null(dn)) vector("list", length(dim)) else dn)
     }
     else new("mpfr", ml)
-}
+} ## mpfr()
 
 .mpfr <- function(x, precBits)
     new("mpfr", .Call(d2mpfr1_list, x, precBits, "N"))

@@ -588,12 +588,24 @@ setMethod("seq", c(from = "ANY", to = "ANY", by = "mpfr"), seqMpfr)
     if(length(x)) vapply(getD(x), slot, 1L, "prec")
     else mpfr_default_prec()
 }
+
+##' The *relevant* number of "bit"/"digit" characters in character vector x
+##' (i.e. is vectorized)
+.ncharPrec <- function(x, base) {
+    if((base ==  2 && any(i <- tolower(substr(x,1L,2L)) == "0b")) ||
+       (base == 16 && any(i <- tolower(substr(x,1L,2L)) == "0x"))) {
+        i <- which(i)
+        x[i] <- substr(x[i], 3L, 1000000L)
+    }
+    nchar(gsub("[-.]", '', x), "bytes")
+}
+
 ## the user version
 getPrec <- function(x, base = 10, doNumeric = TRUE, is.mpfr = NA, bigq. = 128L) {
     if(isTRUE(is.mpfr) || is(x,"mpfr"))
 	vapply(getD(x), slot, 1L, "prec")# possibly of length 0
     else if(is.character(x)) ## number of digits --> number of bits
-	ceiling(log2(base) * nchar(gsub("[-.]", '', x)))
+	ceiling(log2(base) * .ncharPrec(x, base))
     else if(is.logical(x))
 	2L # even 1 would suffice - but need 2 (in C ?)
     else if(is.raw(x)) {
@@ -681,7 +693,8 @@ diff.mpfr <- function(x, lag = 1L, differences = 1L, ...)
     x
 }
 
-str.mpfr <- function(object, nest.lev, give.head = TRUE, digits.d = 12, vec.len = 3, ...) {
+str.mpfr <- function(object, nest.lev, give.head = TRUE, digits.d = 12, vec.len = 3,
+                     drop0trailing=TRUE, ...) {
     ## utils:::str.default() gives  "Formal class 'mpfr' [package "Rmpfr"] with 1 slots"
     cl <- class(object)
     le <- length(object)
@@ -703,6 +716,6 @@ str.mpfr <- function(object, nest.lev, give.head = TRUE, digits.d = 12, vec.len 
     if(!is.null(digits.d))## reduce digits where precision is smaller:
 	digits.d <- pmin(digits.d,
 			 ceiling(log(2)/log(10) * .getPrec(object)))
-    f.obj <- formatMpfr(object, digits=digits.d)
+    f.obj <- formatMpfr(object, digits=digits.d, drop0trailing=drop0trailing, ...)
     cat(f.obj, if(fits) "\n" else "...\n")
 }
