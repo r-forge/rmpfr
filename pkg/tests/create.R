@@ -7,7 +7,12 @@ pi. # nicely prints 80 digits [260 * log10(2) ~= 78.3 ~ 80]
 
 ## These both failed (in mpfr2str(.)) with a seg.fault:
 c(mpfr(1, prec=3), pi.)
-mpfr(numeric(), prec=64)
+m0 <- mpfr(numeric(), prec=64)
+## print()ing / str() of 0-length mpfr
+stopifnot(
+    grepl("0 'mpfr' numbers", capture.output(    m0)),
+    grepl("0 'mpfr' numbers", capture.output(str(m0))))
+
 
 ## This is TRUE for 0 and -0 :
 Zero <- mpfr(c(0,1/-Inf), 20)

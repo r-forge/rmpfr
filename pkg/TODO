@@ -6,6 +6,7 @@
 ** TODO 17b) see 'Ops' in R/Arith.R  ,  Rmpfr:::.Math.codes,  and
      design a "test all Ops" with all combinations of "mpfr", "numeric","logical"
      (and possibly more).
+** TODO 32) .getPrec() should be documented {slightly}; .getSign(), .mpfr() -- at least *internal* (e.g. roxygen)
 ** DONE is.finite(.) etc: *Must* keep matrices -> src/utils.c
 
 

@@ -8,7 +8,8 @@
 }
 \usage{
 \method{str}{mpfr}(object, nest.lev, give.head=TRUE,
-    digits.d = 12, vec.len = 3, drop0trailing=TRUE, \dots)
+    digits.d = 12, vec.len = NULL, drop0trailing=TRUE,
+    width = getOption("width"), \dots)
 }
 \arguments{
   \item{object}{an object of class \code{\linkS4class{mpfr}}.}
@@ -21,9 +22,13 @@
       many as needed}, i.e. often too many.  If this is a number, as per
     default, less digits will be used in case the precision
     (\code{\link{getPrec}(object)}) is smaller.}
-  \item{vec.len}{the number of \emph{elements} that will be shown.}
+  \item{vec.len}{the number of \emph{elements} that will be shown.  The
+    default depends on the precision of \code{object} and \code{width}
+    (since \pkg{Rmpfr} 0.6-0, it was \code{3} previously).}
   \item{drop0trailing}{logical, passed to \code{\link{formatMpfr}()} (with a
     different default here).}
+  \item{width}{the (approximately) desired width of output, see
+    \code{\link{options}(width = .)}.}
   \item{\dots}{further arguments, passed to \code{\link{formatMpfr}()}.}
 }
 \seealso{

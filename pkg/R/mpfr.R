@@ -84,7 +84,7 @@ mpfrVersion <- function()
     numeric_version(sub("^([0-9]+\\.[0-9]+\\.[0-9]+).*","\\1", .mpfrVersion()))
 
 print.mpfr1 <- function(x, digits = NULL, drop0trailing = TRUE, ...) {
-    stopifnot(is(x, "mpfr1"), is.null(digits) || digits >= 2)
+    stopifnot(is(x, "mpfr1"), is.null(digits) || digits >= 1)
     cat("'mpfr1' ",
 	format(as(x, "mpfr"), digits=digits, drop0trailing=drop0trailing),
 	"\n", sep="")
@@ -98,7 +98,7 @@ if(FALSE) ## no longer -- as R CMD check complains about use of non-API R_Output
 if(.Platform$OS.type != "windows") {## No R_Outputfile (in C) on Windows
 
 .print.mpfr <- function(x, digits = NA, ...) {
-    stopifnot(is(x, "mpfr"), is.na(digits) || digits >= 2)
+    stopifnot(is(x, "mpfr"), is.na(digits) || digits >= 1)
     ## digits = NA --> the inherent precision of x will be used
     if(length(x) >= 1)
 	.Call(print_mpfr, x, as.integer(digits))
@@ -115,7 +115,7 @@ getD <- function(x) { attributes(x) <- NULL; x }
 
 print.mpfr <- function(x, digits = NULL, drop0trailing = TRUE,
 		       right = TRUE, ...) {
-    stopifnot(is(x, "mpfr"), is.null(digits) || digits >= 2)
+    stopifnot(is(x, "mpfr"), is.null(digits) || digits >= 1)
     ## digits = NA --> the inherent precision of x will be used
     n <- length(x)
     ch.prec <-
@@ -693,11 +693,13 @@ diff.mpfr <- function(x, lag = 1L, differences = 1L, ...)
     x
 }
 
-str.mpfr <- function(object, nest.lev, give.head = TRUE, digits.d = 12, vec.len = 3,
-                     drop0trailing=TRUE, ...) {
+str.mpfr <- function(object, nest.lev, give.head = TRUE, digits.d = 12,
+                     vec.len = NULL, drop0trailing=TRUE,
+                     width = getOption("width"), ...) {
     ## utils:::str.default() gives  "Formal class 'mpfr' [package "Rmpfr"] with 1 slots"
     cl <- class(object)
     le <- length(object)
+    if(le == 0) { print(object); return(invisible()) }
     if(isArr <- is(object, "mpfrArray")) di <- dim(object)
     r.pr <- range(getPrec(object))
     onePr <- r.pr[1] == r.pr[2]
@@ -710,12 +712,25 @@ str.mpfr <- function(object, nest.lev, give.head = TRUE, digits.d = 12, vec.len 
 	    "\n", sep = "")
     if(missing(nest.lev)) nest.lev <- 0
     cat(paste(rep.int(" ", max(0,nest.lev+1)), collapse= ".."))
-    fits <- le <= vec.len
-    if(!fits)
-        object <- object[seq_len(vec.len)]
+    ## if object is long, drop the rest which won't be used anyway:
+    max.len <- max(100, width %/% 3 + 1, if(is.numeric(vec.len)) vec.len)
+    if(le > max.len) object <- object[seq_len(max.len)]
     if(!is.null(digits.d))## reduce digits where precision is smaller:
 	digits.d <- pmin(digits.d,
 			 ceiling(log(2)/log(10) * .getPrec(object)))
+    if(is.null(vec.len)) { # use width and precision (and remain simple
+	nch <- nchar(formatMpfr(object, digits=digits.d, drop0trailing=drop0trailing, ...),
+		     keepNA=FALSE)
+	n <- length(nch)
+	fits <- !any(too.lrg <- cumsum(nch) + n-1L > width)
+	if(!fits)
+	    vec.len <- max(2L, which.max(too.lrg) - 1L)
+    } else
+	fits <- le <= vec.len
+    if(!fits) {
+	object <- object[i <- seq_len(vec.len)]
+	digits.d <- digits.d[i]
+    }
     f.obj <- formatMpfr(object, digits=digits.d, drop0trailing=drop0trailing, ...)
     cat(f.obj, if(fits) "\n" else "...\n")
 }

@@ -17,6 +17,8 @@
       \item \code{mpfr(x)} for character \code{x} now auto-detects
       binary or hexadecimal numbers and hence acts as \emph{inverse} of
       \code{formatBin} and \code{formatHex}.
+      \item \code{str(<mpfr>, ....)} now chooses a smart default for
+      optional argument \code{vec.len}.
     }
   }
   \subsection{BUG FIXES}{
@@ -30,6 +32,8 @@
       \item \code{mpfr("0xabc", base=16)} and \code{mpfr("0b101",
 	base=2)} and corresponding \code{getPrec()} now give the correct
       precBits instead of (8 or 2, respectively) too many.
+
+      \item \code{str(<0-length mpfr>)} now works correctly.
     }
   }
 }

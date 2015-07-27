@@ -17,7 +17,7 @@ identical(n5.b2, mpfr("0b101"))
 (nums9bc <- formatBin(nums9))
 n9. <- Rmpfr:::mpfrBchar(nums9bc)
 n9_ <- mpfr             (nums9bc)
-## the 0 is not at all uniquely represented
+## Inverse worked {apart from 0: it is not at all uniquely represented in MPFR!}
 stopifnot(identical(mpfr.is.0(n9.), mpfr.is.0(n9_)),
           identical(nums9[-1], n9.[-1]))
 
