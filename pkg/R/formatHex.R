@@ -69,36 +69,30 @@ formatBin <- function(x, precBits=min(getPrec(x)), scientific = TRUE,
     ## bindigits is number of binary digits after the precision point
     bindigits <- attr(H, "bindigits")
     hexdigits <- attr(H, "hexdigits")
-    S <- substring(H, 1, 1)
-    A <- substring(H, 4, 4)
-    B <- substring(H, 6, 6+(hexdigits-1))
-    pow <- substring(H, 6+hexdigits+1)
+    attributes(H) <- NULL
+    S <- substr(H, 1, 1) # sign
+    A <- substr(H, 4, 4)
+    B <- substr(H, 6, 6+(hexdigits-1))
+    pow <- substr(H, 6+hexdigits+1, 1000000L)
     sB <- strsplit(B, "")
     rsB <- do.call(rbind, sB)
     hrsB <- HextoBin[rsB]
     dim(hrsB) <- dim(rsB)
     hrsBa <- apply(hrsB, 1, paste, collapse="")
-    hrsBb <- substring(hrsBa, 1, bindigits)
+    hrsBb <- substr(hrsBa, 1, bindigits)
     ## While this is a truncation,
     ## the mpfr conversion assures that
     ## only zero characters are truncated.
     if (!scientific) {
-
-	left.pads <- paste(rep(left.pad, 60), collapse="")
-	left.pads <- substring(left.pads, 0, 0:60)
-
-	right.pads <- paste(rep(right.pad, 60), collapse="")
-	right.pads <- substring(right.pads, 0, 0:60)
-
-	powers <- as.numeric(pow)
+	powers <- as.integer(pow)
 	Left <- -powers + max(powers)
 	Right <- powers - min(powers)
-	if (max(abs(powers)) > length(left.pads))
-	    warning("Shifted binary out of bounds.", call.=FALSE)
-	D <- cbind(S, "0b", left.pads[Left+1], A, hrsBb, right.pads[Right+1])
+	D <- cbind(S, "0b", strrep(left.pad, Left),
+		   A, hrsBb, strrep(right.pad, Right))
 	D2 <- apply(D, 1, function(x) do.call(paste, list(x, collapse="")))
-	res <- paste(substring(D2, 1, max(Left)+min(powers)+4), ".",
-		     substring(D2, max(Left)+min(powers)+4+1), sep="")
+	ilft <- as.integer(max(Left) + min(powers)) + 4L
+	res <- paste0(substr(D2,      1L,   ilft  ), ".",
+		      substr(D2, ilft+1L, 1000000L))
     }
     else {
 	res <- cbind(S, "0b", A, ".", hrsBb, "p", pow)
@@ -196,34 +190,43 @@ formatDec <- function(x, precBits = min(getPrec(x)), digits=decdigits,
 
 
 ## a mpfr() method for "Bcharacter" .. but not quite -- called from mpfr() when appropriate
-mpfrBchar <- function(x, precBits, scientific = TRUE, ...) {
-  ## was scanBin()
-  class(x) <- NULL
-  if (!scientific) {
-    x <- gsub("_", "0", x) ## TODO: chartr(.......)
-    if (missing(precBits)) {
-      ## mm: why warning?  Rather just make this the explicit default ?
-      ## rmh: no.  we need to count the number of actual bits, and do it before converting "_" to "0".
-      precBits <- mpfr_default_prec()
-      warning("Default precBits = ", precBits)
+mpfrBchar <- function(x, precBits, scientific = NA, ...) {
+    ## was scanBin()
+    if (is.na(scientific)) ## we look for a "p" exponent..
+        scientific <- any(grepl("p", x, fixed=TRUE))
+    class(x) <- NULL
+    if (!scientific) {
+        x <- gsub("_", "0", x) ## TODO: chartr(.......)
+        if (missing(precBits)) {
+            ## mm: why warning?  Rather just make this the explicit default ?
+            ## rmh: no.  we need to count the number of actual bits, and do it before converting "_" to "0".
+            precBits <- mpfr_default_prec()
+            warning("Default precBits = ", precBits)
+        }
     }
-  }
-  if (missing(precBits) || is.null(precBits)) {
-    x1 <- strsplit(x[1],"")[[1]]
-    plocation <- charmatch("p", x1) # FIXME: fails if there is no "p"
-    precBits <- nchar(paste0(substring(x[1], 4, 4),
-			     substring(x[1], 6, plocation-1)))
-  }
-  mpfr(x, base=2, precBits=precBits, ...)
+    if (missing(precBits) || is.null(precBits)) {
+	## assume a format such as "+0b1.10010011101p+1"
+	no.p <- -1L == (i.p <- as.vector(regexpr("p", x, fixed=TRUE)))
+	if(any(no.p))
+	    i.p[no.p] <- round(mean(i.p[!no.p]))
+	if( all(duplicated(i.p)[-1])) ## all are the same
+	    i.p <- i.p[1]
+	precBits <- i.p - 5L
+    }
+    mpfr(x, base=2, precBits=precBits, ...)
 }
 
-## a mpfr() method for "Hcharacter" .. but not quite -- called from mpfr() when appropriate
+## A mpfr() method for "Hcharacter" .. but not quite -- called from mpfr() when appropriate
 mpfrHchar <- function(x, precBits, ...) {
-  class(x) <- NULL
-  if (missing(precBits) || is.null(precBits)) {
-    x1 <- strsplit(x[1],"")[[1]]
-    plocation <- charmatch("p", x1) # FIXME: fails if there is no "p"
-    precBits <- 1 + nchar(substring(x[1], 6, plocation-1))*4
-  }
-  mpfr(x, base=16, precBits=precBits, ...)
+    class(x) <- NULL
+    if (missing(precBits) || is.null(precBits)) {
+	## assume a format such as "+0x1.745d17ap-4"
+	no.p <- -1L == (i.p <- as.vector(regexpr("p", x, fixed=TRUE)))
+	if(any(no.p))
+	    i.p[no.p] <- round(mean(i.p[!no.p]))
+	if( all(duplicated(i.p)[-1])) ## all are the same
+	    i.p <- i.p[1]
+	precBits <- 1 + (i.p - 6) * 4
+    }
+    mpfr(x, base=16, precBits=precBits, ...)
 }

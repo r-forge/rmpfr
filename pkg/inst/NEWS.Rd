@@ -4,21 +4,34 @@
 \title{Rmpfr News}
 \encoding{UTF-8}
 
-\section{Changes in version 0.6-0 [2015-07-04]}{
+\section{Changes in version 0.6-0 [2015-07-27]}{
   \subsection{NEW FEATURES}{
     \itemize{
-      \item \code{str()} is now based on \code{formatMpfr()} and nicely
-      shows numbers also out of the double precision range.
+      \item \code{formatMpfr()} gets a new argument \code{base = 10} and can
+      be used to produce in other bases, notably binary (\code{base = 2})
+      or hexadecimal (\code{base = 16}).
+
+      \item \code{mpfr()}, \code{formatMpfr()}, etc, now work with bases from 2
+      to 62 (using digits, upper and lower case ASCII letters, \code{62
+      == 10 + 2*26} characters), as this has been in MPFR since version
+      3.0.0 (see \code{\link{mpfrVersion}}), which is hence (implicitly)
+      required for \code{base} greater than 36.
+
+      \item \code{str(<mpfr>, ....)} is now based on \code{formatMpfr()}
+      and nicely shows numbers also out of the double precision range.
+
+      Further, it now chooses a smart default for optional argument
+      \code{vec.len}.
+
       \item \code{matrix(mp, ..)} now also works when \code{mp} is of
       class \code{"mpfr"}.
       \item new matrix \code{norm()} for several \code{kind}s.
+
       \item new functions \code{formatHex()} and \code{formatBin()}
       thanks to Rich Heiberger.
-      \item \code{mpfr(x)} for character \code{x} now auto-detects
-      binary or hexadecimal numbers and hence acts as \emph{inverse} of
+
+      \item \code{mpfr(x)} also works as \emph{inverse} of
       \code{formatBin} and \code{formatHex}.
-      \item \code{str(<mpfr>, ....)} now chooses a smart default for
-      optional argument \code{vec.len}.
     }
   }
   \subsection{BUG FIXES}{
@@ -31,7 +44,7 @@
 
       \item \code{mpfr("0xabc", base=16)} and \code{mpfr("0b101",
 	base=2)} and corresponding \code{getPrec()} now give the correct
-      precBits instead of (8 or 2, respectively) too many.
+      precBits instead of too many.
 
       \item \code{str(<0-length mpfr>)} now works correctly.
     }

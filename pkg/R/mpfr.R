@@ -718,11 +718,10 @@ str.mpfr <- function(object, nest.lev, give.head = TRUE, digits.d = 12,
     if(!is.null(digits.d))## reduce digits where precision is smaller:
 	digits.d <- pmin(digits.d,
 			 ceiling(log(2)/log(10) * .getPrec(object)))
-    if(is.null(vec.len)) { # use width and precision (and remain simple
+    if(is.null(vec.len)) { # use width and precision (and remain simple enough)
 	nch <- nchar(formatMpfr(object, digits=digits.d, drop0trailing=drop0trailing, ...),
 		     keepNA=FALSE)
-	n <- length(nch)
-	fits <- !any(too.lrg <- cumsum(nch) + n-1L > width)
+	fits <- !any(too.lrg <- cumsum(nch) + length(nch)-1L > width)
 	if(!fits)
 	    vec.len <- max(2L, which.max(too.lrg) - 1L)
     } else
@@ -731,6 +730,6 @@ str.mpfr <- function(object, nest.lev, give.head = TRUE, digits.d = 12,
 	object <- object[i <- seq_len(vec.len)]
 	digits.d <- digits.d[i]
     }
-    f.obj <- formatMpfr(object, digits=digits.d, drop0trailing=drop0trailing, ...)
-    cat(f.obj, if(fits) "\n" else "...\n")
+    cat(formatMpfr(object, digits=digits.d, drop0trailing=drop0trailing, ...),
+	if(fits) "\n" else "...\n")
 }

@@ -14,7 +14,25 @@ identical(n5.b2, mpfr("0b101"))
 
 ### mpfrBchar (was 'scanBin') :
 
-(nums9bc <- formatBin(nums9))
+##' Check the inverse of formatBin(), i.e., mpfr() working correctly
+chkInv.fBin <- function(x, ...) {
+    stopifnot(is(x, "mpfr"))
+    nb <- formatBin(x, ...)
+    xx <- mpfr(nb)
+    ## Inverse should work {apart from 0: that is not uniquely represented in MPFR!}
+    stopifnot(identical(mpfr.is.0(x ) -> i0,
+                        mpfr.is.0(xx)),
+              identical(x[!i0], xx[!i0]))
+    invisible(nb)
+}
+(nums9bc <- chkInv.fBin(nums9))
+
+## higher precision ?
+try( ## FIXME
+(nI.12 <- chkInv.fBin(1 / mpfr(0:12, 120)))
+)
+
+
 n9. <- Rmpfr:::mpfrBchar(nums9bc)
 n9_ <- mpfr             (nums9bc)
 ## Inverse worked {apart from 0: it is not at all uniquely represented in MPFR!}
@@ -27,8 +45,7 @@ mpfr(nums9bc, precBits=5)
 (n9.5 <- mpfr(nums9bcs, scientific=FALSE, precBits=5))
 stopifnot(all.equal(n9., n9.5, tol = 0.02), getPrec(n9.5) == 5)
 mpfr(nums9bcs, scientific=FALSE)# (currently?) warning -- Default precBits = 53
-try( mpfr(nums9bcs) ) # fails ... FIXME?
-
+mpfr(nums9bcs)
 
 ### mpfr() -> mpfrHchar (was 'scanHex') :
 nums9hc <- formatHex(nums9)
