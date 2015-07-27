@@ -2,11 +2,16 @@
 
 if(getRversion() < "2.15")
     paste0 <- function(...) paste(..., sep = '')
+if(getRversion() < "3.3")
+    ## this is not 100% equivalent (recycling), but ok for our use cases
+    strrep <- function (x, times)
+        paste(rep.int(x, times), collapse = "")
 
-mpfr <- function(x, precBits, base = 10, rnd.mode = c('N','D','U','Z','A'), scientific=TRUE)
+mpfr <- function(x, precBits, base = 10, rnd.mode = c('N','D','U','Z','A'),
+                 scientific = NA)
 {
     if(is.ch <- is.character(x))
-	stopifnot(length(base) == 1, 2 <= base, base <= 36)## FIXME now can go up to 62 (10 + 2*26)
+	stopifnot(length(base) == 1, 2 <= base, base <= 62)
     stopifnot(is.character(rnd.mode <- toupper(rnd.mode)))
     rnd.mode <- match.arg(rnd.mode)
 
@@ -26,9 +31,11 @@ mpfr <- function(x, precBits, base = 10, rnd.mode = c('N','D','U','Z','A'), scie
     } ## else
     if(is.ch) {
 	if(inherits(x, "Bcharacter"))
-	    return(mpfrBchar(x, precBits=precBits, scientific=scientific, rnd.mode=rnd.mode))
+	    return(mpfrBchar(x, precBits=precBits,
+			     scientific=scientific, rnd.mode=rnd.mode))
 	if(inherits(x, "Hcharacter"))
-	    return(mpfrHchar(x, precBits=precBits, scientific=scientific, rnd.mode=rnd.mode))
+	    return(mpfrHchar(x, precBits=precBits,
+			     scientific=scientific, rnd.mode=rnd.mode))
     }
 
     if(missing(precBits)) {
@@ -120,25 +127,24 @@ mpfrImport <- function(mxp) {
     new("mpfr", m1)
 }
 
-.mpfr2str <- function(x, digits = NULL) {
-    stopifnot(is.null(digits) ||
-	      (is.numeric(digits) && digits >= 1))
+.mpfr2str <- function(x, digits = NULL, base = 10L) {
     ##	digits = NULL : use as many digits "as needed"
-    .Call(mpfr2str, x, digits)
+    stopifnot(is.null(digits) ||
+	      (is.numeric(digits) && digits >= 1),
+	      is.numeric(base), length(base) == 1, base >= 2)
+    .Call(mpfr2str, x, digits, base)
 }
 
 formatMpfr <-
-    function(x, digits = NULL, trim = FALSE, scientific = NA,
+    function(x, digits = NULL, trim = FALSE, scientific = NA, base = 10,
 	     showNeg0 = TRUE,
 	     big.mark = "", big.interval = 3L,
 	     small.mark = "", small.interval = 5L, decimal.mark = ".",
 	     zero.print = NULL, drop0trailing = FALSE, ...)
 {
-    stopifnot(is.null(digits) ||
-	      (is.numeric(digits) && digits >= 1))
     ##	digits = NULL : use as many digits "as needed"
+    ff <- .mpfr2str(x, digits, base=base)
 
-    ff <- .mpfr2str(x, digits)
     isNum <- ff$finite	## ff$finite == is.finite(x)
     i0 <- ff$is.0	## == mpfr.is.0(x)
     ex <- ff$exp ## the *decimal* exp : one too large *unless* x == 0

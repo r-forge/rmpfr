@@ -419,14 +419,14 @@ SEXP mpfr2i(SEXP x, SEXP rnd_mode) {
 /* Convert R "mpfr" object (list of "mpfr1")  to R "character" vector,
  * using precision 'prec' which can be NA/NULL in which case
  * "full precision" (as long as necessary) is used : */
-SEXP mpfr2str(SEXP x, SEXP digits) {
+SEXP mpfr2str(SEXP x, SEXP digits, SEXP base) {
     int n = length(x), i;
     int n_dig = isNull(digits) ? 0 : asInteger(digits);
     SEXP val = PROTECT(allocVector(VECSXP, 4)),
 	nms, str, exp, fini, zero;
     int *i_exp, *is_fin, *is_0;
-    int B = 10; /* = base for output -- "TODO" make this an argument*/
-    double p_fact = log(B) / M_LN2;
+    int B = asInteger(base); // = base for output
+    double p_fact = (B == 2) ? 1. : log(B) / M_LN2;
     char *ch = NULL;
     mpfr_t R_i;
 

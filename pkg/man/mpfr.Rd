@@ -7,7 +7,7 @@
   used in arithmetic and mathematical computations with \R.
 }
 \usage{
-mpfr(x, precBits, base = 10, rnd.mode = c("N","D","U","Z","A"), scientific = TRUE)
+mpfr(x, precBits, base = 10, rnd.mode = c("N","D","U","Z","A"), scientific = NA)
 Const(name = c("pi", "gamma", "catalan", "log2"), prec = 120L)
 }
 \arguments{
@@ -20,14 +20,16 @@ Const(name = c("pi", "gamma", "catalan", "log2"), prec = 120L)
     \code{\link{getPrec}(x)} determines a default precision.}
   \item{base}{(only when \code{x} is \code{\link{character}}) the base
     with respect to which \code{x[i]} represent numbers; \code{base}
-    \eqn{b} must fulfill \eqn{2 \le b \le 36}{2 <= b <= 36}.}
+    \eqn{b} must fulfill \eqn{2 \le b \le 62}{2 <= b <= 62}.}
   \item{rnd.mode}{a 1-letter string specifying how \emph{rounding}
     should happen at C-level conversion to MPFR, see details.}
   \item{scientific}{(used only when \code{x} is the result of
     \code{\link{formatBin}()}, i.e., of class \code{"Bcharacter"}:)
     logical indicating that the binary representation of \code{x} is in
     scientific notation.  When \code{TRUE}, \code{mpfr()} will substitute
-    \code{0} for \code{_}; see also \code{\link{formatBin}}.}
+    \code{0} for \code{_}; when \code{NA}, \code{mpfr()} will guess, and
+    use \code{TRUE} when finding a \code{"p"} in \code{x}; see also
+    \code{\link{formatBin}}.}
   \item{name}{a string specifying the mpfrlib - internal constant
     computation.  \code{"gamma"} is Euler's gamma \eqn{(\gamma)}{}, and
     \code{"catalan"} Catalan's constant.}

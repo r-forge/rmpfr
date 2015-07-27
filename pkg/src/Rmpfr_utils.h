@@ -114,7 +114,7 @@ SEXP d2mpfr1_(double x, int i_prec, mpfr_rnd_t rnd);
 SEXP d2mpfr1_list(SEXP x, SEXP prec, SEXP rnd_mode);
 SEXP mpfr2d(SEXP x, SEXP rnd_mode);
 SEXP mpfr2i(SEXP x, SEXP rnd_mode);
-SEXP mpfr2str(SEXP x, SEXP digits);
+SEXP mpfr2str(SEXP x, SEXP digits, SEXP base);
 SEXP str2mpfr1_list(SEXP x, SEXP prec, SEXP base, SEXP rnd_mode);
 
 #ifdef R_had_R_Outputfile_in_API

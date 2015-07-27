@@ -14,7 +14,7 @@
 }
 \usage{
 formatMpfr(x, digits = NULL, trim = FALSE, scientific = NA,
-	   showNeg0 = TRUE,
+	   base = 10, showNeg0 = TRUE,
 	   big.mark = "", big.interval = 3L,
 	   small.mark = "", small.interval = 5L, decimal.mark = ".",
 	   zero.print = NULL, drop0trailing = FALSE, ...)
@@ -33,6 +33,10 @@ formatMpfr(x, digits = NULL, trim = FALSE, scientific = NA,
     MPFR numbers should be encoded in scientific
     format, or an integer penalty (see \code{\link{options}("scipen")}).
     Missing values correspond to the current default penalty.}
+  \item{base}{an integer in \eqn{2,3,..,62}; the base (\dQuote{basis})
+    in which the numbers should be represented.  Apart from the default
+    base 10, binary (\code{base = 2}) or hexadecimal (\code{base = 16}) are particularly
+    interesting.}
   \item{showNeg0}{logical indicating if \dQuote{\bold{neg}ative} zeros
     should be shown with a \code{"-"}.  The default, \code{TRUE} is
     intentially different from \code{\link{format}(<numeric>)}.}
