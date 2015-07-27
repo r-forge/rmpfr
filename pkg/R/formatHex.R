@@ -55,14 +55,13 @@ formatHexInternal <- function(x, precBits = min(getPrec(x)), style = "+") {
 	      hexdigits = hexdigits)
 }# formatHexInternal
 
-
+##___ ../man/formatHex.Rd ___
+##           ~~~~~~~~~~~~
 formatHex <- function(x, precBits = min(getPrec(x)), style = "+") {
     structure(formatHexInternal(x, precBits=precBits, style=style),
 	      dim = dim(x), dimnames = dimnames(x), class = "Hcharacter")
 }
 
-
-## TODO : mpfr() should work with "formatBin" class
 formatBin <- function(x, precBits=min(getPrec(x)), scientific = TRUE,
 		      left.pad = "_", right.pad = left.pad, style = "+")
 {
@@ -108,11 +107,11 @@ formatBin <- function(x, precBits=min(getPrec(x)), scientific = TRUE,
     structure(res, dim = dim(x), dimnames = dimnames(x), class = "Bcharacter")
 }
 
-print.Hcharacter <-
 print.Bcharacter <- function(x, ...) {
     print(unclass(x), quote=FALSE, right=TRUE, ...)
     invisible(x)
 }
+## print.Hcharacter not needed: using S3method(*, *, *) trick in ../NAMESPACE !
 
 
 ## formatDec1 <- function(x, ...) {
@@ -196,9 +195,6 @@ formatDec <- function(x, precBits = min(getPrec(x)), digits=decdigits,
 ## }
 
 
-### FIXME:  mpfr() should be smart enough for these:
-
-## mpfr(<"Bcharacter">) should do this
 ## a mpfr() method for "Bcharacter" .. but not quite -- called from mpfr() when appropriate
 mpfrBchar <- function(x, precBits, scientific = TRUE, ...) {
   ## was scanBin()
@@ -221,7 +217,6 @@ mpfrBchar <- function(x, precBits, scientific = TRUE, ...) {
   mpfr(x, base=2, precBits=precBits, ...)
 }
 
-## mpfr(<"Hcharacter">) should do this
 ## a mpfr() method for "Hcharacter" .. but not quite -- called from mpfr() when appropriate
 mpfrHchar <- function(x, precBits, ...) {
   class(x) <- NULL
