@@ -35,22 +35,50 @@ names(BintoHex) <- HextoBin[1:16]
 
 Bintohex <- tolower(BintoHex)
 }
-
-
-formatHexInternal <- function(x, precBits = min(getPrec(x)), style = "+") {
-    if (precBits > 53) {
-	## rmh warning
-	warning("precBits reduced to 53 (sprintf does not currently support precBits > 53)")
-	precBits <- 53
+##' @title sprintf("%a", *)-like formatting of mpfr numbers
+##' @param x mpfr-number vector
+##' @param bits integer (scalar) specifing the desired number of bits ("binary digits")
+##' @param style 1-character string specifying
+##' @return character vector of same length as \code{x}
+##' @author Martin Maechler
+sprintfMpfr <- function(x, bits, style = "+") {
+    stopifnot(length(style <- as.character(style)) == 1, nchar(style) == 1,
+	      style %in% c("+", " "),
+	      length(bits) == 1, bits %% 1 == 0)
+    if(bits > 52) {
+	digits <- ceiling(bits / log2(10))
+	neg <- sign(x) == -1
+	ff <- .mpfr2str(x, digits, base = 16)
+	isNum <- ff$finite	## ff$finite == is.finite(x)
+	i0 <- ff$is.0	## == mpfr.is.0(x)
+	ex <- ff$exp ## the *decimal* exp : one too large *unless* x == 0
+	r  <- ff$str # the mantissa, including "-" if negative
+	Ex <- ex - 1L
+	if(any(i0)) Ex[i0] <- ex[i0]
+	if(!all(isNum)) ## "@Inf@", "@NaN@", ...
+	    r[!isNum] <- gsub("@", '', r[!isNum], fixed=TRUE)
+	r[isNum] <- paste0(substr(r[isNum], 1L, 1L), ".",
+			   substring(r[isNum], 2L), "p", 4*Ex)
+	if(any(i <- neg & isNum))
+	    r[i] <- sub("^-", "-0x", r[i])
+	if(any(i <- !neg & isNum))
+	    r[i] <- paste0(style, "0x", r[i])
+	r
     }
+    else {
+	hexdigits <- 1L + ((bits-1L) %/% 4L)
+	nX <- as.character(hexdigits)
+	sprintf(paste0("%", style, nX, ".", nX, "a"), x)
+    }
+}
+
+formatHexInternal <- function(x, precBits = min(getPrec(x)), style = "+")
+{
     bindigits <- as.integer(precBits) - 1L
     hexdigits <- 1L + ((bindigits-1L) %/% 4L)
     ## hexdigits is the number of hex digits after the precision point
-    ## rmh(2015-07-02)  if (missing(bindigits) && !missing(hexdigits)) bindigits <- 4*hexdigits
-    format <- paste0("%", as.character(style),
-		     as.character(hexdigits), ".", as.character(hexdigits), "a")
-    structure(sprintf(format, x),
-	      ##----- FIXME:  Fails for precisions higher than double
+    structure(sprintfMpfr(x, bits=bindigits, style=style),
+              ##---------
 	      bindigits = bindigits,
 	      hexdigits = hexdigits)
 }# formatHexInternal
@@ -68,11 +96,12 @@ formatBin <- function(x, precBits=min(getPrec(x)), scientific = TRUE,
     H <- formatHexInternal(x, precBits=precBits, style=style)
     ## bindigits is number of binary digits after the precision point
     bindigits <- attr(H, "bindigits")
-    hexdigits <- attr(H, "hexdigits")
+    hexdigits <- attr(H, "hexdigits")# *must* be correct = #{pure digits between "." and "p"}
     attributes(H) <- NULL
     S <- substr(H, 1, 1) # sign
     A <- substr(H, 4, 4)
     B <- substr(H, 6, 6+(hexdigits-1))
+    ## assumes *always* an exponent "p" which is correct
     pow <- substr(H, 6+hexdigits+1, 1000000L)
     sB <- strsplit(B, "")
     rsB <- do.call(rbind, sB)
@@ -137,6 +166,8 @@ print.Bcharacter <- function(x, ...) {
 ##   result
 ## }
 
+### FIXME: also needs sprintf() --- *AND*  print(x,  digits= ...) is more flexible, works for all mpfr
+### ------ This function is not needed, deprecate !
 formatDec <- function(x, precBits = min(getPrec(x)), digits=decdigits,
                       nsmall=NULL, scientific=FALSE, style="+", ...) {
     H <- formatHexInternal(x, precBits=precBits, style=style)
@@ -195,21 +226,27 @@ mpfrBchar <- function(x, precBits, scientific = NA, ...) {
     if (is.na(scientific)) ## we look for a "p" exponent..
         scientific <- any(grepl("p", x, fixed=TRUE))
     class(x) <- NULL
+    noPrec <- (missing(precBits) || is.null(precBits))
     if (!scientific) {
-        x <- gsub("_", "0", x) ## TODO: chartr(.......)
-        if (missing(precBits)) {
-            ## mm: why warning?  Rather just make this the explicit default ?
-            ## rmh: no.  we need to count the number of actual bits, and do it before converting "_" to "0".
-            precBits <- mpfr_default_prec()
-            warning("Default precBits = ", precBits)
+        if (noPrec) {
+	    ## Need to count the number of actual bits, and do it before converting "_" to "0".
+	    ## Exclude  Inf, NaN, NA, ..
+	    x. <- x[x %in% c("NaN", "NA", "Inf", "+Inf", "-Inf")]
+	    ## "Unpad" {my first(!) example where a pipe is slightly more elegant}
+	    x. <- gsub("_", "",
+		       sub("_+$", "",
+			   sub("^[-+]?0b", "",
+			       sub(".", "", x, fixed=TRUE))), fixed=TRUE)
+	    precBits <- max(nchar(x.), 1)
         }
+        x <- gsub("_", "0", x) ## TODO: chartr(.......)
     }
-    if (missing(precBits) || is.null(precBits)) {
+    else if (noPrec) { ## scientific -- find precBits from looking at string:
 	## assume a format such as "+0b1.10010011101p+1"
 	no.p <- -1L == (i.p <- as.vector(regexpr("p", x, fixed=TRUE)))
-	if(any(no.p))
+	if(any(no.p)) ## no "p" - infer precision from others
 	    i.p[no.p] <- round(mean(i.p[!no.p]))
-	if( all(duplicated(i.p)[-1])) ## all are the same
+	if(length(unique(i.p)) == 1L) ## all are the same
 	    i.p <- i.p[1]
 	precBits <- i.p - 5L
     }
