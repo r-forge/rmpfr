@@ -14,6 +14,7 @@ formatHex(x, precBits = min(getPrec(x)), style = "+")
 formatBin(x, precBits = min(getPrec(x)), scientific = TRUE,
           left.pad = "_", right.pad = left.pad, style = "+")
 
+## FIXME:  This is unneeded, use  formatMpfr(.) or simply print(.) !!
 formatDec(x, precBits = min(getPrec(x)), digits = decdigits,
           nsmall = NULL, scientific = FALSE, style = "+", ...)
 %% ## not exported
@@ -47,7 +48,8 @@ formatDec(x, precBits = min(getPrec(x)), digits = decdigits,
   }
   \item{left.pad, right.pad}{characters (one-character strings) that
     will be used for left- and right-padding of the formatted string
-    when \code{scientific=FALSE}.}
+    when \code{scientific=FALSE}.  \emph{Do not change these unless for
+    display-only purpose !!}}
   \item{nsmall}{ FIXME
 
   }
@@ -57,9 +59,10 @@ formatDec(x, precBits = min(getPrec(x)), digits = decdigits,
   \code{digits} in \code{\link{format}}.}
 }
 \details{
-  For the hexadecimal representation, the function
-  \code{\link[base]{sprintf}} is used directly.  For the binary
-  representation, the hexadecimal value is calculated and then edited by
+  For the hexadecimal representation, when the precision is not larger
+  than double precision, \code{\link[base]{sprintf}()} is used directly,
+  otherwise \code{\link{formatMpfr}()} is used and post processed.
+  For the binary representation, the hexadecimal value is calculated and then edited by
   substitution of the binary representation of the hex characters coded
   in the \code{HextoBin} vector.  For binary with \code{shift=TRUE}, the
   result of the \code{shift=FALSE} version is edited to align binary
@@ -71,9 +74,13 @@ formatDec(x, precBits = min(getPrec(x)), digits = decdigits,
 %  \code{mpfrHchar} reads the output of \code{formatHex}.
 }
 \value{
-  a character matrix containing the formatted represention of the
-  argument.  Arithmetic cannot be done on the result, but
-  \code{\link{mpfr}(.)} will work on it.
+  a character vector (or matrix) like \code{x}, say \code{r}, containing
+  the formatted represention of \code{x}, with a \code{\link{class}}
+  (unless \code{left.pad} or \code{right.pad} were not \code{"_"}).  In
+  that case, \code{formatHex()} returns class \code{"Hcharacter"} and
+  \code{formatBin()} gives class \code{"Bcharacter"}; on these,
+  \code{\link{mpfr}(.)} will work and basically return \code{x}, i.e.,
+  work as \emph{inverse} function.
 }
 \references{
   R FAQ 7.31:  Why doesn't R think these numbers are equal?

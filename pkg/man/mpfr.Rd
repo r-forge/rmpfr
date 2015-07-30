@@ -8,6 +8,7 @@
 }
 \usage{
 mpfr(x, precBits, base = 10, rnd.mode = c("N","D","U","Z","A"), scientific = NA)
+
 Const(name = c("pi", "gamma", "catalan", "log2"), prec = 120L)
 }
 \arguments{
@@ -40,7 +41,7 @@ Const(name = c("pi", "gamma", "catalan", "log2"), prec = 120L)
   which the user should just as a normal numeric vector or array.
 }
 \details{
-  MPFR supports four rounding modes,
+  MPFR supports the following rounding modes,
   %% the following is +- cut & paste from the MPFR manual
   \describe{
     \item{GMP_RND\bold{N}:}{round to \bold{n}earest (roundTiesToEven in
@@ -101,6 +102,8 @@ print(mpfr("111.1111", base=2)) * 2^4
 
 mpfr("af21.01020300a0b0c", base=16)
 ##  68 bit prec.  44833.00393694653820642
+
+mpfr("ugi0", base = 32) == 10^6   ## TRUE
 
 ## --- Large integers from package 'gmp':
 Z <- as.bigz(7)^(1:200)

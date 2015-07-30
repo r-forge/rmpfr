@@ -25,13 +25,16 @@ chkInv.fBin <- function(x, ...) {
               identical(x[!i0], xx[!i0]))
     invisible(nb)
 }
-(nums9bc <- chkInv.fBin(nums9))
+(nums9bc  <- chkInv.fBin(nums9))
+(nums9bF <- chkInv.fBin(nums9, scientific=FALSE)) # "F": Fixed format (as in Fortran)
 
-## higher precision ?
-try( ## FIXME
-(nI.12 <- chkInv.fBin(1 / mpfr(0:12, 120)))
-)
-
+## higher precision, 0,Inf, sign change:
+(i12 <- 1 / mpfr(c(-2:12, Inf), 64))
+(i12.50 <- roundMpfr(i12, precBits=50)) # "same", with 50 (< 53) bits
+try({ ## FIXME !!
+(nI.12    <- chkInv.fBin(i12   ))
+(nI.12.50 <- chkInv.fBin(i12.50))
+})
 
 n9. <- Rmpfr:::mpfrBchar(nums9bc)
 n9_ <- mpfr             (nums9bc)
@@ -41,11 +44,11 @@ stopifnot(identical(mpfr.is.0(n9.), mpfr.is.0(n9_)),
 
 mpfr(nums9bc, precBits=5)
 
-(nums9bcs <- formatBin(nums9, scientific=FALSE))
-(n9.5 <- mpfr(nums9bcs, scientific=FALSE, precBits=5))
+(n9.5 <- mpfr(nums9bF, scientific=FALSE, precBits=5))
+stopifnot(all.equal(n9.5, mpfr(nums9bF, precBits=5), tol=0))
 stopifnot(all.equal(n9., n9.5, tol = 0.02), getPrec(n9.5) == 5)
-mpfr(nums9bcs, scientific=FALSE)# (currently?) warning -- Default precBits = 53
-mpfr(nums9bcs)
+mpfr(nums9bF, scientific=FALSE)
+mpfr(nums9bF)
 
 ### mpfr() -> mpfrHchar (was 'scanHex') :
 nums9hc <- formatHex(nums9)

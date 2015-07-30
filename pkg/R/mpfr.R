@@ -732,4 +732,4 @@ str.mpfr <- function(object, nest.lev, give.head = TRUE, digits.d = 12,
     }
     cat(formatMpfr(object, digits=digits.d, drop0trailing=drop0trailing, ...),
 	if(fits) "\n" else "...\n")
-}
+} ## {str.mpfr}
