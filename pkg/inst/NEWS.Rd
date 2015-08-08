@@ -4,18 +4,21 @@
 \title{Rmpfr News}
 \encoding{UTF-8}
 
-\section{Changes in version 0.6-0 [2015-07-27]}{
+\section{Changes in version 0.6-0 [2015-08-08]}{
   \subsection{NEW FEATURES}{
     \itemize{
-      \item \code{formatMpfr()} gets a new argument \code{base = 10} and can
-      be used to produce in other bases, notably binary (\code{base = 2})
-      or hexadecimal (\code{base = 16}).
+      \item \code{mpfr()} now is S3 generic with several methods, notably a
+      \code{"mpfr"} method allowing to change precision or rounding mode.
 
       \item \code{mpfr()}, \code{formatMpfr()}, etc, now work with bases from 2
       to 62 (using digits, upper and lower case ASCII letters, \code{62
       == 10 + 2*26} characters), as this has been in MPFR since version
       3.0.0 (see \code{\link{mpfrVersion}}), which is hence (implicitly)
       required for \code{base} greater than 36.
+
+      \item \code{formatMpfr()} gets a new argument \code{base = 10} and can
+      be used to produce in other bases, notably binary (\code{base = 2})
+      or hexadecimal (\code{base = 16}).
 
       \item \code{str(<mpfr>, ....)} is now based on \code{formatMpfr()}
       and nicely shows numbers also out of the double precision range.
@@ -32,6 +35,14 @@
 
       \item \code{mpfr(x)} also works as \emph{inverse} of
       \code{formatBin} and \code{formatHex}.
+
+      \item \code{roundMpfr()} and mathematical functions such as
+      \code{jn}, or \code{chooseMpfr()} get new optional argument
+      \code{rnd.mode} passed to the corresponding MPFR function.
+
+      \item \code{median(x)}, \code{mean(x, trim)} for \code{trim > 0}
+      now work fine for \code{"mpfr"} x, and \code{quantile(x, *)} no
+      longer needs \code{names=FALSE} to avoid a warning.
     }
   }
   \subsection{BUG FIXES}{

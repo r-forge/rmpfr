@@ -1,20 +1,25 @@
 \name{mpfr}
-\alias{mpfr}
-\alias{Const}
 \title{Create "mpfr" Numbers (Objects)}
+\alias{mpfr}
+\alias{mpfr.default}
+\alias{mpfr.mpfr}% and more
+\alias{Const}
 \description{
   Create multiple (i.e. typically \emph{high}) precision numbers, to be
   used in arithmetic and mathematical computations with \R.
 }
 \usage{
-mpfr(x, precBits, base = 10, rnd.mode = c("N","D","U","Z","A"), scientific = NA)
+mpfr(x, precBits, \dots)
+\S3method{mpfr}{default}(x, precBits, base = 10,
+     rnd.mode = c("N","D","U","Z","A"), scientific = NA, \dots)
 
-Const(name = c("pi", "gamma", "catalan", "log2"), prec = 120L)
+Const(name = c("pi", "gamma", "catalan", "log2"), prec = 120L,
+      rnd.mode = c("N","D","U","Z","A"))
 }
 \arguments{
-  \item{x}{a \code{\link{numeric}}, \code{\link[gmp]{bigz}},
-    \code{\link[gmp]{bigq}}, or \code{\link{character}} vector or
-    \code{\link{array}}.}
+  \item{x}{a \code{\link{numeric}}, \code{\linkS4class{mpfr}},
+      \code{\link[gmp]{bigz}}, \code{\link[gmp]{bigq}}, or
+      \code{\link{character}} vector or \code{\link{array}}.}
   \item{precBits, prec}{a number, the maximal precision to be used, in
     \bold{\emph{bits}}; i.e. \code{53} corresponds to double precision.
     Must be at least 2.  If \code{\link{missing}},
@@ -34,13 +39,18 @@ Const(name = c("pi", "gamma", "catalan", "log2"), prec = 120L)
   \item{name}{a string specifying the mpfrlib - internal constant
     computation.  \code{"gamma"} is Euler's gamma \eqn{(\gamma)}{}, and
     \code{"catalan"} Catalan's constant.}
+  \item{\dots}{potentially further arguments passed to and from methods.}
 }
 \value{
-  an object of (S4) class \code{\linkS4class{mpfr}},
+  an object of (S4) class \code{\linkS4class{mpfr}}, or for
+  \code{mpfr(x)} when \code{x} is an array,
   \code{\linkS4class{mpfrMatrix}}, or \code{\linkS4class{mpfrArray}}
   which the user should just as a normal numeric vector or array.
 }
 \details{
+  The \code{"\linkS4class{mpfr}"} method of \code{mpfr()} is a simple
+      wrapper around \code{\link{roundMpfr}()}.
+
   MPFR supports the following rounding modes,
   %% the following is +- cut & paste from the MPFR manual
   \describe{
@@ -67,15 +77,15 @@ Const(name = c("pi", "gamma", "catalan", "log2"), prec = 120L)
   will detect the precision of the input object. %% FIXME examples
 }
 \references{
-  The MPFR team. (2009).
+  The MPFR team. (201x).
   \emph{GNU MPFR -- The Multiple Precision Floating-Point Reliable
-    Library}; Edition 2.4.2, November 2009;
-  see \url{http://www.mpfr.org/mpfr-current/#doc} or directly
+    Library}; see \url{http://www.mpfr.org/mpfr-current/#doc} or directly
   \url{http://www.mpfr.org/mpfr-current/mpfr.pdf}.
 }
 \author{Martin Maechler}
 \seealso{The class documentation \code{\linkS4class{mpfr}} contains more
-  details.
+  details.  Use \code{\link{asNumeric}} to transform back to double
+  precision ("\code{\link{numeric}}").
 }
 \examples{
 mpfr(pi, 120) ## the double-precision pi "translated" to 120-bit precision

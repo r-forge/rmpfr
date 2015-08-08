@@ -50,7 +50,7 @@ sprintfMpfr <- function(x, bits, style = "+") {
 	neg <- sign(x) == -1
 	ff <- .mpfr2str(x, digits, base = 16)
 	isNum <- ff$finite	## ff$finite == is.finite(x)
-	i0 <- ff$is.0	## == mpfr.is.0(x)
+	i0 <- ff$is.0	## == mpfrIs0(x)
 	ex <- ff$exp ## the *decimal* exp : one too large *unless* x == 0
 	r  <- ff$str # the mantissa, including "-" if negative
 	Ex <- ex - 1L
@@ -220,8 +220,7 @@ formatDec <- function(x, precBits = min(getPrec(x)), digits=decdigits,
 ## }
 
 
-## a mpfr() method for "Bcharacter" .. but not quite -- called from mpfr() when appropriate
-mpfrBchar <- function(x, precBits, scientific = NA, ...) {
+mpfr.Bcharacter <- function(x, precBits, scientific = NA, ...) {
     ## was scanBin()
     if (is.na(scientific)) ## we look for a "p" exponent..
         scientific <- any(grepl("p", x, fixed=TRUE))
@@ -250,11 +249,11 @@ mpfrBchar <- function(x, precBits, scientific = NA, ...) {
 	    i.p <- i.p[1]
 	precBits <- i.p - 5L
     }
-    mpfr(x, base=2, precBits=precBits, ...)
+    mpfr(x, base = 2, precBits=precBits, ...)
 }
 
 ## A mpfr() method for "Hcharacter" .. but not quite -- called from mpfr() when appropriate
-mpfrHchar <- function(x, precBits, ...) {
+mpfr.Hcharacter <- function(x, precBits, ...) {
     class(x) <- NULL
     if (missing(precBits) || is.null(precBits)) {
 	## assume a format such as "+0x1.745d17ap-4"
@@ -265,5 +264,5 @@ mpfrHchar <- function(x, precBits, ...) {
 	    i.p <- i.p[1]
 	precBits <- 1 + (i.p - 6) * 4
     }
-    mpfr(x, base=16, precBits=precBits, ...)
+    mpfr(x, base = 16, precBits=precBits, ...)
 }

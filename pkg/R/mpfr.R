@@ -11,15 +11,23 @@ setMethod("is.na", "mpfr",
 setMethod("is.nan", "mpfr",
           function(x) .Call(R_mpfr_is_na, x))
 
-mpfr.is.0 <- function(x) {
+mpfrIs0 <- function(x) {
     if(is(x, "mpfrArray")) .Call(R_mpfr_is_zero_A, x)
     else .Call(R_mpfr_is_zero, x)
     ## sapply(x, function(.) .@exp == - .Machine$integer.max)
 }
+mpfr.is.0 <- function(x) {
+    .Deprecated("mpfrIs0")
+    mpfrIs0(x)
+}
 
-mpfr.is.integer <- function(x) {
+.mpfr.is.whole <- function(x) {
     if(is(x, "mpfrArray")) .Call(R_mpfr_is_integer_A, x)
     else .Call(R_mpfr_is_integer, x)
+}
+mpfr.is.integer <- function(x) {
+    .Deprecated(".mpfr.is.whole")
+    .mpfr.is.whole(x)
 }
 
 ## is.whole() is now S3 generic, with default method in gmp
@@ -27,10 +35,10 @@ mpfr.is.integer <- function(x) {
 ##     if(is.integer(x) || is.logical(x)) rep.int(TRUE, length(x))
 ##     else if(is.numeric(x)) x == floor(x)
 ##     else if(is.complex(x)) x == round(x)
-##     else if(is(x,"mpfr")) mpfr.is.integer(x)
+##     else if(is(x,"mpfr")) .mpfr.is.whole(x)
 ##     else rep.int(FALSE, length(x))
 ## }
-is.whole.mpfr <- function(x) mpfr.is.integer(x)
+is.whole.mpfr <- function(x) .mpfr.is.whole(x)
 
 ## The above for "mpfrArray" :
 setMethod("is.finite", "mpfrArray",
@@ -733,3 +741,4 @@ str.mpfr <- function(object, nest.lev, give.head = TRUE, digits.d = 12,
     cat(formatMpfr(object, digits=digits.d, drop0trailing=drop0trailing, ...),
 	if(fits) "\n" else "...\n")
 } ## {str.mpfr}
+

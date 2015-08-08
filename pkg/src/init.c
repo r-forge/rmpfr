@@ -57,7 +57,7 @@ static R_CallMethodDef CallEntries[] = {
     CALLDEF(R_mpfr_get_version, 0),
     CALLDEF(R_mpfr_get_GMP_numb_bits, 0),
 
-    CALLDEF(const_asMpfr, 2),
+    CALLDEF(const_asMpfr, 3),
 
     CALLDEF(R_mpfr_is_finite, 1),	CALLDEF(R_mpfr_is_finite_A, 1),
     CALLDEF(R_mpfr_is_infinite, 1),	CALLDEF(R_mpfr_is_infinite_A, 1),
@@ -65,17 +65,17 @@ static R_CallMethodDef CallEntries[] = {
     CALLDEF(R_mpfr_is_na, 1),		CALLDEF(R_mpfr_is_na_A, 1),
     CALLDEF(R_mpfr_is_zero, 1),      	CALLDEF(R_mpfr_is_zero_A, 1),
 
-    CALLDEF(R_mpfr_jn, 2),
-    CALLDEF(R_mpfr_yn, 2),
-    CALLDEF(R_mpfr_atan2, 2),
-    CALLDEF(R_mpfr_hypot, 2),
-    CALLDEF(R_mpfr_beta, 2),
-    CALLDEF(R_mpfr_lbeta, 2),
+    CALLDEF(R_mpfr_atan2, 3),
+    CALLDEF(R_mpfr_hypot, 3),
+    CALLDEF(R_mpfr_beta, 3),
+    CALLDEF(R_mpfr_lbeta, 3),
 
-    CALLDEF(R_mpfr_fac, 2),
-    CALLDEF(R_mpfr_choose, 2),
-    CALLDEF(R_mpfr_poch, 2),
-    CALLDEF(R_mpfr_round, 2),
+    CALLDEF(R_mpfr_jn, 3),
+    CALLDEF(R_mpfr_yn, 3),
+    CALLDEF(R_mpfr_fac, 3),
+    CALLDEF(R_mpfr_choose, 3),
+    CALLDEF(R_mpfr_poch, 3),
+    CALLDEF(R_mpfr_round, 3),
 
     {NULL, NULL, 0}
 };

@@ -7,12 +7,12 @@ nums9 <- mpfr(nums, precBits = 9)
 n5.b2 <- mpfr("101", base=2)
 stopifnot(identical(n5.b2, mpfr(5, precBits=3)),
           identical(n5.b2, mpfr("0b101", base=2)))
-if(FALSE)## FIXME (?? : 0b101  could also be a Hex number with no initial '0x')
+if(FALSE)## 0b101  could also be a Hex number with no initial '0x' -- hence NOT true:
 identical(n5.b2, mpfr("0b101"))
-## we *could* say that  anything starting with '0b' is binary, anything with '0x' is hexadecimal
+## We *could* say that  anything starting with '0b' is binary, anything with '0x' is hexadecimal
 
 
-### mpfrBchar (was 'scanBin') :
+### mpfr.Bcharacter() method [was 'mpfrBchar', was 'scanBin'] :
 
 ##' Check the inverse of formatBin(), i.e., mpfr() working correctly
 chkInv.fBin <- function(x, ...) {
@@ -20,26 +20,26 @@ chkInv.fBin <- function(x, ...) {
     nb <- formatBin(x, ...)
     xx <- mpfr(nb)
     ## Inverse should work {apart from 0: that is not uniquely represented in MPFR!}
-    stopifnot(identical(mpfr.is.0(x ) -> i0,
-                        mpfr.is.0(xx)),
+    stopifnot(identical(mpfrIs0(x ) -> i0,
+                        mpfrIs0(xx)),
               identical(x[!i0], xx[!i0]))
     invisible(nb)
 }
-(nums9bc  <- chkInv.fBin(nums9))
+(nums9bc <- chkInv.fBin(nums9))
 (nums9bF <- chkInv.fBin(nums9, scientific=FALSE)) # "F": Fixed format (as in Fortran)
 
 ## higher precision, 0,Inf, sign change:
 (i12 <- 1 / mpfr(c(-2:12, Inf), 64))
 (i12.50 <- roundMpfr(i12, precBits=50)) # "same", with 50 (< 53) bits
-try({ ## FIXME !!
+try({ ## FIXME -- formatBin() bug
 (nI.12    <- chkInv.fBin(i12   ))
 (nI.12.50 <- chkInv.fBin(i12.50))
 })
 
-n9. <- Rmpfr:::mpfrBchar(nums9bc)
-n9_ <- mpfr             (nums9bc)
+n9. <- Rmpfr:::mpfr.Bcharacter(nums9bc)
+n9_ <- mpfr(nums9bc)
 ## Inverse worked {apart from 0: it is not at all uniquely represented in MPFR!}
-stopifnot(identical(mpfr.is.0(n9.), mpfr.is.0(n9_)),
+stopifnot(identical(mpfrIs0(n9.), mpfrIs0(n9_)),
           identical(nums9[-1], n9.[-1]))
 
 mpfr(nums9bc, precBits=5)

@@ -3,12 +3,36 @@
 if(getRversion() < "2.15")
     paste0 <- function(...) paste(..., sep = '')
 if(getRversion() < "3.3")
-    ## this is not 100% equivalent (recycling), but ok for our use cases
-    strrep <- function (x, times)
-        paste(rep.int(x, times), collapse = "")
+    strrep <- function (x, times) { ## (x, times) must be "recycled"
+	if((lx <- length(x)) < (lt <- length(times)))
+	    x <- rep_len(x, lt)
+	else if(lt < lx)
+	    times <- rep_len(times, lx)
+	vapply(seq_along(x),
+	       function(i) paste(rep.int(x[i], times[i]), collapse = ""), "")
+    }
 
-mpfr <- function(x, precBits, base = 10, rnd.mode = c('N','D','U','Z','A'),
-                 scientific = NA)
+mpfr <- function(x, precBits, ...) UseMethod("mpfr")
+
+mpfr.mpfr <- function(x, precBits, rnd.mode = c('N','D','U','Z','A'), ...)
+    roundMpfr(x, precBits=precBits, rnd.mode=rnd.mode)
+
+mpfr.bigz <- function(x, precBits, ...) {
+    if(missing(precBits)) precBits <- max(2L, frexpZ(x)$exp)
+    if(getOption("verbose"))
+	warning("mpfr(<bigz>) --> .bigz2mpfr() [not efficiently via character]")
+    ..bigz2mpfr(x, precBits)
+}
+
+mpfr.bigq <- function(x, precBits, ...) {
+    if(missing(precBits)) precBits <- getPrec(x)#-> warning
+    if(getOption("verbose"))
+	warning("mpfr(<bigq>) --> .bigq2mpfr() [not efficiently via character]")
+    ..bigq2mpfr(x, precBits)
+}
+
+mpfr.default <- function(x, precBits, base = 10, rnd.mode = c('N','D','U','Z','A'),
+                         scientific = NA, ...)
 {
     if(is.ch <- is.character(x))
 	stopifnot(length(base) == 1, 2 <= base, base <= 62)
@@ -17,26 +41,9 @@ mpfr <- function(x, precBits, base = 10, rnd.mode = c('N','D','U','Z','A'),
 
     if(is.raw(x)) { # is.raw() is faster
 	stopifnot(missing(precBits) || precBits >= 2)
-	if(inherits(x, "bigz")) {
-	    if(missing(precBits)) precBits <- max(2L, frexpZ(x)$exp)
-	    if(getOption("verbose"))
-	       warning("mpfr(<bigz>) --> .bigz2mpfr()")# via character
-	    return(..bigz2mpfr(x, precBits))
-	} else if(inherits(x, "bigq")) {
-	    if(missing(precBits)) precBits <- getPrec(x)#-> warning
-	    if(getOption("verbose"))
-		warning("mpfr(<bigq>) --> .bigq2mpfr()")# via character
-	    return(..bigq2mpfr(x, precBits))
-	} ## else warning("unrecognized raw 'x'") # <- ?? {see use in ../tests/create.R }
+	## else warning("unrecognized raw 'x'") # <- ?? {see use in ../tests/create.R }
+        ## {but 'raw' is treated below}
     } ## else
-    if(is.ch) {
-	if(inherits(x, "Bcharacter"))
-	    return(mpfrBchar(x, precBits=precBits,
-			     scientific=scientific, rnd.mode=rnd.mode))
-	if(inherits(x, "Hcharacter"))
-	    return(mpfrHchar(x, precBits=precBits,
-			     scientific=scientific, rnd.mode=rnd.mode))
-    }
 
     if(missing(precBits)) {
 	precBits <- getPrec(x, base = base, doNumeric = FALSE)
@@ -57,7 +64,7 @@ mpfr <- function(x, precBits, base = 10, rnd.mode = c('N','D','U','Z','A'),
 	    Dimnames = if(is.null(dn)) vector("list", length(dim)) else dn)
     }
     else new("mpfr", ml)
-} ## mpfr()
+} ## mpfr.default()
 
 .mpfr <- function(x, precBits)
     new("mpfr", .Call(d2mpfr1_list, x, precBits, "N"))
@@ -148,7 +155,7 @@ formatMpfr <-
     ff <- .mpfr2str(x, digits, base=base)
 
     isNum <- ff$finite	## ff$finite == is.finite(x)
-    i0 <- ff$is.0	## == mpfr.is.0(x)
+    i0 <- ff$is.0	## == mpfrIs0(x)
     ex <- ff$exp ## the *decimal* exp : one too large *unless* x == 0
     r  <- ff$str
     if(is.null(digits)) digits <- nchar(r)

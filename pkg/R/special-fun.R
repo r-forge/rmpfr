@@ -174,14 +174,14 @@ Ai <- function(x) {
     x
 }
 
-jn <- function(n, x) {
+jn <- function(n, x, rnd.mode = c('N','D','U','Z','A')) {
     if(!inherits(x, "mpfr")) x <- as(x, "mpfr")
-    x@.Data[] <- .Call(R_mpfr_jn, x, n)
+    x@.Data[] <- .Call(R_mpfr_jn, x, n, match.arg(rnd.mode))
     x
 }
-yn <- function(n, x) {
+yn <- function(n, x, rnd.mode = c('N','D','U','Z','A')) {
     if(!inherits(x, "mpfr")) x <- as(x, "mpfr")
-    x@.Data[] <- .Call(R_mpfr_yn, x, n)
+    x@.Data[] <- .Call(R_mpfr_yn, x, n, match.arg(rnd.mode))
     x
 }
 
@@ -190,75 +190,67 @@ yn <- function(n, x) {
 
 ## We want to automatically construct the methods needed:
 ## But atan2() as argument list and  signature	(y, x)
-## where  beta() has  (a,b)
+## where  beta() and lbeta()  have  (a,b) --> cannot treat them identically;
+## and treat atan2() speparately
 
-mpfrMath2setMeth.y.x <- function(fname, Csub) {
-    stopifnot(existsFunction(fname),
-	      is.character(fname), length(fname) == 1,
-	      is.character(Csub ), length(Csub ) == 1)
+## NB: atan2(), beta() and lbeta() all have implicitGeneric()s in methods with no '...'
+## ==  ---> canNOT have 3rd argument : rnd.mode = c('N','D','U','Z','A')
+##     ---> using   "N"  instead of    match.arg(rnd.mode)
+setMethod("atan2", signature(y = "mpfr", x = "mpfr"),
+          function(y, x) new("mpfr", .Call(R_mpfr_atan2, y, x, "N")))
+setMethod("atan2", signature(y = "mpfr", x = "numeric"),
+          function(y, x) new("mpfr", .Call(R_mpfr_atan2, y, .mpfr(x, 128L), "N")))
+setMethod("atan2", signature(y = "numeric", x = "mpfr"),
+          function(y, x) new("mpfr", .Call(R_mpfr_atan2, .mpfr(y, 128L), x, "N")))
+setMethod("atan2", signature(y = "mpfr", x = "ANY"),
+          function(y, x) new("mpfr", .Call(R_mpfr_atan2, y, as(x, "mpfr"), "N")))
+setMethod("atan2", signature(y = "ANY", x = "mpfr"),
+          function(y, x) new("mpfr", .Call(R_mpfr_atan2, as(y, "mpfr"), x, "N")))
 
-    setMethod(fname, signature(y = "mpfr", x = "mpfr"),
-	      function(y, x) new("mpfr", .Call(Csub, y, x)))
-    setMethod(fname, signature(y = "mpfr", x = "numeric"),
-	      function(y, x) new("mpfr", .Call(Csub, y, .mpfr(x, 128L))))
-    setMethod(fname, signature(y = "numeric", x = "mpfr"),
-	      function(y, x) new("mpfr", .Call(Csub, .mpfr(y, 128L), x)))
-    setMethod(fname, signature(y = "mpfr", x = "ANY"),
-	      function(y, x) new("mpfr", .Call(Csub, y, as(x, "mpfr"))))
-    setMethod(fname, signature(y = "ANY", x = "mpfr"),
-	      function(y, x) new("mpfr", .Call(Csub, as(y, "mpfr"), x)))
+setMethod("atan2", signature(y = "mpfrArray", x = "mpfrArray"),
+          function(y, x) {
+              if(dim(x) != dim(y))
+                  stop("array dimensions differ")
+              x@.Data[] <- .Call(R_mpfr_atan2, y, x, "N")
+              x
+          })
+setMethod("atan2", signature(y = "mpfrArray", x = "ANY"),
+          function(y, x) {
+              if(length(y) %% length(x) != 0)
+                  stop("length of first argument (array) is not multiple of the second argument's one")
+              y@.Data[] <- .Call(R_mpfr_atan2, y, if(is.numeric(x))
+                  .mpfr(x, 128L) else as(x, "mpfr"), "N")
+              y
+          })
+setMethod("atan2", signature(y = "ANY", x = "mpfrArray"),
+          function(y, x) {
+              if(length(x) %% length(y) != 0)
+                  stop("length of second argument (array) is not multiple of the first argument's one")
+              x@.Data[] <- .Call(R_mpfr_atan2, if(is.numeric(y))
+                  .mpfr(y, 128L) else as(y, "mpfr"), x, "N")
+              x
+          })
 
-    setMethod(fname, signature(y = "mpfrArray", x = "mpfrArray"),
-	      function(y, x) {
-		  if(dim(x) != dim(y))
-		      stop("array dimensions differ")
-		  x@.Data[] <- .Call(Csub, y, x)
-		  x
-	      })
-    setMethod(fname, signature(y = "mpfrArray", x = "ANY"),
-	      function(y, x) {
-		  if(length(y) %% length(x) != 0)
-		      stop("length of first argument (array) is not multiple of the second argument's one")
-		  y@.Data[] <- .Call(Csub, y, if(is.numeric(x))
-				     .mpfr(x, 128L) else as(x, "mpfr"))
-		  y
-	      })
-    setMethod(fname, signature(y = "ANY", x = "mpfrArray"),
-	      function(y, x) {
-		  if(length(x) %% length(y) != 0)
-		      stop("length of second argument (array) is not multiple of the first argument's one")
-		  x@.Data[] <- .Call(Csub, if(is.numeric(y))
-				     .mpfr(y, 128L) else as(y, "mpfr"), x)
-		  x
-	      })
-
-} ## end{mpfrMath2setMeth.y.x}
-
-## atan2():
-mpfrMath2setMeth.y.x("atan2", "R_mpfr_atan2")
-
-mpfrMath2setMeth.a.b <- function(fname, Csub) {
-    stopifnot(existsFunction(fname),
-	      is.character(fname), length(fname) == 1,
-	      is.character(Csub ), length(Csub ) == 1)
-
+## Using  "macro"  {instead of previous aux. function  mpfrMath2setMeth.a.b() :
+for (ff in list(c("beta",  "R_mpfr_beta"),
+                c("lbeta", "R_mpfr_lbeta"))) eval(substitute(
+{
     setMethod(fname, signature(a = "mpfr", b = "mpfr"),
-	      function(a, b) new("mpfr", .Call(Csub, a, b)))
+	      function(a, b) new("mpfr", .Call(Csub, a, b, "N")))
     setMethod(fname, signature(a = "mpfr", b = "numeric"),
-	      function(a, b) new("mpfr", .Call(Csub, a, .mpfr(b, 128L))))
+	      function(a, b) new("mpfr", .Call(Csub, a, .mpfr(b, 128L), "N")))
     setMethod(fname, signature(a = "numeric", b = "mpfr"),
-	      function(a, b) new("mpfr", .Call(Csub, .mpfr(a, 128L), b)))
+	      function(a, b) new("mpfr", .Call(Csub, .mpfr(a, 128L), b, "N")))
     setMethod(fname, signature(a = "mpfr", b = "ANY"),
-	      function(a, b) new("mpfr", .Call(Csub, a, as(b, "mpfr"))))
+	      function(a, b) new("mpfr", .Call(Csub, a, as(b, "mpfr"), "N")))
     setMethod(fname, signature(a = "ANY", b = "mpfr"),
-	      function(a, b) new("mpfr", .Call(Csub, as(a, "mpfr"), b)))
-
+	      function(a, b) new("mpfr", .Call(Csub, as(a, "mpfr"), b, "N")))
 
     setMethod(fname, signature(a = "mpfrArray", b = "mpfrArray"),
 	      function(a, b) {
 		  if(dim(b) != dim(a))
 		      stop("array dimensions differ")
-		  b@.Data[] <- .Call(Csub, a, b)
+		  b@.Data[] <- .Call(Csub, a, b, "N")
 		  b
 	      })
     setMethod(fname, signature(a = "mpfrArray", b = "ANY"),
@@ -266,7 +258,7 @@ mpfrMath2setMeth.a.b <- function(fname, Csub) {
 		  if(length(a) %% length(b) != 0)
 		      stop("length of first argument (array) is not multiple of the second argument's one")
 		  a@.Data[] <- .Call(Csub, a, if(is.numeric(b))
-				     .mpfr(b, 128L) else as(b, "mpfr"))
+				     .mpfr(b, 128L) else as(b, "mpfr"), "N")
 		  a
 	      })
     setMethod(fname, signature(a = "ANY", b = "mpfrArray"),
@@ -274,48 +266,42 @@ mpfrMath2setMeth.a.b <- function(fname, Csub) {
 		  if(length(b) %% length(a) != 0)
 		      stop("length of second argument (array) is not multiple of the first argument's one")
 		  b@.Data[] <- .Call(Csub, if(is.numeric(a))
-				     .mpfr(a, 128L) else as(a, "mpfr"), b)
+				     .mpfr(a, 128L) else as(a, "mpfr"), b, "N")
 		  b
 	      })
 
-} ## end{mpfrMath2setMeth.a.b}
-
-mpfrMath2setMeth.a.b("beta",  "R_mpfr_beta")
-mpfrMath2setMeth.a.b("lbeta", "R_mpfr_lbeta")
-
-rm(mpfrMath2setMeth.y.x,
-   mpfrMath2setMeth.a.b)
+}, list(fname = ff[[1]], Csub = as.symbol(ff[[2]]))))
 
 
 ## hypot()
-hypot <- function(x,y) {
+hypot <- function(x,y, rnd.mode = c('N','D','U','Z','A')) {
     if(is(x, "mpfrArray") || is.array(x)) {
 	if(is.array(x)) x <- mpfrArray(x, 128L, dim=dim(x), dimnames(x))
 	if(is.array(y)) y <- mpfrArray(y, 128L, dim=dim(y), dimnames(y))
 	if(is(y, "mpfrArray")) {
 	    if(dim(x) != dim(y))
 		stop("array dimensions differ")
-	    x@.Data[] <- .Call(R_mpfr_hypot, x, y)
+	    x@.Data[] <- .Call(R_mpfr_hypot, x, y, match.arg(rnd.mode))
 	    x
 	} else { ## y is not (mpfr)Array
 	    if(length(x) %% length(y) != 0)
 		stop("length of first argument (array) is not multiple of the second argument's one")
-	    x@.Data[] <- .Call(R_mpfr_hypot, x, as(y, "mpfr"))
+	    x@.Data[] <- .Call(R_mpfr_hypot, x, as(y, "mpfr"), match.arg(rnd.mode))
 	    x
 	}
     } else if(is(y, "mpfrArray")) {
 	if(length(y) %% length(x) != 0)
 	    stop("length of second argument (array) is not multiple of the first argument's one")
-	y@.Data[] <- .Call(R_mpfr_hypot, as(x, "mpfr"), y)
+	y@.Data[] <- .Call(R_mpfr_hypot, as(x, "mpfr"), y, match.arg(rnd.mode))
 	y
     }
     else
-	new("mpfr", .Call(R_mpfr_hypot, as(x, "mpfr"), as(y, "mpfr")))
+	new("mpfr", .Call(R_mpfr_hypot, as(x, "mpfr"), as(y, "mpfr"), match.arg(rnd.mode)))
 }
 
 ## The Beta(a,b)  Cumulative Probabilities are exactly computable for *integer* a,b:
 pbetaI <- function(q, shape1, shape2, ncp = 0, lower.tail = TRUE, log.p = FALSE,
-		   precBits = NULL)
+		   precBits = NULL, rnd.mode = c('N','D','U','Z','A'))
 {
     stopifnot(length(shape1) == 1, length(shape2) == 1,
 	      is.whole(shape1), is.whole(shape2),
@@ -342,7 +328,7 @@ pbetaI <- function(q, shape1, shape2, ncp = 0, lower.tail = TRUE, log.p = FALSE,
     if(pr.x < precBits || !is(q, "mpfr"))
 	q <- mpfr(q, precBits=precBits)
 
-    mpfr1 <- list(.Call(const_asMpfr, 1, 16L)) # as prototype for vapply()
+    mpfr1 <- list(.Call(const_asMpfr, 1, 16L, "N")) # as prototype for vapply()
     F <- if(log.p) log else identity
 
     if(lower.tail) {
@@ -362,5 +348,5 @@ pbetaI <- function(q, shape1, shape2, ncp = 0, lower.tail = TRUE, log.p = FALSE,
 	new("mpfr",
 	    vapply(q, FUN.x, mpfr1))),
 	      ## reduce the precision, in order to not "claim wrongly":
-	      precBits=precBits)
+	      precBits=precBits, match.arg(rnd.mode))
 }

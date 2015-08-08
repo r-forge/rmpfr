@@ -17,15 +17,19 @@
 \alias{beta,ANY,mpfr-method}
 \alias{beta,ANY,mpfrArray-method}
 \alias{beta,mpfr,ANY-method}
+\alias{beta,mpfr,mpfr-method}
+\alias{beta,mpfr,numeric-method}
+\alias{beta,numeric,mpfr-method}
 \alias{beta,mpfrArray,ANY-method}
 \alias{beta,mpfrArray,mpfrArray-method}
-\alias{beta,mpfr,mpfr-method}
 \alias{lbeta,ANY,mpfr-method}
 \alias{lbeta,ANY,mpfrArray-method}
 \alias{lbeta,mpfr,ANY-method}
+\alias{lbeta,mpfr,mpfr-method}
+\alias{lbeta,mpfr,numeric-method}
+\alias{lbeta,numeric,mpfr-method}
 \alias{lbeta,mpfrArray,ANY-method}
 \alias{lbeta,mpfrArray,mpfrArray-method}
-\alias{lbeta,mpfr,mpfr-method}
 %
 \alias{coerce,mpfr,character-method}
 \alias{coerce,mpfr,numeric-method}
@@ -101,6 +105,8 @@
 \alias{all.equal,mpfr,ANY-method}
 \alias{all.equal,ANY,mpfr-method}
 \alias{mean,mpfr-method}
+\alias{median,mpfr-method}
+\alias{quantile,mpfr-method}
 
 \alias{dim<-,mpfr-method}
 \alias{t,mpfr-method}
@@ -212,7 +218,12 @@
       \code{\link{max}}, \code{\link{min}}, \code{\link{range}},
       \code{\link{prod}}, \code{\link{sum}},
       \code{\link{any}}, and \code{\link{all}}
-      are all defined for MPFR numbers.}
+      are all defined for MPFR numbers.  \code{\link{mean}(x, trim)} for
+      non-0 \code{trim} works analogously to \code{\link{mean.default}}.}
+
+    \item{median}{\code{signature(x = "mpfr")}: works via}% quantile(*, probs = 0.5) :
+    \item{quantile}{\code{signature(x = "mpfr")}: a simple wrapper of
+    the \code{quantile.default} method from \pkg{stats}.}
 
     \item{Math}{\code{signature(x = "mpfr")}: All the S4
       \code{\link[methods:S4groupGeneric]{Math}} group functions are
@@ -383,8 +394,8 @@ stopifnot(all(diff(sort(p)) >= 0),
 m0 <- mpfr(numeric(), 99)
 stopifnot(identical(which.min(m0), integer(0)),
 	  identical(which.max(m0), integer(0)),
-	  max(m0) == mpfr(-Inf, 53), # hmm, the 53 is not a feature
-	  min(m0) == mpfr(+Inf, 53), #	 (ditto)
+	  max(m0) == mpfr(-Inf, 53), # (53 is not a feature, but ok)
+	  min(m0) == mpfr(+Inf, 53),
 	  sum(m0) == 0, prod(m0) == 1)
 }
 \keyword{classes}

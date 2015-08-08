@@ -20,14 +20,16 @@
 Ai(x)
 j0(x)
 j1(x)
-jn(n, x)
+jn(n, x, rnd.mode = c("N","D","U","Z","A"))
 y0(x)
 y1(x)
-yn(n, x)
+yn(n, x, rnd.mode = c("N","D","U","Z","A"))
 }
 \arguments{
   \item{x}{a \code{\link{numeric}} or \code{\linkS4class{mpfr}} vector.}
   \item{n}{non-negative integer (vector).}
+  \item{rnd.mode}{a 1-letter string specifying how \emph{rounding}
+    should happen at C-level conversion to MPFR, see \code{\link{mpfr}}.}
 }
 \value{
   Computes multiple precision versions of the Bessel functions of

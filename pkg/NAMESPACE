@@ -54,6 +54,11 @@ exportClasses("mpfr1", "mpfr"
               , "mNumber"
 )
 
+## Standard (base, stats) functions which we made into S4 generics
+export(mean,
+       median,
+       quantile)
+
 export(.mpfr, .mpfr.
        ## ".Arith.codes"
        ## , ".Arith.mpfr.num"
@@ -111,9 +116,9 @@ export(.mpfr, .mpfr.
        , "hypot"
        , "integrateR"
        , "j0" , "j1" , "jn"
-       , "mean"
        , "mpfr"
-       , "mpfr.is.0", "mpfr.is.integer"
+       , mpfrIs0, .mpfr.is.whole # as substitutes of
+       , "mpfr.is.0", "mpfr.is.integer" # <-- now (Aug. 2015) deprecated
        , "mpfr2array", "mpfrArray"
        , "mpfrVersion"
        , "mpfr_default_prec"
@@ -171,6 +176,13 @@ exportMethods(
               , "which.min", "which.max"
 )
 
+## Our own S3 generic  mpfr():
+S3method(mpfr, default)
+S3method(mpfr, bigz)
+S3method(mpfr, bigq)
+S3method(mpfr, mpfr)
+S3method(mpfr, Bcharacter)
+S3method(mpfr, Hcharacter)
 
 S3method(c, mpfr)
 

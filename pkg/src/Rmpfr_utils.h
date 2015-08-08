@@ -159,7 +159,7 @@ SEXP R_mpfr_prec_range(SEXP ind);
 SEXP R_mpfr_get_version(void);
 SEXP R_mpfr_get_GMP_numb_bits(void);
 
-SEXP const_asMpfr(SEXP I, SEXP prec);
+SEXP const_asMpfr(SEXP I, SEXP prec, SEXP rnd_mode);
 
 SEXP R_mpfr_is_finite(SEXP x);	SEXP R_mpfr_is_finite_A(SEXP x);
 SEXP R_mpfr_is_infinite(SEXP x);SEXP R_mpfr_is_infinite_A(SEXP x);
@@ -167,17 +167,17 @@ SEXP R_mpfr_is_integer(SEXP x);	SEXP R_mpfr_is_integer_A(SEXP x);
 SEXP R_mpfr_is_na(SEXP x);	SEXP R_mpfr_is_na_A(SEXP x);
 SEXP R_mpfr_is_zero(SEXP x);    SEXP R_mpfr_is_zero_A(SEXP x);
 
-SEXP R_mpfr_jn(SEXP x, SEXP n);
-SEXP R_mpfr_yn(SEXP x, SEXP n);
-SEXP R_mpfr_atan2(SEXP x, SEXP y);
-SEXP R_mpfr_hypot(SEXP x, SEXP y);
-SEXP R_mpfr_beta(SEXP x, SEXP y);
-SEXP R_mpfr_lbeta(SEXP x, SEXP y);
+SEXP R_mpfr_atan2(SEXP x, SEXP y, SEXP rnd_mode);
+SEXP R_mpfr_hypot(SEXP x, SEXP y, SEXP rnd_mode);
+SEXP R_mpfr_beta (SEXP x, SEXP y, SEXP rnd_mode);
+SEXP R_mpfr_lbeta(SEXP x, SEXP y, SEXP rnd_mode);
 
-SEXP R_mpfr_fac (SEXP n, SEXP prec);
-SEXP R_mpfr_choose(SEXP a, SEXP n);
-SEXP R_mpfr_poch(SEXP a, SEXP n);
-SEXP R_mpfr_round(SEXP x, SEXP prec);
+SEXP R_mpfr_jn(SEXP x, SEXP n, SEXP rnd_mode);
+SEXP R_mpfr_yn(SEXP x, SEXP n, SEXP rnd_mode);
+SEXP R_mpfr_fac   (SEXP n, SEXP prec, SEXP rnd_mode);
+SEXP R_mpfr_choose(SEXP a, SEXP n, SEXP rnd_mode);
+SEXP R_mpfr_poch  (SEXP a, SEXP n, SEXP rnd_mode);
+SEXP R_mpfr_round (SEXP x, SEXP prec, SEXP rnd_mode);
 
 /* #ifdef __cplusplus */
 /* } */

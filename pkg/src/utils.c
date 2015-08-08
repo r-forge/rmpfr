@@ -419,7 +419,7 @@ SEXP R_mpfr_prec_range(SEXP ind) {
     UNPROTECT(1);				\
     return val
 
-SEXP const_asMpfr(SEXP I, SEXP prec)
+SEXP const_asMpfr(SEXP I, SEXP prec, SEXP rnd_mode)
 {
     SEXP val;
     mpfr_t r;
@@ -428,10 +428,10 @@ SEXP const_asMpfr(SEXP I, SEXP prec)
     mpfr_init2(r, i_p);
 
     switch(asInteger(I)) {
-    case 1: mpfr_const_pi     (r, MPFR_RNDN); break;
-    case 2: mpfr_const_euler  (r, MPFR_RNDN); break;
-    case 3: mpfr_const_catalan(r, MPFR_RNDN); break;
-    case 4: mpfr_const_log2   (r, MPFR_RNDN); break;
+    case 1: mpfr_const_pi     (r, R_rnd2MP(rnd_mode)); break;
+    case 2: mpfr_const_euler  (r, R_rnd2MP(rnd_mode)); break;
+    case 3: mpfr_const_catalan(r, R_rnd2MP(rnd_mode)); break;
+    case 4: mpfr_const_log2   (r, R_rnd2MP(rnd_mode)); break;
     default:
 	error("invalid integer code {const_asMpfr()}"); /* -Wall */
     }
@@ -496,10 +496,11 @@ R_MPFRarray_Logic_Function(R_mpfr_is_na_A,       mpfr_nan_p)
 R_MPFRarray_Logic_Function(R_mpfr_is_zero_A,     mpfr_zero_p)
 
 
-SEXP R_mpfr_fac (SEXP n_, SEXP prec)
+SEXP R_mpfr_fac (SEXP n_, SEXP prec, SEXP rnd_mode)
 {
     int n = length(n_), i, *nn;
     SEXP n_t, val = PROTECT(allocVector(VECSXP, n)); int nprot = 1;
+    mpfr_rnd_t rnd = R_rnd2MP(rnd_mode);
     mpfr_t r_i;
     if(TYPEOF(n_) != INTSXP) {
 	PROTECT(n_t = coerceVector(n_, INTSXP)); nprot++;/* or bail out*/
@@ -513,7 +514,7 @@ SEXP R_mpfr_fac (SEXP n_, SEXP prec)
     for(i=0; i < n; i++) {
 	// never happens when called from R:
 	if(nn[i] < 0) error("R_mpfr_fac(%d): negative n.", nn[i]);
-	mpfr_fac_ui(r_i, nn[i], MPFR_RNDN);
+	mpfr_fac_ui(r_i, nn[i], rnd);
 	SET_VECTOR_ELT(val, i, MPFR_as_R(r_i));
     }
 
@@ -525,9 +526,10 @@ SEXP R_mpfr_fac (SEXP n_, SEXP prec)
 
 
 #define R_MPFR_2_Numeric_Function(_FNAME, _MPFR_NAME)	\
-SEXP _FNAME(SEXP x, SEXP y) {				\
+SEXP _FNAME(SEXP x, SEXP y, SEXP rnd_mode) {		\
     SEXP xD = PROTECT(GET_SLOT(x, Rmpfr_Data_Sym));	\
     SEXP yD = PROTECT(GET_SLOT(y, Rmpfr_Data_Sym));	\
+    mpfr_rnd_t rnd = R_rnd2MP(rnd_mode);		\
     int nx = length(xD), ny = length(yD), i,		\
 	n = (nx == 0 || ny == 0) ? 0 : imax2(nx, ny);	\
     SEXP val = PROTECT(allocVector(VECSXP, n));		\
@@ -538,7 +540,7 @@ SEXP _FNAME(SEXP x, SEXP y) {				\
     for(i=0; i < n; i++) {				\
 	R_asMPFR(VECTOR_ELT(xD, i % nx), x_i);		\
 	R_asMPFR(VECTOR_ELT(yD, i % ny), y_i);		\
-	_MPFR_NAME(R, x_i, y_i, MPFR_RNDN);		\
+	_MPFR_NAME(R, x_i, y_i, rnd);			\
 	SET_VECTOR_ELT(val, i, MPFR_as_R(R));		\
     }							\
 							\
@@ -556,8 +558,9 @@ R_MPFR_2_Numeric_Function(R_mpfr_lbeta, my_mpfr_lbeta)
 
 
 #define R_MPFR_2_Num_Long_Function(_FNAME, _MPFR_NAME)			\
-SEXP _FNAME(SEXP x, SEXP y) {						\
+SEXP _FNAME(SEXP x, SEXP y, SEXP rnd_mode) {				\
     SEXP xD, yt, val;							\
+    mpfr_rnd_t rnd = R_rnd2MP(rnd_mode);				\
     int *yy, n, nx, ny = length(y), i, nprot = 0;			\
     mpfr_t x_i;								\
 									\
@@ -575,7 +578,7 @@ SEXP _FNAME(SEXP x, SEXP y) {						\
 									\
     for(i=0; i < n; i++) {						\
 	R_asMPFR(VECTOR_ELT(xD, i % nx), x_i);				\
-	_MPFR_NAME(x_i, (long) yy[i % ny], x_i, MPFR_RNDN);		\
+	_MPFR_NAME(x_i, (long) yy[i % ny], x_i, rnd);			\
 	SET_VECTOR_ELT(val, i, MPFR_as_R(x_i));				\
     }									\
 									\

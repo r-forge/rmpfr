@@ -32,7 +32,7 @@
   \item{\dots}{further arguments, passed to \code{\link{formatMpfr}()}.}
 }
 \seealso{
-  \code{\link{mpfr.is.0}} for many more utilities.
+  \code{\link{mpfrIs0}} for many more utilities.
 }
 \examples{
 (x <- c(Const("pi", 64), mpfr(-2:2, 64)))
