@@ -6,15 +6,17 @@
 %% \alias{formatHexInternal}
 \alias{print.Bcharacter}% not mentioned
 \description{
-  Show numbers in binary and hex and decimal format, and scan binary and hex.
+  Show numbers in binary, hex and decimal format.  The resulting
+  character-like objects can be back-transformed to \code{"mpfr"}
+  numbers via \code{\link{mpfr}()}.
 }
 \usage{
 formatHex(x, precBits = min(getPrec(x)), style = "+")
 
 formatBin(x, precBits = min(getPrec(x)), scientific = TRUE,
           left.pad = "_", right.pad = left.pad, style = "+")
-
-## FIXME:  This is unneeded, use  formatMpfr(.) or simply print(.) !!
+%% FIXME:  Currently needed because decimal point alignment.
+%% -----   TODO: Allow formatMpfr(.) to decimal alignment -- even by default
 formatDec(x, precBits = min(getPrec(x)), digits = decdigits,
           nsmall = NULL, scientific = FALSE, style = "+", ...)
 %% ## not exported
@@ -50,13 +52,13 @@ formatDec(x, precBits = min(getPrec(x)), digits = decdigits,
     will be used for left- and right-padding of the formatted string
     when \code{scientific=FALSE}.  \emph{Do not change these unless for
     display-only purpose !!}}
-  \item{nsmall}{ FIXME
-
-  }
+  \item{nsmall}{only used when \code{scientific} is false, then passed
+    to \code{\link{format}()}.  If \code{NULL}, the default is computed
+    from the range of the non-zero values of \code{x}.}
   \item{digits}{integer; the number of decimal digits displayed is the
     larger of this argument and the internally generated value that is a
-  function of \code{precBits}.  This is related to but different than
-  \code{digits} in \code{\link{format}}.}
+    function of \code{precBits}.  This is related to but different than
+    \code{digits} in \code{\link{format}}.}
 }
 \details{
   For the hexadecimal representation, when the precision is not larger
@@ -78,9 +80,9 @@ formatDec(x, precBits = min(getPrec(x)), digits = decdigits,
   the formatted represention of \code{x}, with a \code{\link{class}}
   (unless \code{left.pad} or \code{right.pad} were not \code{"_"}).  In
   that case, \code{formatHex()} returns class \code{"Hcharacter"} and
-  \code{formatBin()} gives class \code{"Bcharacter"}; on these,
-  \code{\link{mpfr}(.)} will work and basically return \code{x}, i.e.,
-  work as \emph{inverse} function.
+  \code{formatBin()} gives class \code{"Bcharacter"}; for these,
+  \code{\link{mpfr}(.)} has methods and will basically return \code{x},
+  i.e., work as \emph{inverse} function.
 }
 \references{
   R FAQ 7.31:  Why doesn't R think these numbers are equal?
