@@ -66,8 +66,8 @@ formatDec(x, precBits = min(getPrec(x)), digits = decdigits,
   otherwise \code{\link{formatMpfr}()} is used and post processed.
   For the binary representation, the hexadecimal value is calculated and then edited by
   substitution of the binary representation of the hex characters coded
-  in the \code{HextoBin} vector.  For binary with \code{shift=TRUE}, the
-  result of the \code{shift=FALSE} version is edited to align binary
+  in the \code{HextoBin} vector.  For binary with \code{scientific=FALSE}, the
+  result of the \code{scientific=TRUE} version is edited to align binary
   points.  For the decimal representation, the hexadecimal value is
   calculated with the specified precision and then sent to the
   \code{format} function for \code{scientific=FALSE} or to the sprintf

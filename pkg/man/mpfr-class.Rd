@@ -30,6 +30,15 @@
 \alias{lbeta,numeric,mpfr-method}
 \alias{lbeta,mpfrArray,ANY-method}
 \alias{lbeta,mpfrArray,mpfrArray-method}
+\alias{atan2,ANY,mpfr-method}
+\alias{atan2,ANY,mpfrArray-method}
+\alias{atan2,mpfr,ANY-method}
+\alias{atan2,mpfr,mpfr-method}
+\alias{atan2,mpfr,numeric-method}
+\alias{atan2,numeric,mpfr-method}
+\alias{atan2,mpfrArray,ANY-method}
+\alias{atan2,mpfrArray,mpfrArray-method}
+\alias{hypot}
 %
 \alias{coerce,mpfr,character-method}
 \alias{coerce,mpfr,numeric-method}
@@ -135,6 +144,19 @@
   instead of the double precision of \sQuote{traditional} \R numbers
   (with \code{\link{class}(.) == "numeric"} and
   \code{\link{typeof}(.) == "double"}).
+
+  \code{hypot(x,y)} computes the hypothenuse length \eqn{z} in a rectangular
+  triangle with \dQuote{leg} side lengths \eqn{x} and \eqn{y}, i.e.,
+  \deqn{z = hypot(x,y) = \sqrt{x^2 + y^2},}{z = hypot(x,y) = sqrt(x^2 + y^2),}
+  in a numerically stable way.
+}
+\usage{
+hypot(x,y, rnd.mode = c("N","D","U","Z","A"))
+}
+\arguments{
+  \item{x,y}{an object of class \code{mpfr}.}
+  \item{rnd.mode}{a 1-letter string specifying how \emph{rounding}
+    should happen at C-level conversion to MPFR, see \code{\link{mpfr}}.}
 }
 \section{Objects from the Class}{
   Objects are typically created by \code{\link{mpfr}(<number>, precBits)}.
@@ -167,6 +189,12 @@
 \section{Methods}{
   \describe{
     \item{abs}{\code{signature(x = "mpfr")}: ... }
+
+    \item{atan2}{\code{signature(y = "mpfr", x = "ANY")}, and}
+    \item{atan2}{\code{signature(x = "ANY", y = "mpfr")}: compute the
+     arc-tangent of two arguments: \code{atan2(y, x)} returns the angle
+     between the x-axis and the vector from the origin to \eqn{(x, y)},
+     i.e., for positive arguments \code{atan2(y, x) == \link{atan}(y/x)}.}
 
     \item{lbeta}{\code{signature(a = "ANY", b = "mpfrArray")}, is
       \eqn{\log(|B(a,b)|)}{log(abs(B(a,b)))} where \eqn{B(a,b)} is the
@@ -392,8 +420,12 @@ stopifnot(all(diff(sort(p)) >= 0),
  TRUE)
 
 m0 <- mpfr(numeric(), 99)
+xy <- expand.grid(x = -2:2, y = -2:2) ; x <- xy[,"x"] ; y <- xy[,"y"]
+a2. <- atan2(y,x)
+
 stopifnot(identical(which.min(m0), integer(0)),
 	  identical(which.max(m0), integer(0)),
+          all.equal(a2., atan2(as(y,"mpfr"), x)),
 	  max(m0) == mpfr(-Inf, 53), # (53 is not a feature, but ok)
 	  min(m0) == mpfr(+Inf, 53),
 	  sum(m0) == 0, prod(m0) == 1)

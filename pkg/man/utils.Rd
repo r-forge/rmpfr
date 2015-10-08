@@ -4,19 +4,10 @@
 \alias{diff.mpfr}
 \alias{mpfrIs0}
 \alias{.mpfr.is.whole}
+\alias{mpfrVersion}
 %% next two are deprecated since Aug.2015 (for Rmpfr 0.6.0):
 \alias{mpfr.is.0}
 \alias{mpfr.is.integer}
-\alias{mpfrVersion}
-\alias{atan2,ANY,mpfr-method}
-\alias{atan2,ANY,mpfrArray-method}
-\alias{atan2,mpfr,ANY-method}
-\alias{atan2,mpfr,mpfr-method}
-\alias{atan2,mpfr,numeric-method}
-\alias{atan2,numeric,mpfr-method}
-\alias{atan2,mpfrArray,ANY-method}
-\alias{atan2,mpfrArray,mpfrArray-method}
-\alias{hypot}
 %
 \description{
   \code{mpfrVersion()} returns the version of the MPFR library which
@@ -37,11 +28,6 @@
   You should typically rather use (the \code{"mpfr"} method of the
   generic function) \code{\link{is.whole}(x)} instead.
   The former name \code{mpfr.is.integer} is deprecated now.
-
-  \code{hypot(x,y)} computes the hypothenuse length \eqn{z} in a rectangular
-  triangle with \dQuote{leg} side lengths \eqn{x} and \eqn{y}, i.e.,
-  \deqn{z = hypot(x,y) = \sqrt{x^2 + y^2},}{z = hypot(x,y) = sqrt(x^2 + y^2),}
-  in a numerically stable way.
 }
 \usage{
 mpfrVersion()
@@ -49,8 +35,6 @@ mpfrIs0(x)
 %% .mpfr.is.whole(x)
 \method{c}{mpfr}(\dots)
 \method{diff}{mpfr}(x, lag = 1L, differences = 1L, \dots)
-
-hypot(x,y, rnd.mode = c("N","D","U","Z","A"))
 }
 \arguments{
   \item{x,y}{an object of class \code{\linkS4class{mpfr}}.}
@@ -59,21 +43,10 @@ hypot(x,y, rnd.mode = c("N","D","U","Z","A"))
     \code{mpfr} with default precision of 128 bits.}
   \item{lag, differences}{for \code{diff()}: exact same meaning as in
     \code{\link{diff}()}'s default method, \code{\link{diff.default}}.}
-  \item{rnd.mode}{a 1-letter string specifying how \emph{rounding}
-    should happen at C-level conversion to MPFR, see \code{\link{mpfr}}.}
 }
 % \details{
 %   ~~ If necessary, more details than the description above ~~
 % }
-\section{Methods}{
-  \describe{
-    \item{atan2}{\code{signature(y = "mpfr", x = "ANY")}, and}
-    \item{atan2}{\code{signature(x = "ANY", y = "mpfr")}: compute the
-     arc-tangent of two arguments: \code{atan2(y, x)} returns the angle
-     between the x-axis and the vector from the origin to \eqn{(x, y)},
-     i.e., for positive arguments \code{atan2(y, x) == \link{atan}(y/x)}.}
-  }
-}
 \value{
   \code{mpfrIs0} returns a logical vector of length \code{length(x)}
   with values \code{TRUE} iff the corresponding \code{x[i]} is an MPFR
@@ -89,8 +62,9 @@ hypot(x,y, rnd.mode = c("N","D","U","Z","A"))
 }
 \seealso{
   \code{\link{str.mpfr}} for the \code{\link{str}} method.
-  \code{\link{erf}} for special mathematical functions on MPFR;
-  The class description \code{\linkS4class{mpfr}} mentioning the
+  \code{\link{erf}} for special mathematical functions on MPFR.
+
+  The class description \code{\linkS4class{mpfr}} page mentions many
   generic arithmetic and mathematical functions for which \code{"mpfr"}
   methods are available.
 }
@@ -102,12 +76,8 @@ mpfrIs0(x)    # one of them is
 x[mpfrIs0(x)] # but it may not have been obvious..
 str(x)
 
-xy <- expand.grid(x = -2:2, y = -2:2) ; x <- xy[,"x"] ; y <- xy[,"y"]
-a2. <- atan2(y,x)
-
-stopifnot(all.equal(a2., atan2(as(y,"mpfr"), x)),
-          is.whole(mpfr(2, 500) ^ (1:200)),
-          all.equal(diff(x), diff(as.numeric(x))),
-          TRUE)
+x <- rep(-2:2, 5)
+stopifnot(is.whole(mpfr(2, 500) ^ (1:200)),
+          all.equal(diff(x), diff(as.numeric(x))))
 }
 \keyword{arith}
