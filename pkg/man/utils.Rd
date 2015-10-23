@@ -37,8 +37,8 @@ mpfrIs0(x)
 \method{diff}{mpfr}(x, lag = 1L, differences = 1L, \dots)
 }
 \arguments{
-  \item{x,y}{an object of class \code{\linkS4class{mpfr}}.}
-  \item{\dots}{For \code{diff}, further \code{\linkS4class{mpfr}} class
+  \item{x}{an object of class \code{\linkS4class{mpfr}}.}
+  \item{\dots}{for \code{diff}, further \code{\linkS4class{mpfr}} class
     objects or simple numbers (\code{\link{numeric}} vectors) which are coerced to
     \code{mpfr} with default precision of 128 bits.}
   \item{lag, differences}{for \code{diff()}: exact same meaning as in

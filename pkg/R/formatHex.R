@@ -114,8 +114,8 @@ formatBin <- function(x, precBits=min(getPrec(x)), scientific = TRUE,
     ## only zero characters are truncated.
     if (!scientific) {
 	powers <- as.integer(pow)
-	Left <- -powers + max(powers)
-	Right <- powers - min(powers)
+        Left <- -powers + max(powers, 2-precBits)
+        Right <- powers - min(powers, precBits-1)
 	D <- cbind(S, "0b", strrep(left.pad, Left),
 		   A, hrsBb, strrep(right.pad, Right))
 	D2 <- apply(D, 1, function(x) do.call(paste, list(x, collapse="")))
@@ -184,7 +184,7 @@ formatDec <- function(x, precBits = min(getPrec(x)), digits=decdigits,
 	else {
 	    if(is.null(nsmall)) nsmall <- -floor(log(Hx.range[1], 10))
 	    if (nsmall <= 0) nsmall <- max(nsmall + digits, 0) ## effective only with scientific=FALSE
-	    format(Hx, digits=digits, nsmall=nsmall, ...)
+	    format(Hx, digits=digits, nsmall=nsmall, scientific=FALSE, ...)
 	}
     structure(res,
 	      dim = dim(x),

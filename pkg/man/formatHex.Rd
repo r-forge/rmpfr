@@ -16,7 +16,7 @@ formatHex(x, precBits = min(getPrec(x)), style = "+")
 formatBin(x, precBits = min(getPrec(x)), scientific = TRUE,
           left.pad = "_", right.pad = left.pad, style = "+")
 %% FIXME:  Currently needed because decimal point alignment.
-%% -----   TODO: Allow formatMpfr(.) to decimal alignment -- even by default
+%% -----   TODO: Allow formatMpfr(.) to do decimal alignment -- even by default
 formatDec(x, precBits = min(getPrec(x)), digits = decdigits,
           nsmall = NULL, scientific = FALSE, style = "+", ...)
 %% ## not exported
@@ -40,13 +40,12 @@ formatDec(x, precBits = min(getPrec(x)), digits = decdigits,
     binary points (\code{mpfr(3, 5)} is displayed \code{+0b11.000}).}
   \item{\dots}{additional optional arguments.
     %% \code{formatHexInternal},
-    \code{formatHex}, \code{formatBin}: \code{precBits}
-    is the only \code{\dots} argument acted on.
-    Other \code{\dots} arguments are ignored.
+    \code{formatHex}, \code{formatBin}: \code{precBits} is the only
+    \code{\dots} argument acted on.  Other \code{\dots} arguments are ignored.
 
-    \code{formatDec}: \code{precBits} is acted on.  Any argument accepted by
-    \code{\link[base]{format}} (except \code{nsmall}) is acted on.  Other \code{\dots} arguments are
-    ignored.
+    \code{formatDec}: \code{precBits} is acted on.  Any argument
+    accepted by \code{\link[base]{format}} (except \code{nsmall}) is
+    acted on.  Other \code{\dots} arguments are ignored.
   }
   \item{left.pad, right.pad}{characters (one-character strings) that
     will be used for left- and right-padding of the formatted string
@@ -64,7 +63,8 @@ formatDec(x, precBits = min(getPrec(x)), digits = decdigits,
   For the hexadecimal representation, when the precision is not larger
   than double precision, \code{\link[base]{sprintf}()} is used directly,
   otherwise \code{\link{formatMpfr}()} is used and post processed.
-  For the binary representation, the hexadecimal value is calculated and then edited by
+  For the binary representation, the hexadecimal value is calculated and
+  then edited by
   substitution of the binary representation of the hex characters coded
   in the \code{HextoBin} vector.  For binary with \code{scientific=FALSE}, the
   result of the \code{scientific=TRUE} version is edited to align binary
