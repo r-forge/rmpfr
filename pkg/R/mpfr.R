@@ -727,8 +727,8 @@ str.mpfr <- function(object, nest.lev, give.head = TRUE, digits.d = 12,
 	digits.d <- pmin(digits.d,
 			 ceiling(log(2)/log(10) * .getPrec(object)))
     if(is.null(vec.len)) { # use width and precision (and remain simple enough)
-	nch <- nchar(formatMpfr(object, digits=digits.d, drop0trailing=drop0trailing, ...),
-		     keepNA=FALSE)
+        ff <- formatMpfr(object, digits=digits.d, drop0trailing=drop0trailing, ...)
+	nch <- if(getRversion() >= "3.2.1") nchar(ff, keepNA=FALSE) else nchar(ff)
 	fits <- !any(too.lrg <- cumsum(nch) + length(nch)-1L > width)
 	if(!fits)
 	    vec.len <- max(2L, which.max(too.lrg) - 1L)

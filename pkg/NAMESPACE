@@ -5,19 +5,21 @@ useDynLib(Rmpfr, .registration=TRUE)
 ## cheap, somewhat experimental -- hence the "."
 export(.mpfr2bigz, .bigz2mpfr, .bigq2mpfr)
 
-## Radical(but gets all): import("methods")
-## try to import all we need, but not more
+## Import all we need, but not more
+
+importMethodsFrom("methods" ## as we define methods for them:
+                , coerce, "coerce<-"
+                , show
+                , Arith, Compare, Logic, Math, Math2, Ops, Summary
+                  )
 importFrom("methods",
-	   as, "as<-", coerce, "coerce<-",
+	   as, "as<-",
 	   callGeneric, callNextMethod,
            is, extends, new, validObject,
 	   setClass, setClassUnion, setMethod, setOldClass, setValidity,
 	   slot, "slot<-", .slotNames,
 	   getDataPart, setDataPart, getClass, getClassDef,
 	   signature, representation, prototype
-           ## as we define methods for them:
-           , show
-           , Arith, Compare, Logic, Math, Math2, Ops, Summary
            ## needed implicitly [or "bug" ..]:
            , loadMethod)
 
@@ -98,7 +100,6 @@ export(.mpfr, .mpfr.
        , "all.equal"
        , "aperm"
        , "apply" ## <- we make it S4 generic
-       , "as.vector"
        , "atan2"
        , "beta", "lbeta"
        ## S3 "c.mpfr"
