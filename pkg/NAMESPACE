@@ -147,7 +147,7 @@ exportMethods(##___ "own generics" ___
     ##___ "other generics" ___
 
     ## Group Methods
-  , Arith, Compare, Logic, Math, Math2, Ops, Summary,
+  , Arith, Compare, Logic, Math, Math2, Ops, Summary
 
   , "abs", "log", "sign"
   , "Re", "Im", "Mod", "Arg", "Conj"
