@@ -8,16 +8,15 @@ export(.mpfr2bigz, .bigz2mpfr, .bigq2mpfr)
 ## Import all we need, but not more
 
 importMethodsFrom("methods" ## as we define methods for them:
-                , coerce, "coerce<-"
-                , show
+                , coerce, `coerce<-`, show
                 , Arith, Compare, Logic, Math, Math2, Ops, Summary
                   )
 importFrom("methods",
-	   as, "as<-",
+	   as, `as<-`,
 	   callGeneric, callNextMethod,
            is, extends, new, validObject,
 	   setClass, setClassUnion, setMethod, setOldClass, setValidity,
-	   slot, "slot<-", .slotNames,
+	   slot, `slot<-`, .slotNames,
 	   getDataPart, setDataPart, getClass, getClassDef,
 	   signature, representation, prototype
            ## needed implicitly [or "bug" ..]:
@@ -142,39 +141,32 @@ export(.mpfr, .mpfr.
        )
 
 
-exportMethods(
-              ##___ "own generics" ___
-              "apply", "asNumeric",
+exportMethods(##___ "own generics" ___
+    "apply", "asNumeric"
 
-              ##___ "other generics" ___
+    ##___ "other generics" ___
 
-	      ## Group Methods
-	      "Arith",
-	      "Compare",
-	      "Logic",
-	      "Math",
-	      "Math2",
-	      "Ops",
-	      "Summary",
+    ## Group Methods
+  , Arith, Compare, Logic, Math, Math2, Ops, Summary,
 
-              "abs", "log", "sign"
-              , "Re", "Im", "Mod", "Arg", "Conj"
-              , "all.equal", "aperm"
-              , "as.vector", "as.integer", "as.numeric"
-              , "coerce", "coerce<-"
-              , "cbind", "rbind"
-	      , "diag", "diag<-"
-              , "dim", "dim<-", "dimnames", "dimnames<-"
-              , "atan2", "beta", "lbeta"
-              , "factorial"
-              , "is.finite", "is.infinite", "is.na", "is.nan"
-              , "%*%", "crossprod", "tcrossprod", "t"
-              , "format"
-              , "mean", "pmax", "pmin"
-              , "show", "unique"
-              , "colSums", "colMeans"
-              , "rowSums", "rowMeans", "norm"
-              , "which.min", "which.max"
+  , "abs", "log", "sign"
+  , "Re", "Im", "Mod", "Arg", "Conj"
+  , "all.equal", "aperm"
+  , "as.vector", "as.integer", "as.numeric"
+  , "coerce", "coerce<-"
+  , "cbind", "rbind"
+  , "diag", "diag<-"
+  , "dim", "dim<-", "dimnames", "dimnames<-"
+  , "atan2", "beta", "lbeta"
+  , "factorial"
+  , "is.finite", "is.infinite", "is.na", "is.nan"
+  , "%*%", "crossprod", "tcrossprod", "t"
+  , "format"
+  , "mean", "pmax", "pmin"
+  , "show", "unique"
+  , "colSums", "colMeans"
+  , "rowSums", "rowMeans", "norm"
+  , "which.min", "which.max"
 )
 
 ## Our own S3 generic  mpfr():
