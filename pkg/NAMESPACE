@@ -8,15 +8,15 @@ export(.mpfr2bigz, .bigz2mpfr, .bigq2mpfr)
 ## Import all we need, but not more
 
 importMethodsFrom("methods" ## as we define methods for them:
-                , coerce, `coerce<-`, show
+                , coerce, "coerce<-", show
                 , Arith, Compare, Logic, Math, Math2, Ops, Summary
                   )
 importFrom("methods",
-	   as, `as<-`,
+	   as, "as<-",
 	   callGeneric, callNextMethod,
            is, extends, new, validObject,
 	   setClass, setClassUnion, setMethod, setOldClass, setValidity,
-	   slot, `slot<-`, .slotNames,
+	   slot, "slot<-", .slotNames,
 	   getDataPart, setDataPart, getClass, getClassDef,
 	   signature, representation, prototype
            ## needed implicitly [or "bug" ..]:
