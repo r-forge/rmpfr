@@ -97,9 +97,7 @@ stopifnot(all.equal(log2(xx) * 2^-25, log2(mil), tol=1e-15))
 
 
 ## Bill Dunlap's example (with patch about convert S_alloc bug):
+##               (precision increases, then decreases)
 z <- c(mpfr(1,8)/19, mpfr(1,32)/19, mpfr(1,24)/19)
-(fz <- format(z))
-## gave [1] "0.05273"        "0.052631578947" "0.0526315793"
-
-## FIXME:
-stopifnot(identical(fz, c(..............)))
+cbind(fz <- format(z))
+stopifnot(identical(fz, c("0.05273", "0.052631578947", "0.0526315793")))
