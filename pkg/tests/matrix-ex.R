@@ -130,6 +130,12 @@ stopifnot(identical(t(n2), m2),
 	  identical(cbind("A", "c"), matrix(c("A", "c"), 1,2)),
 	  identical(rbind("A", 2),   matrix(c("A", "2"), 2,1)) )
 
+## head() / tail() :
+stopifnot(all.equal(c(21, 12),
+		    dim(mm3 <- m3[rep(1:3, each=7), rep(3:1, 4)])),
+	  all.equal(dim(t3 <- tail(mm3)), c(6, 12)),
+	  all.equal(head(mm3), mm3[1:6,]))
+
 ## matrix(<mpfr>) works since 2015-02-28:
 x <- mpfr(pi,64)*mpfr(2,64)^(2^(0:19))
 (mx <- matrix(x, 4,5))

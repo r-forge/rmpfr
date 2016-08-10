@@ -166,6 +166,7 @@ exportMethods(##___ "own generics" ___
   , "show", "unique"
   , "colSums", "colMeans"
   , "rowSums", "rowMeans", "norm"
+  , head, tail
   , "which.min", "which.max"
 )
 
