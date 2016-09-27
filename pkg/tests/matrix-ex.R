@@ -146,5 +146,36 @@ stopifnot(is(mx, "mpfrMatrix"),
               tol = 1e-15)) # 64b-lnx: see 8.1e-17
 
 
+## Ensure that apply() continues to work with 'bigz'/'bigq'
+A <- matrix(2^as.bigz(1:12), 3,4)
+
+stopifnot(
+    identical(asNumeric(apply(A,  1, min)),
+              apply(asNumeric(A), 1, min))
+   ,
+    identical(asNumeric(apply(A,  1, min)),
+              apply(asNumeric(A), 1, min))
+)
+## failed up to Rmpfr 0.6.0
+
+if(FALSE) ## Bug in gmp <= 0.5-12 :
+stopifnot(
+          identical(asNumeric(apply(A,  1, range)),
+                    apply(asNumeric(A), 1, range))
+)
+if(FALSE) ## Bug in gmp <= 0.5-12 :
+stopifnot(
+          identical(asNumeric(apply(A,  2, max)),
+                    apply(asNumeric(A), 2, max))
+)
+if(FALSE) ## Bug in gmp <= 0.5-12 :
+stopifnot(
+          all.equal(asNumeric(apply(A,  1, mean)),
+                    apply(asNumeric(A), 1, mean))
+          ,
+          all.equal(asNumeric(apply(A,  2, mean)),
+                    apply(asNumeric(A), 2, mean))
+)
+
 cat('Time elapsed: ', proc.time(),'\n') # "stats"
 if(!interactive()) warnings()

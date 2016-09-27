@@ -9,6 +9,7 @@
     \itemize{
       \item \code{head()} and \code{tail()} methods for \code{"mpfrMatrix"}.
     }
+  }
   \subsection{BUG FIXES}{
     \itemize{
       \item C-level \code{mpfr2str()} no longer calls S_realloc() with
