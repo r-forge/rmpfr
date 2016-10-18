@@ -43,10 +43,11 @@ echo '<?xml version="1.0" encoding="UTF-8"?>';
 </p>
 
 <h3> Installation from <tt>source<tt/>: Needs MPFR and GMP libraries<h3/>
-					either from the above web pages, or much more conveniently from your Linux distribution package system:
+either from the above web pages, or
+much more conveniently from your Linux distribution package system:
 <ul>
- <li> Debian, Ubuntu, etc:    <tt> sudo apt-get install libmpfr-dev </tt> <li/>
- <li> Fedora, Redhat, CentOS, (open)SuSE: <tt> sudo dnf install mpfr-devel </tt> <li/>
+ <li> Debian, Ubuntu, etc . . . . . . . .: <tt> sudo apt-get install libmpfr-dev </tt> <li/>
+ <li> Fedora, Redhat, CentOS, (open)SuSE:  <tt> sudo dnf install mpfr-devel </tt> <li/>
 <ul/>
 
 <p>
