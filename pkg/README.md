@@ -21,7 +21,7 @@ system vendor / package system:
 ```sh
   sudo apt-get install libmpfr-dev
 ```
-	+ In Fedora, Redhat, CentOS etc, you get these via
+	+ In Fedora, Redhat, CentOS, opensuse, etc, you get these via
 
 ```sh
   sudo dnf install mpfr-devevel
