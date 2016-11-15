@@ -102,14 +102,18 @@
       then "the same" for the R interface code.
 
 ** TODO 51) Incomplete gamma, i.e. pgamma(), is being added to MPFR. -> do in Rmpfr!
-      From: paul zimmermann <Paul.Zimmermann@inria.fr>
+  ~/F/IN-lists--2016-08 :
+     From: paul zimmermann <Paul.Zimmermann@inria.fr>
       Subject: [MPFR] incomplete Gamma function
       Date: Mon, 18 Jan 2016 09:54:51 +0100
 
       zimmerma@tomate:~/mpfr/tests$ ./tgamma_inc 60 30 100
       1.3868299023788801161747839921242e80
 
-
+*** Will be in MPFR 3.2.x (Oct.2016: current is 3.1.5)
+*** MPFR-devel(svn): https://gforge.inria.fr/scm/viewvc.php/mpfr/trunk/src/gamma_inc.c?view=markup
+    - get: --> http://mpfr.loria.fr/gforge.html explains:
+    - svn checkout https://scm.gforge.inria.fr/anonscm/svn/mpfr/trunk mpfr
 
 
 * Accomplished
