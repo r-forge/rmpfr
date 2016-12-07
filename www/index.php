@@ -1,5 +1,5 @@
 
-<!-- This is the project specific website template -->
+<!-- This is the project specific website -->
 <!-- It can be changed as liked or replaced by other content -->
 
 <?php
@@ -31,13 +31,13 @@ echo '<?xml version="1.0" encoding="UTF-8"?>';
 
 
 <!-- get project title  -->
-<!-- own website starts here, the following may be changed as you like -->
+<!-- own website starts here, ... (MM was here :-) -->
 
 <h2>Rmpfr: Multiple Precision Floating-point in R</h2>
 <p>Multiple precision numbers &amp; computations for
  <a href="http://www.r-project.org">R</a> via GNU MPFR
  <a href="http://www.mpfr.org">www.mpfr.org</a>
- and the GNU <strong>M<strong/>ultiple <strong>P<strong/>recision arithmetic library
+ and the GNU <strong>M</strong>ultiple <strong>P</strong>recision arithmetic library
  <a href="http://gmplib.org">GMP</a>, both external C libraries which are free/libre
 (which is "open source" but even more).
 </p>
