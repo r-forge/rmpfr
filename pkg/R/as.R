@@ -197,8 +197,8 @@ formatMpfr <-
 	i. <- 1L + hasMinus
 	r[ii] <- patch(r[ii], i.[ii])
 	if(drop0trailing)
-	    ## drop 0's only *after* (and together with!) decimal mark:
-	    r[ii] <- sub(paste0(decimal.mark, "0+$"), "", r[ii])
+	    ## drop 0's only after decimal mark (and drop it, if immediately there)
+	    r[ii] <- sub(paste0("\\", decimal.mark, "?0+$"), "", r[ii])
 	r[ii] <- paste(r[ii], as.character(Ex[ii]), sep = exponent.char)
     }
     use.prettyN <- (base <= 14 && (!aE || exponent.char == "e"))

@@ -4,6 +4,24 @@
 \title{Rmpfr News}
 \encoding{UTF-8}
 
+\section{Changes in version 0.6-2 [2016-12-..]}{
+  %% \subsection{NEW FEATURES}{
+  %%   \itemize{
+  %%     \item
+  %%   }
+  %% }
+  \subsection{BUG FIXES}{
+    \itemize{
+      \item when \code{print()}ing mpfr numbers, the result no longer sometimes
+      loses the last digit.
+
+      \item \code{dnorm()} now works correctly with mpfr numbers;
+      similarly \code{dbinom()} and \code{dpois()} should work in all
+      cases, now.
+    }
+  }
+}
+
 \section{Changes in version 0.6-1 [2016-11-15]}{
   \subsection{NEW FEATURES}{
     \itemize{
