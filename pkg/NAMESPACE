@@ -180,6 +180,13 @@ S3method(mpfr, mpfr)
 S3method(mpfr, Bcharacter)
 S3method(mpfr, Hcharacter)
 
+## needed because gmp "forgets" to  S3method() these:
+## (and so things only work, when gmp / Rmpfr is attached):
+S3method(apply, default)
+## S3method(apply, bigz)
+## S3method(apply, bigq)
+
+
 S3method(c, mpfr)
 
 S3method(as.array, mpfr)
