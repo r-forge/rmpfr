@@ -152,6 +152,7 @@ exportMethods(##___ "own generics" ___
   , "abs", "log", "sign"
   , "Re", "Im", "Mod", "Arg", "Conj"
   , "all.equal", "aperm"
+  , "apply" # <- we made it into S4 generic (with "ANY" method = S3 generic from gmp!)
   , "as.vector", "as.integer", "as.numeric"
   , "coerce", "coerce<-"
   , "cbind", "rbind"

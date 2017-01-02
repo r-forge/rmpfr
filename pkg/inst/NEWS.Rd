@@ -4,7 +4,7 @@
 \title{Rmpfr News}
 \encoding{UTF-8}
 
-\section{Changes in version 0.6-2 [2016-12-..]}{
+\section{Changes in version 0.6-2 [2017-01-02]}{
   %% \subsection{NEW FEATURES}{
   %%   \itemize{
   %%     \item
@@ -18,6 +18,9 @@
       \item \code{dnorm()} now works correctly with mpfr numbers;
       similarly \code{dbinom()} and \code{dpois()} should work in all
       cases, now.
+
+      \item in \file{NAMESPACE}, also \code{exportMethods(apply)}, so
+      \pkg{SNscan} works.
     }
   }
 }
