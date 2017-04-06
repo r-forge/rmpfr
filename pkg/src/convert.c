@@ -23,10 +23,10 @@
 
 #define R_mpfr_MPFR_2R_init(_V_)					\
     SEXP _V_ = PROTECT(NEW_OBJECT(MAKE_CLASS("mpfr1")));		\
-    SEXP prec_R = ALLOC_SLOT(_V_, Rmpfr_precSym, INTSXP, 1);		\
-    SEXP sign_R = ALLOC_SLOT(_V_, Rmpfr_signSym, INTSXP, 1);		\
-    SEXP exp_R  = ALLOC_SLOT(_V_, Rmpfr_expSym,  INTSXP, R_mpfr_exp_size); \
-    SEXP d_R    = ALLOC_SLOT(_V_, Rmpfr_d_Sym,   INTSXP, R_mpfr_nr_ints); \
+    SEXP prec_R = PROTECT(ALLOC_SLOT(_V_, Rmpfr_precSym, INTSXP, 1));	\
+    SEXP sign_R = PROTECT(ALLOC_SLOT(_V_, Rmpfr_signSym, INTSXP, 1));	\
+    SEXP exp_R  = PROTECT(ALLOC_SLOT(_V_, Rmpfr_expSym,  INTSXP, R_mpfr_exp_size)); \
+    SEXP d_R    = PROTECT(ALLOC_SLOT(_V_, Rmpfr_d_Sym,   INTSXP, R_mpfr_nr_ints)); \
     /* the integer vector which makes up the mantissa: */		\
     int *dd = INTEGER(d_R),						\
 	*ex = INTEGER(exp_R) /* the one for the exponent */
@@ -104,7 +104,7 @@ SEXP MPFR_as_R(mpfr_t r) {
 
     R_mpfr_MPFR_2R_fill;
 
-    UNPROTECT(1);
+    UNPROTECT(5);
     return val;
 }
 
@@ -126,7 +126,7 @@ SEXP d2mpfr1_(double x, int i_prec, mpfr_rnd_t rnd)
     mpfr_clear (r);
     mpfr_free_cache(); /* <- Manual 4.8 "Memory Handling" strongly advises ...*/
 
-    UNPROTECT(1);
+    UNPROTECT(5);
     return val;
 }/* d2mpfr1_ */
 
