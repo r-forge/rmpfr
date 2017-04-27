@@ -83,6 +83,11 @@ formatDec(x, precBits = min(getPrec(x)), digits = decdigits,
   \code{formatBin()} gives class \code{"Bcharacter"}; for these,
   \code{\link{mpfr}(.)} has methods and will basically return \code{x},
   i.e., work as \emph{inverse} function.
+
+  Since \pkg{Rmpfr} version \command{0.6-2}, the resulting S3 classes
+  \code{"Hcharacter"} and \code{"Bcharacter"} extend \code{"character"}.
+  (\code{class(.)} is now of length two and \code{class(.)[2]} is
+  \code{"character"}.)
 }
 \references{
   R FAQ 7.31:  Why doesn't R think these numbers are equal?
@@ -102,6 +107,11 @@ formatHex(FourBits)
 formatBin(FourBits, style = " ")
 formatBin(FourBits, scientific=FALSE)
 formatDec(FourBits)
+
+## as "Hcharacter" an "Bcharacter"  'inherit from' "character", this
+## now works too :
+data.frame(Dec = c( formatDec(FourBits) ), formatHex(FourBits),
+           Bin = formatBin(FourBits, style = " "))
 
 FBB <- formatBin(FourBits)
 (nFBB <- mpfr(FBB))

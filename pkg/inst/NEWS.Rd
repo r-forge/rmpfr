@@ -4,12 +4,14 @@
 \title{Rmpfr News}
 \encoding{UTF-8}
 
-\section{Changes in version 0.6-2 [2017-01-02]}{
-  %% \subsection{NEW FEATURES}{
-  %%   \itemize{
-  %%     \item
-  %%   }
-  %% }
+\section{Changes in version 0.6-2 [2017-04-27]}{
+  \subsection{NEW FEATURES}{
+    \itemize{
+      \item The S3 classes \code{"Hcharacter"} and \code{"Bcharacter"}
+      resulting from \code{formatHex()} and \code{formatBin()} now
+      \dQuote{inherit from} \code{"character"} formally.
+    }
+  }
   \subsection{BUG FIXES}{
     \itemize{
       \item when \code{print()}ing mpfr numbers, the result no longer sometimes

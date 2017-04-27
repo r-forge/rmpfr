@@ -87,7 +87,8 @@ formatHexInternal <- function(x, precBits = min(getPrec(x)), style = "+")
 ##           ~~~~~~~~~~~~
 formatHex <- function(x, precBits = min(getPrec(x)), style = "+") {
     structure(formatHexInternal(x, precBits=precBits, style=style),
-	      dim = dim(x), dimnames = dimnames(x), class = "Hcharacter")
+	      dim = dim(x), dimnames = dimnames(x),
+              class = c("Hcharacter", "character"))
 }
 
 formatBin <- function(x, precBits=min(getPrec(x)), scientific = TRUE,
@@ -127,7 +128,8 @@ formatBin <- function(x, precBits=min(getPrec(x)), scientific = TRUE,
 	res <- cbind(S, "0b", A, ".", hrsBb, "p", pow)
 	res <- apply(res, 1, function(x) do.call(paste, list(x, collapse="")))
     }
-    structure(res, dim = dim(x), dimnames = dimnames(x), class = "Bcharacter")
+    structure(res, dim = dim(x), dimnames = dimnames(x),
+              class = c("Bcharacter", "character"))
 }
 
 print.Bcharacter <- function(x, ...) {

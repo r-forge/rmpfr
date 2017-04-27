@@ -14,6 +14,9 @@
 
 * Short or Mid Term
 *** TODO Split this section into  Short | Mid  (?)
+** TODO 53) plogis() {and dlogis, qlogis} are "easy": do use <R>/src/nmath/[dpq]logis.c, as they
+ already use all the numerical tricks including R_Log1_Exp(x) .. :
+ R_Log1_Exp(x) := ((x) > -M_LN2 ? log(-expm1(x)) : log1p(-exp(x)))
 ** TODO 35) tests/bit-repr.R : Bits() fails to work with 2^k
 
 ** TODO 37) mpfrXport()/*Import() should work for arrays.  Test Windows-portability:
