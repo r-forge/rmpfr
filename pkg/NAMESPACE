@@ -212,6 +212,9 @@ S3method(print, integrateR)
 S3method(print, Bcharacter)
 S3method(print, Hcharacter, print.Bcharacter)# use the same
 
+S3method("[", Hcharacter)
+S3method("[", Bcharacter)
+
 S3method(matrix, mpfr)
 ## useful, to have  base::outer() work automatically:
 S3method(rep, mpfr)

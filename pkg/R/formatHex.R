@@ -268,3 +268,8 @@ mpfr.Hcharacter <- function(x, precBits, ...) {
     }
     mpfr(x, base = 16, precBits=precBits, ...)
 }
+
+
+`[.Bcharacter` <- `[.Hcharacter` <- ## == base :: `[.listof`
+    function (x, i, ...) structure(NextMethod("["), class = class(x))
+

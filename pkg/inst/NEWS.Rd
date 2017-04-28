@@ -4,12 +4,15 @@
 \title{Rmpfr News}
 \encoding{UTF-8}
 
-\section{Changes in version 0.6-2 [2017-04-27]}{
+\section{Changes in version 0.6-2 [2017-04-28]}{
   \subsection{NEW FEATURES}{
     \itemize{
       \item The S3 classes \code{"Hcharacter"} and \code{"Bcharacter"}
       resulting from \code{formatHex()} and \code{formatBin()} now
       \dQuote{inherit from} \code{"character"} formally.
+
+      \item They also got a \code{`[`} method, so subsetting should
+      work, including for \code{array}s of these.
     }
   }
   \subsection{BUG FIXES}{

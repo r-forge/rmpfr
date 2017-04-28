@@ -113,13 +113,25 @@ formatDec(FourBits)
 data.frame(Dec = c( formatDec(FourBits) ), formatHex(FourBits),
            Bin = formatBin(FourBits, style = " "))
 
-FBB <- formatBin(FourBits)
+FBB <- formatBin(FourBits) ; clB <- class(FBB)
 (nFBB <- mpfr(FBB))
-stopifnot(all.equal(nFBB, FourBits, tol=0))
+stopifnot(class(FBB)[1] == "Bcharacter",
+          all.equal(nFBB, FourBits, tol=0))
 
-FBH <- formatHex(FourBits)
+FBH <- formatHex(FourBits) ; clH <- class(FBH)
 (nFBH <- mpfr(FBH))
-stopifnot(all.equal(nFBH, FourBits, tol=0))
+stopifnot(class(FBH)[1] == "Hcharacter",
+          all.equal(nFBH, FourBits, tol=0))
+
+## Other methods ("[", t()) also work :
+stopifnot(dim(F1 <- FBB[, 1, drop=FALSE]) == c(8,1), identical(class(  F1), clB),
+          dim(t(F1)) == c(1,8),                      identical(class(t(F1)),clB),
+          is.null(dim(F.2 <- FBB[,2])),              identical(class( F.2), clB),
+          dim(F22 <- FBH[1:2, 3:4]) == c(2,2), identical(class(F22),  clH),
+          identical(class(FBH[2,3]), clH), is.null(dim(FBH[2,3])),
+          identical(FBH[2,3:4], F22[2,]),
+          identical(FBH[2,3], unname(FBH[,3][2])),
+          TRUE)
 
 TenFrac <- matrix((1:10)/10, dimnames=list(1:10, expression(1/x)))
 TenFrac9 <- mpfr(TenFrac, precBits=9) ## 9 significant bits
