@@ -87,7 +87,8 @@ formatDec(x, precBits = min(getPrec(x)), digits = decdigits,
   Since \pkg{Rmpfr} version \command{0.6-2}, the resulting S3 classes
   \code{"Hcharacter"} and \code{"Bcharacter"} extend \code{"character"}.
   (\code{class(.)} is now of length two and \code{class(.)[2]} is
-  \code{"character"}.)
+  \code{"character"}.).  There are simple \code{[} and \code{\link{print}}
+  methods; modifying or setting \code{dim} works as well.
 }
 \references{
   R FAQ 7.31:  Why doesn't R think these numbers are equal?

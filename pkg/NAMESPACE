@@ -210,10 +210,15 @@ S3method(print, mpfr1)
 S3method(print, mpfrArray)
 S3method(print, integrateR)
 S3method(print, Bcharacter)
-S3method(print, Hcharacter, print.Bcharacter)# use the same
+S3method(print, Hcharacter)
 
 S3method("[", Hcharacter)
 S3method("[", Bcharacter)
+## not easily
+## S3method("cbind", Hcharacter)
+## S3method("cbind", Bcharacter)
+## S3method("rbind", Hcharacter)
+## S3method("rbind", Bcharacter)
 
 S3method(matrix, mpfr)
 ## useful, to have  base::outer() work automatically:

@@ -45,7 +45,7 @@ sprintfMpfr <- function(x, bits, style = "+") {
     stopifnot(length(style <- as.character(style)) == 1, nchar(style) == 1,
 	      style %in% c("+", " "),
 	      length(bits) == 1, bits %% 1 == 0)
-    if(bits > 52) {
+    if(bits > 52) { # <== precBits > 53
 	digits <- ceiling(bits / log2(10))
 	neg <- sign(x) == -1
 	ff <- .mpfr2str(x, digits, base = 16)
@@ -136,7 +136,15 @@ print.Bcharacter <- function(x, ...) {
     print(unclass(x), quote=FALSE, right=TRUE, ...)
     invisible(x)
 }
-## print.Hcharacter not needed: using S3method(*, *, *) trick in ../NAMESPACE !
+print.Hcharacter <- function(x, ...) {
+    y <- unclass(x)
+    ## FIXME? use  `attributes<-`(y, attributes(y)[...]) ?
+    attr(y,"bindigits") <- NULL
+    attr(y,"hexdigits") <- NULL
+    print(y, quote=FALSE, right=TRUE, ...)
+    invisible(x)
+}
+
 
 
 ## formatDec1 <- function(x, ...) {
@@ -271,5 +279,11 @@ mpfr.Hcharacter <- function(x, precBits, ...) {
 
 
 `[.Bcharacter` <- `[.Hcharacter` <- ## == base :: `[.listof`
-    function (x, i, ...) structure(NextMethod("["), class = class(x))
+    function (x, ...) structure(NextMethod("["), class = class(x))
+
+## Don't seem to get these to work correctly (at lost not easily):
+## cbind.Bcharacter <- cbind.Hcharacter <-
+##     function (...) structure(NextMethod("cbind"), class = class(..1))
+## rbind.Bcharacter <- rbind.Hcharacter <-
+##     function (...) structure(NextMethod("rbind"), class = class(..1))
 

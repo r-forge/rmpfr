@@ -1,6 +1,6 @@
 
-R Under development (unstable) (2016-12-30 r71859) -- "Unsuffered Consequences"
-Copyright (C) 2016 The R Foundation for Statistical Computing
+R version 3.4.0 Patched (2017-04-28 r72638) -- "You Stupid Darkness"
+Copyright (C) 2017 The R Foundation for Statistical Computing
 Platform: x86_64-pc-linux-gnu (64-bit)
 
 R is free software and comes with ABSOLUTELY NO WARRANTY.
@@ -201,10 +201,11 @@ c(3217, 205887, 3294199, 105414357, 3373259426, 107944301636,
 > 
 > 
 > cat('Time elapsed: ', proc.time(),'\n') # "stats"
-Time elapsed:  0.825 0.109 0.935 0 0.003 
+Time elapsed:  0.466 0.063 0.53 0.002 0 
 > 
 > if(!interactive()) warnings()
+NULL
 > 
 > proc.time()
    user  system elapsed 
-  0.826   0.112   0.935 
+  0.468   0.063   0.530 
