@@ -143,16 +143,20 @@ formatDec(Ten4, scientific=TRUE, displaydigits=4)
 
 Two8 <- matrix(2^seq(-8, 8))
 Two8.3 <- mpfr(Two8, precBits=3)
+## formatBin
 stopifnot(
-    identical(capture.output(formatDec(Two8.3, digits = 3))[2:4],
-	      c(" [1,]   0.00391", " [2,]   0.00781", " [3,]   0.01562"))
-   ,
-    identical(capture.output(formatDec(Two8.3, digits = 8))[2:3],
-	      c(" [1,]   0.00390625", " [2,]   0.00781250"))
-    ,
     identical(sapply(as(Two8.3, "mpfr")[-c(1:3, 15:17)],
                      function(t83) formatBin(t83, scientific=FALSE)),
               c("+0b.____100", "+0b.___100", "+0b.__100", "+0b._100", "+0b.100",
-                "+0b1.00","+0b10.0","+0b100.","+0b100_.","+0b100__.","+0b100___."))
+		"+0b1.00","+0b10.0","+0b100.","+0b100_.","+0b100__.","+0b100___.")))
+## formatDec
+formatDec(Two8.3, digits = 3)
+formatDec(Two8.3, digits = 8)
+stopifnot(
+    identical(capture.output(formatDec(Two8.3, digits = 3))[2:4],
+              c(" [1,]   0.00391", " [2,]   0.00781", " [3,]   0.0156 "))
+   ,
+    identical(capture.output(formatDec(Two8.3, digits = 8))[2:3],
+              c(" [1,]   0.0039062500", " [2,]   0.0078125000"))
 )
 

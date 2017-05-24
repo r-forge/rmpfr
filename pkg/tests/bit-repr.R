@@ -94,6 +94,29 @@ stopifnot(all.equal(p., p, tolerance = 1e-15))
 ## all the mantissas are those of pi, rounded differently:
 Bits(c(p, Const("pi", 64)))
 
+###--- and possibly the _internal_   sprintfMpfr() ---  see also ./tstHexBin.R
+## TODO: use examples above for checking formatBin() <--->        ============
+spr <- Rmpfr:::sprintfMpfr
+##=            ~~~~~~~~~~~
+(fB.04 <- formatBin(i16.04 <- mpfr(0:16,  4)))
+(fB.60 <- formatBin(i16.60 <- mpfr(0:16, 60)))
+stopifnot(
+    identical(sub("00p","p", spr(i16.60, bits = 10)),
+                             spr(i16.60, bits = 4)),
+    identical(spr(i16.60, bits = 4),
+              spr(i16.04, bits = 4))
+    ,
+    ## identical(i16.04, mpfr(fB.04)) # not TRUE, but this is
+    all.equal(i16.04, mpfr(fB.04), tolerance = 0)
+    ,
+    TRUE ## FAILS   identical(i16.60, mpfr(fB.60))
+)
+
+## FIXME: still not ok
+try( mpfr(fB.60) )
+## not even this one
+try( mpfr(formatBin(mpfr(2, precBits = 60))) )
+
 
 cat('Time elapsed: ', proc.time(),'\n') # "stats"
 

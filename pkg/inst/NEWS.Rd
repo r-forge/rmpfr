@@ -4,7 +4,7 @@
 \title{Rmpfr News}
 \encoding{UTF-8}
 
-\section{Changes in version 0.6-2 [2017-04-29]}{
+\section{Changes in version 0.6-2 [2017-05-24]}{
   \subsection{NEW FEATURES}{
     \itemize{
       \item The S3 classes \code{"Hcharacter"} and \code{"Bcharacter"}
@@ -27,7 +27,8 @@
       \item in \file{NAMESPACE}, also \code{exportMethods(apply)}, so
       \pkg{SNscan} works.
 
-      \item \code{print(formatHex(..))} now looks better.
+      \item \code{print(formatHex(..))}, \code{formatBin()} and
+      \code{formatDec()} now look better and are more correct.
     }
   }
 }

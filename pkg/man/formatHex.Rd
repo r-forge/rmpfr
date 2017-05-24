@@ -15,12 +15,14 @@ formatHex(x, precBits = min(getPrec(x)), style = "+")
 
 formatBin(x, precBits = min(getPrec(x)), scientific = TRUE,
           left.pad = "_", right.pad = left.pad, style = "+")
-%% FIXME:  Currently needed because decimal point alignment.
+%% FIXME:  Currently needed mainly because decimal point alignment.
 %% -----   TODO: Allow formatMpfr(.) to do decimal alignment -- even by default
 formatDec(x, precBits = min(getPrec(x)), digits = decdigits,
-          nsmall = NULL, scientific = FALSE, style = "+", ...)
-%% ## not exported
+          nsmall = NULL, scientific = FALSE, style = "+",
+          decimalPointAlign = TRUE, \dots)
+%% ## not exported:
 %% formatHexInternal(x, precBits = min(Rmpfr::getPrec(x)), \dots)
+%% formatAlign(x, leftpad=" ", rightpad=leftpad, \dots)
 }
 \arguments{
   \item{x}{a \code{numeric} or \code{\link{mpfr}} \R object.}
@@ -58,6 +60,9 @@ formatDec(x, precBits = min(getPrec(x)), digits = decdigits,
     larger of this argument and the internally generated value that is a
     function of \code{precBits}.  This is related to but different than
     \code{digits} in \code{\link{format}}.}
+  \item{decimalPointAlign}{logical indicating if padding should be used
+    to ensure that the resulting strings align on the decimal point
+    (\code{"."}).}
 }
 \details{
   For the hexadecimal representation, when the precision is not larger
