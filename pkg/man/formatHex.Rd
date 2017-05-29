@@ -11,18 +11,19 @@
   numbers via \code{\link{mpfr}()}.
 }
 \usage{
-formatHex(x, precBits = min(getPrec(x)), style = "+")
+formatHex(x, precBits = min(getPrec(x)), style = "+", expAlign = TRUE)
 
 formatBin(x, precBits = min(getPrec(x)), scientific = TRUE,
-          left.pad = "_", right.pad = left.pad, style = "+")
+          left.pad = "_", right.pad = left.pad, style = "+", expAlign = TRUE)
 %% FIXME:  Currently needed mainly because decimal point alignment.
 %% -----   TODO: Allow formatMpfr(.) to do decimal alignment -- even by default
 formatDec(x, precBits = min(getPrec(x)), digits = decdigits,
           nsmall = NULL, scientific = FALSE, style = "+",
           decimalPointAlign = TRUE, \dots)
 %% ## not exported:
-%% formatHexInternal(x, precBits = min(Rmpfr::getPrec(x)), \dots)
+%% formatHexInternal(x, precBits = min(Rmpfr::getPrec(x)), style = "+", expAlign=TRUE)
 %% formatAlign(x, leftpad=" ", rightpad=leftpad, \dots)
+%% sprintfMpfr(x, bits, style = "+", expAlign=TRUE)
 }
 \arguments{
   \item{x}{a \code{numeric} or \code{\link{mpfr}} \R object.}
@@ -34,6 +35,10 @@ formatDec(x, precBits = min(getPrec(x)), digits = decdigits,
     format (\code{fmt}), immediately after the "%".  The default always
     sets a sign in the output, i.e., \code{"+"} or \code{"-"}, where as
     \code{style = " "} may seem more standard.}
+  \item{expAlign}{\code{\link{logical}} indicating if for scientific
+    (\dQuote{exponential}) representations the exponents should be
+    aligned to the same width, i.e., zero-padded to the same number of
+    digits.}
   \item{scientific}{\code{\link{logical}} indicating that
     \code{formatBin} should display the binary representation in
     scientific notation (\code{mpfr(3, 5)} is displayed as

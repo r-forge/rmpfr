@@ -106,16 +106,14 @@ stopifnot(
     identical(spr(i16.60, bits = 4),
               spr(i16.04, bits = 4))
     ,
-    ## identical(i16.04, mpfr(fB.04)) # not TRUE, but this is
     all.equal(i16.04, mpfr(fB.04), tolerance = 0)
     ,
-    TRUE ## FAILS   identical(i16.60, mpfr(fB.60))
+    all.equal(i16.60, mpfr(fB.60), tolerance = 0)
 )
 
-## FIXME: still not ok
-try( mpfr(fB.60) )
 ## not even this one
-try( mpfr(formatBin(mpfr(2, precBits = 60))) )
+two <- mpfr(2, precBits = 60)
+stopifnot(identical(two, mpfr(formatBin(two))))
 
 
 cat('Time elapsed: ', proc.time(),'\n') # "stats"

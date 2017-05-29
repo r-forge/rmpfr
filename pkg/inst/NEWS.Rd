@@ -4,7 +4,7 @@
 \title{Rmpfr News}
 \encoding{UTF-8}
 
-\section{Changes in version 0.6-2 [2017-05-24]}{
+\section{Changes in version 0.6-2 [2017-05-29]}{
   \subsection{NEW FEATURES}{
     \itemize{
       \item The S3 classes \code{"Hcharacter"} and \code{"Bcharacter"}
@@ -28,7 +28,12 @@
       \pkg{SNscan} works.
 
       \item \code{print(formatHex(..))}, \code{formatBin()} and
-      \code{formatDec()} now look better and are more correct.
+      \code{formatDec()} now look better and are more correct; the first
+      two get a new option \code{expAlign} indicating to use the same
+      number of digits for exponents (in \dQuote{scientific} cases).
+
+      Notably, \code{mpfr(formatBin(mpx))} works for more \code{mpx}
+      objects (of class \code{"mpfr"}).
     }
   }
 }

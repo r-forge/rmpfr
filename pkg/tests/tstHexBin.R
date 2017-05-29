@@ -31,10 +31,13 @@ chkInv.fBin <- function(x, ...) {
 ## higher precision, 0,Inf, sign change:
 (i12 <- 1 / mpfr(c(-2:12, Inf), 64))
 (i12.50 <- roundMpfr(i12, precBits=50)) # "same", with 50 (< 53) bits
-try({ ## FIXME -- formatBin() bug
+try({ ## FIXME -- formatBin() bug -- fails for 'Inf' !
 (nI.12    <- chkInv.fBin(i12   ))
 (nI.12.50 <- chkInv.fBin(i12.50))
 })
+ii <- mpfr(c(-Inf, 17, Inf), 7)
+formatHex(ii) ## fine
+formatDec(ii) ## not 100% ok, as it has "." [FIXME ?]
 
 n9. <- Rmpfr:::mpfr.Bcharacter(nums9bc)
 n9_ <- mpfr(nums9bc)

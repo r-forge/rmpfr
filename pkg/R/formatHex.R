@@ -42,7 +42,7 @@ Bintohex <- tolower(BintoHex)
 ##' @param style 1-character string specifying
 ##' @return character vector of same length as \code{x}
 ##' @author Martin Maechler
-sprintfMpfr <- function(x, bits, style = "+") {
+sprintfMpfr <- function(x, bits, style = "+", expAlign=TRUE) {
     stopifnot(length(style <- as.character(style)) == 1, nchar(style) == 1,
 	      style %in% c("+", " "),
 	      length(bits) == 1, bits %% 1 == 0)
@@ -54,7 +54,17 @@ sprintfMpfr <- function(x, bits, style = "+") {
 	ff <- .mpfr2str(x, hexdigits + 1L, base = 16)  ## need +1
 	isNum <- ff$finite	## ff$finite == is.finite(x)
 	i0 <- ff$is.0	## == mpfrIs0(x)
-	ex <- ff$exp ## the *decimal* exp : one too large *unless* x == 0
+        FirstDigit <- substr(ff$str, 1L, 1L)
+        FirstDigit[neg] <- substr(ff$str[neg], 2L, 2L)
+        BinPlace <- c("0"=0,
+                      "1"=0,
+                      "2"=1, "3"=1,
+                      "4"=2, "5"=2, "6"=2, "7"=2,
+                      "8"=3, "9"=3, "a"=3, "b"=3, "c"=3, "d"=3, "e"=3, "f"=3)
+        bitMod4 <- 2^BinPlace[FirstDigit]
+        x[isNum] <- x[isNum] / bitMod4[isNum] ## reduce mantissa by 2^BinPlace
+        ff <- .mpfr2str(x, hexdigits + 1L, base = 16)  ## revised input value
+	ex <- ff$exp ## the *decimal* value of base-2 exp : one too large *unless* x == 0
 	r  <- ff$str # the mantissa, including "-" if negative
 	Ex <- ex - 1L
 	if(any(i0)) Ex[i0] <- ex[i0]
@@ -67,7 +77,15 @@ sprintfMpfr <- function(x, bits, style = "+") {
 	if(any(i <- !neg & isNum))
 	    r[i] <- paste0(style, "0x", substr(r[i], 1L, 1L), ".",
 			   substring(r[i], 2L), "p")
-	r[isNum] <- paste0(r[isNum], c("", "+")[1+ (isNum & (Ex >= 0))], 4*Ex)
+	## r[isNum] <- paste0(r[isNum], c("", "+")[1+ (isNum & (Ex >= 0))], 4*Ex)
+	Exp <- 4*Ex
+	Exp[!i0] <- Exp[!i0] + BinPlace[FirstDigit[!i0]]  ## increase exponent by BinPlace
+	if (expAlign) {
+	    Exp.format <- c("%1.1i", "%2.2i", "%3.3i")[max(1, ceiling(log10(max(abs(Exp[isNum])))))]
+	    Exp[isNum] <- sprintf(Exp.format, Exp[isNum])
+	}
+	r[isNum] <- paste0(r[isNum], ## add "+" for positive exponents:
+			   c("", "+")[1+(isNum & (Ex >= 0))][isNum], Exp[isNum])
 	r
     }
     else {
@@ -76,7 +94,7 @@ sprintfMpfr <- function(x, bits, style = "+") {
     }
 }
 
-formatHexInternal <- function(x, precBits = min(getPrec(x)), style = "+")
+formatHexInternal <- function(x, precBits = min(getPrec(x)), style = "+", expAlign=TRUE)
 {
     if (is.numeric(x)) {
 	precBits <- getPrec(x)
@@ -85,7 +103,7 @@ formatHexInternal <- function(x, precBits = min(getPrec(x)), style = "+")
     bindigits <- as.integer(precBits) - 1L
     hexdigits <- 1L + ((bindigits-1L) %/% 4L)
     ## hexdigits is the number of hex digits after the precision point
-    structure(sprintfMpfr(x, bits=bindigits, style=style),
+    structure(sprintfMpfr(x, bits=bindigits, style=style, expAlign=expAlign),
               ##---------
 	      bindigits = bindigits,
 	      hexdigits = hexdigits)
@@ -93,16 +111,17 @@ formatHexInternal <- function(x, precBits = min(getPrec(x)), style = "+")
 
 ##___ ../man/formatHex.Rd ___
 ##           ~~~~~~~~~~~~
-formatHex <- function(x, precBits = min(getPrec(x)), style = "+") {
-    structure(formatHexInternal(x, precBits=precBits, style=style),
+formatHex <- function(x, precBits = min(getPrec(x)), style = "+", expAlign=TRUE) {
+    structure(formatHexInternal(x, precBits=precBits, style=style, expAlign=expAlign),
 	      dim = dim(x), dimnames = dimnames(x),
               class = c("Hcharacter", "character"))
 }
 
 formatBin <- function(x, precBits=min(getPrec(x)), scientific = TRUE,
-		      left.pad = "_", right.pad = left.pad, style = "+")
+		      left.pad = "_", right.pad = left.pad, style = "+", expAlign=TRUE)
 {
-    H <- formatHexInternal(x, precBits=precBits, style=style)
+    H <- formatHexInternal(x, precBits=precBits, style=style, expAlign=expAlign)
+
     ## bindigits is number of binary digits after the precision point
     bindigits <- attr(H, "bindigits")
     hexdigits <- attr(H, "hexdigits")# *must* be correct = #{pure digits between "." and "p"}
@@ -155,7 +174,7 @@ print.Hcharacter <- function(x, ...) {
 
 
 ## MM Still thinks  that  formatMpfr() [ = format(<mpfr>) method !]
-## --                      ----------
+## --                     ----------
 ## should be made better _and_ be used *instead* of formatDec()
 
 
@@ -168,16 +187,21 @@ formatDec <- function(x, precBits = min(getPrec(x)), digits=decdigits,
     if (is.numeric(x)) x <- mpfr(x, precBits)
     else if (is.complex(x)) stop("complex 'x' are not supported in \"Rmpfr\" (yet)")
     decdigits <- ceiling(log(2^precBits, 10)) + 1
-    ## NB: 'scientific' is ignored by format() here:
     chx <- format(x, digits=max(digits, decdigits), nsmall=nsmall,
                   scientific=scientific, style=style, ...)
-    structure(if(decimalPointAlign) formatAlign(chx, ...) else chx,
+    if (decimalPointAlign) {
+	fin.x <- is.finite(x)
+	chx[fin.x] <- formatAlign(chx[fin.x], ...)
+    }
+
+    structure(chx,
 	      dim = dim(x),
 	      dimnames = dimnames(x),
 	      class="noquote")
 }
 
-##' non exported utility  currently only used in  formatDec() :
+##' Non exported utility  currently only used in  formatDec();
+##' NB:   '...' here, so we can pass '...' above which may have arguments not for here
 formatAlign <- function(x, leftpad=" ", rightpad=leftpad, ...) {
   lr <- strsplit(x, ".", fixed=TRUE)
   l <- sapply(lr, `[`, 1) ## l left
