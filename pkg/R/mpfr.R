@@ -703,7 +703,8 @@ diff.mpfr <- function(x, lag = 1L, differences = 1L, ...)
     x
 }
 
-str.mpfr <- function(object, nest.lev, give.head = TRUE, digits.d = 12,
+str.mpfr <- function(object, nest.lev, internal = FALSE,
+                     give.head = TRUE, digits.d = 12,
                      vec.len = NULL, drop0trailing=TRUE,
                      width = getOption("width"), ...) {
     ## utils:::str.default() gives  "Formal class 'mpfr' [package "Rmpfr"] with 1 slots"
@@ -722,6 +723,14 @@ str.mpfr <- function(object, nest.lev, give.head = TRUE, digits.d = 12,
 	    "\n", sep = "")
     if(missing(nest.lev)) nest.lev <- 0
     cat(paste(rep.int(" ", max(0,nest.lev+1)), collapse= ".."))
+    if(internal) { ## internal structure
+	cat("internally @.Data: ")
+	if(is.null(vec.len)) vec.len <- getOption("str")$vec.len
+	str(object@.Data,
+	    nest.lev=nest.lev, give.head=give.head, digits.d=digits.d,
+	    vec.len=vec.len, drop0trailing=drop0trailing, width=width, ...)
+	return(invisible())
+    }
     ## if object is long, drop the rest which won't be used anyway:
     max.len <- max(100, width %/% 3 + 1, if(is.numeric(vec.len)) vec.len)
     if(le > max.len) object <- object[seq_len(max.len)]

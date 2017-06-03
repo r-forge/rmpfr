@@ -13,6 +13,8 @@
 
       \item They also got a \code{`[`} method, so subsetting should
       work, including for \code{array}s of these.
+
+      \item The \code{"mpfr"} method of  \code{str()} gains option \code{internal}.
     }
   }
   \subsection{BUG FIXES}{
