@@ -27,7 +27,9 @@ formatMpfr(x, digits = NULL, trim = FALSE, scientific = NA,
   \item{digits}{how many significant digits (in the \code{base} chosen!)
     are to be used in the result.  The default, \code{NULL}, uses enough
     digits to represent the full precision, often one or two digits more
-    than \dQuote{you} would expect.}
+    than \dQuote{you} would expect.  For \code{base}s 2,4,8,16, or 32,
+    MPFR requires \code{digits} at least 2.  For such bases,
+    \code{digits = 1} is changed into \code{2}, with a message.}
   \item{trim}{logical; if \code{FALSE}, numbers are right-justified to a
     common width: if \code{TRUE} the leading blanks for justification
     are suppressed.}

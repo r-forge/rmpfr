@@ -138,7 +138,14 @@ mpfrImport <- function(mxp) {
     ##	digits = NULL : use as many digits "as needed"
     stopifnot(is.null(digits) ||
 	      (is.numeric(digits) && digits >= 1),
-	      is.numeric(base), length(base) == 1, base >= 2)
+	      is.numeric(base), length(base) == 1, base == as.integer(base),
+	      2 <= base, base <= 62)
+    if(!is.null(digits) && digits == 1 && base %in% 2L^(1:5)) {
+	## MPFR mpfr_get_str(): "N must be >= 2"; we found that N = 1 is ok unless
+	##      for these bases where it aborts (in C). ==> prevent that:
+	digits <- 2L
+	message(gettextf("base = %d, digits = 1 is increased to digits = 2", base))
+    }
     .Call(mpfr2str, x, digits, base)
 }
 

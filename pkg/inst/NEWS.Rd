@@ -36,6 +36,9 @@
 
       Notably, \code{mpfr(formatBin(mpx))} works for more \code{mpx}
       objects (of class \code{"mpfr"}).
+
+      \item \code{format(mpfr(3,7), digits = 1, base = 2)} no longer
+      crashes (from inside MPFR).
     }
   }
 }
