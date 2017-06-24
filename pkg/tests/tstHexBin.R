@@ -39,10 +39,11 @@ ii <- mpfr(c(-Inf, 17, Inf), 7)
 formatHex(ii) ## fine
 formatDec(ii) ## not 100% ok, as it has "." [FIXME ?]
 
-n9. <- Rmpfr:::mpfr.Bcharacter(nums9bc)
+n9. <- Rmpfr:::mpfr.Ncharacter(nums9bc)
 n9_ <- mpfr(nums9bc)
 ## Inverse worked {apart from 0: it is not at all uniquely represented in MPFR!}
 stopifnot(identical(mpfrIs0(n9.), mpfrIs0(n9_)),
+          all.equal(n9_, n9., tolerance=0),
           identical(nums9[-1], n9.[-1]))
 
 mpfr(nums9bc, precBits=5)
@@ -152,14 +153,14 @@ stopifnot(
                      function(t83) formatBin(t83, scientific=FALSE)),
               c("+0b.____100", "+0b.___100", "+0b.__100", "+0b._100", "+0b.100",
 		"+0b1.00","+0b10.0","+0b100.","+0b100_.","+0b100__.","+0b100___.")))
-## formatDec
+## formatDec --- these must be perfectly aligned on the "." !
 formatDec(Two8.3, digits = 3)
 formatDec(Two8.3, digits = 8)
 stopifnot(
     identical(capture.output(formatDec(Two8.3, digits = 3))[2:4],
               c(" [1,]   0.00391", " [2,]   0.00781", " [3,]   0.0156 "))
    ,
-    identical(capture.output(formatDec(Two8.3, digits = 8))[2:3],
-              c(" [1,]   0.0039062500", " [2,]   0.0078125000"))
+    identical(capture.output(formatDec(Two8.3, digits = 8))[c(2:3,8,13,16)],
+	      c(" [1,]   0.0039062500", " [2,]   0.0078125000", " [7,]   0.25000000  ",
+	        "[12,]   8.0000000   ", "[15,]  64.000000    "))
 )
-

@@ -94,43 +94,35 @@ sprintfMpfr <- function(x, bits, style = "+", expAlign=TRUE) {
     }
 }
 
-formatHexInternal <- function(x, precBits = min(getPrec(x)), style = "+", expAlign=TRUE)
-{
+##___ ../man/formatHex.Rd ___
+##           ~~~~~~~~~~~~
+formatHex <- function(x, precBits = min(getPrec(x)), style = "+", expAlign=TRUE) {
     if (is.numeric(x)) {
 	precBits <- getPrec(x)
 	x <- mpfr(x, precBits)
     }
-    bindigits <- as.integer(precBits) - 1L
-    hexdigits <- 1L + ((bindigits-1L) %/% 4L)
-    ## hexdigits is the number of hex digits after the precision point
-    structure(sprintfMpfr(x, bits=bindigits, style=style, expAlign=expAlign),
-              ##---------
-	      bindigits = bindigits,
-	      hexdigits = hexdigits)
-}# formatHexInternal
-
-##___ ../man/formatHex.Rd ___
-##           ~~~~~~~~~~~~
-formatHex <- function(x, precBits = min(getPrec(x)), style = "+", expAlign=TRUE) {
-    structure(formatHexInternal(x, precBits=precBits, style=style, expAlign=expAlign),
+    precB <- as.integer(precBits)
+    structure(sprintfMpfr(x, bits=precB-1L, style=style, expAlign=expAlign),
+	      ##---------
 	      dim = dim(x), dimnames = dimnames(x),
-              class = c("Hcharacter", "character"))
+	      base = 16L, precBits = precB, class = c("Ncharacter", "character"))
 }
 
 formatBin <- function(x, precBits=min(getPrec(x)), scientific = TRUE,
 		      left.pad = "_", right.pad = left.pad, style = "+", expAlign=TRUE)
 {
-    H <- formatHexInternal(x, precBits=precBits, style=style, expAlign=expAlign)
+    H <- formatHex(x, precBits=precBits, style=style, expAlign=expAlign)
 
     ## bindigits is number of binary digits after the precision point
-    bindigits <- attr(H, "bindigits")
-    hexdigits <- attr(H, "hexdigits")# *must* be correct = #{pure digits between "." and "p"}
+    bindigits <- attr(H, "precBits") - 1L
+    ## hexdigits is the number of hex digits after the precision point
+    hexdigits <- 1L + ((bindigits-1L) %/% 4L)# *must* be correct = #{pure digits between "." and "p"}
     attributes(H) <- NULL
-    S <- substr(H, 1, 1) # sign
-    A <- substr(H, 4, 4)
-    B <- substr(H, 6, 6+(hexdigits-1))
+    S <- substr(H, 1L, 1L) # sign
+    A <- substr(H, 4L, 4L)
+    B <- substr(H, 6L, 6L+hexdigits-1L)
     ## assumes *always* an exponent "p" which is correct
-    pow <- substr(H, 6+hexdigits+1, 1000000L)
+    pow <- substr(H, 6L+hexdigits+1L, 1000000L)
     sB <- strsplit(B, "")
     rsB <- do.call(rbind, sB)
     hrsB <- HextoBin[rsB]
@@ -156,19 +148,18 @@ formatBin <- function(x, precBits=min(getPrec(x)), scientific = TRUE,
 	res <- apply(res, 1, function(x) do.call(paste, list(x, collapse="")))
     }
     structure(res, dim = dim(x), dimnames = dimnames(x),
-              class = c("Bcharacter", "character"))
+              base = 2L, precBits = precBits, class = c("Ncharacter", "character"))
 }
 
-print.Bcharacter <- function(x, ...) {
-    print(unclass(x), quote=FALSE, right=TRUE, ...)
-    invisible(x)
-}
-print.Hcharacter <- function(x, ...) {
+print.Ncharacter <- function(x, ...) {
     y <- unclass(x)
-    ## FIXME? use  `attributes<-`(y, attributes(y)[...]) ?
-    attr(y,"bindigits") <- NULL
-    attr(y,"hexdigits") <- NULL
-    print(y, quote=FALSE, right=TRUE, ...)
+    attr(y,"base") <- NULL
+    attr(y,"precBits") <- NULL
+    myR <- attr(x,"base") != 10L ## formatDec() currently left-aligns [yes, this is a hack]
+    ## print(y, quote=FALSE, right = myR, ...)  # protecting against multiple 'quote' and 'right'
+    ## ensuring  'quote=*' and 'right=*' in  '...'  take precedence :
+    pa <- c(list(...), list(quote=FALSE, right = myR))
+    do.call(print, c(list(y), pa[unique(names(pa))]))
     invisible(x)
 }
 
@@ -197,7 +188,7 @@ formatDec <- function(x, precBits = min(getPrec(x)), digits=decdigits,
     structure(chx,
 	      dim = dim(x),
 	      dimnames = dimnames(x),
-	      class="noquote")
+              base = 10L, precBits = precBits, class = c("Ncharacter", "character"))
 }
 
 ##' Non exported utility  currently only used in  formatDec();
@@ -209,13 +200,15 @@ formatAlign <- function(x, leftpad=" ", rightpad=leftpad, ...) {
   r[is.na(r)] <- ""
   nl <- nchar(l)
   nr <- nchar(r)
-  l.blank <- substr(paste0(rep( leftpad, max(nl)), collapse=""), 1L, max(nl) - nl)
-  r.blank <- substr(paste0(rep(rightpad, max(nr)), collapse=""), 1L, max(nr) - nr)
+  ## substring() vectorizes (with 'nl'):
+  l.blank <- substring(strrep(leftpad, max(nl)), 1L, max(nl) - nl)
+  r.blank <- substring(strrep(rightpad,max(nr)), 1L, max(nr) - nr)
   paste0(l.blank, l, ".", r, r.blank)
 }
 
 
 
+##' still used, but not as a method
 mpfr.Bcharacter <- function(x, precBits, scientific = NA, ...) {
     ## was scanBin()
     if (is.na(scientific)) ## we look for a "p" exponent..
@@ -248,23 +241,26 @@ mpfr.Bcharacter <- function(x, precBits, scientific = NA, ...) {
     mpfr(x, base = 2, precBits=precBits, ...)
 }
 
-## A mpfr() method for "Hcharacter" .. but not quite -- called from mpfr() when appropriate
-mpfr.Hcharacter <- function(x, precBits, ...) {
+## A mpfr() method for "Ncharacter"
+mpfr.Ncharacter <- function(x, ...) {
     class(x) <- NULL
-    if (missing(precBits) || is.null(precBits)) {
-	## assume a format such as "+0x1.745d17ap-4"
-	no.p <- -1L == (i.p <- as.vector(regexpr("p", x, fixed=TRUE)))
-	if(any(no.p))
-	    i.p[no.p] <- round(mean(i.p[!no.p]))
-	if( all(duplicated(i.p)[-1])) ## all are the same
-	    i.p <- i.p[1]
-	precBits <- 1 + (i.p - 6) * 4
+    B <- attr(x, "base")
+    if(is.null(list(...)[["precBits"]])) {
+	precBits <- attr(x, "precBits")
+	if(B == 2) ## formatBin() gives very special format :
+	    mpfr.Bcharacter(x, precBits = precBits, ...)
+	else
+	    mpfr(x, base = B, precBits = precBits, ...)
+    } else {
+	if(B == 2)
+	    mpfr.Bcharacter(x, ...)
+	else
+	    mpfr(x, base = B, ...)
     }
-    mpfr(x, base = 16, precBits=precBits, ...)
 }
 
 
-`[.Bcharacter` <- `[.Hcharacter` <- ## == base :: `[.listof`
+`[.Ncharacter` <- ## == base :: `[.listof`
     function (x, ...) structure(NextMethod("["), class = class(x))
 
 ## Don't seem to get these to work correctly (at lost not easily):

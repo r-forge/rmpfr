@@ -4,7 +4,7 @@
 \alias{formatBin}
 \alias{formatDec}
 %% \alias{formatHexInternal}
-\alias{print.Bcharacter}% not mentioned
+\alias{print.Ncharacter}% not mentioned
 \description{
   Show numbers in binary, hex and decimal format.  The resulting
   character-like objects can be back-transformed to \code{"mpfr"}
@@ -82,20 +82,18 @@ formatDec(x, precBits = min(getPrec(x)), digits = decdigits,
   calculated with the specified precision and then sent to the
   \code{format} function for \code{scientific=FALSE} or to the sprintf
   function for \code{scientific=TRUE}.
-%  \code{mpfrBchar} reads the output of \code{formatBin}.
-%  \code{mpfrHchar} reads the output of \code{formatHex}.
 }
 \value{
   a character vector (or matrix) like \code{x}, say \code{r}, containing
   the formatted represention of \code{x}, with a \code{\link{class}}
   (unless \code{left.pad} or \code{right.pad} were not \code{"_"}).  In
-  that case, \code{formatHex()} returns class \code{"Hcharacter"} and
-  \code{formatBin()} gives class \code{"Bcharacter"}; for these,
-  \code{\link{mpfr}(.)} has methods and will basically return \code{x},
+  that case, \code{formatHex()} and \code{formatBin()} return class
+  \code{"Ncharacter"}; for that,
+  \code{\link{mpfr}(.)} has a method and will basically return \code{x},
   i.e., work as \emph{inverse} function.
 
-  Since \pkg{Rmpfr} version \command{0.6-2}, the resulting S3 classes
-  \code{"Hcharacter"} and \code{"Bcharacter"} extend \code{"character"}.
+  Since \pkg{Rmpfr} version \command{0.6-2}, the S3 class
+  \code{"Ncharacter"} extends \code{"character"}.
   (\code{class(.)} is now of length two and \code{class(.)[2]} is
   \code{"character"}.).  There are simple \code{[} and \code{\link{print}}
   methods; modifying or setting \code{dim} works as well.
@@ -119,19 +117,19 @@ formatBin(FourBits, style = " ")
 formatBin(FourBits, scientific=FALSE)
 formatDec(FourBits)
 
-## as "Hcharacter" an "Bcharacter"  'inherit from' "character", this
+## as "Ncharacter"  'inherits from' "character", this
 ## now works too :
 data.frame(Dec = c( formatDec(FourBits) ), formatHex(FourBits),
            Bin = formatBin(FourBits, style = " "))
 
 FBB <- formatBin(FourBits) ; clB <- class(FBB)
 (nFBB <- mpfr(FBB))
-stopifnot(class(FBB)[1] == "Bcharacter",
+stopifnot(class(FBB)[1] == "Ncharacter",
           all.equal(nFBB, FourBits, tol=0))
 
 FBH <- formatHex(FourBits) ; clH <- class(FBH)
 (nFBH <- mpfr(FBH))
-stopifnot(class(FBH)[1] == "Hcharacter",
+stopifnot(class(FBH)[1] == "Ncharacter",
           all.equal(nFBH, FourBits, tol=0))
 
 ## Other methods ("[", t()) also work :

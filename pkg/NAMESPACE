@@ -177,8 +177,7 @@ S3method(mpfr, default)
 S3method(mpfr, bigz)
 S3method(mpfr, bigq)
 S3method(mpfr, mpfr)
-S3method(mpfr, Bcharacter)
-S3method(mpfr, Hcharacter)
+S3method(mpfr, Ncharacter)
 
 ## needed because gmp "forgets" to  S3method() these:
 ## (and so things only work, when gmp / Rmpfr is attached):
@@ -209,16 +208,13 @@ S3method(print, mpfr)
 S3method(print, mpfr1)
 S3method(print, mpfrArray)
 S3method(print, integrateR)
-S3method(print, Bcharacter)
-S3method(print, Hcharacter)
+S3method(print, Ncharacter)
 
-S3method("[", Hcharacter)
-S3method("[", Bcharacter)
+S3method("[", Ncharacter)
 ## not easily
-## S3method("cbind", Hcharacter)
-## S3method("cbind", Bcharacter)
-## S3method("rbind", Hcharacter)
-## S3method("rbind", Bcharacter)
+## S3method("cbind", Ncharacter)
+## S3method("rbind", Ncharacter)
+
 
 S3method(matrix, mpfr)
 ## useful, to have  base::outer() work automatically:
