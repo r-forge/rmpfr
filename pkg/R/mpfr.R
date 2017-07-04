@@ -599,6 +599,9 @@ setMethod("seq", c(from = "ANY", to = "ANY", by = "mpfr"), seqMpfr)
     else mpfr_default_prec()
 }
 
+## binary exponents: [1] should be ok also for 64-bit limbs
+.getExp <- function(x) vapply(getD(x), function(m) m@exp[1L], 1)
+
 ##' The *relevant* number of "bit"/"digit" characters in character vector x
 ##' (i.e. is vectorized)
 .ncharPrec <- function(x, base) {
@@ -614,8 +617,12 @@ setMethod("seq", c(from = "ANY", to = "ANY", by = "mpfr"), seqMpfr)
 getPrec <- function(x, base = 10, doNumeric = TRUE, is.mpfr = NA, bigq. = 128L) {
     if(isTRUE(is.mpfr) || is(x,"mpfr"))
 	vapply(getD(x), slot, 1L, "prec")# possibly of length 0
-    else if(is.character(x)) ## number of digits --> number of bits
-	ceiling(log2(base) * .ncharPrec(x, base))
+    else if(is.character(x)) {
+	if (inherits(x, "Ncharacter"))
+	    attr(x, "bindigits") + 1L
+	else
+	    ceiling(log2(base) * .ncharPrec(x, base)) ## number of digits --> number of bits
+    }
     else if(is.logical(x))
 	2L # even 1 would suffice - but need 2 (in C ?)
     else if(is.raw(x)) {
@@ -725,8 +732,8 @@ str.mpfr <- function(object, nest.lev, internal = FALSE,
     cat(paste(rep.int(" ", max(0,nest.lev+1)), collapse= ".."))
     if(internal) { ## internal structure
 	cat("internally @.Data: ")
-	if(is.null(vec.len)) vec.len <- getOption("str")$vec.len
-	str(object@.Data,
+	if(is.null(vec.len)) vec.len <- getOption("str", list(vec.len = 4))$vec.len
+	str(getD(object),
 	    nest.lev=nest.lev, give.head=give.head, digits.d=digits.d,
 	    vec.len=vec.len, drop0trailing=drop0trailing, width=width, ...)
 	return(invisible())
