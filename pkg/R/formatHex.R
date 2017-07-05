@@ -263,9 +263,16 @@ mpfr.Ncharacter <- function(x, ...) {
 `[.Ncharacter` <- ## == base :: `[.listof`
     function (x, ...) structure(NextMethod("["), class = class(x))
 
-## Don't seem to get these to work correctly (at lost not easily):
+## Don't seem to get these to work correctly (at least not easily):
 ## cbind.Bcharacter <- cbind.Hcharacter <-
 ##     function (...) structure(NextMethod("cbind"), class = class(..1))
 ## rbind.Bcharacter <- rbind.Hcharacter <-
 ##     function (...) structure(NextMethod("rbind"), class = class(..1))
 
+## NB:  It *could* make sense to  set default     stringsAsFactors = FALSE   here..
+##      but it would *not* be used when called from data.frame() which has its own default
+as.data.frame.Ncharacter <- function (x, ...) {
+    ## class(x) <- class(x)[class(x) != "Ncharacter"]
+    ## as.data.frame(x, ...)
+    NextMethod("as.data.frame")
+}

@@ -95,14 +95,26 @@ formatDec(FiveBits, precBits=7)
 TenPowers <- mpfr(matrix(10^(-3:5)), precBits=53)
 row.names(TenPowers) <- -3:5
 TenPowers
-## HH:::formatHexInternal(TenPowers)
-formatHex(TenPowers)
-formatBin(TenPowers)
-formatBin(TenPowers, scientific=FALSE)
-formatDec(TenPowers)
-formatDec(TenPowers, scientific=FALSE)
-formatDec(TenPowers, precBits=54)
-formatDec(TenPowers, precBits=54, scientific=FALSE)
+
+options(width = 180) # for several "wide" displays below
+
+## This indirectly "checks'  as.data.frame.Ncharacter():
+mkDF <- function(mv, displaydigits = 4, stringsAsFactors = FALSE) {
+    stopifnot(is.numeric(mv) || inherits(mv, "mpfr"))
+    data.frame(Hex = formatHex(mv),
+               Bin = formatBin(mv),
+               BinF= formatBin(mv, scientific=FALSE),
+               Dec = formatDec(mv),
+               Dec4= formatDec(mv, displaydigits=displaydigits),
+               Dec.= formatDec(mv, scientific=TRUE),
+               Dec.4=formatDec(mv, scientific=TRUE, displaydigits=displaydigits),
+               stringsAsFactors = stringsAsFactors)
+}
+nmsMkDF <- c("Hex", "Bin", "BinF", "Dec", "Dec4", "Dec.", "Dec.4")
+
+ d10p. <- mkDF(TenPowers)
+(d10p  <- mkDF(as.vector(TenPowers)))
+
 
 TenFrac <- matrix((1:10)/10, dimnames=list(1:10, expression(1/x)))
 TenFrac
@@ -113,36 +125,29 @@ formatDec(TenFrac)
 
 TenFrac9 <- mpfr(TenFrac, precBits=9)
 TenFrac9
-formatHex(TenFrac9)
-formatBin(TenFrac9)
-formatBin(TenFrac9, scientific=FALSE)
-formatDec(TenFrac9)
-
+data.frame(Hex = formatHex(TenFrac9), ## checking as.data.frame.Ncharacter as well
+           Bin = formatBin(TenFrac9),
+           BinF= formatBin(TenFrac9, scientific=FALSE),
+           Dec = formatDec(TenFrac9)) -> d9
+d9
+##
 stopifnot(getPrec(TenFrac ) == 53,
-          getPrec(TenFrac9) ==  9)
+	  getPrec(TenFrac9) ==  9,
+	  inherits(d9, "data.frame"), all.equal(dim(d9), c(10,4)))
 
+(Ten <- matrix(1:10 + 0.0, dimnames=list(1:10, "x"))) ## + 0.0 forces double precision
 
-Ten <- matrix(1:10 + 0.0, dimnames=list(1:10, "x")) ## + 0.0 forces double precision
-Ten
-formatHex(Ten)
-formatHex(Ten, precBits=4)
-formatBin(Ten)
-formatBin(Ten, precBits=4)
-formatBin(Ten, scientific=FALSE)
-formatBin(Ten, scientific=FALSE, precBits=4)
-formatDec(Ten)
-formatDec(Ten, displaydigits=4)
-formatDec(Ten, displaydigits=4, scientific=TRUE)
+dT <- mkDF(Ten)
+dt <- mkDF(as.vector(Ten))
+dt # large
 
-Ten4 <- mpfr(Ten, precBits=4)
-Ten4
-formatHex(Ten4)
-formatBin(Ten4)
-formatBin(Ten4, scientific=FALSE)
-formatDec(Ten4)
-formatDec(Ten4, displaydigits=4)
-formatDec(Ten4, scientific=TRUE)
-formatDec(Ten4, scientific=TRUE, displaydigits=4)
+(Ten4 <- mpfr(Ten, precBits=4))
+ten4 <- as.vector(Ten4)
+ D4 <- mkDF(Ten4)  # would be  printing "x"  --- because we added one-column matrices !!
+(d4 <- mkDF(ten4)) # printing fine !
+stopifnot(identical(names(d4), names(D4)),
+          identical(names(d4), nmsMkDF))
+
 
 
 Two8 <- matrix(2^seq(-8, 8))
@@ -164,3 +169,5 @@ stopifnot(
 	      c(" [1,]   0.0039062500", " [2,]   0.0078125000", " [7,]   0.25000000  ",
 	        "[12,]   8.0000000   ", "[15,]  64.000000    "))
 )
+
+

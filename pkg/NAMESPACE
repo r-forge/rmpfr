@@ -211,6 +211,7 @@ S3method(print, integrateR)
 S3method(print, Ncharacter)
 
 S3method("[", Ncharacter)
+S3method(as.data.frame, Ncharacter)
 ## not easily
 ## S3method("cbind", Ncharacter)
 ## S3method("rbind", Ncharacter)
