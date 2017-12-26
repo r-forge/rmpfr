@@ -1,7 +1,7 @@
 Package: Rmpfr
 Title: R MPFR - Multiple Precision Floating-Point Reliable
 Version: 0.6-2
-Date: 2017-06-24
+Date: 2017-12-26
 DateNote: Previous CRAN version 0.6-1 on 2016-11-15
 Type: Package
 Author: Martin Maechler
@@ -10,7 +10,7 @@ SystemRequirements: gmp (>= 4.2.3), mpfr (>= 3.0.0)
 SystemRequirementsNote: MPFR (MP Floating-Point Reliable Library,
         http://mpfr.org/) and GMP (GNU Multiple Precision library,
         http://gmplib.org/), see  >>  README.md
-Depends: gmp (>= 0.5-8), R (>= 3.0.1)
+Depends: gmp (>= 0.5-8), R (>= 3.1.0)
 Imports: stats, utils, methods
 Suggests: MASS, polynom, sfsmisc (>= 1.0-20), Matrix
 SuggestsNote: MASS, polynom, sfsmisc: only for vignette; Matrix: test-tools
