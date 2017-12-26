@@ -49,7 +49,7 @@ setClass("mpfrArray", ## mpfr + "dim" + dimnames
 	     else if(length(DN <- object@Dimnames) != length(D))
 		 "Dimnames must have same length as 'Dim'"
 	     else if(any(hasN <- !vapply(DN, is.null, NA)) &&
-		     any((lDN <- vapply(DN[hasN], length, 1L)) != D[hasN]))
+		     any((lDN <- lengths(DN[hasN]) != D[hasN]))
 		 "length of some 'Dimnames' do not match 'Dim'"
 	     else
 		 TRUE
