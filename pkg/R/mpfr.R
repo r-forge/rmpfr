@@ -338,7 +338,7 @@ setMethod("pmin", "mNumber",
 	      is.N <- vapply(args, function(x) is.numeric(x) || is.logical(x), NA)
 	      if(!any(is.m | is.q | is.z)) # should not be needed -- TODO: "comment out"
 		  stop("no \"mpfr\", \"bigz\", or \"bigq\" argument -- wrong method chosen; please report!")
-	      N <- max(lengths <- vapply(args, length, 1L))
+	      N <- max(lenA <- lengths(args))
 	      any.m <- any(is.m)
 	      any.q <- any(is.q)
 	      ## precision needed -- FIXME: should be *vector*
@@ -354,16 +354,16 @@ setMethod("pmin", "mNumber",
 	      i.frst.m <- which.max(if(any.m) is.m else if(any.q) is.q else is.z)
 	      ## ==> r is "mpfr" if there's any, otherwise "bigq", or "bigz"
 	      r <- args[[i.frst.m]]
-	      if((n.i <- lengths[i.frst.m]) != N)
+	      if((n.i <- lenA[i.frst.m]) != N)
 		  r <- r[rep(seq_len(n.i), length.out = N)]
 
 	      ## modified from ~/R/D/r-devel/R/src/library/base/R/pmax.R
 	      has.na <- FALSE
-	      ii <- seq_along(lengths) ## = seq_along(args)
+	      ii <- seq_along(lenA) ## = seq_along(args)
 	      ii <- ii[ii != i.frst.m]
 	      for(i in ii) {
 		  x <- args[[i]]
-		  if((n.i <- lengths[i]) != N)
+		  if((n.i <- lenA[i]) != N)
 		      x <- x[rep(seq_len(n.i), length.out = N)]
 		  n.r <- is.na(r); n.x <- is.na(x)
 		  ## mpfr() is relatively expensive
@@ -413,7 +413,7 @@ setMethod("pmax", "mNumber",
 	      is.N <- vapply(args, function(x) is.numeric(x) || is.logical(x), NA)
 	      if(!any(is.m | is.q | is.z)) # should not be needed -- TODO: "comment out"
 		  stop("no \"mpfr\", \"bigz\", or \"bigq\" argument -- wrong method chosen; please report!")
-	      N <- max(lengths <- vapply(args, length, 1L))
+	      N <- max(lenA <- lengths(args))
 	      any.m <- any(is.m)
 	      any.q <- any(is.q)
 	      ## precision needed -- FIXME: should be *vector*
@@ -429,16 +429,16 @@ setMethod("pmax", "mNumber",
 	      i.frst.m <- which.max(if(any.m) is.m else if(any.q) is.q else is.z)
 	      ## ==> r is "mpfr" if there's any, otherwise "bigq", or "bigz"
 	      r <- args[[i.frst.m]]
-	      if((n.i <- lengths[i.frst.m]) != N)
+	      if((n.i <- lenA[i.frst.m]) != N)
 		  r <- r[rep(seq_len(n.i), length.out = N)]
 
 	      ## modified from ~/R/D/r-devel/R/src/library/base/R/pmax.R
 	      has.na <- FALSE
-	      ii <- seq_along(lengths) ## = seq_along(args)
+	      ii <- seq_along(lenA) ## = seq_along(args)
 	      ii <- ii[ii != i.frst.m]
 	      for(i in ii) {
 		  x <- args[[i]]
-		  if((n.i <- lengths[i]) != N)
+		  if((n.i <- lenA[i]) != N)
 		      x <- x[rep(seq_len(n.i), length.out = N)]
 		  n.r <- is.na(r); n.x <- is.na(x)
 		  ## mpfr() is relatively expensive

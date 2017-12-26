@@ -1,7 +1,9 @@
 #### All  coercion methods for the  "Rmpfr" classes
 
-if(getRversion() < "2.15")
-    paste0 <- function(...) paste(..., sep = '')
+if(getRversion() < "3.5") {
+    isFALSE <- function (x) is.logical(x) && length(x) == 1L && !is.na(x) && !x
+    isTRUE  <- function (x) is.logical(x) && length(x) == 1L && !is.na(x) && x
+
 if(getRversion() < "3.3")
     strrep <- function (x, times) { ## (x, times) must be "recycled"
 	if((lx <- length(x)) < (lt <- length(times)))
@@ -11,6 +13,9 @@ if(getRversion() < "3.3")
 	vapply(seq_along(x),
 	       function(i) paste(rep.int(x[i], times[i]), collapse = ""), "")
     }
+if(getRversion() < "3.2")
+    lengths <- function(x, use.names = TRUE) vapply(x, length, 1L, USE.NAMES = use.names)
+}
 
 mpfr <- function(x, precBits, ...) UseMethod("mpfr")
 
@@ -163,7 +168,7 @@ formatMpfr <-
 
     isNum <- ff$finite	## ff$finite == is.finite(x)
     i0 <- ff$is.0	## == mpfrIs0(x)
-    ex <- ff$exp ## the *decimal* exp : one too large *unless* x == 0
+    ex <- ff$exp ## the *decimal* exp (wrt given 'base' !): one too large *unless* x == 0
     r  <- ff$str
     if(is.null(digits)) digits <- nchar(r)
 
@@ -216,8 +221,6 @@ formatMpfr <-
 	iNeg <- Ex <  0	 & ii ## i.e., ex	 in {0,-1,-2,-3}
 	iPos <- Ex >= 0	 & ii ## i.e., ex	 in {1,2..., digits}
 
-	nZeros <- function(n) ## e.g.  nZeros(2:0) gives  c("00","0", "")
-	    vapply(n, function(k) paste(rep.int("0", k), collapse = ""), "")
 	if(any(eq <- (Ex == digits))) {
 	    r[eq] <- paste0(r[eq], "0")
 	    Ex[eq] <- Ex[eq] + 1L
@@ -227,10 +230,10 @@ formatMpfr <-
 		rr <- r[iNeg]
 		rr[isMin] <- substring(rr[isMin], 2)
 		r[iNeg] <- paste0(c("","-")[1+isMin], "0.",
-				  nZeros(-ex[iNeg]), rr)
+				  strrep("0", -ex[iNeg]), rr)
 	    }
 	    else {
-		r[iNeg] <- paste0("0.", nZeros(-ex[iNeg]), r[iNeg])
+		r[iNeg] <- paste0("0.", strrep("0", -ex[iNeg]), r[iNeg])
 	    }
 	}
 	if(any(iPos)) ## "xy.nnnn" :

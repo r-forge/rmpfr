@@ -626,7 +626,7 @@ setMethod("rbind", "Mnumber",
 unlistMpfr <- function(x, recursive = FALSE, use.names = TRUE)  {
     ## an "unlist(.)" for mpfr contents:
     if(recursive) stop("'recursive = TRUE' is not implemented (yet).")
-    n <- sum(vapply(x, length, 0L))
+    n <- sum(lengths(x))
     ans <- mpfr(numeric(n), precBits=3L)# dummy to fill
     ans@.Data <- unlist(lapply(x, slot, ".Data"), use.names=use.names)
     ans
