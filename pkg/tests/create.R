@@ -30,7 +30,7 @@ stopifnot(.getSign(Zero) == c(1,-1),
 
 ## testing 'recycling'
 b <- c(20,120,80, 60)
-x <- mpfr(2^-(5:7), precBits = b);x
+(x <- mpfr(2^-(5:7), precBits = b))
 
 d.spec <- c(0,NA,NaN,Inf,-Inf)
 (spec <- mpfr(d.spec, 3))
@@ -38,8 +38,11 @@ stopifnot(length(x) == 4, x[1] == x[4], getPrec(x) == b,
 	  identical(is.na(spec), is.na(d.spec)),
 	  identical(is.finite(spec), is.finite(d.spec)),
 	  identical(is.infinite(spec), is.infinite(d.spec)),
-	  identical(format(spec),
-		    c("0.0", "NaN", "NaN", "Inf", "-Inf")),
+	  ## mpfr(<mpfr>, .) :
+	  identical(x,    mpfr(x,    getPrec(x))),
+	  identical(spec, mpfr(spec, getPrec(spec))),
+	  asNumeric(1/mpfr(x, 16)) == 2^c(5:7,5),
+	  identical(format(spec), c("0.", "NaN", "NaN", "Inf", "-Inf")),
 	  mpfr(0.2, prec = 5:15, rnd.mode = "D") < 0.2)
 
 B.set <- setNames(2:62, paste0("B=",2:62))

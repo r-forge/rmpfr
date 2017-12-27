@@ -117,8 +117,7 @@ formatBin(FourBits, style = " ")
 formatBin(FourBits, scientific=FALSE)
 formatDec(FourBits)
 
-## as "Ncharacter"  'inherits from' "character", this
-## now works too :
+## as "Ncharacter"  'inherits from' "character", this now works too :
 data.frame(Dec = c( formatDec(FourBits) ), formatHex(FourBits),
            Bin = formatBin(FourBits, style = " "))
 
@@ -131,6 +130,14 @@ FBH <- formatHex(FourBits) ; clH <- class(FBH)
 (nFBH <- mpfr(FBH))
 stopifnot(class(FBH)[1] == "Ncharacter",
           all.equal(nFBH, FourBits, tol=0))
+
+## Compare the different "formattings"  (details will change, i.e. improve!)%% FIXME
+M <- mpfr(c(-Inf, -1.25, 1/(-Inf), NA, 0, .5, 1:2, Inf), 3)
+data.frame(fH = formatHex(M), f16 = format(M, base=16),
+           fB = formatBin(M), f2  = format(M, base= 2),
+           fD = formatDec(M), f10 = format(M), # base = 10 is default
+           fSci= format(M, scientific=TRUE),
+           fFix= format(M, scientific=FALSE))
 
 ## Other methods ("[", t()) also work :
 stopifnot(dim(F1 <- FBB[, 1, drop=FALSE]) == c(8,1), identical(class(  F1), clB),

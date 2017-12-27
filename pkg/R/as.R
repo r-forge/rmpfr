@@ -139,10 +139,10 @@ mpfrImport <- function(mxp) {
     new("mpfr", m1)
 }
 
-.mpfr2str <- function(x, digits = NULL, base = 10L) {
-    ##	digits = NULL : use as many digits "as needed"
-    stopifnot(is.null(digits) ||
-	      (is.numeric(digits) && digits >= 1),
+.mpfr2str <- function(x, digits = NULL, maybe.full = !is.null(digits), base = 10L) {
+    ## digits = NULL : use as many digits "as needed" for the precision
+    stopifnot(is.null(digits) || (is.numeric(digits) && digits >= 0),
+              is.logical(maybe.full), !is.na(maybe.full),
 	      is.numeric(base), length(base) == 1, base == as.integer(base),
 	      2 <= base, base <= 62)
     if(!is.null(digits) && digits == 1 && base %in% 2L^(1:5)) {
@@ -151,7 +151,7 @@ mpfrImport <- function(mxp) {
 	digits <- 2L
 	message(gettextf("base = %d, digits = 1 is increased to digits = 2", base))
     }
-    .Call(mpfr2str, x, digits, base)
+    .Call(mpfr2str, x, digits, maybe.full, base)
 }
 
 formatMpfr <-
@@ -163,20 +163,25 @@ formatMpfr <-
              exponent.char = if(base <= 14) "e" else if(base <= 36) "E" else "|e",
 	     zero.print = NULL, drop0trailing = FALSE, ...)
 {
-    ##	digits = NULL : use as many digits "as needed"
-    ff <- .mpfr2str(x, digits, base=base)
+    ## digits = NULL : use as many digits "as needed"
+    ## FIXME/TODO: If we have very large numbers, but not high precision, we should detect it
+    ## ==========  and use  maybe.full = FALSE also for the default scientific = NA
+    ## digs.x <- ceiling(.getPrec(x) / log2(base))
+    if((maybe.full <- !isTRUE(scientific)) && !isFALSE(scientific))
+        maybe.full <- !is.null(digits)
+    ff <- .mpfr2str(x, digits, maybe.full=maybe.full, base=base)
 
     isNum <- ff$finite	## ff$finite == is.finite(x)
     i0 <- ff$is.0	## == mpfrIs0(x)
     ex <- ff$exp ## the *decimal* exp (wrt given 'base' !): one too large *unless* x == 0
     r  <- ff$str
-    if(is.null(digits)) digits <- nchar(r)
+    r.dig <- nchar(r) # (in both cases, digits NULL or not)
+    ## Note that r.dig[] entries may vary, notably for digits NULL
 
     if(any(i0)) {
 	## sign(x) == -1 "fails" for '-0'
 	hasMinus <- substr(ff$str, 1L,1L) == "-"
-	if(showNeg0) {
-	} else if(any(iN0 <- hasMinus & i0)) {
+	if(!showNeg0 && any(iN0 <- hasMinus & i0)) {
 	    ## get rid of "-" for "negative zero"
 	    r[iN0] <- substring(r[iN0], 2)
 	    hasMinus[iN0] <- FALSE
@@ -202,7 +207,7 @@ formatMpfr <-
     ## if(scientific) --> all get a final "e<exp>"; otherwise, we
     ## adopt the following simple scheme :
     hasE <- { if(is.logical(scientific)) scientific else
-	      isNum & (Ex < -4 + scientific | Ex > digits) }
+	      isNum & (Ex < -4 + scientific | Ex > r.dig) }
 
     if(aE <- any(ii <- isNum & hasE)) {
         ii <- which(ii)
@@ -221,7 +226,7 @@ formatMpfr <-
 	iNeg <- Ex <  0	 & ii ## i.e., ex	 in {0,-1,-2,-3}
 	iPos <- Ex >= 0	 & ii ## i.e., ex	 in {1,2..., digits}
 
-	if(any(eq <- (Ex == digits))) {
+	if(any(eq <- (Ex == r.dig))) {
 	    r[eq] <- paste0(r[eq], "0")
 	    Ex[eq] <- Ex[eq] + 1L
 	}

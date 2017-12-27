@@ -36,13 +36,18 @@ names(BintoHex) <- HextoBin[1:16]
 Bintohex <- tolower(BintoHex)
 }
 
+## RMH mentioned that  sprintfMpfr() is "parallel" to formatMpfr()
+## and agreed that in principle everything should rather be based on formatMpfr(), hence
+## sprintMfpr() should become unneeded  (or be *based* on formatMpfr() and renamed as basic formatFOO()
+## utility for formatHex() style format -- which differs from what the MPFR lib provides (<--> our .mpfr2str())
+
 ##' @title sprintf("%a", *)-like formatting of mpfr numbers
 ##' @param x mpfr-number vector
 ##' @param bits integer (scalar) specifing the desired number of bits ("binary digits")
 ##' @param style 1-character string specifying
 ##' @return character vector of same length as \code{x}
 ##' @author Martin Maechler
-sprintfMpfr <- function(x, bits, style = "+", expAlign=TRUE) {
+sprintfMpfr <- function(x, bits, style = "+", expAlign=TRUE, showNeg0 = TRUE) {
     stopifnot(length(style <- as.character(style)) == 1, nchar(style) == 1,
 	      style %in% c("+", " "),
 	      length(bits) == 1, bits %% 1 == 0)
@@ -51,7 +56,13 @@ sprintfMpfr <- function(x, bits, style = "+", expAlign=TRUE) {
 ### ----  currently "fails", e.g., in  mpfr(formatBin(mpfr(2, 60)))
     if(bits > 52) { # <== precBits > 53
 	neg <- sign(x) == -1
-	ff <- .mpfr2str(x, hexdigits + 1L, base = 16)  ## need +1
+	ff <- .mpfr2str(x, hexdigits + 1L, maybe.full=FALSE, ## ????
+                                                             base = 16)  ## need +1
+        if(!showNeg0) {
+            negzero <- substr(ff$str, 1L, 2L) == "-0"
+            ff$str[negzero] <- substr(ff$str[negzero], 2L, 1000000L)
+            ## force "-0" to "0". neg is already consistent.
+        }
 	isNum <- ff$finite	## ff$finite == is.finite(x)
 	i0 <- ff$is.0	## == mpfrIs0(x)
         FirstDigit <- substr(ff$str, 1L, 1L)
@@ -64,6 +75,8 @@ sprintfMpfr <- function(x, bits, style = "+", expAlign=TRUE) {
         bitMod4 <- 2^BinPlace[FirstDigit]
         x[isNum] <- x[isNum] / bitMod4[isNum] ## reduce mantissa by 2^BinPlace
         ff <- .mpfr2str(x, hexdigits + 1L, base = 16)  ## revised input value
+        if(!showNeg0) # force "-0" to "0"
+            ff$str[negzero] <- substr(ff$str[negzero], 2L, 1000000L)
 	ex <- ff$exp ## the *decimal* value of base-2 exp : one too large *unless* x == 0
 	r  <- ff$str # the mantissa, including "-" if negative
 	Ex <- ex - 1L
@@ -90,7 +103,14 @@ sprintfMpfr <- function(x, bits, style = "+", expAlign=TRUE) {
     }
     else {
 	nX <- as.character(hexdigits)
-	sprintf(paste0("%", style, nX, ".", nX, "a"), x)
+	if(!showNeg0) {
+	    negzero <- substr(format(x), 1L, 2L) == "-0"
+	    x[negzero] <- 0
+	}
+	result <- sprintf(paste0("%", style, nX, ".", nX, "a"), x)
+	if(any(pInf <- is.infinite(x) & x > 0))
+	    result[pInf] <- sub("+", " ", result[pInf], fixed=TRUE)
+	result
     }
 }
 
@@ -108,16 +128,17 @@ formatHex <- function(x, precBits = min(getPrec(x)), style = "+", expAlign=TRUE)
 	      base = 16L, precBits = precB, class = c("Ncharacter", "character"))
 }
 
-formatBin <- function(x, precBits=min(getPrec(x)), scientific = TRUE,
+formatBin <- function(x, precBits = min(getPrec(x)), scientific = TRUE,
 		      left.pad = "_", right.pad = left.pad, style = "+", expAlign=TRUE)
 {
     H <- formatHex(x, precBits=precBits, style=style, expAlign=expAlign)
-
     ## bindigits is number of binary digits after the precision point
     bindigits <- attr(H, "precBits") - 1L
     ## hexdigits is the number of hex digits after the precision point
     hexdigits <- 1L + ((bindigits-1L) %/% 4L)# *must* be correct = #{pure digits between "." and "p"}
     attributes(H) <- NULL
+    finite <- is.finite(x)
+    H <- H[finite]
     S <- substr(H, 1L, 1L) # sign
     A <- substr(H, 4L, 4L)
     B <- substr(H, 6L, 6L+hexdigits-1L)
@@ -147,7 +168,10 @@ formatBin <- function(x, precBits=min(getPrec(x)), scientific = TRUE,
 	res <- cbind(S, "0b", A, ".", hrsBb, "p", pow)
 	res <- apply(res, 1, function(x) do.call(paste, list(x, collapse="")))
     }
-    structure(res, dim = dim(x), dimnames = dimnames(x),
+    result <- rep("", length(x))
+    result[finite] <- res
+    result[!finite] <- as.numeric(x[!finite])
+    structure(result, dim = dim(x), dimnames = dimnames(x),
               base = 2L, precBits = precBits, class = c("Ncharacter", "character"))
 }
 
@@ -162,11 +186,6 @@ print.Ncharacter <- function(x, ...) {
     do.call(print, c(list(y), pa[unique(names(pa))]))
     invisible(x)
 }
-
-
-## MM Still thinks  that  formatMpfr() [ = format(<mpfr>) method !]
-## --                     ----------
-## should be made better _and_ be used *instead* of formatDec()
 
 
 ## RMH 2017-05-23, ~/R/MM/Pkg-ex/Rmpfr/formatDec-revised2.R :
@@ -184,7 +203,6 @@ formatDec <- function(x, precBits = min(getPrec(x)), digits=decdigits,
 	fin.x <- is.finite(x)
 	chx[fin.x] <- formatAlign(chx[fin.x], ...)
     }
-
     structure(chx,
 	      dim = dim(x),
 	      dimnames = dimnames(x),
@@ -194,6 +212,7 @@ formatDec <- function(x, precBits = min(getPrec(x)), digits=decdigits,
 ##' Non exported utility  currently only used in  formatDec();
 ##' NB:   '...' here, so we can pass '...' above which may have arguments not for here
 formatAlign <- function(x, leftpad=" ", rightpad=leftpad, ...) {
+  if(!length(x)) return(x)
   lr <- strsplit(x, ".", fixed=TRUE)
   l <- sapply(lr, `[`, 1) ## l left
   r <- sapply(lr, `[`, 2) ## r right
@@ -207,58 +226,33 @@ formatAlign <- function(x, leftpad=" ", rightpad=leftpad, ...) {
 }
 
 
-
-##' still used, but not as a method
+##' currently still used in mpfr.Ncharacter(), but _not_ as a method
 mpfr.Bcharacter <- function(x, precBits, scientific = NA, ...) {
     ## was scanBin()
+    stopifnot(is.numeric(precBits))
     if (is.na(scientific)) ## we look for a "p" exponent..
         scientific <- any(grepl("p", x, fixed=TRUE))
     class(x) <- NULL
-    noPrec <- (missing(precBits) || is.null(precBits))
     if (!scientific) {
-        if (noPrec) {
-	    ## Need to count the number of actual bits, and do it before converting "_" to "0".
-	    ## Exclude  Inf, NaN, NA, ..
-	    x. <- x[x %in% c("NaN", "NA", "Inf", "+Inf", "-Inf")]
-	    ## "Unpad" {my first(!) example where a pipe is slightly more elegant}
-	    x. <- gsub("_", "",
-		       sub("_+$", "",
-			   sub("^[-+]?0b", "",
-			       sub(".", "", x, fixed=TRUE))), fixed=TRUE)
-	    precBits <- max(nchar(x.), 1)
-        }
         x <- gsub("_", "0", x) ## TODO: chartr(.......)
-    }
-    else if (noPrec) { ## scientific -- find precBits from looking at string:
-	## assume a format such as "+0b1.10010011101p+1"
-	no.p <- -1L == (i.p <- as.vector(regexpr("p", x, fixed=TRUE)))
-	if(any(no.p)) ## no "p" - infer precision from others
-	    i.p[no.p] <- round(mean(i.p[!no.p]))
-	if(length(unique(i.p)) == 1L) ## all are the same
-	    i.p <- i.p[1]
-	precBits <- i.p - 5L
     }
     mpfr(x, base = 2, precBits=precBits, ...)
 }
 
 ## A mpfr() method for "Ncharacter"
-mpfr.Ncharacter <- function(x, ...) {
+mpfr.Ncharacter <- function(x, precBits = attr(x, "precBits"), ...) {
     class(x) <- NULL
     B <- attr(x, "base")
-    if(is.null(list(...)[["precBits"]])) {
-	precBits <- attr(x, "precBits")
-	if(B == 2) ## formatBin() gives very special format :
-	    mpfr.Bcharacter(x, precBits = precBits, ...)
-	else
-	    mpfr(x, base = B, precBits = precBits, ...)
-    } else {
-	if(B == 2)
-	    mpfr.Bcharacter(x, ...)
-	else
-	    mpfr(x, base = B, ...)
-    }
+    if(B == 2) ## formatBin() gives very special format :
+        mpfr.Bcharacter(x, precBits = precBits, ...)
+    else
+        mpfr(x, base = B, precBits = precBits, ...)
 }
-
+## was
+## mpfr.Dcharacter <- function(x, precBits=attr(x, "bindigits")+1, ...) {
+##     class(x) <- NULL
+##     mpfr(gsub(" ", "", x), base = 10, precBits=precBits, ...)
+## }
 
 `[.Ncharacter` <- ## == base :: `[.listof`
     function (x, ...) structure(NextMethod("["), class = class(x))

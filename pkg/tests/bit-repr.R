@@ -65,7 +65,12 @@ Bits <- function(x) {
 
 x <- mpfr(r <- c(NA,NaN, Inf, -Inf), 64)
 stopifnot(identical(asNumeric(x), # mpfr has no NA, just NaN's:
-                    c(NaN,NaN, Inf, -Inf)))
+		    c(NaN,NaN, Inf, -Inf)),
+	  identical(as.character(fDec <- formatDec(x)),
+		    as.character(asNumeric(x))) # of different nchar() for now
+	  )
+formatDec(x) # should print fine (no quotes)
+
 
 if(FALSE) # platform dependent:
     ## The "non-finite" mpfr value internals (in 64-bit: 'exp' has NA):

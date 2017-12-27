@@ -39,6 +39,8 @@
 
       \item \code{format(mpfr(3,7), digits = 1, base = 2)} no longer
       crashes (from inside MPFR).
+
+      \item \code{formatDec(mpfr(NA, 7))} now works.
     }
   }
 }

@@ -417,38 +417,59 @@ SEXP mpfr2i(SEXP x, SEXP rnd_mode) {
 }
 
 /* Convert R "mpfr" object (list of "mpfr1")  to R "character" vector,
- * using precision 'prec' which can be NA/NULL in which case
- * "full precision" (as long as necessary) is used : */
-SEXP mpfr2str(SEXP x, SEXP digits, SEXP base) {
+ * using 'digits' (or determinining it):
+ *  1) digits = NULL , maybe_full = FALSE (<==> 'scientific = TRUE')
+ *     --------------- -------------~~~~~ ==> set digits  <=>  getPrec(x)
+
+ *  2) digits = NULL , maybe_full = TRUE (<=> 'scientific' = NA or FALSE  in the calling formatMpfr()
+ *     -------------   ----------------- ==> set digits  <=>  max(getPrec(x), #{"digits left of '.'"})
+
+ *  3) digits = <num>, maybe_full = TRUE (<=> 'scientific' = TRUE  in the calling formatMpfr()
+ *     -------------   -----------------==> set digits  <=>  max(digit, getPrec(x), #{"digits left of '.'"}))
+
+ */
+SEXP mpfr2str(SEXP x, SEXP digits, SEXP maybeFull, SEXP base) {
     int n = length(x), i;
-    int n_dig = isNull(digits) ? 0 : asInteger(digits);
-    int dig_n_max = -1;
-    SEXP val = PROTECT(allocVector(VECSXP, 4)),
-	nms, str, exp, fini, zero;
-    int *i_exp, *is_fin, *is_0;
     int B = asInteger(base); // = base for output
-    double p_fact = (B == 2) ? 1. : log(B) / M_LN2;
+    int n_dig = isNull(digits) ? 0 : asInteger(digits);
+    if(n_dig < 0) error("'digits' must be NULL or a positive integer");
+    Rboolean maybe_full = asLogical(maybeFull);
+    if(maybe_full == NA_LOGICAL) // cannot happen when called "regularly"
+	error("'maybe.full' must be TRUE or FALSE");
+
+    R_mpfr_dbg_printf(1,"mpfr2str(*, digits=%d, maybeF=%s, base=%d): ",
+		      n_dig, (maybe_full ? "TRUE" : "False"), B);
+
+    /* int dig_n_max = -1; */
+    /* SEXP val = PROTECT(allocVector(VECSXP, 4)), */
+    /* 	nms, str, exp, fini, zero; */
+    /* int *i_exp, *is_fin, *is_0; */
     char *ch = NULL;
-    mpfr_t R_i;
 
-    if(n_dig < 0)
-	error("'digits' must be NULL or integer >= 0");
+    /* N_digits == 1 , for base = 2, 4, 8, 16, 32 (base <= 62 !) gives bad abort from MPFR:
+       get_str.c:2306: MPFR assertion failed: m >= 2 || ((((b) & ((b) - 1)) == 0) == 0 && m >= 1)
+       ...  Aborted ... (Speicherabzug geschrieben)
 
-    /* be "overprotective" for now ... */
-    SET_VECTOR_ELT(val, 0, str = PROTECT(allocVector(STRSXP, n)));
-    SET_VECTOR_ELT(val, 1, exp = PROTECT(allocVector(INTSXP, n)));
-    SET_VECTOR_ELT(val, 2, fini= PROTECT(allocVector(LGLSXP, n)));
-    SET_VECTOR_ELT(val, 3, zero= PROTECT(allocVector(LGLSXP, n)));
-    nms = PROTECT(allocVector(STRSXP, 4));
-    SET_STRING_ELT(nms, 0, mkChar("str"));
-    SET_STRING_ELT(nms, 1, mkChar("exp"));
-    SET_STRING_ELT(nms, 2, mkChar("finite"));
-    SET_STRING_ELT(nms, 3, mkChar("is.0"));
+      the MPFR doc (see mpfr_get_str below) *says* N >= 2 is required,
+      but we have used N = 1 for B = 10 a lot in the past ! */
+
+    Rboolean base_is_2_power = (B == 2 || B == 4 || B == 8 || B == 16 || B == 32);
+    Rboolean n_dig_1_problem = (n_dig == 1) && base_is_2_power;
+    size_t N_digits = n_dig_1_problem ? 2 : n_dig;
+    SEXP
+	val = PROTECT(allocVector(VECSXP, 4)),
+	nms = PROTECT(allocVector(STRSXP, 4)), str, exp, fini, zero;
+    SET_VECTOR_ELT(val, 0, str = PROTECT(allocVector(STRSXP, n))); SET_STRING_ELT(nms, 0, mkChar("str"));
+    SET_VECTOR_ELT(val, 1, exp = PROTECT(allocVector(INTSXP, n))); SET_STRING_ELT(nms, 1, mkChar("exp"));
+    SET_VECTOR_ELT(val, 2, fini= PROTECT(allocVector(LGLSXP, n))); SET_STRING_ELT(nms, 2, mkChar("finite"));
+    SET_VECTOR_ELT(val, 3, zero= PROTECT(allocVector(LGLSXP, n))); SET_STRING_ELT(nms, 3, mkChar("is.0"));
     setAttrib(val, R_NamesSymbol, nms);
-    i_exp = INTEGER(exp);
-    is_fin= LOGICAL(fini);
-    is_0  = LOGICAL(zero);
-
+    int *i_exp = INTEGER(exp),
+	*is_fin= LOGICAL(fini),
+	*is_0  = LOGICAL(zero);
+    double p_fact = (B == 2) ? 1. : log(B) / M_LN2;
+    int dig_n_max = -1; // := max_i { dig_needed[i] }
+    mpfr_t R_i;
     mpfr_init(R_i); /* with default precision */
 
     for(i=0; i < n; i++) {
@@ -463,27 +484,56 @@ SEXP mpfr2str(SEXP x, SEXP digits, SEXP base) {
  * Originally hoped it was solvable via  R_alloc() etc, but it seems the problem is
  * deeper and I currently suspect a problem/bug in MPFR library's  mpfr_get_str(..) */
 	ch = mpfr_get_str(NULL, exp_ptr, B,
-			  (size_t) n_dig, R_i, MPFR_RNDN);
+			  (size_t) N_digits, R_i, MPFR_RNDN);
 #else
 	if(n_dig) {/* use it as desired precision */
-	    dig_needed = n_dig;
-	} else { /* n_dig = 0 --> string will use "enough" digits */
-	    dig_needed = p_fact * (int)R_i->_mpfr_prec;
+	    dig_needed = N_digits;
+	    R_mpfr_dbg_printf(1," [i=%d]: ... -> dig.n = %d ", i, dig_needed);
+	} else { /* N_digits = 0 --> string must use "enough" digits */
+	    double need_dig =
+		ceil(fmax2((double)R_i->_mpfr_prec,
+			   // when prec is too small:
+			   (double)mpfr_get_exp(R_i)) / p_fact);
+	    if(need_dig > 268435456 /* = 2^28 */) // << FIXME, somewhat arbitrary
+		error(_(".mpfr2str(): too large 'need_dig'; please set 'digits = <number>'"));
+// FIXME: rather set   maybe_full = FALSE  (???)
+	    dig_needed = (int) need_dig;
+	    R_mpfr_dbg_printf(1," [i=%d]: prec=%ld, exp2=%ld -> (n.dig,dig.n)=(%g,%d) ",
+			      i, R_i->_mpfr_prec, mpfr_get_exp(R_i),
+			      need_dig, dig_needed);
+	    if(dig_needed <= 1 && base_is_2_power) { // have n_dig_problem:
+		R_mpfr_dbg_printf(1," [i=%d]: base_is_2_power & dig_needed=%d ==> fudge dig_n. := 2",
+				  i, dig_needed);
+		dig_needed = 2;
+	    }
 	}
 	if (i == 0) { /* first time */
 	    dig_n_max = dig_needed;
-	    ch = (char *) R_alloc(dig_needed + 2, sizeof(char));
+	    ch = (char *) R_alloc(imax2(dig_n_max + 2, 7), // 7 : '-@Inf@' (+ \0)n_str,
+				  sizeof(char));
 	}
-	else if(!n_dig && dig_needed > dig_n_max) {
-	    ch = (char *) S_realloc(ch, dig_needed + 2, dig_n_max + 2,
+	else if(!N_digits && dig_needed > dig_n_max) { // enlarge :
+	    ch = (char *) S_realloc(ch,
+				    imax2(dig_needed + 2, 7),
+				    imax2(dig_n_max  + 2, 7),
 				    sizeof(char));
 	    dig_n_max = dig_needed;
 	}
 
-	/* char * mpfr_get_str (char *STR, mpfr_exp_t *EXPPTR, int B,
-	 *			size_t N, mpfr_t OP, mpfr_rnd_t RND) */
+	/*  char* mpfr_get_str (char *STR, mpfr_exp_t *EXPPTR, int B,
+	 *			size_t N, mpfr_t OP, mpfr_rnd_t RND)
+
+	 Convert OP to a string of digits in base B, with rounding in the
+	 direction RND, where N is either zero (see below) or the number of
+	 significant digits output in the string; in the latter case, N must
+	 be greater or equal to 2.  The base may vary from 2 to 62;
+	 .........
+	 .........  ==> MPFR info manual  "5.4 Conversion Functions"
+	*/
+	R_mpfr_dbg_printf(1," .. dig_n_max=%d\n", dig_n_max);
+
 	mpfr_get_str(ch, exp_ptr, B,
-		     (size_t) n_dig, R_i, MPFR_RNDN);
+		     (size_t) dig_n_max, R_i, MPFR_RNDN);
 #endif
 	SET_STRING_ELT(str, i, mkChar(ch));
 	i_exp[i] = (int) exp_ptr[0];
