@@ -86,8 +86,14 @@ static R_INLINE void R_mpfr_check_prec(int prec)
 	error("Precision(bit) is NA (probably from coercion)");
     if(prec < MPFR_PREC_MIN)
 	error("Precision(bit) = %d < %ld (= MPFR_PREC_MIN)", prec, (long)MPFR_PREC_MIN);
+/* 2018-01-01 gives a WARNING with clang:
+ Found the following significant warnings:
+   ./Rmpfr_utils.h:89:13: warning: comparison of constant 9223372036854775807 with expression of type 'int' is always false [-Wtautological-constant-out-of-range-compare]
+
+... of course, I don't want a  WARN  in the CRAN checks, hence disable (for now):
     if(prec > MPFR_PREC_MAX)
 	error("Precision(bit) = %d > %ld (= MPFR_PREC_MAX)", prec, (long)MPFR_PREC_MAX);
+*/
     return;
 }
 
