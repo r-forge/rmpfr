@@ -6,7 +6,7 @@
 \alias{mpfr2array}
 \alias{mpfrImport}
 \alias{mpfrXport}
-\alias{.mpfr2list}% for now only mentioned in example
+\alias{.mpfr2list}
 %\alias{.mpfr1tolist}% not exported
 \alias{print.mpfr}
 \alias{print.mpfrArray}
@@ -29,7 +29,7 @@ mpfr2array(x, dim, dimnames = NULL, check = FALSE)
 
 .mpfr2list(x, names = FALSE)
 
-mpfrXport(x)
+mpfrXport(x, names = FALSE)
 mpfrImport(mxp)
 }
 \arguments{

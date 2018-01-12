@@ -11,6 +11,9 @@
 
 /*------------------------------------------------------------------------*/
 
+/* NB:  int nr_limbs = R_mpfr_nr_limbs(r)  [ in MPFR_as_R() ]  or
+                     = N_LIMBS(i_prec)     [ in d2mpfr1_()  ]
+*/
 #if GMP_NUMB_BITS == 32
 # define R_mpfr_nr_ints nr_limbs
 # define R_mpfr_exp_size 1
@@ -21,12 +24,13 @@
 # error "R <-> C Interface *not* implemented for GMP_NUMB_BITS=" ## GMP_NUMB_BITS
 #endif
 
-#define R_mpfr_MPFR_2R_init(_V_)					\
+// Initialize contents (4 slots) of a "mpfr1" R object
+#define R_mpfr_MPFR_2R_init(_V_, _d_length_)				\
     SEXP _V_ = PROTECT(NEW_OBJECT(MAKE_CLASS("mpfr1")));		\
     SEXP prec_R = PROTECT(ALLOC_SLOT(_V_, Rmpfr_precSym, INTSXP, 1));	\
     SEXP sign_R = PROTECT(ALLOC_SLOT(_V_, Rmpfr_signSym, INTSXP, 1));	\
     SEXP exp_R  = PROTECT(ALLOC_SLOT(_V_, Rmpfr_expSym,  INTSXP, R_mpfr_exp_size)); \
-    SEXP d_R    = PROTECT(ALLOC_SLOT(_V_, Rmpfr_d_Sym,   INTSXP, R_mpfr_nr_ints)); \
+    SEXP d_R    = PROTECT(ALLOC_SLOT(_V_, Rmpfr_d_Sym,   INTSXP, _d_length_)); \
     /* the integer vector which makes up the mantissa: */		\
     int *dd = INTEGER(d_R),						\
 	*ex = INTEGER(exp_R) /* the one for the exponent */
@@ -34,6 +38,8 @@
 /*------------------------*/
 #if GMP_NUMB_BITS == 32
 /*                  ---- easy : a gmp-limb is an int <--> R */
+
+// This is only ok  if( mpfr_regular_p(.) ), i.e. not for {0, NaN, Inf}:
 # define R_mpfr_FILL_DVEC(i)					\
     R_mpfr_dbg_printf(2,"r..d[i=%d] = 0x%lx\n",i,r->_mpfr_d[i]); \
     dd[i] = (int) r->_mpfr_d[i]
@@ -57,6 +63,7 @@
 //                                                   1  4   8|  4   8
 # define LEFT_SHIFT(_LONG_) (((unsigned long long)(_LONG_)) << 32)
 
+// This is only ok  if( mpfr_regular_p(.) ), i.e. not for {0, NaN, Inf}:
 # define R_mpfr_FILL_DVEC(i)						\
     R_mpfr_dbg_printf(2,"r..d[i=%d] = 0x%lx\n",i,r->_mpfr_d[i]);	\
     dd[2*i]  = (int) RIGHT_HALF(r->_mpfr_d[i]);				\
@@ -84,23 +91,25 @@
 
 
 
-
 #define R_mpfr_MPFR_2R_fill			\
     /* now fill the slots of val */		\
     INTEGER(prec_R)[0] = (int)r->_mpfr_prec;	\
     INTEGER(sign_R)[0] = (int)r->_mpfr_sign;	\
     R_mpfr_FILL_EXP;				\
-    /* the full *vector* of limbs : */		\
-    for(i=0; i < nr_limbs; i++) {		\
-	R_mpfr_FILL_DVEC(i);			\
+    if(regular_p) {				\
+	/* the full *vector* of limbs : */	\
+	for(i=0; i < nr_limbs; i++) {		\
+            R_mpfr_FILL_DVEC(i);		\
+	}					\
     }
 
 /* Return an R "mpfr1" object corresponding to mpfr input: */
 SEXP MPFR_as_R(mpfr_t r) {
 
-    int nr_limbs = R_mpfr_nr_limbs(r), i;
+    int nr_limbs = R_mpfr_nr_limbs(r),
+	regular_p = mpfr_regular_p(r), i;
 
-    R_mpfr_MPFR_2R_init(val);
+    R_mpfr_MPFR_2R_init(val, (regular_p ? R_mpfr_nr_ints : 0));
 
     R_mpfr_MPFR_2R_fill;
 
@@ -111,14 +120,16 @@ SEXP MPFR_as_R(mpfr_t r) {
 SEXP d2mpfr1_(double x, int i_prec, mpfr_rnd_t rnd)
 {
     mpfr_t r;
-    int nr_limbs = N_LIMBS(i_prec), i;
+    int nr_limbs = N_LIMBS(i_prec),
+	regular_p = mpfr_regular_p(r), i;
 
     R_mpfr_check_prec(i_prec);
 
-    R_mpfr_MPFR_2R_init(val);
-
     mpfr_init2 (r, (mpfr_prec_t)i_prec);
     mpfr_set_d (r, x, rnd);
+
+    regular_p = mpfr_regular_p(r);
+    R_mpfr_MPFR_2R_init(val, (regular_p ? R_mpfr_nr_ints : 0));
 
     R_mpfr_MPFR_2R_fill;
 
@@ -289,10 +300,11 @@ void R_asMPFR(SEXP x, mpfr_ptr r)
 
     int x_prec = INTEGER(prec_R)[0],
 	nr_limbs = N_LIMBS(x_prec), i;
+    Rboolean regular_x = length(d_R) > 0;
     int *dd = INTEGER(d_R),/* the vector which makes up the mantissa */
 	*ex = INTEGER(exp_R), ex1; /* the one for the exponent */
 
-    if(length(d_R) != R_mpfr_nr_ints)
+    if(regular_x && length(d_R) != R_mpfr_nr_ints)
 	error("nr_limbs(x_prec)= nr_limbs(%d)= %d : length(<d>) == %d != R_mpfr_nr_ints == %d",
 	      x_prec, nr_limbs, length(d_R), R_mpfr_nr_ints);
     if(length(exp_R) < R_mpfr_exp_size) {
@@ -305,10 +317,11 @@ void R_asMPFR(SEXP x, mpfr_ptr r)
     mpfr_set_prec(r, (mpfr_prec_t) x_prec);
     r->_mpfr_sign = (mpfr_sign_t) INTEGER(GET_SLOT(x, Rmpfr_signSym))[0];
     R_mpfr_GET_EXP;
-    /* the full *vector* of limbs : */
-    for(i=0; i < nr_limbs; i++) {
-	R_mpfr_GET_DVEC(i);
-    }
+    if(regular_x)
+	/* the full *vector* of limbs : */
+	for(i=0; i < nr_limbs; i++) {
+	    R_mpfr_GET_DVEC(i);
+	}
     return;
 }
 
