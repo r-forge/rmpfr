@@ -34,7 +34,8 @@ setClass("mpfr1", ## a single Multi-precision float number
 		     else TRUE
 		 } else ## not regular: valid if exp slot shows so
 		     if(gmp.numb == 64) {  ## ex of length 2
-			 if(is.na(ex[2]) && any(ex[[1]] == (1:3)))
+			 if((is.na(ex[2]) && any(ex[[1]] == (1:3))) ||  ## mpfr 3.1.5, Fedora 26
+			    (ex[1] == ex[2] && any(ex[1]+2^31 == 1:3))) ## mpfr 3.1.3, Windows
 			     TRUE
 			 else
 			     "'exp' slot invalid for non-regular number (64b, length(d) == 0)"
