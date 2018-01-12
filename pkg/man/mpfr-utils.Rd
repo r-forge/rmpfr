@@ -27,6 +27,8 @@ mpfr_default_prec(prec)
 toNum(from, rnd.mode = c('N','D','U','Z','A'))
 mpfr2array(x, dim, dimnames = NULL, check = FALSE)
 
+.mpfr2list(x, names = FALSE)
+
 mpfrXport(x)
 mpfrImport(mxp)
 }
@@ -59,6 +61,10 @@ mpfrImport(mxp)
   \item{check}{logical indicating if the mpfrArray construction should
     happen with internal safety check.  Previously, the implicit default
     used to be true.}
+  \item{names}{(for \code{.mpfr2list()}) \code{\link{logical}} or
+    \code{\link{character}} vector, indicating if the list returned
+    should have \code{\link{names}}.  If character, it specifies the
+    names; if true, the names are set to \code{format(x)}.}
   \item{mxp}{an \code{"mpfrXport"} object, as resulting from
     \code{mpfrXport()}.}
 }
@@ -148,9 +154,9 @@ x4 <- mpfr(c(NA, NaN, -Inf, Inf), 32)
 ## The output of the following depends on the GMP "numb" size
 ## (32 bit vs. 64 bit), and may be even more platform specifics:
 str( .mpfr2list(i8) )
-str( .mpfr2list(x4) )
+str( .mpfr2list(x4, names = TRUE) )
 
-str(xp4 <- mpfrXport(x4))
+str(xp4 <- mpfrXport(x4, names = TRUE))
 stopifnot(identical(x4, mpfrImport(mpfrXport(x4))),
           identical(i8, mpfrImport(mpfrXport(i8))))
 if(FALSE) ## FIXME: not yet working:

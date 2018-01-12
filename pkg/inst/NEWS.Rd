@@ -4,7 +4,7 @@
 \title{Rmpfr News}
 \encoding{UTF-8}
 
-\section{Changes in version 0.6-2 [2017-05-29]}{
+\section{Changes in version 0.6-2 [2018-11-12]}{
   \subsection{NEW FEATURES}{
     \itemize{
       \item The S3 classes \code{"Hcharacter"} and \code{"Bcharacter"}
@@ -14,7 +14,11 @@
       \item They also got a \code{`[`} method, so subsetting should
       work, including for \code{array}s of these.
 
-      \item The \code{"mpfr"} method of  \code{str()} gains option \code{internal}.
+      \item The \code{"mpfr"} method of \code{str()} gains option
+      \code{internal}.
+
+      \item \code{.mpfr2list()} and \code{mpfrXport()} gain an option
+      \code{names} (for nicer output).
     }
   }
   \subsection{BUG FIXES}{
@@ -41,6 +45,11 @@
       crashes (from inside MPFR).
 
       \item \code{formatDec(mpfr(NA, 7))} now works.
+
+      \item For non-\dQuote{regular} mpfr numbers, the \code{d} slot in
+      the \code{"mpfr1"} representation is now empty instead of
+      \dQuote{random}.   This also eliminates valgrind warnings about
+      uninitialized values in C.
     }
   }
 }

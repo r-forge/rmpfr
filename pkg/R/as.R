@@ -111,14 +111,21 @@ setAs("mpfr", "mpfr1", function(from) {
 
 .mpfr1tolist <- function(x)
     sapply(.slotNames(x), slot, object=x, simplify=FALSE)
-.mpfr2list <- function(x) lapply(getD(x), .mpfr1tolist)
+.mpfr2list <- function(x, names=FALSE) {
+    if(isTRUE(names)) names <- format(x)
+    x <- lapply(getD(x), .mpfr1tolist)
+    if(is.character(names))
+	names(x) <- names
+    x
+}
+
 
 ## Breaks the working of vapply(q, FUN.x) in pbetaI() in ./special-fun.R :
 ## as.list.mpfr1 <- function(x, ...) .mpfr1tolist(x)
 ## as.list.mpfr  <- function(x, ...) .mpfr2list(x)
 
 ## and then
-mpfrXport <- function(x) {
+mpfrXport <- function(x, names=FALSE) {
     if(!is(x, "mpfr")) stop("argument is not a \"mpfr\" object")
     structure(class = "mpfrXport",
 	      list(gmp.numb.bits = .mpfr.gmp.numbbits(),
@@ -126,7 +133,7 @@ mpfrXport <- function(x) {
 		   mpfr.version	 = .mpfrVersion(),
 		   Machine  = .Machine[grepl("sizeof",names(.Machine))],
 		   Sys.info = Sys.info()[c("sysname", "machine")],
-		   mpfr = .mpfr2list(x)))
+		   mpfr = .mpfr2list(x, names=names)))
 }
 
 mpfrImport <- function(mxp) {
