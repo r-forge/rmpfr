@@ -4,7 +4,28 @@
 \title{Rmpfr News}
 \encoding{UTF-8}
 
-\section{Changes in version 0.6-2 [2018-01-12]}{
+\section{Changes in version 0.7-0 [2018-01-12]}{
+  \subsection{NEW FEATURES}{
+    \itemize{
+      \item \code{.mpfr2list()} and \code{mpfrXport()} gain an option
+      \code{names} (for nicer output).
+
+      \item \code{formatMpfr()} and the \code{print()} method get a new
+      option \code{max.digits} with default \code{9999} for the print
+      methods, to limit the number of digits printed for high precision
+      numbers.
+    }
+  }
+  \subsection{BUG FIXES}{
+    \itemize{
+      \item For non-\dQuote{regular} mpfr numbers, the \code{d} slot in
+      the \code{"mpfr1"} representation is now empty instead of
+      \dQuote{random}.   This also eliminates valgrind warnings about
+      uninitialized values in C.
+    }
+  }
+}
+\section{Changes in version 0.6-2 [2017-05-29], never on CRAN}{
   \subsection{NEW FEATURES}{
     \itemize{
       \item The S3 classes \code{"Hcharacter"} and \code{"Bcharacter"}
@@ -16,9 +37,6 @@
 
       \item The \code{"mpfr"} method of \code{str()} gains option
       \code{internal}.
-
-      \item \code{.mpfr2list()} and \code{mpfrXport()} gain an option
-      \code{names} (for nicer output).
     }
   }
   \subsection{BUG FIXES}{

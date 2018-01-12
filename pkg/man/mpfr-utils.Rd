@@ -23,7 +23,9 @@ mpfr_default_prec(prec)
 \S3method{print}{mpfrArray}(x, digits = NULL, drop0trailing = FALSE,
       right = TRUE, \dots)
 \S3method{print}{mpfr}(x, digits = NULL, drop0trailing = TRUE,
-      right = TRUE, \dots)
+      right = TRUE,
+      max.digits = getOption("Rmpfr.print.max.digits", 9999),
+      \dots)
 toNum(from, rnd.mode = c('N','D','U','Z','A'))
 mpfr2array(x, dim, dimnames = NULL, check = FALSE)
 
@@ -53,6 +55,11 @@ mpfrImport(mxp)
     justify the strings; see \code{\link{print.default}()} to which it
     is passed.}
   \item{digits, \dots}{further arguments to print methods.}
+  \item{max.digits}{a number (possibly \code{Inf}) to limit the number
+    of (mantissa) digits to be printed, simply passed to
+    \code{\link{formatMpfr}}.  The default is finite to protect from
+    printing very long strings which is often undesirable, notably in
+    \code{\link{interactive}} use.}
   \item{rnd.mode}{a 1-letter string specifying how \emph{rounding}
     should happen at C-level conversion to MPFR, see details of
     \code{\link{mpfr}}.}
@@ -73,6 +80,13 @@ mpfrImport(mxp)
   method for class \code{\linkS4class{mpfr}}.  This, currently does
   \emph{not} format columns jointly which leads to suboptimally looking
   output.  There are plans to change this.
+
+  Note that \code{\link{formatMpfr}()} which is called by \code{print()}
+  (or \code{show()} or \R's implicit printing) uses \code{max.digits =
+    Inf}, differing from our \code{print()}'s default on purpose.
+  If you do want to see the full accuracy even in cases it is large, use
+  \code{\link{options}(Rmpfr.print.max.digits = Inf)} or
+  \code{.. = 1e7)}, say.
 }
 \value{
   \code{getPrec(x)} returns a \code{\link{integer}} vector of the same

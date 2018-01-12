@@ -1,8 +1,7 @@
 \name{formatMpfr}
-\Rdversion{1.1}
+\title{Formatting MPFR (multiprecision) Numbers}
 \alias{formatMpfr}
 \alias{formatN.mpfr}
-\title{Formatting MPFR (multiprecision) Numbers}
 \description{
   Flexible formatting of \dQuote{multiprecision numbers}, i.e., objects
   of class \code{\linkS4class{mpfr}}.  \code{formatMpfr()} is also the
@@ -14,7 +13,7 @@
 }
 \usage{
 formatMpfr(x, digits = NULL, trim = FALSE, scientific = NA,
-	   base = 10, showNeg0 = TRUE,
+	   base = 10, showNeg0 = TRUE, max.digits = Inf,
 	   big.mark = "", big.interval = 3L,
 	   small.mark = "", small.interval = 5L,
            decimal.mark = ".",
@@ -39,8 +38,8 @@ formatMpfr(x, digits = NULL, trim = FALSE, scientific = NA,
     Missing values correspond to the current default penalty.}
   \item{base}{an integer in \eqn{2,3,..,62}; the base (\dQuote{basis})
     in which the numbers should be represented.  Apart from the default
-    base 10, binary (\code{base = 2}) or hexadecimal (\code{base = 16}) are particularly
-    interesting.}
+    base 10, binary (\code{base = 2}) or hexadecimal (\code{base = 16})
+    are particularly interesting.}
   \item{showNeg0}{logical indicating if \dQuote{\bold{neg}ative} zeros
     should be shown with a \code{"-"}.  The default, \code{TRUE} is
     intentially different from \code{\link{format}(<numeric>)}.}
@@ -49,6 +48,11 @@ formatMpfr(x, digits = NULL, trim = FALSE, scientific = NA,
     \code{base} \eqn{B \ge 15}{B >= 15}, \code{"e"} is part of the
     (mantissa) digits and the same is true for \code{"E"} when
     \eqn{B \ge 37}{B >= 37}.}
+  \item{max.digits}{a (large) positive number to limit the number of
+    (mantissa) digits, notably when \code{digits} is \code{NULL} (as by
+    default).  Otherwise, a numeric \code{digits} is \emph{preferred} to
+    setting \code{max.digits} (which should not be smaller than
+    \code{digits}).}
   \item{big.mark, big.interval, small.mark,
     small.interval, decimal.mark, zero.print, drop0trailing}{%
     used for prettying decimal sequences, these are passed to

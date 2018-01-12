@@ -121,10 +121,11 @@ getD <- function(x) { attributes(x) <- NULL; x }
 ## Get or Set the C-global  'R_mpfr_debug_' variable:
 .mpfr.debug <- function(i = NA) .Call(R_mpfr_set_debug, as.integer(i))
 
-print.mpfr <- function(x, digits = NULL, drop0trailing = TRUE,
-		       right = TRUE, ...) {
+print.mpfr <- function(x, digits = NULL, drop0trailing = TRUE, right = TRUE,
+                       max.digits = getOption("Rmpfr.print.max.digits", 9999L),
+                       ...) {
     stopifnot(is(x, "mpfr"), is.null(digits) || digits >= 1)
-    ## digits = NA --> the inherent precision of x will be used
+    ## digits = NULL --> the inherent precision of x will be used
     n <- length(x)
     ch.prec <-
 	if(n >= 1) {
@@ -134,9 +135,9 @@ print.mpfr <- function(x, digits = NULL, drop0trailing = TRUE,
 	}
     cat(n, "'mpfr'", if(n == 1) "number" else "numbers", ch.prec, "\n")
     if(n >= 1)
-	print(format(x, digits=digits, drop0trailing=drop0trailing), ...,
-	      right=right, quote = FALSE)
-    ## .Call(print_mpfr, x, as.integer(digits))
+	print(format(x, digits=digits, max.digits=max.digits,
+		     drop0trailing=drop0trailing),
+	      ..., right=right, quote = FALSE)
     invisible(x)
 }
 setMethod(show, "mpfr", function(object) print.mpfr(object))

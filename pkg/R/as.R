@@ -163,7 +163,7 @@ mpfrImport <- function(mxp) {
 
 formatMpfr <-
     function(x, digits = NULL, trim = FALSE, scientific = NA,
-             base = 10, showNeg0 = TRUE,
+             base = 10, showNeg0 = TRUE, max.digits = Inf,
 	     big.mark = "", big.interval = 3L,
 	     small.mark = "", small.interval = 5L,
              decimal.mark = ".",
@@ -177,14 +177,19 @@ formatMpfr <-
     if((maybe.full <- !isTRUE(scientific)) && !isFALSE(scientific))
         maybe.full <- !is.null(digits)
     ff <- .mpfr2str(x, digits, maybe.full=maybe.full, base=base)
+    stopifnot(is.numeric(max.digits), max.digits > 0)
+    if(is.numeric(digits)) stopifnot(digits <= max.digits)
 
     isNum <- ff$finite	## ff$finite == is.finite(x)
     i0 <- ff$is.0	## == mpfrIs0(x)
     ex <- ff$exp ## the *decimal* exp (wrt given 'base' !): one too large *unless* x == 0
     r  <- ff$str
     r.dig <- nchar(r) # (in both cases, digits NULL or not)
-    ## Note that r.dig[] entries may vary, notably for digits NULL
-
+    ## Note that r.dig[] entries may vary, notably for digits NULL when .getPrec(x) is non-constant
+    if(any(Lrg <- r.dig > max.digits)) { ## now "cut down", e.g. in print() when max.digits < Inf
+	r    [Lrg] <- substr(r, 1L, max.digits)
+	r.dig[Lrg] <- max.digits
+    }
     if(any(i0)) {
 	## sign(x) == -1 "fails" for '-0'
 	hasMinus <- substr(ff$str, 1L,1L) == "-"

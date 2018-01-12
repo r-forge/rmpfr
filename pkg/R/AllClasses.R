@@ -7,7 +7,7 @@
 ## ==  ---> then 'd' is well defined.
 ##     If they are not, i.e., it is in {0, NaN, +/- Inf}, then 'exp' shows this
 ##     and 'd' (in mpfr a pointer to the limbs) is *not* used and not defined.
-## Since Jan.2018, Rmpfr 0.6-2, we reflect this by using a 0-length 'd' slot
+## Since Jan.2018, Rmpfr 0.7-0, we reflect this by using a 0-length 'd' slot
 
 setClass("mpfr1", ## a single Multi-precision float number
 	 slots = c(prec = "integer", # precision in bits
