@@ -39,7 +39,7 @@ setClass("mpfr1", ## a single Multi-precision float number
 			 else
 			     "'exp' slot invalid for non-regular number (64b, length(d) == 0)"
 		     } else { ## gmp.numb == 32: 'exp' slot of length one
-			 if(any(ex+2^31 == -(1:3)))
+			 if(any(ex+2^31 == 1:3))
 			     TRUE
 			 else
 			     "'exp' slot invalid for non-regular number (32b, length(d) == 0)"
