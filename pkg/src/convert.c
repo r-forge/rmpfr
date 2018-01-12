@@ -120,8 +120,7 @@ SEXP MPFR_as_R(mpfr_t r) {
 SEXP d2mpfr1_(double x, int i_prec, mpfr_rnd_t rnd)
 {
     mpfr_t r;
-    int nr_limbs = N_LIMBS(i_prec),
-	regular_p = mpfr_regular_p(r), i;
+    int nr_limbs = N_LIMBS(i_prec), regular_p, i;
 
     R_mpfr_check_prec(i_prec);
 
