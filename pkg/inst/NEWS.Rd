@@ -4,6 +4,15 @@
 \title{Rmpfr News}
 \encoding{UTF-8}
 
+\section{Changes in version 0.7-1 [2018-06-08]}{
+  \subsection{BUG FIXES}{
+    \itemize{
+      \item \code{formatMpfr()} for large low-precision numbers now uses
+      scientific representation, fixing the bug RMH was reporting March 17 already.
+    }
+  }
+}
+
 \section{Changes in version 0.7-0 [2018-01-12]}{
   \subsection{NEW FEATURES}{
     \itemize{
