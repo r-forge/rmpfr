@@ -340,7 +340,12 @@ Further note that for really small $a$'s,
 both the default and the \code{log1p} method return \code{-Inf},
 so, indeed,  the \code{expm1} method is absolutely needed here.
 
-Figure~\ref{fig:bigpic} visualizes the relative errors of the three methods.
+Figure~\ref{fig:bigpic} visualizes the relative errors\footnote{%
+  Absolute value of relative errors,
+  $\abs{(\hat{f}(a) - f(a)) / f(a)} = \abs{1 - \hat{f}(a)/f(a)}$,
+  where $f(a) = \mathrm{log1mexp}(a)$ (\ref{eq:log1mexp}) is computed
+  accurately by a 1024 bit \pkg{Rmpfr} computation}
+ of the three methods.
 Note that the default basically gives the maximum of the two methods' errors,
 whereas the final \code{log1mexp()} function will have (approximately)
 minimal error of the two.
@@ -380,8 +385,8 @@ rect(min(a.), yl[1], max(a.), yl[2],
      col= adjustcolor("black", .05), border="gray", pch = 5)
 @
 \setcapwidth{\textwidth}%
-  \caption{Absolute relative errors (with respect to 1024 bit \pkg{Rmpfr}
-    computation) of the default, $\log(1 - e^{-a})$, and the two methods
+  \caption[Relative errors of log1mexp() approximations]{%
+    Relative errors$^{*}$ of the default, $\log(1 - e^{-a})$, and the two methods
     ``\code{expm1}'' $\log(-\expml(-a))$ and ``\code{log1p}'' $\loglp(-\exp(-a))$.
     Figure~\ref{fig:zoomin-pic} will be a zoom into the gray rectangular region
     where all three curves are close.}
@@ -426,14 +431,15 @@ lines(a., predict(s2)$y ^ 3, col=cc[3], lwd=2)
 \begin{figure}[hbt!]
 \centering
 <<zoom-in-fig, fig=TRUE, width=9, echo=FALSE>>=
-cl2 <- "slateblue" # "gray35" # the color for "log(2)"
+cl2 <- adjustcolor("slateblue", 1/2)# (adj: lwd=3) # the color for "log(2)"
 par(mar = c(4.1,4.1,0.6,1.6))
 
 <<zoom-in-def-1>>
 
-abline(v = log(2), col = cl2, lty=4)
+abline(v = log(2), col=cl2, lty="9273", lwd=2.5)
+cl2. <- adjustcolor(cl2, 2)
 axis(1, at=log(2), label=quote(a[0] == log~2), las=1,
-     col.axis=cl2, col=cl2, lty=4)
+     col.axis=cl2.,col=cl2, lty="9273", lwd=2.5)
 ## what system is it ?
 sysInf <- Sys.info()[c("sysname", "release", "nodename", "machine")]
 mtext(with(as.list(sysInf),
@@ -493,9 +499,9 @@ $\log(1 - F_L(x)) = \log\frac{1}{1+e^x} = -\log(1 + e^x) = -g(x)$, where
 which has a ``$+"$'' instead of a ``$-$'', compared to $\mathrm{log1mexp}$, and
 is easier to analyze and compute,
 its only problem being large $x$'s where $e^x$ % = \exp x$
-overflows numerically.\footnote{Indeed, $\log(1 - F_L(x)) = -g(x)$, for $x=800$,
-  \code{plogis(800, lower=FALSE, log.p=TRUE)},
-  underflowed to \code{-Inf} in \R, before version 2.15.1 (June 2012) from
+overflows numerically.\footnote{Indeed, for $x=710$,
+  $ -g(x) = \log(1 - F_L(x)) = $ \code{plogis(710, lower=FALSE, log.p=TRUE)},
+  underflowed to \code{-Inf} in \R{} versions before 2.15.1 (June 2012) from
   when on (\ref{eq:log1pexp}) has been used.}
 As $g(x)= \log(1 + e^x) = \log(e^x(e^{-x} + 1)) = x + \log(1 + e^{-x})$, we see
 from (\ref{eq:Taylor-log1p}) that
@@ -523,8 +529,9 @@ where only the cutoff $x_1 = 18$ is important and the other cutoffs just
 save computations.\footnote{The
   \R{} plot \code{curve(log1p(exp(x)) - x, 33.1, 33.5, n=2\^{}10)}
   reveals
-  a somewhat fuzzy cutoff $x_1$.}
-%%--- Ok, still do a little analysis --- invisibly mostly (echo=FALSE) here:
+  a somewhat fuzzy cutoff $x_2$.}
+%%--- Ok, still do a little deeper analysis for the interested R code reader
+%%--- invisibly mostly (echo=FALSE) here:
 <<def-test-pfuns, echo=FALSE>>=
 t4p.l1e <- function(x)
 {
@@ -544,7 +551,6 @@ relE.pl1e <- function(x, precBits = 1024) {
     mMx <- if(x < 0) log1p(exp(x.)) else x. + log1p(exp(-x.))
     structure(as.numeric(1 - dx/mMx), names = names(dx))
 }
-@
 <<comp-big, echo=FALSE, results=hide>>=
 x.s <- seq(-100, 750, by = 5)  # <- the big picture ==> problem for default
 x.s <- seq( 5, 60, length=512) # <- the zoom in     ==> *no* problem for def.
@@ -553,7 +559,7 @@ signif(cbind(x.s, rx.s),3)
 @
 \begin{figure}[htb!]
   \centering %% using "blue" for the default method, *as* in Figure 1 above
-<<bigpict-2-fig, fig=TRUE, echo=FALSE, height=5>>=
+<<bigpict-2-fig, fig=TRUE, echo=FALSE, height=3>>=
 par(mar = c(4.1,4.1,0.6,1.6), mgp = c(1.6, 0.75, 0))
 cc <- adjustcolor(c(4,1,2,3),.8, red.f=.7, blue.f=.8)
 lt <- c("solid","33","3262","dotdash")
@@ -572,19 +578,27 @@ axis(1, at=x12, labels=formatC(x12), padj = -3.2, hadj = -.1, tcl = +.8,
 @
 % increasing width --> effective LaTeX *height* will decrease
 \setcapwidth{\textwidth}%
-  \caption{Absolute relative errors (with respect to 1024 bit \pkg{Rmpfr}
-    computation) of four different ways to numerically compute
+  \caption{Relative errors$^{*}$ % \footnote{(see footnote of Fig.~\ref{fig:bigpic})}
+    of four different ways to numerically compute
     $\log\bigl(1 + e^{x}\bigr)$.  Vertical bars at $x_1 = 18$ and $x_2 =
-    33.3$ visualize the cutpoints of (\ref{eq:log1pexp}).  Note that
-    the default method is fully accurate on this $x$ range.}
+    33.3$ visualize the (2nd and 3rd) cutpoints of (\ref{eq:log1pexp}).}
+  % Moved into text:|| down Note that the default method is fully accurate on this $x$ range.
   \label{fig:log1pexp}
 \end{figure}
 Figure~\ref{fig:log1pexp} visualizes the relative errors of the careless
 ``default'', $\log\bigl(1 + e^{x}\bigr)$, its straightforward correction
-$\log1p\bigl(e^x\bigr)$, the intermediate approximation $x + e^{-x}$, and
+$\loglp\bigl(e^x\bigr)$, the intermediate approximation $x + e^{-x}$, and
 the large $x$ ($ = x$), i.e., the methods in (\ref{eq:log1pexp}),
 depicting that the (easy to remember) cutoffs $x_1$ and $x_2$ in
 (\ref{eq:log1pexp}) are valid.
+%% moved from figure caption:
+Note that the default method is fully accurate on this $x$ range and only
+problematic when $e^x$ begins to overflow, i.e., $x > e_{\mathrm{Max}}$,
+where $e_{\mathrm{Max}}$ is the maximal exponent without overflow,
+$e_{\mathrm{Max}} \approx $
+\Sexpr{round(.Machine[["double.max.exp"]] * log(2), 1)} \ $=$ \
+\code{.Machine\$double.max.exp * log(2)}.
+
 
 \section{Conclusion}
 We have used high precision arithmetic (\R{} package \pkg{Rmpfr}) to
