@@ -334,7 +334,7 @@ a.s  <-  a.s[ii]
 ra.s <- ra.s[ii, ]
 @
 
-What about really small $a$'s?
+What about really small $a$'s?  Note here that
 <<a.small>>=
 t3.l1e(1e-20)
 as.numeric(t3.l1e(mpfr(1e-20, 256)))
@@ -563,10 +563,9 @@ is to use
   \end{cases}
 \end{align}
 where only the cutoff $x_1 = 18$ is important and the other cutoffs just
-save computations.\footnote{see the
-  \R{} plot \code{curve(log1p(exp(x)) - x, 33.1, 33.5, n=2\^{}10)}
-  above, revealing
-  a somewhat fuzzy cutoff $x_1$.}
+save computations.\footnote{see % the %\R{}
+  plot \code{curve(log1p(exp(x)) - x, 33.1, 33.5, n=2\^{}10)}
+  above, revealing a somewhat fuzzy cutoff $x_1$.}
 %%--- Ok, still do a little analysis --- invisibly mostly (echo=FALSE) here:
 <<def-test-pfuns, echo=FALSE>>=
 t4p.l1e <- function(x)
@@ -587,22 +586,16 @@ relE.pl1e <- function(x, precBits = 1024) {
     mMx <- if(x < 0) log1p(exp(x.)) else x. + log1p(exp(-x.))
     structure(as.numeric(1 - dx/mMx), names = names(dx))
 }
-@
-Figure~\ref{fig:log1pexp} visualizes the relative errors of the careless
-``default'', $\log\bigl(1 + e^{x}\bigr)$, its straightforward correction
-$\log1p\bigl(e^x\bigr)$, the intermediate approximation $x + e^{-x}$, and
-the large $x$ ($ = x$), i.e., the methods in (\ref{eq:log1pexp}),
-depicting that the (easy to remember) cutoffs $x_1$ and $x_2$ in
-(\ref{eq:log1pexp}) are valid.
 <<comp-big, echo=FALSE, results=hide>>=
 x.s <- seq(-100, 750, by = 5)  # <- the big picture ==> problem for default
 x.s <- seq( 5, 60, length=512) # <- the zoom in     ==> *no* problem for def.
 rx.s <- t(sapply(x.s, relE.pl1e))
 signif(cbind(x.s, rx.s),3)
 @
-\begin{figure}[hb!]
+
+\begin{figure}[htb!]
   \centering %% using "blue" for the default method, *as* in Figure 1 above
-<<bigpict-2-fig, fig=TRUE, echo=FALSE, height=5>>=
+<<bigpict-2-fig, fig=TRUE, echo=FALSE, height=3>>=
 par(mar = c(4.1,4.1,0.6,1.6), mgp = c(1.6, 0.75, 0))
 cc <- adjustcolor(c(4,1,2,3),.8, red.f=.7, blue.f=.8)
 lt <- c("solid","33","3262","dotdash")
@@ -628,6 +621,12 @@ axis(1, at=x12, labels=formatC(x12), padj = -3.2, hadj = -.1, tcl = +.8,
     the default method is fully accurate on this $x$ range.}
   \label{fig:log1pexp}
 \end{figure}
+Figure~\ref{fig:log1pexp} visualizes the relative errors of the careless
+``default'', $\log\bigl(1 + e^{x}\bigr)$, its straightforward correction
+$\log1p\bigl(e^x\bigr)$, the intermediate approximation $x + e^{-x}$, and
+the large $x$ ($ = x$), i.e., the methods in (\ref{eq:log1pexp}),
+depicting that the (easy to remember) cutoffs $x_1$ and $x_2$ in
+(\ref{eq:log1pexp}) are valid.
 
 
 \section{Conclusion}
