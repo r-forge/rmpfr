@@ -9,9 +9,9 @@
   Assessed by the \pkg{Rmpfr} package}
 %% for pretty printing and a nice hypersummary also set:
 \Plainauthor{Martin M\"achler} %% comma-separated
-\Plaintitle{Accurately Computing log(1 - exp(.)) -- Assessed by Rmpfr}
-%
-%\VignetteIndexEntry{Acccurately Computing log(1 - exp(.)) -- Assessed by Rmpfr}
+\Plaintitle{%
+                     Accurately Computing log(1 - exp(.)) -- Assessed by Rmpfr}
+%\VignetteIndexEntry{Accurately Computing log(1 - exp(.)) -- Assessed by Rmpfr}
 %\VignetteDepends{Rmpfr}
 %\VignetteDepends{gmp}
 %\VignetteDepends{sfsmisc}
@@ -229,6 +229,7 @@ in accurate computations of the beta, gamma, exponential, Weibull, t,
 logistic, geometric and hypergeometric distributions,
 %% in ~/R/D/r-devel/R/src/nmath/ :
 %%  grep --color -nHEw -e '(R_Log1_Exp|R_D_LExp|R_DT_Log|R_DT_C?log)' *.?
+%%  --> ~/R/Pkgs/Rmpfr/vignettes/log1mexp_grep
 and % because of the latter,
 even for the logit link function in logistic regression. For the beta and
 gamma distributions, see, for example, % e.g.,
@@ -273,7 +274,6 @@ we have defined the macro \verb|R_D_LExp(x)| to provide these two cases %branche
 automatically\footnote{look for ``log(1-exp(x))'' in
   \url{http://svn.r-project.org/R/branches/R-1-9-patches/src/nmath/dpq.h}}.
 % R-1.8.1: pgamma(30,100, lower=FALSE, log=TRUE)  gave 0 instead of -...
-
 
 To investigate the accuracy losses empirically, we make use of the \R{} package
 \CRANpkg{Rmpfr} for arbitrarily accurate numerical computation, and use the
