@@ -354,8 +354,7 @@ typedef enum { E_min = 1, E_max,
 SEXP R_mpfr_get_erange(SEXP kind_) {
     erange_kind kind = asInteger(kind_);
 /* MUST be sync'ed with  ../R/mpfr.R
- *                       ~~~~~~~~~~~ where  .Summary.codes <-
-
+ *                       ~~~~~~~~~~~ and its  .erange.codes <-
  */
     mpfr_exp_t r;
     switch(kind) {

@@ -17,6 +17,7 @@
 ** TODO 53) plogis() {and dlogis, qlogis} are "easy": do use <R>/src/nmath/[dpq]logis.c, as they
  already use all the numerical tricks including R_Log1_Exp(x) .. :
  R_Log1_Exp(x) := ((x) > -M_LN2 ? log(-expm1(x)) : log1p(-exp(x)))
+** TODO 54) zapsmall() would be nice, base::zapsmall() fails
 ** TODO 35) tests/bit-repr.R : Bits() fails to work with 2^k
 
 ** TODO 37) mpfrXport()/*Import() should work for arrays.  Test Windows-portability:
@@ -48,10 +49,9 @@
   environment(`dimnames<-`) <- as.environment("package:Rmpfr")
   environment(which) <- as.environment("package:Rmpfr")
 
-** TODO 5) I'd like seq() methods, but that seems currently impossible because of
+** TODO 5) have seqMpfr(), but would like seq() methods, but that seems currently impossible because of
    a "design infelicity" in base::seq.default  --- ???? E-mail to R-core ??
    --> R/mpfr.R
-
 ** TODO 6) It is "wrong" that the class "Mnumber" also extends "character", "list";
    but it's not clear we can find better definitions, see R/AllClasses.R
 

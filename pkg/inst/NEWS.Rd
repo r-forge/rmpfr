@@ -4,7 +4,24 @@
 \title{Rmpfr News}
 \encoding{UTF-8}
 
-\section{Changes in version 0.7-1 [2018-07-..]}{
+\section{Changes in version 0.7-2 [2018-..-..]}{
+  %% \subsection{BUG FIXES}{
+  %%   \itemize{
+  %%     \item
+  %%   }
+  %% }
+  \subsection{NEW FEATURES}{
+    \itemize{
+      \item \code{unirootR()} gets an option to \emph{not} warn on
+      non-convergence.
+
+      \item Provide a \code{summary()} method for \code{"mpfr"} numbers
+      closely modeled after \code{summary.default} for numeric.
+    }
+  }
+}
+
+\section{Changes in version 0.7-1 [2018-07-24]}{
   \subsection{BUG FIXES}{
     \itemize{
       \item \code{formatMpfr()} for large low-precision numbers now uses

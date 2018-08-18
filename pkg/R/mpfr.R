@@ -70,8 +70,7 @@ mpfr_default_prec <- function(prec) {
 .erange.codes <- setNames(seq_along(.erange.codes), .erange.codes)
 ## FIXME? better function name ??
 .mpfr.erange <- function(kind) {
-    stopifnot(length(kind) == 1, is.character(kind))
-    if(!any(kind == names(.erange.codes)))
+    if(missing(kind) || length(kind) != 1 || is.na(match(kind, names(.erange.codes))))
         stop("'kind' must be one of ",
              paste(paste0('"', names(.erange.codes), '"'), collapse=", "))
     .Call(R_mpfr_get_erange, .erange.codes[[kind]])
