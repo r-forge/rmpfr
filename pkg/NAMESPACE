@@ -176,6 +176,7 @@ S3method(mpfr, default)
 S3method(mpfr, bigz)
 S3method(mpfr, bigq)
 S3method(mpfr, mpfr)
+S3method(mpfr, NULL)
 S3method(mpfr, Ncharacter)
 
 ## needed because gmp "forgets" to  S3method() these:

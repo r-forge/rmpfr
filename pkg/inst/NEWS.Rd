@@ -17,6 +17,8 @@
 
       \item Provide a \code{summary()} method for \code{"mpfr"} numbers
       closely modeled after \code{summary.default} for numeric.
+
+      \item \code{mpfr(NULL)} now works, returning \code{mpfr(logical())}.
     }
   }
 }

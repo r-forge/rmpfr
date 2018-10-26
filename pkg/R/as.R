@@ -36,6 +36,8 @@ mpfr.bigq <- function(x, precBits, ...) {
     ..bigq2mpfr(x, precBits)
 }
 
+mpfr.NULL <- function(x, ...) mpfr(logical(), ...)
+
 mpfr.default <- function(x, precBits, base = 10, rnd.mode = c('N','D','U','Z','A'),
                          scientific = NA, ...)
 {

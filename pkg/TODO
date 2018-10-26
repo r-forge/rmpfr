@@ -1,5 +1,6 @@
 		-*- org -*-->  Emacs [Tab] key + [Org] menu; C-c C-o follows links
 * Very Short Term
+** TODO 32) .getPrec() should be documented {slightly}; .getSign(), .mpfr(), .erange()... -- at least *internal* (e.g. roxygen)
 ** TODO 31) Valgrind problems + leaks: Brian's e-mail 2014-06-19; ~/R/Pkgs/Rmpfr.Rcheck_valgrind/
 ** TODO 11) format() method for "mpfr", "mpfrArray" (and hence "mpfrMatrix") which nicely
     and correctly *jointly* formats (for "mpfr") and aligns columns !
@@ -9,7 +10,6 @@
 ** TODO 17b) see 'Ops' in R/Arith.R  ,  Rmpfr:::.Math.codes,  and
      design a "test all Ops" with all combinations of "mpfr", "numeric","logical"
      (and possibly more).
-** TODO 32) .getPrec() should be documented {slightly}; .getSign(), .mpfr() -- at least *internal* (e.g. roxygen)
 
 
 * Short or Mid Term
