@@ -6,7 +6,7 @@
   \code{\link{vapply}()} typically do not work with \code{"mpfr"}
   numbers.
 
-  This is simple (but strong) approach to work around the problem,
+  This is a simple (but strong) approach to work around the problem,
   based on \code{\link{lapply}()}.
 
   Note that this is not yet as flexible as \code{\link{sapply}()} for
@@ -37,12 +37,12 @@ sapplyMpfr(X, FUN, \dots)
   }
 }
 %% \seealso{
-%%   \code{\link{help}}, ~~~
+%%   \code{\link{..}},
 %% }
 \examples{
-## The function is currently defined as
+## The function is simply defined as
 function (X, FUN, ...)
-new("mpfr", unlist(lapply(X, FUN, ...), recursive = FALSE))
+  new("mpfr", unlist(lapply(X, FUN, ...), recursive = FALSE))
 
 if(require("Bessel")) # here X, is simple
   bImp <- sapplyMpfr(0:4, function(k)

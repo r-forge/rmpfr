@@ -4,7 +4,7 @@
 \title{Rmpfr News}
 \encoding{UTF-8}
 
-\section{Changes in version 0.7-2 [2018-12-02]}{
+\section{Changes in version 0.7-2 [2018-12-13]}{
   %% \subsection{BUG FIXES}{
   %%   \itemize{
   %%     \item
