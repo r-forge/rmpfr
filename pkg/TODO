@@ -81,11 +81,7 @@
     -- see  MPFR_RNDN in src/utils.c and others; --> use src/convert.c  R_rnd2MP()
     -- and all the SEXP functions get an additional   SEXP rnd_mode
        argument, the same as   SEXP d2mpfr1() in src/convert.c has already.
-** TODO 27) sapply(), vapply() etc do not work with mpfr --- show workaround
-    e.g. from ~/R/MM/Pkg-ex/Rmpfr/Dutang_test_v6.R
-	 res.mpfr <- lapply(1:length(n), function(i) binomsum.mpfr.MM(n[i], f, n0, precBits=precBits[i], ...))
-	 sapply(res.mpfr, as, "double")
-
+** DONE 27) Now have simple sapplyMpfr()
 ** TODO 29) Our sum() should use system mpfr_sum() :
    mpfr_sum (mpfr_t ROP, mpfr_ptr const TAB[], unsigned long int N, mpfr_rnd_t RND)
 ** TODO 32) Use ./LUP.R  to compute the lu() decomposition of an mpfrMatrix

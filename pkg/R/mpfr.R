@@ -289,6 +289,9 @@ setReplaceMethod("[", signature(x = "mpfrArray", i = "matrix", j = "missing",
 c.mpfr <- function(...)
     new("mpfr", unlist(lapply(list(...), as, Class = "mpfr"),
 		       recursive = FALSE))
+## and the same trick can be used to implement an
+sapplyMpfr <- function(X, FUN, ...) new("mpfr", unlist(lapply(X, FUN, ...), recursive = FALSE))
+
 
 ##  duplicated() now works, checked in ../man/mpfr-class.Rd
 

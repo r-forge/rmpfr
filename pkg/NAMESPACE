@@ -130,6 +130,7 @@ export(.mpfr, .mpfr.
        , "pnorm"
        , "pochMpfr"
        , "roundMpfr"
+       , sapplyMpfr
        , "seqMpfr"
        , "t"
        , "toNum"

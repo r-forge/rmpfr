@@ -4,7 +4,7 @@
 \title{Rmpfr News}
 \encoding{UTF-8}
 
-\section{Changes in version 0.7-2 [2018-..-..]}{
+\section{Changes in version 0.7-2 [2018-12-02]}{
   %% \subsection{BUG FIXES}{
   %%   \itemize{
   %%     \item
@@ -19,6 +19,10 @@
       closely modeled after \code{summary.default} for numeric.
 
       \item \code{mpfr(NULL)} now works, returning \code{mpfr(logical())}.
+
+      \item a simple \code{sapplyMpfr()} function, showing how to work
+      around the fact that \code{sapply()} does typically not work with
+      \code{"mpfr"} numbers.
     }
   }
 }
