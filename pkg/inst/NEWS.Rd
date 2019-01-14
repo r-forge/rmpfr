@@ -4,12 +4,16 @@
 \title{Rmpfr News}
 \encoding{UTF-8}
 
-\section{Changes in version 0.7-2 [2018-12-13]}{
-  %% \subsection{BUG FIXES}{
-  %%   \itemize{
-  %%     \item
-  %%   }
-  %% }
+\section{Changes in version 0.7-2 [2019-01-14]}{
+  \subsection{BUG FIXES}{
+    \itemize{
+      \item \code{str(<mpfr>)} no longer calls \code{formatMpfr(x, digits, *)}
+      with a \code{digits} \emph{vector} of the same length as \code{x}
+      (which never worked correctly).
+
+      \item \code{seqMpfr(1, length.out=8)} now works correctly.
+    }
+  }
   \subsection{NEW FEATURES}{
     \itemize{
       \item \code{unirootR()} gets an option to \emph{not} warn on
