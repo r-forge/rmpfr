@@ -4,6 +4,16 @@
 \title{Rmpfr News}
 \encoding{UTF-8}
 
+\section{Changes in version 0.7-3 [2019-07-xx, r...]}{
+  \subsection{NEW FEATURES}{
+    \itemize{
+      \item provide \code{dgamma(x, shape)} version, e.g., for small shape
+      parameter where most of the mass is on very small \code{x} not
+      representable as double precision numbers.
+    }
+  }
+}
+
 \section{Changes in version 0.7-2 [2019-01-14, r298]}{
   \subsection{BUG FIXES}{
     \itemize{
