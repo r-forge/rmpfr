@@ -4,13 +4,18 @@
 \title{Rmpfr News}
 \encoding{UTF-8}
 
-\section{Changes in version 0.7-3 [2019-07-xx, r...]}{
+\section{Changes in version 0.7-3 [2019-08-05, r301]}{
   \subsection{NEW FEATURES}{
     \itemize{
       \item provide \code{dgamma(x, shape)} version, e.g., for small shape
       parameter where most of the mass is on very small \code{x} not
       representable as double precision numbers.
     }
+  }
+  \subsection{BUG FIXES}{
+    \itemize{
+      \item \code{pnorm(<large>, log.p=TRUE)} no longer underflows much too
+      early, thanks to reports by Jerry Lewis.
   }
 }
 

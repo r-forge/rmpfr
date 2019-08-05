@@ -24,7 +24,7 @@ stopifnot(range(x) == 0:1
 		     besselY(as.numeric(x), 1), tol = 1e-14)
 	  )
 
-### pnorm() -> erf() :
+### pnorm() -> erf() : ----------------------------------------------------------
 u <- 7*x - 2
 stopifnot(all.equal(pnorm(as.numeric(u)),
 		    as.numeric(pnorm(u)), tol = 1e-14))
@@ -58,8 +58,43 @@ for(n in 1:nSim) {
 };cat("\n")
 proc.time()
 
+## Jerry Lewis - Aug 2, 2019
+## Contrast the results of pnorm with double and mpfr inputs
+x <- c(1:9, 5*(2:9), 10*(5:20)) ; x <- c(-rev(x), 0, x)
+pdL <- pnorm(x, log.p=TRUE)
+pdU <- pnorm(x, log.p=TRUE, lower.tail=FALSE)
+stopifnot(exprs = {
+    !is.unsorted(x)
+    35 %in% x
+    x == -rev(x) # exactly
+    pdL == rev(pdU) # even exactly, currently
+}
+mx <- mpfr(x, precBits = 128)
+pmL <- pnorm(mx, log.p=TRUE)
+pmU <- pnorm(mx, log.p=TRUE, lower.tail=FALSE)
+stopifnot(exprs = {
+    pmL < 0 # not true for 'pdL' which underflows
+    pmL == rev(pmU) # even exactly, currently
+    all.equal(pmL, pdL, tol=4e-16) # 'tol=0' shows 4.46e-17
+})
+## some explorations :
+dlp <- diff(log(-pmL))/diff(x)
+n <- length(x)
+x.1 <- (x[-1] + x[-n])/2
+plot(x.1, dlp, type="b", ylab = "d/dx  log(-pnorm(., log=TRUE))")
+plot(x.1[-1], diff(dlp)/diff(x.1), type="b", ylab = "d^2/dx^2  log(-pnorm(., log=TRUE))")
+stopifnot(exprs = {
+    -1 < (d2 <- diff(dlp)/diff(x.1))
+    d2 < 0
+    diff(d2) < 0
+})
+x.3 <- x.1[-c(1L,n-1L)]
+plot(x.3, -diff(d2)/ diff(x.1)[-1], type="o", log="y")
 
-### Riemann's Zeta function:
+
+
+
+### Riemann's Zeta function: ----------------------------------------------------
 
 ## -- integer arguments --
 stopifnot(all(mpfrIs0(zeta(-2*(1:100)))))

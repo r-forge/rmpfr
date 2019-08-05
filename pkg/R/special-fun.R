@@ -33,22 +33,27 @@ pnorm <- function (q, mean = 0, sd = 1, lower.tail = TRUE, log.p = FALSE)
 	if(any(neg <- (q < 0))) ## swap those:	Phi(-z) = 1 - Phi(z)
 	    rr[neg] <- pnorm(-q[neg], lower.tail = !lower.tail, log.p=log.p)
 	if(any(pos <- !neg)) {
-	    q <- q[pos]
+	    q <- q[pos] #==> now  q >= 0
 	    prec.q <- max(.getPrec(q))
 	    two <- mpfr(2, prec.q)
 	    rt2 <- sqrt(two)
 	    rr[pos] <- if(lower.tail) {
-		eq2 <- erf(q/rt2)
-		if(log.p && any(sml <- abs(eq2) < .5)) {
+		if(log.p) {
 		    r <- q
-		    r[ sml] <- log1p(eq2[sml]) - log(two)
-		    r[!sml] <- log((1 + eq2[!sml])/2)
+		    sml <- q < 0.67448975
+		    if(any(sml)) {
+			eq2 <- erf(q[sml]/rt2) ## |eq2| < 1/2 <==> |q/rt2| < 0.47693627620447
+			##                        <==>  sml   <==>   |q|   < 0.67448975019608
+			r[ sml] <- log1p(eq2) - log(two)
+		    }
+		    if(any(!sml)) {
+			ec2 <- erfc(q[!sml]/rt2) ## ==> ec2 = 1-eq2 <= 1 - 1/2 = 1/2
+			r[!sml] <- log1p(-0.5*ec2)
+		    }
 		    r
 		}
-		else {
-		    r <- (1 + eq2)/2
-		    if(log.p) log(r) else r
-		}
+		else ## !log.p
+		    (1 + erf(q/rt2))/2
 	    } else { ## upper.tail
 		r <- erfc(q/rt2) / 2
 		if(log.p) log(r) else r
@@ -104,6 +109,31 @@ dbinom <- function (x, size, prob, log = FALSE) {
     } else
 	stop("(x,size, prob) must be numeric or \"mpfr\"")
 }## {dbinom}
+
+
+dgamma <- function(x, shape, rate = 1, scale = 1/rate, log = FALSE) {
+    missR <- missing(rate)
+    missS <- missing(scale)
+    if (!missR && !missS) { ## as stats::dgamma()
+        if (abs(rate * scale - 1) < 1e-15)
+            warning("specify 'rate' or 'scale' but not both")
+        else stop("specify 'rate' or 'scale' but not both")
+    }
+    ## and now use 'scale' only
+    if(is.numeric(x) && is.numeric(shape) && is.numeric(scale))
+        stats__dgamma(x, shape, scale=scale, log=log)
+    else if((sh.mp <- is(shape, "mpfr")) |
+	    (sc.mp <- is(scale, "mpfr")) || is(x, "mpfr")) {
+        ##     f(x)= 1/(s^a Gamma(a)) x^(a-1) e^-(x/s)  ; a=shape, s=scale
+        ## log f(x) = -a*log(s) - lgamma(a) + (a-1)*log(x) - (x/s)
+
+        ## for now, "cheap", relying on "mpfr" arithmetic to be smart
+        ## "TODO":  Use C.Loader's formulae via dpois_raw() ,  bd0() etc
+	if(log) -shape*log(scale) -lgamma(shape) + (shape-1)*log(x) - (x/scale)
+	else  x^(shape-1) * exp(-(x/s)) / (scale^shape * gamma(shape))
+    } else
+	stop("(x, shape, scale) must be numeric or \"mpfr\"")
+}## {dgamma}
 
 
 
