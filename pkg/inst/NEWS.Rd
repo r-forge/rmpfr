@@ -4,7 +4,7 @@
 \title{Rmpfr News}
 \encoding{UTF-8}
 
-\section{Changes in version 0.7-3 [2019-08-05, r301]}{
+\section{Changes in version 0.7-3 [2019-08-05, r302]}{
   \subsection{NEW FEATURES}{
     \itemize{
       \item provide \code{dgamma(x, shape)} version, e.g., for small shape
@@ -16,6 +16,7 @@
     \itemize{
       \item \code{pnorm(<large>, log.p=TRUE)} no longer underflows much too
       early, thanks to reports by Jerry Lewis.
+    }
   }
 }
 
