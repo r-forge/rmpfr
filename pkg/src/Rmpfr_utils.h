@@ -48,12 +48,21 @@
 extern       int R_mpfr_debug_;
 #endif
 
-/* A version of Rprintf() .. but only printing when .. is 'TRUE' :*/
+/* A version of Rprintf() .. but only printing when  R_mpfr_debug_ is large enough :*/
 static R_INLINE void R_mpfr_dbg_printf(int dbg_level, const char *format, ...)
 {
-    va_list(ap);
     if(R_mpfr_debug_ && R_mpfr_debug_ >= dbg_level) {
+	va_list(ap);
 	Rprintf("mpfr.debug[%d]: ", R_mpfr_debug_);
+	va_start(ap, format);
+	REvprintf(format, ap);
+	va_end(ap);
+    }
+}
+static R_INLINE void R_mpfr_dbg_printf_0(int dbg_level, const char *format, ...)
+{
+    if(R_mpfr_debug_ && R_mpfr_debug_ >= dbg_level) {
+	va_list(ap);
 	va_start(ap, format);
 	REvprintf(format, ap);
 	va_end(ap);

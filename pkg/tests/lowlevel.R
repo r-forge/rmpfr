@@ -132,15 +132,30 @@ stopifnot(identical(fz, c("0.0527",
 
 k1 <- mpfr(  c(123, 1234, 12345, 123456), precBits=2)
 (N1 <- asNumeric(k1))# 128  1024  12288  131072 -- correct
-str(.mpfr2str(k1))
-str(.mpfr2str(k1, maybe.full=TRUE, base=10), vec.len=10)
-str(.mpfr2str(k1, maybe.full=TRUE, base= 2), vec.len=10)
-
+str(sk1    <- .mpfr2str(k1))
+str(sk1.   <- .mpfr2str(k1, maybe.full=TRUE))
+str(sk1.2  <- .mpfr2str(k1, digits=2,        base=2))
+str(sk1.2F <- .mpfr2str(k1, maybe.full=TRUE, base=2))
+stopifnot(exprs = {
+    identical(sk1 [1:2], list(str = rep("1", 4), exp = 3:6))
+    identical(sk1.[1:2], list(str = c("128", "1024", "12288", "131072"), exp = 3:6))
+    identical(sk1.2, list(str = c("10", "10", "11", "10"),
+                          exp = c( 8L,  11L,  14L,  18L),
+                          finite = rep(TRUE, 4), is.0 = rep(FALSE, 4)))
+    identical(formatMpfr(k1, base=2, digits=20, drop0trailing=TRUE),
+              sk1.2F$str)
+    identical(formatMpfr(k1, base=2, digits=2), c("1.0e7", "1.0e10", "1.1e13", "1.0e17"))
+})
 ## MM: --> need_dig is fine  but is not used in the string that is returned !!
 
-(fk1 <- formatMpfr(k1, scientific=FALSE)) # "the bug" --- now fixed!
-stopifnot(all.equal(N1, as.numeric(fk1), tol=0))
-format(k1, digits=3) # now fine
+(fk1sF <- formatMpfr(k1, scientific=FALSE)) # "the bug" --- now fixed! ==> new "Bug" in new Rmpfr ????
+## was "128."  "1024." "12288." "131072." , but now obeying internal precision gives
+##     "1.e2"  "1.e3"  "1.e4"   "1.e5"
+(fk1 <- formatMpfr(k1, digits=6))
+stopifnot(exprs = {
+    N1 == as.numeric(fk1)
+    identical(format(k1, digits=3), c("128.", "1020.", "1.23e4", "1.31e5"))
+})
 ##
 digs <- setNames(1:6, 1:6)
 ## Each of these are  4 x 6  matrices

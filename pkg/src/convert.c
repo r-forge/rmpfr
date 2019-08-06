@@ -438,7 +438,8 @@ SEXP mpfr2i(SEXP x, SEXP rnd_mode) {
 
  *  3) digits = <num>, maybe_full = TRUE (<=> 'scientific' = TRUE  in the calling formatMpfr()
  *     -------------   -----------------==> set digits  <=>  max(digit, getPrec(x), #{"digits left of '.'"}))
-
+ *
+ *  Rmpfr:::.mpfr.debug(1)  ==> to add debug output here
  */
 SEXP mpfr2str(SEXP x, SEXP digits, SEXP maybeFull, SEXP base) {
     int n = length(x), i;
@@ -449,7 +450,7 @@ SEXP mpfr2str(SEXP x, SEXP digits, SEXP maybeFull, SEXP base) {
     if(maybe_full == NA_LOGICAL) // cannot happen when called "regularly"
 	error("'maybe.full' must be TRUE or FALSE");
 
-    R_mpfr_dbg_printf(1,"mpfr2str(*, digits=%d, maybeF=%s, base=%d): ",
+    R_mpfr_dbg_printf(1,"mpfr2str(*, digits=%d, maybeF=%s, base=%d):\n",
 		      n_dig, (maybe_full ? "TRUE" : "False"), B);
 
     /* int dig_n_max = -1; */
@@ -503,19 +504,20 @@ SEXP mpfr2str(SEXP x, SEXP digits, SEXP maybeFull, SEXP base) {
 	    R_mpfr_dbg_printf(1," [i=%d]: ... -> dig.n = %d ", i, dig_needed);
 	} else { /* N_digits = 0 --> string must use "enough" digits */
 	    double need_dig =
-		ceil(fmax2((double)R_i->_mpfr_prec,
-			   // when prec is too small:
-			   (double)mpfr_get_exp(R_i)) / p_fact);
+		ceil((maybe_full
+		      ? fmax2((double)R_i->_mpfr_prec,
+			      // when prec is too small:
+			      (double)mpfr_get_exp(R_i))
+		      : (double)R_i->_mpfr_prec)
+		     / p_fact);
 	    if(need_dig > 268435456 /* = 2^28 */) // << FIXME, somewhat arbitrary
 		error(_(".mpfr2str(): too large 'need_dig'; please set 'digits = <number>'"));
-// FIXME: rather set   maybe_full = FALSE  (???)
 	    dig_needed = (int) need_dig;
 	    R_mpfr_dbg_printf(1," [i=%d]: prec=%ld, exp2=%ld -> (n.dig,dig.n)=(%g,%d) ",
 			      i, R_i->_mpfr_prec, mpfr_get_exp(R_i),
 			      need_dig, dig_needed);
 	    if(dig_needed <= 1 && base_is_2_power) { // have n_dig_problem:
-		R_mpfr_dbg_printf(1," [i=%d]: base_is_2_power & dig_needed=%d ==> fudge dig_n. := 2",
-				  i, dig_needed);
+		R_mpfr_dbg_printf_0(1," base_is_2_power & dig_needed=%d ==> fudge dig_n. := 2");
 		dig_needed = 2;
 	    }
 	}
@@ -542,7 +544,7 @@ SEXP mpfr2str(SEXP x, SEXP digits, SEXP maybeFull, SEXP base) {
 	 .........
 	 .........  ==> MPFR info manual  "5.4 Conversion Functions"
 	*/
-	R_mpfr_dbg_printf(1," .. dig_n_max=%d\n", dig_n_max);
+	R_mpfr_dbg_printf_0(1," .. dig_n_max=%d\n", dig_n_max);
 
 	mpfr_get_str(ch, exp_ptr, B,
 		     (size_t) dig_n_max, R_i, MPFR_RNDN);
