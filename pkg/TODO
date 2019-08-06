@@ -1,6 +1,5 @@
 	-*- org -*-->  Emacs [Tab] key + [Org] menu; C-c C-o follows links
 * Very Short Term
-** TODO 56) Add regr.tests for new dgamma(<mpfr>) !!
 ** TODO 55) .getPrec() should be documented {slightly}; .getSign(), .mpfr(), .erange()... -- at least *internal* (e.g. roxygen)
 ** TODO 31) Valgrind problems + leaks: Brian's e-mail 2014-06-19; ~/R/Pkgs/Rmpfr.Rcheck_valgrind/
 ** TODO 11) format() method for "mpfr", "mpfrArray" (and hence "mpfrMatrix") which nicely
@@ -219,3 +218,4 @@
     additional rnd.mode  argument -- as mpfr
 ** DONE 27) Now have simple sapplyMpfr()
 ** DONE 57) Fix pnorm() bugs reported by Jerry Lewis (>> ~/R/MM/Pkg-ex/Rmpfr/pnorm-* )
+** DONE 56) Add regr.tests for new dgamma(<mpfr>) !!

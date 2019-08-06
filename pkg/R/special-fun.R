@@ -126,11 +126,28 @@ dgamma <- function(x, shape, rate = 1, scale = 1/rate, log = FALSE) {
 	    (sc.mp <- is(scale, "mpfr")) || is(x, "mpfr")) {
         ##     f(x)= 1/(s^a Gamma(a)) x^(a-1) e^-(x/s)  ; a=shape, s=scale
         ## log f(x) = -a*log(s) - lgamma(a) + (a-1)*log(x) - (x/s)
-
-        ## for now, "cheap", relying on "mpfr" arithmetic to be smart
-        ## "TODO":  Use C.Loader's formulae via dpois_raw() ,  bd0() etc
-	if(log) -shape*log(scale) -lgamma(shape) + (shape-1)*log(x) - (x/scale)
-	else  x^(shape-1) * exp(-(x/s)) / (scale^shape * gamma(shape))
+	if(!sh.mp || !sc.mp) {
+	    prec <- pmax(53, getPrec(shape), getPrec(scale), getPrec(x))
+	    if(!sh.mp)
+		shape <- mpfr(shape, prec)
+	    else ## !sc.mp :
+		scale <- mpfr(scale, prec)
+	}
+	## for now, "cheap", relying on "mpfr" arithmetic to be smart
+	## "TODO":  Use C.Loader's formulae via dpois_raw() ,  bd0() etc
+	## lgam.sh <- lgamma(shape)
+	## ldgamma <- function(x, shp, s) -shp*log(s) -lgam.sh + (shp-1)*log(x) - (x/s)
+        ldgamma <- function(x, shp, s) -shp*log(s) -lgamma(shp) + (shp-1)*log(x) - (x/s)
+	if(log)
+	    ldgamma(x, shape, scale)
+	else { ## use direct [non - log-scale] formula when applicable
+	    ## ok <- lgam.sh < log(2) * Rmpfr:::.mpfr.erange("Emax") & ## finite gamma(shape) := exp(lgam.sh)
+	    ##       is.finite(xsh1 <- x^(shape-1)) &
+	    ##       !is.na(r <- xsh1 * exp(-(x/scale)) / (scale^shape * exp(lgam.sh)))
+	    ## r[!ok] <- exp(ldgamma(x[!ok], shape[!ok], scale[!ok]))
+	    ## r
+	    exp(ldgamma(x, shape, scale))
+	}
     } else
 	stop("(x, shape, scale) must be numeric or \"mpfr\"")
 }## {dgamma}

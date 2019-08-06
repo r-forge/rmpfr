@@ -68,7 +68,7 @@ stopifnot(exprs = {
     35 %in% x
     x == -rev(x) # exactly
     pdL == rev(pdU) # even exactly, currently
-}
+})
 mx <- mpfr(x, precBits = 128)
 pmL <- pnorm(mx, log.p=TRUE)
 pmU <- pnorm(mx, log.p=TRUE, lower.tail=FALSE)
@@ -297,8 +297,40 @@ stopifnot(
 )
 
 
-
-
+### dgamma(): ----------------------------------------------------
+xe <- c(-2e5, -1e5, -2e4, -1e4, -2000, -1000, -500, -200, -100, -50, -20, -10)
+(xe <- c(xe, -8:8, -rev(xe)))
+two <- mpfr(2, 64)
+## For centering at E[.], will use xP(x, shp) :
+xP <- function(x, d) x - d*(x > d)
+aEQformat <- function(xy, ...) format(xy, digits = 7, ...)
+allEQ_0 <- function (target, current, ...)
+    all.equal(target, current, tolerance = 0, formatFUN = aEQformat, ...)
+for(shp in c(2^c(-20, -3, -1:1, 4, 10, 50))) {
+    cat("shape = 2^", log2(shp), ":\n-------------\n")
+    d.dg  <- dgamma(xP(2 ^ xe, shp), shape=shp)
+    m.dg  <- dgamma(xP(two^xe, shp), shape=shp)
+    m.ldg <- dgamma(xP(two^xe, shp), shape=shp, log=TRUE)
+    stopifnot(exprs = {
+        !is.unsorted(xe)
+        is.finite(m.dg)
+        m.dg >= 0
+        shp > 1  || all(diff(m.dg) <= 0)
+        shp > 100|| all((m.dg > 0) >= (d.dg > 0))
+        any(fin.d <- is.finite(d.dg))
+        m.dg[!fin.d] > 1e300
+        { cat("all.EQ(<mpfr>, <doubl>):", allEQ_0(m.dg[fin.d], d.dg[fin.d]), "\n")
+          shp > 100  ||                   all.equal(m.dg[fin.d], d.dg[fin.d],
+                                                    tol = 1e-13) # 2.063241e-14
+        }
+        ## compare with log scale :
+        if(any(pos.d <- m.dg > 0)) {
+            cat("all.EQ(log(d), d*(log)):",
+              allEQ_0  (log(m.dg[pos.d]), m.ldg[pos.d]),"\n")
+              all.equal(log(m.dg[pos.d]), m.ldg[pos.d], tol = 1e-14)
+        }
+    })
+}
 
 cat('Time elapsed: ', proc.time(),'\n') # "stats"
 if(!interactive()) warnings()
