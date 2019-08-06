@@ -2,6 +2,7 @@
 \title{Formatting MPFR (multiprecision) Numbers}
 \alias{formatMpfr}
 \alias{formatN.mpfr}
+\alias{.mpfr2str}
 \description{
   Flexible formatting of \dQuote{multiprecision numbers}, i.e., objects
   of class \code{\linkS4class{mpfr}}.  \code{formatMpfr()} is also the
@@ -10,16 +11,24 @@
   The \code{formatN()} methods for \code{\linkS4class{mpfr}} numbers
   renders them differently than their double precision equivalents, by
   appending \code{"_M"}.
+
+  Function \code{.mpfr2str()} is the low level work horse for
+  \code{formatMpfr()} and hence all \code{\link{print}()}ing of
+  \code{"\linkS4class{mpfr}"} objects.
 }
 \usage{
 formatMpfr(x, digits = NULL, trim = FALSE, scientific = NA,
+           maybe.full = !is.null(digits) && is.na(scientific),
 	   base = 10, showNeg0 = TRUE, max.digits = Inf,
 	   big.mark = "", big.interval = 3L,
 	   small.mark = "", small.interval = 5L,
            decimal.mark = ".",
            exponent.char = if(base <= 14) "e" else if(base <= 36) "E" else "|e",
            zero.print = NULL, drop0trailing = FALSE, ...)
+
 \S3method{formatN}{mpfr}(x, drop0trailing = TRUE, \dots)
+
+.mpfr2str(x, digits = NULL, maybe.full = !is.null(digits), base = 10L)
 }
 \arguments{
   \item{x}{an MPFR number (vector or array).}
@@ -36,6 +45,7 @@ formatMpfr(x, digits = NULL, trim = FALSE, scientific = NA,
     MPFR numbers should be encoded in scientific
     format, or an integer penalty (see \code{\link{options}("scipen")}).
     Missing values correspond to the current default penalty.}
+  \item{maybe.full}{\code{\link{logical}}, passed to \code{\link{.mpfr2str}()}.}
   \item{base}{an integer in \eqn{2,3,..,62}; the base (\dQuote{basis})
     in which the numbers should be represented.  Apart from the default
     base 10, binary (\code{base = 2}) or hexadecimal (\code{base = 16})
@@ -76,8 +86,8 @@ formatMpfr(x, digits = NULL, trim = FALSE, scientific = NA,
 }
 \references{
   The MPFR manual's description of \samp{mpfr_get_str()} which is the
-  C-internal workhorse for the (internal) \R function \code{.mpfr2str()}
-  on which \code{formatMpfr} builds.
+  C-internal workhorse for the low level \R function \code{.mpfr2str()}
+  on which \code{formatMpfr()} builds.
 }
 \author{Martin Maechler}
 \seealso{

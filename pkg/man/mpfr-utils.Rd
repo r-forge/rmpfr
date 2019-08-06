@@ -1,6 +1,7 @@
 \name{mpfr-utils}
 \title{Rmpfr -- Utilities for Precision Setting, Printing, etc}
 \alias{getPrec}
+\alias{.getPrec}
 \alias{getD}
 \alias{mpfr_default_prec}
 \alias{mpfr2array}
@@ -18,13 +19,16 @@
 }
 \usage{
 getPrec(x, base = 10, doNumeric = TRUE, is.mpfr = NA, bigq. = 128L)
+.getPrec(x)
 getD(x)
 mpfr_default_prec(prec)
 \S3method{print}{mpfrArray}(x, digits = NULL, drop0trailing = FALSE,
-      right = TRUE, \dots)
+      right = TRUE,
+      max.digits = getOption("Rmpfr.print.max.digits", 999L),
+      \dots)
 \S3method{print}{mpfr}(x, digits = NULL, drop0trailing = TRUE,
       right = TRUE,
-      max.digits = getOption("Rmpfr.print.max.digits", 9999),
+      max.digits = getOption("Rmpfr.print.max.digits", 999L),
       \dots)
 toNum(from, rnd.mode = c('N','D','U','Z','A'))
 mpfr2array(x, dim, dimnames = NULL, check = FALSE)

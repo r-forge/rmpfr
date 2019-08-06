@@ -162,14 +162,15 @@ setAs("mpfrArray", "matrix", function(from) {
     toNum(from)
 })
 
-print.mpfrArray <- function(x, digits = NULL, drop0trailing = FALSE,
-##							      -----
-			    right = TRUE, ...) {
-## would like 'drop0... = TRUE', but that's only ok once we have a
-## format() allowing to "jointly format a column"
-
+print.mpfrArray <- function(x, digits = NULL, drop0trailing = FALSE, right = TRUE,
+                            ##				      -----
+                            ## would like    'drop0... = TRUE', but that's only ok once we have a
+                            ## format() allowing to "jointly format a column"
+                            max.digits = getOption("Rmpfr.print.max.digits", 999L),
+			    ...)
+{
     stopifnot(is(x, "mpfrArray"), is.null(digits) || digits >= 2)
-    ## digits = NA --> the inherent precision of x will be used
+    ## digits = NULL --> the inherent precision of x will be used
     n <- length(x)
     ch.prec <-
 	if(n >= 1) {
@@ -187,7 +188,8 @@ print.mpfrArray <- function(x, digits = NULL, drop0trailing = FALSE,
 	## -----  which properly alings columns !!
 
 	## Build character array fx, and print that
-	fx <- formatMpfr(x, digits=digits, drop0trailing=drop0trailing)
+	fx <- formatMpfr(x, digits=digits, drop0trailing=drop0trailing,
+                         max.digits=max.digits)
 	dim(fx) <- dim(x)
 	dimnames(fx) <- dimnames(x)
 	print(fx, ..., right=right, quote = FALSE)

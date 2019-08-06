@@ -120,8 +120,10 @@ getD <- function(x) { attributes(x) <- NULL; x }
 ## Get or Set the C-global  'R_mpfr_debug_' variable:
 .mpfr.debug <- function(i = NA) .Call(R_mpfr_set_debug, as.integer(i))
 
+## CAREFUL: keep  digits, max.digits, ... defaults in sync  with
+##          print.mpfrArray() in ./array.R
 print.mpfr <- function(x, digits = NULL, drop0trailing = TRUE, right = TRUE,
-                       max.digits = getOption("Rmpfr.print.max.digits", 9999L),
+                       max.digits = getOption("Rmpfr.print.max.digits", 999L),
                        ...) {
     stopifnot(is(x, "mpfr"), is.null(digits) || digits >= 1)
     ## digits = NULL --> the inherent precision of x will be used
@@ -133,10 +135,16 @@ print.mpfr <- function(x, digits = NULL, drop0trailing = TRUE, right = TRUE,
 		   if(rpr[1] != rpr[2]) paste("..",rpr[2]), " bits")
 	}
     cat(n, "'mpfr'", if(n == 1) "number" else "numbers", ch.prec, "\n")
-    if(n >= 1)
-	print(format(x, digits=digits, max.digits=max.digits,
-		     drop0trailing=drop0trailing),
-	      ..., right=right, quote = FALSE)
+    if(n >= 1) {
+        ##__ TODO ??
+	##__ if(is.null(digits))
+	##__     digits <- ceiling(max(.getPrec(x)) / log2(10))
+        ## drop arguments for print.default(*):
+	lFormat <- function(x, na.print, print.gap, max, useSource, ...)
+	    format(x, digits=digits, max.digits=max.digits, drop0trailing=drop0trailing,
+		   ...)
+	print(lFormat(x, ...), ..., right=right, quote = FALSE)
+    }
     invisible(x)
 }
 setMethod(show, "mpfr", function(object) print.mpfr(object))

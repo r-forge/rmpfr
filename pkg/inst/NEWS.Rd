@@ -4,18 +4,32 @@
 \title{Rmpfr News}
 \encoding{UTF-8}
 
-\section{Changes in version 0.7-3 [2019-08-05, r302]}{
+\section{Changes in version 0.7-3 [2019-08-05, r303]}{
+  \subsection{USER-VISIBLE CHANGES}{
+    \itemize{
+      \item Decreased the default for \code{max.digits} to 999.
+    }
+  }
   \subsection{NEW FEATURES}{
     \itemize{
       \item provide \code{dgamma(x, shape)} version, e.g., for small shape
       parameter where most of the mass is on very small \code{x} not
       representable as double precision numbers.
+
+      \item low-level formatting function \code{.mpfr2str()} --- called by
+      \code{format()} and hence \code{print()} methods for \code{"mpfr"}
+      objects --- now finally obeys its \code{maybe.full} argument when it
+      is \code{FALSE}, internally in C's \code{mpfr2str()}.
     }
   }
   \subsection{BUG FIXES}{
     \itemize{
       \item \code{pnorm(<large>, log.p=TRUE)} no longer underflows much too
       early, thanks to reports by Jerry Lewis.
+
+      \item \code{print.mpfrArray()} now also uses a finite
+      \code{max.digits} default, preventing, e.g., \code{cbind(x, y)} to
+      use too many digits.
     }
   }
 }

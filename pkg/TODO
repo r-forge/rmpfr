@@ -218,4 +218,10 @@
     additional rnd.mode  argument -- as mpfr
 ** DONE 27) Now have simple sapplyMpfr()
 ** DONE 57) Fix pnorm() bugs reported by Jerry Lewis (>> ~/R/MM/Pkg-ex/Rmpfr/pnorm-* )
+** DONE 58) print(<large Matrix>) somehow fails to use max.digits = 9999 [print.mpfr(*, max.digits = ...)] ???
+*** Why did we introduce 'max.digits' *and* allow  digits=NULL to use *all* digits before the decimal point?
+**** I now think max.digits is almost superfluous if  digits=NULL behaved as promised:
+    We have in R code comments  __digits = NULL : use as many digits "as needed"__ ,
+    and in help man/formatMpfr.Rd
+ __The default, \code{NULL}, uses enough digits to represent the full precision, often one or two digits more than you would expect.__
 ** DONE 56) Add regr.tests for new dgamma(<mpfr>) !!

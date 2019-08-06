@@ -165,6 +165,7 @@ mpfrImport <- function(mxp) {
 
 formatMpfr <-
     function(x, digits = NULL, trim = FALSE, scientific = NA,
+	     maybe.full = !is.null(digits) && is.na(scientific),
              base = 10, showNeg0 = TRUE, max.digits = Inf,
 	     big.mark = "", big.interval = 3L,
 	     small.mark = "", small.interval = 5L,
@@ -176,8 +177,6 @@ formatMpfr <-
     ## FIXME/TODO: If we have very large numbers, but not high precision, we should detect it
     ## ==========  and use  maybe.full = FALSE also for the default scientific = NA
     ## digs.x <- ceiling(.getPrec(x) / log2(base))
-    if((maybe.full <- !isTRUE(scientific)) && !isFALSE(scientific))
-	maybe.full <- !is.null(digits)
     ff <- .mpfr2str(x, digits, maybe.full=maybe.full, base=base)
     stopifnot(is.numeric(max.digits), max.digits > 0)
     if(is.numeric(digits)) stopifnot(digits <= max.digits)
@@ -189,7 +188,7 @@ formatMpfr <-
     r.dig <- nchar(r) # (in both cases, digits NULL or not)
     ## Note that r.dig[] entries may vary, notably for digits NULL when .getPrec(x) is non-constant
     if(any(Lrg <- r.dig > max.digits)) { ## now "cut down", e.g. in print() when max.digits < Inf
-	r    [Lrg] <- substr(r, 1L, max.digits)
+	r    [Lrg] <- substr(r[Lrg], 1L, max.digits)
 	r.dig[Lrg] <- max.digits
     }
     if(any(i0)) {
