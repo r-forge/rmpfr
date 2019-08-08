@@ -15,7 +15,7 @@ setClass("mpfr1", ## a single Multi-precision float number
                    sign= "integer",  # signum
                    d = "integer"),   # the mantissa as a vector of (32 bit) integers
 	 validity = function(object) {
-	     gmp.numb <- .mpfr.gmp.numbbits() # 32 or 64
+	     gmp.numb <- .mpfr_gmp_numbbits() # 32 or 64
 	     if(length(pr <- object@prec) != 1 || is.na(pr) || pr < 2)
 		 "invalid 'prec' slot"
 	     else if((lex <- length(ex <- object@exp)) != 2 && gmp.numb == 64)

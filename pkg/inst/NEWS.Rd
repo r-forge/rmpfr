@@ -4,7 +4,36 @@
 \title{Rmpfr News}
 \encoding{UTF-8}
 
-\section{Changes in version 0.7-3 [2019-08-05, r303]}{
+\section{Changes in version 0.8-0 [2019-08-08, r306]}{
+  \subsection{USER-VISIBLE CHANGES}{
+    \itemize{
+      \item Formatting incl \code{print()}ing by default uses a \code{"+"}
+      after the exponential character (\code{"e"} by default).
+    }
+  }
+  \subsection{NEW FEATURES}{
+    \itemize{
+      \item New low-level utilities \code{.mpfr_formatinfo()} and
+      \code{.mpfr2exp()}.
+
+      \item Renamed low-level utility functions to use \code{_} instead of
+      \code{.} keeping initial \code{"."}, e.g.,
+      \code{.mpfr.gmp.numbbits()} to \code{.mpfr_gmp_numbbits()}.
+
+      \item \code{formatMpfr()} gets a new optional \code{decimal.plus = TRUE} which
+      adds a \code{"+"} before positive exponents when in exponential (aka
+      \dQuote{scientific}) representation.
+    }
+  }
+  \subsection{BUG FIXES}{
+    \itemize{
+      \item \code{formatMpfr()} and hence all \code{print()}ing suffered
+      from an integer overflow bug with very large (base 2) exponents.
+    }
+  }
+}
+
+\section{Changes in version 0.7-3 [2019-08-06, r305]}{
   \subsection{USER-VISIBLE CHANGES}{
     \itemize{
       \item Decreased the default for \code{max.digits} to 999.
@@ -12,11 +41,11 @@
   }
   \subsection{NEW FEATURES}{
     \itemize{
-      \item provide \code{dgamma(x, shape)} version, e.g., for small shape
+      \item Provide \code{dgamma(x, shape)} version, e.g., for small shape
       parameter where most of the mass is on very small \code{x} not
       representable as double precision numbers.
 
-      \item low-level formatting function \code{.mpfr2str()} --- called by
+      \item Low-level formatting function \code{.mpfr2str()} --- called by
       \code{format()} and hence \code{print()} methods for \code{"mpfr"}
       objects --- now finally obeys its \code{maybe.full} argument when it
       is \code{FALSE}, internally in C's \code{mpfr2str()}.

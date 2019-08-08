@@ -78,18 +78,21 @@ export(.mpfr, .mpfr.
        ## , ".dimCheck"
        , .getPrec
        , .getSign
-       , .mpfr.erange, .mpfr.erange.set, .mpfr.maxPrec, .mpfr.minPrec
+     , .mpfr_erange, .mpfr_erange_set, .mpfr_erange_kinds
+     , .mpfr_maxPrec, .mpfr_minPrec
        ## , ".mA.subAssign"
        ## , ".matmult.R"
-       ## , ".mpfr.debug"
-       , ".mpfr.negative"
-       ## , ".mpfr.negative.R"
-       ## , ".mpfr.repl"
-       , ".mpfr.sign"
-       ## , ".mpfr.subset"
+       ## , ".mpfr_debug"
+       , ".mpfr_negative"
+       ## , ".mpfr_negativeR"
+       ## , ".mpfr_repl"
+       , ".mpfr_sign"
+       ## , ".mpfr_subset"
        , ".mpfr2str"
+       , .mpfr_formatinfo
+       , .mpfr2exp
        ## , ".mpfrA.subset"
-       , .mpfrVersion, .mpfr.gmp.numbbits
+       , .mpfrVersion, .mpfr_gmp_numbbits
        , .mpfr2list, mpfrImport, mpfrXport # <- experimental: for a possible save format
        ## , ".packageName"
        ## , ".print.mpfr"

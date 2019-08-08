@@ -1,6 +1,6 @@
 	-*- org -*-->  Emacs [Tab] key + [Org] menu; C-c C-o follows links
 * Very Short Term
-** TODO 55) .getPrec() should be documented {slightly}; .getSign(), .mpfr(), .erange()... -- at least *internal* (e.g. roxygen)
+** TODO 55b) possibly more documentation on .mpfr* functions, e.g. .getSign(), at least *internally* (roxygen)
 ** TODO 31) Valgrind problems + leaks: Brian's e-mail 2014-06-19; ~/R/Pkgs/Rmpfr.Rcheck_valgrind/
 ** TODO 11) format() method for "mpfr", "mpfrArray" (and hence "mpfrMatrix") which nicely
     and correctly *jointly* formats (for "mpfr") and aligns columns !
@@ -174,7 +174,7 @@
     (still depending  on rel.tol !)
 
 ** DONE 21) What's the exponent range -- and possibly change it: R interface
-   in R/mpfr.R via  .mpfr.erange()  [and .mpfr.erange(.) <- v ]
+   in R/mpfr.R via  .mpfr_erange()  [and .mpfr_erange(.) <- v ]
    to
    - Function: mpfr_exp_t mpfr_get_emin (void)
    - Function: mpfr_exp_t mpfr_get_emax (void)
@@ -225,3 +225,5 @@
     and in help man/formatMpfr.Rd
  __The default, \code{NULL}, uses enough digits to represent the full precision, often one or two digits more than you would expect.__
 ** DONE 56) Add regr.tests for new dgamma(<mpfr>) !!
+** DONE 55a) .getPrec(), .mpfr_erange, .mpfr_erange_set, .mpfr_maxPrec, .mpfr_minPrec etc are documented now.
+

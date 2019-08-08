@@ -24,6 +24,7 @@ formatMpfr(x, digits = NULL, trim = FALSE, scientific = NA,
 	   small.mark = "", small.interval = 5L,
            decimal.mark = ".",
            exponent.char = if(base <= 14) "e" else if(base <= 36) "E" else "|e",
+           exponent.plus = TRUE,
            zero.print = NULL, drop0trailing = FALSE, ...)
 
 \S3method{formatN}{mpfr}(x, drop0trailing = TRUE, \dots)
@@ -43,7 +44,8 @@ formatMpfr(x, digits = NULL, trim = FALSE, scientific = NA,
     are suppressed.}
   \item{scientific}{either a logical specifying whether
     MPFR numbers should be encoded in scientific
-    format, or an integer penalty (see \code{\link{options}("scipen")}).
+    format (\dQuote{exponential representation}), or an integer penalty
+    (see \code{\link{options}("scipen")}).
     Missing values correspond to the current default penalty.}
   \item{maybe.full}{\code{\link{logical}}, passed to \code{\link{.mpfr2str}()}.}
   \item{base}{an integer in \eqn{2,3,..,62}; the base (\dQuote{basis})
@@ -58,6 +60,12 @@ formatMpfr(x, digits = NULL, trim = FALSE, scientific = NA,
     \code{base} \eqn{B \ge 15}{B >= 15}, \code{"e"} is part of the
     (mantissa) digits and the same is true for \code{"E"} when
     \eqn{B \ge 37}{B >= 37}.}
+  \item{exponent.plus}{\code{\link{logical}} indicating if \code{"+"}
+    should be for positive exponents in exponential (aka
+    \dQuote{scientific}) representation.  This used to be hardcoded to
+    \code{FALSE}; the new default is compatible to \R's
+    \code{\link{format}()}ing of numbers and helps to note visually when
+    exponents are in use.}
   \item{max.digits}{a (large) positive number to limit the number of
     (mantissa) digits, notably when \code{digits} is \code{NULL} (as by
     default).  Otherwise, a numeric \code{digits} is \emph{preferred} to
@@ -97,6 +105,10 @@ formatMpfr(x, digits = NULL, trim = FALSE, scientific = NA,
   utility on which \code{formatMpfr} is based as well.
   The S3 generic function \code{\link[gmp]{formatN}} from package
   \pkg{gmp}.
+
+  \code{\link{.mpfr_formatinfo}(x)} provides the (cheap) non-string parts of
+  \code{.mpfr2str(x)}; the (base 2) \code{exp} exponents are also available
+  via   \code{\link{.mpfr2exp}(x)}.
 }
 \examples{
  ## Printing of MPFR numbers  uses formatMpfr() internally.

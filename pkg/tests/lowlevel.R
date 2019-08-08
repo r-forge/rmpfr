@@ -30,13 +30,13 @@ stopifnot(
 
 
 ###----- _2_ Debugging, changing MPFR defaults, .. -----------------------------
-##  NB: Currently mostly  *not* documented, not even .mpfr.erange()
+##  NB: Currently mostly  *not* documented, not even .mpfr_erange()
 
-stopifnot(Rmpfr:::.mpfr.debug() == 0 # the default level
+stopifnot(Rmpfr:::.mpfr_debug() == 0 # the default level
 	  ## Activate debugging level 1:
-	  , Rmpfr:::.mpfr.debug(1) == 0 # the previous level
+	  , Rmpfr:::.mpfr_debug(1) == 0 # the previous level
 	  ## and check it :
-	  , Rmpfr:::.mpfr.debug() == 1 # the current level
+	  , Rmpfr:::.mpfr_debug() == 1 # the current level
 )
 
 r <- mpfr(7, 100)^-1000
@@ -44,15 +44,18 @@ r
 ## (same as without debugging)
 
 ## where as this does print info: -- notably the very large values [3..6]:
-.eranges <- function() sapply(names(Rmpfr:::.erange.codes), .mpfr.erange)
+.eranges <- function() sapply(.mpfr_erange_kinds, .mpfr_erange, USE.NAMES=FALSE)
+## now, mpfr_erange() works with a *vector* of args:
+.erange2 <- function() .mpfr_erange(.mpfr_erange_kinds)
 ## now returning *double* - which loses some precision [ending in '04' instead of '03']:
 formatC(.eranges(), format="fg")
+stopifnot(identical(.eranges(), .erange2()))
 
-.mpfr.minPrec()
-.mpfr.maxPrec()# debug printing shows the long integer (on 64 bit)
+.mpfr_minPrec()
+.mpfr_maxPrec()# debug printing shows the long integer (on 64 bit)
 
 ## Now, level 2 :
-stopifnot(Rmpfr:::.mpfr.debug(2) == 1)
+stopifnot(Rmpfr:::.mpfr_debug(2) == 1)
 r
 ## with quite a bit of output
 
@@ -72,7 +75,7 @@ str(L3)
 ## lots of debugging output, then
 ## 1.00989692356e253529412
 ##              ^~~~~~~~~~ 10 ^ 253'529'412 that is humongous
-if(!interactive()) # not seg.faulting,  but printing a *huge* line
+if(!interactive()) # not seg.faulting,  but printing a *huge* line [no longer!]
   show(L3)
 ## segmentation fault -- randomly; 2017-06: no longer see any problem, not even with
 if(FALSE) ## well, not really, definitely not interactively for now
@@ -82,30 +85,31 @@ if(interactive())
 
 ## quite platform dependent {valgrind ==> bug? even in mpfr/gmp/.. ?}
 str(.mpfr2list(x4))
+## slightly nicer ["uniformly not worse"] (still very similar) :
+str(x4, internal=TRUE)
 x4 ## "similar info" as .mpfr2list(.)
 
 ## Increase maximal exponent:
 
 tools:::assertWarning(
-    .mpfr.erange.set("Emax", 5e18)) # too large {FIXME why only warning and not error ??}
-.mpfr.erange("Emax") # is unchanged
-if(4e18 < .mpfr.erange("max.emax")) {
-    .mpfr.erange.set("Emax", 4e18) # now ok:
-    stopifnot(.mpfr.erange("Emax") == 4e18)
+    .mpfr_erange_set("Emax", 5e18)) # too large {FIXME why only warning and not error ??}
+.mpfr_erange("Emax") # is unchanged
+if(4e18 < .mpfr_erange("max.emax")) {
+    .mpfr_erange_set("Emax", 4e18) # now ok:
+    stopifnot(.mpfr_erange("Emax") == 4e18)
 }
 
 
 ## revert to no debugging:
-stopifnot(Rmpfr:::.mpfr.debug(0) == 2)
-.mpfr.maxPrec()
+stopifnot(Rmpfr:::.mpfr_debug(0) == 2)
+.mpfr_maxPrec()
 
 L / (r2^-1000)# 1.00000....448  (could be more accurate?)
 
-stopifnot(
-    all.equal(L, r2^-1000, tol= 1e-27), # why not more accurate?
-    all.equal(log(L), -100000 * (-1000) * log(7),
-              tol = 1e-15)
-)
+stopifnot(exprs = {
+    all.equal(L, r2^-1000, tol= 1e-27) # why not more accurate?
+    all.equal(log(L), -100000 * (-1000) * log(7), tol = 1e-15)
+})
 
 ## Now, our experimental "transport vehicle":
 stopifnot(length(rv <- c(r, r2, L)) == 3)
@@ -119,6 +123,15 @@ mil <- mpfr(1025, 111)
 str(mm <- mpfrXport(xx <- mil^(2^25)))
 stopifnot(all.equal(log2(xx) * 2^-25, log2(mil), tol=1e-15))
 
+## even larger -- strictly needs extended erange:
+.mpfr_erange_set("Emin", - 2^40)
+(xe <- 2^mpfr(-seq(1,70, by=3)*8e8, 64))
+## used to print wrongly {because of integer overflow in .mpfr2str()$exp},
+## with some exponents large positive
+stopifnot(exprs = {
+    (ee <- as.numeric(sub(".*e","", formatMpfr(xe)))) < -240e6
+    (diff(ee) + 722471990) %in% 0:1
+})
 
 ## Bill Dunlap's example (with patch about convert S_alloc bug):
 ##               (precision increases, then decreases)
@@ -129,6 +142,8 @@ cbind(fz <- format(z))
 stopifnot(identical(fz, c("0.0527",
                           "0.05263157895",
                           "0.05263157934")))
+.mpfr_erange_set("Emax",  2^30 - 1) # revert to original 'erange' (which gives integer 'exp')
+.mpfr_erange_set("Emin",-(2^30 - 1))#  (part 2)
 
 k1 <- mpfr(  c(123, 1234, 12345, 123456), precBits=2)
 (N1 <- asNumeric(k1))# 128  1024  12288  131072 -- correct
@@ -142,9 +157,11 @@ stopifnot(exprs = {
     identical(sk1.2, list(str = c("10", "10", "11", "10"),
                           exp = c( 8L,  11L,  14L,  18L),
                           finite = rep(TRUE, 4), is.0 = rep(FALSE, 4)))
+    all.equal(sk1.2[2:4], .mpfr_formatinfo(k1), tol=0) # not identical(): int <-> double
     identical(formatMpfr(k1, base=2, digits=20, drop0trailing=TRUE),
-              sk1.2F$str)
-    identical(formatMpfr(k1, base=2, digits=2), c("1.0e7", "1.0e10", "1.1e13", "1.0e17"))
+              with(sk1.2, paste0(str, sapply(exp - nchar(str), strrep, x="0"))))
+    identical(formatMpfr(k1, base=2, digits=2, exponent.plus=FALSE),
+              c("1.0e7", "1.0e10", "1.1e13", "1.0e17"))
 })
 ## MM: --> need_dig is fine  but is not used in the string that is returned !!
 
@@ -154,7 +171,8 @@ stopifnot(exprs = {
 (fk1 <- formatMpfr(k1, digits=6))
 stopifnot(exprs = {
     N1 == as.numeric(fk1)
-    identical(format(k1, digits=3), c("128.", "1020.", "1.23e4", "1.31e5"))
+    ## FIXME: This should change again        "1024"
+    identical(format(k1, digits=3), c("128.", "1020.", "1.23e+4", "1.31e+5"))
 })
 ##
 digs <- setNames(1:6, 1:6)
@@ -184,3 +202,21 @@ stopifnot(exprs = {
 data.frame(fDec = formatDec(x), f = formatMpfr(x))
 x. <- as.numeric(xDec <- formatDec(x))
 stopifnot(abs(x - x.) <= c(0, 0, 2, 12, 360))
+
+cat("Checking compatibility  .mpfr_formatinfo()  <-->  .mpfr2str(*, base=2) :\n")
+for(nm in ls())
+    if(is(OO <- get(nm), "mpfr")) {
+        cat(nm,": str(*) :\n"); str(OO); cat("compatibility: ")
+        I <- .mpfr_formatinfo(OO)
+        S <- .mpfr2str(OO, base = 2L)
+        if(identical(I, S[-1]))
+            cat("[Ok]\n")
+        else {
+            if(any(B <- !I$finite)) I$exp[B] <- S$exp[B]
+            if(any(B <-  I $ is.0)) I$exp[B] <- S$exp[B]
+            if(identical(I, S[-1]))
+                cat(" after fixup [Ok]\n")
+            else
+                stop(".mpfr_formatinfo(*) and .mpfr2str(*, base=2) do not match")
+        }
+    }

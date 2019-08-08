@@ -8,11 +8,11 @@
 #include "Rmpfr_utils.h"
 #include "Syms.h"
 
-
 /*------------------------------------------------------------------------*/
 
 /* NB:  int nr_limbs = R_mpfr_nr_limbs(r)  [ in MPFR_as_R() ]  or
-                     = N_LIMBS(i_prec)     [ in d2mpfr1_()  ]
+ *                   = N_LIMBS(i_prec)     [ in d2mpfr1_()  ]
+ *      R_mpfr_exp_size  is sufficient also for enlarged exponent range, as that is still < 2^62
 */
 #if GMP_NUMB_BITS == 32
 # define R_mpfr_nr_ints nr_limbs
@@ -181,7 +181,7 @@ SEXP d2mpfr1_list(SEXP x, SEXP prec, SEXP rnd_mode)
 	double *dx = REAL(x);
 	int *iprec = INTEGER(prec);
 	for(int i = 0; i < n; i++) {
-	    /* FIXME: become more efficient by doing R_..._2R_init() only once*/
+	    /* FIXME: become more efficient by doing R_mpfr_MPFR_2R_init() only once*/
 	    SET_VECTOR_ELT(val, i, d2mpfr1_(dx[i % nx], iprec[i % np], rnd));
 	}
     }
@@ -250,7 +250,7 @@ SEXP str2mpfr1_list(SEXP x, SEXP prec, SEXP base, SEXP rnd_mode)
 		error("str2mpfr1_list(x, *): x[%d] cannot be made into MPFR",
 		      i+1);
 	}
-	/* FIXME: become more efficient by doing R_..._2R_init() only once*/
+	/* FIXME: become more efficient by doing R_mpfr_MPFR_2R_init() only once*/
 	SET_VECTOR_ELT(val, i, MPFR_as_R(r_i));
     }
     mpfr_clear (r_i);
@@ -428,6 +428,48 @@ SEXP mpfr2i(SEXP x, SEXP rnd_mode) {
     return val;
 }
 
+
+/* Get "format info" from  R "mpfr" object -- into list with (exp, finite, is.0),
+ * a subset of mpfr2str() [below] : ---> see also R_mpfr_exp() in ./utils.c
+ *
+ */
+SEXP R_mpfr_formatinfo(SEXP x) {
+    int n = length(x);
+    SEXP
+	val = PROTECT(allocVector(VECSXP, 3)),
+	nms = PROTECT(allocVector(STRSXP, 3)), exp, fini, zero;
+    int erange_is_int = mpfr_erange_int_p();
+    SEXPTYPE exp_SXP = (erange_is_int ? INTSXP : REALSXP);
+    SET_VECTOR_ELT(val, 0, exp = PROTECT(allocVector(exp_SXP,n))); SET_STRING_ELT(nms, 0, mkChar("exp"));
+    SET_VECTOR_ELT(val, 1, fini= PROTECT(allocVector(LGLSXP, n))); SET_STRING_ELT(nms, 1, mkChar("finite"));
+    SET_VECTOR_ELT(val, 2, zero= PROTECT(allocVector(LGLSXP, n))); SET_STRING_ELT(nms, 2, mkChar("is.0"));
+    setAttrib(val, R_NamesSymbol, nms);
+    int *is_fin= LOGICAL(fini),
+	*is_0  = LOGICAL(zero);
+    mpfr_t R_i;
+    mpfr_init(R_i);
+    if(erange_is_int) {
+	int *exp_ = INTEGER(exp);
+#define FOR_I_N_ASSIGN(exp_typ)				\
+	for(int i=0; i < n; i++) {			\
+	    R_asMPFR(VECTOR_ELT(x, i), R_i);		\
+	    exp_  [i] = (exp_typ) mpfr_get_exp(R_i);	\
+	    is_fin[i] = mpfr_number_p(R_i);		\
+	    is_0  [i] = mpfr_zero_p(R_i);		\
+	}
+	FOR_I_N_ASSIGN(int)
+
+    } else {/* 'exp' needs to use "double" as it may not fit into integer,
+	       consistent with R_mpfr_get_erange(), or  R_mpfr_prec_range() : */
+	double *exp_ = REAL(exp);
+	FOR_I_N_ASSIGN(double)
+    }
+    mpfr_clear (R_i);
+    mpfr_free_cache();
+    UNPROTECT(5);
+    return val;
+}
+
 /* Convert R "mpfr" object (list of "mpfr1")  to R "character" vector,
  * using 'digits' (or determinining it):
  *  1) digits = NULL , maybe_full = FALSE (<==> 'scientific = TRUE')
@@ -439,7 +481,7 @@ SEXP mpfr2i(SEXP x, SEXP rnd_mode) {
  *  3) digits = <num>, maybe_full = TRUE (<=> 'scientific' = TRUE  in the calling formatMpfr()
  *     -------------   -----------------==> set digits  <=>  max(digit, getPrec(x), #{"digits left of '.'"}))
  *
- *  Rmpfr:::.mpfr.debug(1)  ==> to add debug output here
+ *  Rmpfr:::.mpfr_debug(1)  ==> to add debug output here
  */
 SEXP mpfr2str(SEXP x, SEXP digits, SEXP maybeFull, SEXP base) {
     int n = length(x), i;
@@ -472,18 +514,27 @@ SEXP mpfr2str(SEXP x, SEXP digits, SEXP maybeFull, SEXP base) {
     SEXP
 	val = PROTECT(allocVector(VECSXP, 4)),
 	nms = PROTECT(allocVector(STRSXP, 4)), str, exp, fini, zero;
+    // NB: 'exp' may have to be 'double' instead of 'integer', when erange allows large exponents
+    int erange_is_int = mpfr_erange_int_p();
+    SEXPTYPE exp_SXP = (erange_is_int ? INTSXP : REALSXP);
     SET_VECTOR_ELT(val, 0, str = PROTECT(allocVector(STRSXP, n))); SET_STRING_ELT(nms, 0, mkChar("str"));
-    SET_VECTOR_ELT(val, 1, exp = PROTECT(allocVector(INTSXP, n))); SET_STRING_ELT(nms, 1, mkChar("exp"));
+    SET_VECTOR_ELT(val, 1, exp = PROTECT(allocVector(exp_SXP,n))); SET_STRING_ELT(nms, 1, mkChar("exp"));
     SET_VECTOR_ELT(val, 2, fini= PROTECT(allocVector(LGLSXP, n))); SET_STRING_ELT(nms, 2, mkChar("finite"));
     SET_VECTOR_ELT(val, 3, zero= PROTECT(allocVector(LGLSXP, n))); SET_STRING_ELT(nms, 3, mkChar("is.0"));
     setAttrib(val, R_NamesSymbol, nms);
-    int *i_exp = INTEGER(exp),
+    // depending on erange_is_int, only need one of  d_exp or i_exp  (but don't see a more elegant way):
+    double *d_exp; // = REAL(exp);
+    int *i_exp, // = INTEGER(exp),
 	*is_fin= LOGICAL(fini),
 	*is_0  = LOGICAL(zero);
     double p_fact = (B == 2) ? 1. : log(B) / M_LN2;
     int dig_n_max = -1; // := max_i { dig_needed[i] }
     mpfr_t R_i;
     mpfr_init(R_i); /* with default precision */
+    if(erange_is_int)
+	i_exp = INTEGER(exp);
+    else
+	d_exp = REAL(exp);
 
     for(i=0; i < n; i++) {
 	mpfr_exp_t exp = (mpfr_exp_t) 0;
@@ -503,15 +554,16 @@ SEXP mpfr2str(SEXP x, SEXP digits, SEXP maybeFull, SEXP base) {
 	    dig_needed = N_digits;
 	    R_mpfr_dbg_printf(1," [i=%d]: ... -> dig.n = %d ", i, dig_needed);
 	} else { /* N_digits = 0 --> string must use "enough" digits */
-	    double need_dig =
+	    double need_dig = //possibly?  1 +
 		ceil((maybe_full
 		      ? fmax2((double)R_i->_mpfr_prec,
-			      // when prec is too small:
+			      // want all digits before "." :
 			      (double)mpfr_get_exp(R_i))
 		      : (double)R_i->_mpfr_prec)
 		     / p_fact);
-	    if(need_dig > 268435456 /* = 2^28 */) // << FIXME, somewhat arbitrary
-		error(_(".mpfr2str(): too large 'need_dig'; please set 'digits = <number>'"));
+	    if(need_dig > 268435456 /* = 2^28 */) // << somewhat arbitrary but < INT_MAX ~= 2^31-1
+		error(_(".mpfr2str(): too large 'need_dig = %g'; please set 'digits = <number>'"),
+		      need_dig);
 	    dig_needed = (int) need_dig;
 	    R_mpfr_dbg_printf(1," [i=%d]: prec=%ld, exp2=%ld -> (n.dig,dig.n)=(%g,%d) ",
 			      i, R_i->_mpfr_prec, mpfr_get_exp(R_i),
@@ -550,9 +602,12 @@ SEXP mpfr2str(SEXP x, SEXP digits, SEXP maybeFull, SEXP base) {
 		     (size_t) dig_n_max, R_i, MPFR_RNDN);
 #endif
 	SET_STRING_ELT(str, i, mkChar(ch));
-	i_exp[i] = (int) exp_ptr[0];
-	is_fin[i]= mpfr_number_p(R_i);
-	is_0 [i] = mpfr_zero_p(R_i);
+	if(erange_is_int)
+	    i_exp [i] = (int) exp_ptr[0];
+	else
+	    d_exp [i] = (double) exp_ptr[0];
+	is_fin[i] = mpfr_number_p(R_i);
+	is_0  [i] = mpfr_zero_p(R_i);
 #ifdef __Rmpfr_FIRST_TRY_FAILS__
 	mpfr_free_str(ch);
 #endif

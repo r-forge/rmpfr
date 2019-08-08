@@ -60,31 +60,33 @@ mpfr_default_prec <- function(prec) {
     }
 }
 
-.mpfr.minPrec <- function() .Call(R_mpfr_prec_range, 1L)
-.mpfr.maxPrec <- function() .Call(R_mpfr_prec_range, 2L)
+.mpfr_minPrec <- function() .Call(R_mpfr_prec_range, 1L)
+.mpfr_maxPrec <- function() .Call(R_mpfr_prec_range, 2L)
 
 ## must be sync'ed with enum def. in R_mpfr_get_erange in ../src/utils.c
-.erange.codes <- c("Emin", "Emax",
-                   "min.emin", "max.emin",
-                   "min.emax", "max.emax")
-.erange.codes <- setNames(seq_along(.erange.codes), .erange.codes)
-## FIXME? better function name ??
-.mpfr.erange <- function(kind) {
-    if(missing(kind) || length(kind) != 1 || is.na(match(kind, names(.erange.codes))))
-        stop("'kind' must be one of ",
-             paste(paste0('"', names(.erange.codes), '"'), collapse=", "))
-    .Call(R_mpfr_get_erange, .erange.codes[[kind]])
+.mpfr_erange_kinds <-
+    c("Emin", "Emax",
+      "min.emin", "max.emin",
+      "min.emax", "max.emax")
+## _erange_codes <- seq_along(.mpfr_erange_kinds)
+.mpfr_erange <- function(kind = c("Emin", "Emax"), names = TRUE) {
+    if(anyNA(ikind <- match(kind, .mpfr_erange_kinds)) || !length(kind))
+	stop("'kind' must have entries from ",
+	     paste(paste0('"', .mpfr_erange_kinds, '"'), collapse=", "))
+    r <- .Call(R_mpfr_get_erange, ikind)
+    if(names) names(r) <- .mpfr_erange_kinds[ikind]
+    r
 }
 
 
-.mpfr.erange.set <- function(kind = c("Emin", "Emax"), value) {
+.mpfr_erange_set <- function(kind = c("Emin", "Emax"), value) {
     kind <- match.arg(kind)
-    ## value can be double precision, and need be for "64-bit long"
-    .Call(R_mpfr_set_erange, .erange.codes[[kind]], value)
+    ## value can be double, and need be for "64-bit long"
+    .Call(R_mpfr_set_erange, match(kind, .mpfr_erange_kinds), value)
 }
 
 
-.mpfr.gmp.numbbits <- function() .Call(R_mpfr_get_GMP_numb_bits)
+.mpfr_gmp_numbbits <- function() .Call(R_mpfr_get_GMP_numb_bits)
 
 .mpfrVersion <- function() .Call(R_mpfr_get_version)
 mpfrVersion <- function()
@@ -118,7 +120,7 @@ if(.Platform$OS.type != "windows") {## No R_Outputfile (in C) on Windows
 getD <- function(x) { attributes(x) <- NULL; x }
 
 ## Get or Set the C-global  'R_mpfr_debug_' variable:
-.mpfr.debug <- function(i = NA) .Call(R_mpfr_set_debug, as.integer(i))
+.mpfr_debug <- function(i = NA) .Call(R_mpfr_set_debug, as.integer(i))
 
 ## CAREFUL: keep  digits, max.digits, ... defaults in sync  with
 ##          print.mpfrArray() in ./array.R
