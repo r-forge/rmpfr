@@ -7,6 +7,10 @@ options(warn = 2)# warning -> error
 identical3 <- function(x,y,z)	  identical(x,y) && identical (y,z)
 identical4 <- function(a,b,c,d)   identical(a,b) && identical3(b,c,d)
 
+## sane state [when re-source()ing this file]:
+.mpfr_erange_set("Emin", -(2^30-1))
+.mpfr_erange_set("Emax", +(2^30-1))
+
 ###----- _1_ mpfr1 , import, xport etc -----------------------------------------
 i8 <- mpfr(-2:5, 32)
 x4 <- mpfr(c(NA, NaN, -Inf, Inf), 32); x4 # NA -> NaN as well
@@ -135,6 +139,7 @@ if(.mpfr_erange("min.emin") <= -2^40) {
     ## used to print wrongly {because of integer overflow in .mpfr2str()$exp},
     ## with some exponents large positive
     stopifnot(exprs = {
+        ! .mpfr_erange_is_int() # as 'exp's now are double
         (ee <- as.numeric(sub(".*e","", formatMpfr(xe)))) < -240e6
         (diff(ee) + 722471990) %in% 0:1
     })
@@ -154,9 +159,25 @@ cbind(fz <- format(z))
 stopifnot(identical(fz, c("0.0527",
                           "0.05263157895",
                           "0.05263157934")))
+
+e.xx. <- .mpfr2exp(xx)
+e.z.  <- .mpfr2exp(z)
+
 ## revert to original 'erange' settings (which gives integer 'exp'):
 .mpfr_erange_set("Emax", erangesOrig[["Emax"]]) # typically  2^30 - 1 = 1073741823
 .mpfr_erange_set("Emin", erangesOrig[["Emin"]])
+
+e.xx <- .mpfr2exp(xx)
+e.z  <- .mpfr2exp(z)
+stopifnot(exprs = {
+    .mpfr_erange_is_int()
+    e.xx == e.xx.
+    e.xx == 335591572
+    e.z  == e.z.
+    e.z  == -4
+    is.integer(e.xx) # but e.xx. is double
+    is.integer(e.z)
+})
 
 k1 <- mpfr(  c(123, 1234, 12345, 123456), precBits=2)
 (N1 <- asNumeric(k1))# 128  1024  12288  131072 -- correct

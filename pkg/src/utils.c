@@ -359,8 +359,10 @@ int mpfr_erange_int_p(void) {
     }
     return i_ok;
 }
+/** R's .mpfr_erange_is_int() - workhorse
+ */
 SEXP R_mpfr_erange_int_p(void) {
-    return ScalarInteger(mpfr_erange_int_p());
+    return ScalarLogical(mpfr_erange_int_p());
 }
 
 /* MUST be sync'ed with  ../R/mpfr.R
