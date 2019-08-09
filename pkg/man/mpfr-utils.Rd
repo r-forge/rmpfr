@@ -19,6 +19,7 @@
 \alias{.mpfr_erange}
 \alias{.mpfr_erange_set}
 \alias{.mpfr_erange_kinds}
+\alias{.mpfr_erange_is_int}
 \alias{.mpfr_maxPrec}
 \alias{.mpfr_minPrec}
 \description{
@@ -57,6 +58,7 @@ mpfrImport(mxp)
 .mpfr_erange(kind = c("Emin", "Emax"), names = TRUE)
 .mpfr_erange_set(kind = c("Emin", "Emax"), value)
 .mpfr_erange_kinds
+.mpfr_erange_is_int()
 .mpfr_maxPrec()
 .mpfr_minPrec()
 }
@@ -174,6 +176,10 @@ mpfrImport(mxp)
     The result is  \code{\link{integer}} when
     \code{.mpfr_erange(c("Emin","Emax"))} is inside \R's integer limits,
     otherwise it is \code{\link{double}}.
+
+  \code{.mpfr_erange_is_int()} returns \code{TRUE} iff the
+  \code{.mpfr_erange(c("Emin","Emax"))} range lies inside the range of \R's
+  \code{\link{integer}}.
 
   \code{.mpfr_formatinfo(x)} returns basically a subset of
   \code{\link{.mpfr2str}()}'s result, a list with three components

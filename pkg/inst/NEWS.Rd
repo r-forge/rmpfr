@@ -4,7 +4,7 @@
 \title{Rmpfr News}
 \encoding{UTF-8}
 
-\section{Changes in version 0.8-0 [2019-08-08, r306]}{
+\section{Changes in version 0.8-0 [2019-08-09, r307]}{
   \subsection{USER-VISIBLE CHANGES}{
     \itemize{
       \item Formatting incl \code{print()}ing by default uses a \code{"+"}
@@ -13,8 +13,8 @@
   }
   \subsection{NEW FEATURES}{
     \itemize{
-      \item New low-level utilities \code{.mpfr_formatinfo()} and
-      \code{.mpfr2exp()}.
+      \item Provide new low-level utilities \code{.mpfr_formatinfo()},
+      \code{.mpfr2exp()}, and \code{.mpfr_erange_is_int()}.
 
       \item Renamed low-level utility functions to use \code{_} instead of
       \code{.} keeping initial \code{"."}, e.g.,

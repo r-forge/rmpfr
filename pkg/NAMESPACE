@@ -78,7 +78,7 @@ export(.mpfr, .mpfr.
        ## , ".dimCheck"
        , .getPrec
        , .getSign
-     , .mpfr_erange, .mpfr_erange_set, .mpfr_erange_kinds
+     , .mpfr_erange, .mpfr_erange_set, .mpfr_erange_kinds, .mpfr_erange_is_int
      , .mpfr_maxPrec, .mpfr_minPrec
        ## , ".mA.subAssign"
        ## , ".matmult.R"

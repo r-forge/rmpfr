@@ -85,6 +85,7 @@ mpfr_default_prec <- function(prec) {
     .Call(R_mpfr_set_erange, match(kind, .mpfr_erange_kinds), value)
 }
 
+.mpfr_erange_is_int <- function() .Call(R_mpfr_erange_int_p)
 
 .mpfr_gmp_numbbits <- function() .Call(R_mpfr_get_GMP_numb_bits)
 
