@@ -28,6 +28,8 @@ stopifnot(
                mpfr(  "abc", base=16), mpfr(2748, base=16, precBits = 12))
 )
 
+## save initial (Emin, Emax) eranges  :
+erangesOrig <- .mpfr_erange()
 
 ###----- _2_ Debugging, changing MPFR defaults, .. -----------------------------
 ##  NB: Currently mostly  *not* documented, not even .mpfr_erange()
@@ -59,6 +61,9 @@ stopifnot(Rmpfr:::.mpfr_debug(2) == 1)
 r
 ## with quite a bit of output
 
+if(FALSE) # on Winbuilder [2019-08-08, both 32 and 64 bit]:
+.mpfr_erange_set("Emax", 1073741823)
+
 r2 <- r^100
 r2
 L <- r^-100000
@@ -73,8 +78,8 @@ str(L3, internal=TRUE)
 ##   .. ..@ d   : int [1:4] 268435456 761715680 1492345294 -1000766770
 str(L3)
 ## lots of debugging output, then
-## 1.00989692356e253529412
-##              ^~~~~~~~~~ 10 ^ 253'529'412 that is humongous
+## 1.00989692356e+253529412
+##              ^^~~~~~~~~~ 10 ^ 253'529'412 that is humongous
 if(!interactive()) # not seg.faulting,  but printing a *huge* line [no longer!]
   show(L3)
 ## segmentation fault -- randomly; 2017-06: no longer see any problem, not even with
@@ -124,14 +129,21 @@ str(mm <- mpfrXport(xx <- mil^(2^25)))
 stopifnot(all.equal(log2(xx) * 2^-25, log2(mil), tol=1e-15))
 
 ## even larger -- strictly needs extended erange:
-.mpfr_erange_set("Emin", - 2^40)
-(xe <- 2^mpfr(-seq(1,70, by=3)*8e8, 64))
-## used to print wrongly {because of integer overflow in .mpfr2str()$exp},
-## with some exponents large positive
-stopifnot(exprs = {
-    (ee <- as.numeric(sub(".*e","", formatMpfr(xe)))) < -240e6
-    (diff(ee) + 722471990) %in% 0:1
-})
+if(.mpfr_erange("min.emin") <= -2^40) {
+    .mpfr_erange_set("Emin", - 2^40)
+    show(xe <- 2^mpfr(-seq(1,70, by=3)*8e8, 64))
+    ## used to print wrongly {because of integer overflow in .mpfr2str()$exp},
+    ## with some exponents large positive
+    stopifnot(exprs = {
+        (ee <- as.numeric(sub(".*e","", formatMpfr(xe)))) < -240e6
+        (diff(ee) + 722471990) %in% 0:1
+    })
+} else {
+    cat(sprintf(
+     "Cannot set 'Emin' to -2^40 (= %g), as .mpfr_erange(\"min.emin\") is larger,
+      namely %g.\n",
+     - 2^40, .mpfr_erange("min.emin")))
+}
 
 ## Bill Dunlap's example (with patch about convert S_alloc bug):
 ##               (precision increases, then decreases)
@@ -142,8 +154,9 @@ cbind(fz <- format(z))
 stopifnot(identical(fz, c("0.0527",
                           "0.05263157895",
                           "0.05263157934")))
-.mpfr_erange_set("Emax",  2^30 - 1) # revert to original 'erange' (which gives integer 'exp')
-.mpfr_erange_set("Emin",-(2^30 - 1))#  (part 2)
+## revert to original 'erange' settings (which gives integer 'exp'):
+.mpfr_erange_set("Emax", erangesOrig[["Emax"]]) # typically  2^30 - 1 = 1073741823
+.mpfr_erange_set("Emin", erangesOrig[["Emin"]])
 
 k1 <- mpfr(  c(123, 1234, 12345, 123456), precBits=2)
 (N1 <- asNumeric(k1))# 128  1024  12288  131072 -- correct
