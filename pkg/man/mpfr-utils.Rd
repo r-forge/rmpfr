@@ -39,10 +39,12 @@ mpfr_default_prec(prec)
 \S3method{print}{mpfrArray}(x, digits = NULL, drop0trailing = FALSE,
       right = TRUE,
       max.digits = getOption("Rmpfr.print.max.digits", 999L),
+      exponent.plus = getOption("Rmpfr.print.exponent.plus", TRUE),
       \dots)
 \S3method{print}{mpfr}(x, digits = NULL, drop0trailing = TRUE,
       right = TRUE,
       max.digits = getOption("Rmpfr.print.max.digits", 999L),
+      exponent.plus = getOption("Rmpfr.print.exponent.plus", TRUE),
       \dots)
 toNum(from, rnd.mode = c('N','D','U','Z','A'))
 mpfr2array(x, dim, dimnames = NULL, check = FALSE)
@@ -85,9 +87,12 @@ mpfrImport(mxp)
   \item{digits, \dots}{further arguments to print methods.}
   \item{max.digits}{a number (possibly \code{Inf}) to limit the number
     of (mantissa) digits to be printed, simply passed to
-    \code{\link{formatMpfr}}.  The default is finite to protect from
+    \code{\link{formatMpfr}()}.  The default is finite to protect from
     printing very long strings which is often undesirable, notably in
     \code{\link{interactive}} use.}
+  \item{exponent.plus}{logical, simply passed to \code{\link{formatMpfr}()}.
+    Was \code{FALSE} hardwired in Rmpfr versions before 0.8-0, and hence is
+    allowed to be tweaked by an \code{\link{options}()} setting.}
   \item{rnd.mode}{a 1-letter string specifying how \emph{rounding}
     should happen at C-level conversion to MPFR, see details of
     \code{\link{mpfr}}.}
@@ -171,22 +176,26 @@ mpfrImport(mxp)
   \code{mpfr2array()} a slightly more flexible alternative to
   \code{dim(.) <- dd}.
 
-  \code{.mpfr2exp(x)} returns the base-2  (integer valued) exponents of
-    \code{x}, i.e., it is the \R interface to MPFR C's \code{mpfr_get_exp()}.
-    The result is  \code{\link{integer}} when
-    \code{.mpfr_erange(c("Emin","Emax"))} is inside \R's integer limits,
-    otherwise it is \code{\link{double}}.
+  \code{.mpfr2exp(x)} returns the base-2 (integer valued) exponents of
+  \code{x}, i.e., it is the \R interface to MPFR C's \code{mpfr_get_exp()}.
+  The result is \code{\link{integer}}  iff \code{.mpfr_erange_is_int()}
+  is true, otherwise \code{\link{double}}.  Note that the MPFR (4.0.1)
+  manual says about \code{mpfr_get_exp()}: \emph{The behavior for NaN,
+    infinity or zero is undefined}.
 
   \code{.mpfr_erange_is_int()} returns \code{TRUE} iff the
   \code{.mpfr_erange(c("Emin","Emax"))} range lies inside the range of \R's
-  \code{\link{integer}}.
+  \code{\link{integer}} limits, i.e., has absolute values not larger than
+  \code{\link{.Machine}$integer.max} (\eqn{ = 2^{31} - 1}).
 
-  \code{.mpfr_formatinfo(x)} returns basically a subset of
+  \code{.mpfr_formatinfo(x)} returns conceptually a subset of
   \code{\link{.mpfr2str}()}'s result, a list with three components
   \item{exp}{the base-2 exponents of \code{x}, identical to \code{.mpfr2exp(x)}.}
   \item{finite}{\code{\link{logical}} identical to \code{\link{is.finite}(x)}.}
   \item{is.0}{\code{\link{logical}} indicating if the corresponding
     \code{x[i]} is zero; identical to \code{\link{mpfrIs0}(x)}.}
+  (Note that \code{\link{.mpfr2str}(x, .., base)$exp} is wrt \code{base}
+  \emph{and} is not undefined but
 }
 \note{
   \code{mpfrXport()} and \code{mpfrImport()} are \bold{experimental} and

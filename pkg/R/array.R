@@ -162,12 +162,14 @@ setAs("mpfrArray", "matrix", function(from) {
     toNum(from)
 })
 
-print.mpfrArray <- function(x, digits = NULL, drop0trailing = FALSE, right = TRUE,
-                            ##				      -----
-                            ## would like    'drop0... = TRUE', but that's only ok once we have a
-                            ## format() allowing to "jointly format a column"
-                            max.digits = getOption("Rmpfr.print.max.digits", 999L),
-			    ...)
+print.mpfrArray <-
+    function(x, digits = NULL, drop0trailing = FALSE, right = TRUE,
+             ##				      -----
+             ## would like    'drop0... = TRUE', but that's only ok once we have a
+             ## format() allowing to "jointly format a column"
+             max.digits = getOption("Rmpfr.print.max.digits", 999L),
+             exponent.plus = getOption("Rmpfr.print.exponent.plus", TRUE),
+             ...)
 {
     stopifnot(is(x, "mpfrArray"), is.null(digits) || digits >= 2)
     ## digits = NULL --> the inherent precision of x will be used
@@ -185,11 +187,16 @@ print.mpfrArray <- function(x, digits = NULL, drop0trailing = FALSE, right = TRU
 	ch.prec, "\n")
     if(n >= 1) {
 	## FIXME: really need a 'format' method for mpfrArrays
-	## -----  which properly alings columns !!
+	## -----  which properly aligns columns !!
 
 	## Build character array fx, and print that
-	fx <- formatMpfr(x, digits=digits, drop0trailing=drop0trailing,
-                         max.digits=max.digits)
+
+        ## drop arguments for print.default(*):
+	lFormat <- function(x, na.print, print.gap, max, useSource, ...)
+	    formatMpfr(x, digits=digits, max.digits=max.digits,
+                   drop0trailing=drop0trailing, exponent.plus=exponent.plus,
+		   ...)
+	fx <- lFormat(x, ...)
 	dim(fx) <- dim(x)
 	dimnames(fx) <- dimnames(x)
 	print(fx, ..., right=right, quote = FALSE)

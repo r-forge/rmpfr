@@ -186,7 +186,7 @@ formatMpfr <-
 {
     ## digits = NULL : use as many digits "as needed"
     ff <- .mpfr2str(x, digits, maybe.full=maybe.full, base=base) # (checks its args!)
-    ## FIXME/TODO: If we have very large numbers, but not high precision, we should detect it
+    ## FIXME/TODO: If have very large numbers, but not high precision, should detect it
     ## ==========  and use  maybe.full = FALSE also for the default scientific = NA
     ## digs.x <- ceiling(.getPrec(x) / log2(base))
 
@@ -274,7 +274,7 @@ formatMpfr <-
 	r[ii] <- paste(r[ii], chE, sep = exponent.char)
     }
     use.prettyN <- (base <= 14 && (!aE || exponent.char == "e"))
-    if(non.sci <- !all(hasE)) { ## "non-scientific" i.e. without final  e<nn> :
+    if(non.sci <- !all(hasE)) { ## "non-scientific" i.e. without final  e[+-]?<n>+ :
 	ii <- isNum & !hasE
 	## iNeg <- ex <= 0 & ii ## i.e., ex	 in {0,-1,-2,-3}
 	## iPos <- ex >  0 & ii ## i.e., ex	 in {1,2..., digits}

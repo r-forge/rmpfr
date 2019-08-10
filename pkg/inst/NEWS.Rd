@@ -23,6 +23,11 @@
       \item \code{formatMpfr()} gets a new optional \code{decimal.plus = TRUE} which
       adds a \code{"+"} before positive exponents when in exponential (aka
       \dQuote{scientific}) representation.
+
+      The \code{mpfr} and \code{mpfrArray} \code{print()} methods get
+      a corresponding \code{decimal.plus} argument with a default that can
+      be set by \code{options(Rmpfr.print.decimal.plus = *)} to allow
+      strict back compatibility where needed.
     }
   }
   \subsection{BUG FIXES}{
@@ -63,7 +68,7 @@
   }
 }
 
-\section{Changes in version 0.7-2 [2019-01-14, r298]}{
+\section{Changes in version 0.7-2 [2019-01-18, r299]}{
   \subsection{BUG FIXES}{
     \itemize{
       \item \code{str(<mpfr>)} no longer calls \code{formatMpfr(x, digits, *)}
@@ -89,6 +94,7 @@
     }
   }
 }
+
 
 \section{Changes in version 0.7-1 [2018-07-24, r291]}{
   \subsection{BUG FIXES}{

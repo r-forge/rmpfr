@@ -119,6 +119,7 @@ if(.Platform$OS.type != "windows") {## No R_Outputfile (in C) on Windows
 ## a faster version of getDataPart(.) - as we *KNOW* we have a list
 ## !! If ever the internal representation of such S4 objects changes, this can break !!
 getD <- function(x) { attributes(x) <- NULL; x }
+getD <- function(x) `attributes<-`(x, NULL)
 
 ## Get or Set the C-global  'R_mpfr_debug_' variable:
 .mpfr_debug <- function(i = NA) .Call(R_mpfr_set_debug, as.integer(i))
@@ -127,6 +128,7 @@ getD <- function(x) { attributes(x) <- NULL; x }
 ##          print.mpfrArray() in ./array.R
 print.mpfr <- function(x, digits = NULL, drop0trailing = TRUE, right = TRUE,
                        max.digits = getOption("Rmpfr.print.max.digits", 999L),
+                       exponent.plus = getOption("Rmpfr.print.exponent.plus", TRUE),
                        ...) {
     stopifnot(is(x, "mpfr"), is.null(digits) || digits >= 1)
     ## digits = NULL --> the inherent precision of x will be used
@@ -139,12 +141,10 @@ print.mpfr <- function(x, digits = NULL, drop0trailing = TRUE, right = TRUE,
 	}
     cat(n, "'mpfr'", if(n == 1) "number" else "numbers", ch.prec, "\n")
     if(n >= 1) {
-        ##__ TODO ??
-	##__ if(is.null(digits))
-	##__     digits <- ceiling(max(.getPrec(x)) / log2(10))
         ## drop arguments for print.default(*):
 	lFormat <- function(x, na.print, print.gap, max, useSource, ...)
-	    format(x, digits=digits, max.digits=max.digits, drop0trailing=drop0trailing,
+	    format(x, digits=digits, max.digits=max.digits,
+                   drop0trailing=drop0trailing, exponent.plus=exponent.plus,
 		   ...)
 	print(lFormat(x, ...), ..., right=right, quote = FALSE)
     }
