@@ -527,8 +527,8 @@ SEXP mpfr2str(SEXP x, SEXP digits, SEXP maybeFull, SEXP base) {
     int *i_exp, // = INTEGER(exp),
 	*is_fin= LOGICAL(fini),
 	*is_0  = LOGICAL(zero);
-    double p_fact = (B == 2) ? 1. : log(B) / M_LN2;
-    int dig_n_max = -1; // := max_i { dig_needed[i] }
+    double p_fact = (B == 2) ? 1. : log(B) / M_LN2;// <==> P / p_fact == P *log(2)/log(B)
+    int max_nchar = -1; // := max_i { dig_needed[i] }
     mpfr_t R_i;
     mpfr_init(R_i); /* with default precision */
     if(erange_is_int)
@@ -539,51 +539,55 @@ SEXP mpfr2str(SEXP x, SEXP digits, SEXP maybeFull, SEXP base) {
     for(i=0; i < n; i++) {
 	mpfr_exp_t exp = (mpfr_exp_t) 0;
 	mpfr_exp_t *exp_ptr = &exp;
-	int dig_needed;
+	int nchar_i;
+	Rboolean use_nchar = TRUE;
 
 	R_asMPFR(VECTOR_ELT(x, i), R_i);
 
-#ifdef __Rmpfr_FIRST_TRY_FAILS__
-/* Observing memory problems, e.g., see ../tests/00-bug.R.~3~
- * Originally hoped it was solvable via  R_alloc() etc, but it seems the problem is
- * deeper and I currently suspect a problem/bug in MPFR library's  mpfr_get_str(..) */
-	ch = mpfr_get_str(NULL, exp_ptr, B,
-			  (size_t) N_digits, R_i, MPFR_RNDN);
-#else
-	if(n_dig) {/* use it as desired precision */
-	    dig_needed = N_digits;
-	    R_mpfr_dbg_printf(1," [i=%d]: ... -> dig.n = %d ", i, dig_needed);
+	int is0 = mpfr_zero_p(R_i);
+	int isFin = mpfr_number_p(R_i);
+	is_0  [i] = is0;
+	is_fin[i] = isFin;
+
+	if(N_digits) {/* use it as desired precision */
+	    nchar_i = N_digits;
+	    R_mpfr_dbg_printf(1,"N_digits: [i=%d]: ... -> dig.n = %d ", i, nchar_i);
+	} else if(!isFin) {
+	    nchar_i = 5; // @Inf@  @NaN@
+	} else if(is0) {
+	    nchar_i = 1 + base_is_2_power;
 	} else { /* N_digits = 0 --> string must use "enough" digits */
-	    double need_dig = // (if(<somewhat_rare_>) 1 else 0) +
-		ceil((maybe_full
-		      ? fmax2((double)R_i->_mpfr_prec,
-			      // want all digits before "." :
-			      (double)mpfr_get_exp(R_i))
-		      : (double)R_i->_mpfr_prec)
-		     / p_fact);
-	    if(need_dig > 268435456 /* = 2^28 */) // << somewhat arbitrary but < INT_MAX ~= 2^31-1
-		error(_(".mpfr2str(): too large 'need_dig = %g'; please set 'digits = <number>'"),
-		      need_dig);
-	    dig_needed = (int) need_dig;
-	    R_mpfr_dbg_printf(1," [i=%d]: prec=%ld, exp2=%ld -> (n.dig,dig.n)=(%g,%d) ",
+	    // MPFR doc on mpfr_get_str(): use 'm + 1' where  m = 1+ceil(P * log(2)/log(B))
+	    double P = (double)R_i->_mpfr_prec;
+	    if(base_is_2_power) P--; // P := P-1  iff B is a power of 2
+	    double m1 = 1 + ceil(P / p_fact) + 1;
+	    double dchar_i = maybe_full ? // want all digits before "." :
+		fmax2(m1, ceil((double)mpfr_get_exp(R_i) / p_fact)) : m1;
+	    if(dchar_i > 536870912 /* = 2^29 */) // << somewhat arbitrary but < INT_MAX ~= 2^31-1
+		error(_(".mpfr2str(): too large 'dchar_i = %g'; please set 'digits = <number>'"),
+		      dchar_i);
+	    nchar_i = (int) dchar_i;
+	    R_mpfr_dbg_printf(1," [i=%d]: prec=%ld, exp2=%ld -> (nchar_i,dig.n)=(%g,%d) ",
 			      i, R_i->_mpfr_prec, mpfr_get_exp(R_i),
-			      need_dig, dig_needed);
-	    if(dig_needed <= 1 && base_is_2_power) { // have n_dig_problem:
-		R_mpfr_dbg_printf_0(1," base_is_2_power & dig_needed=%d ==> fudge dig_n. := 2");
-		dig_needed = 2;
+			      dchar_i, nchar_i);
+	    if(nchar_i <= 1 && base_is_2_power) { // have n_dig_problem:
+		R_mpfr_dbg_printf_0(1," base_is_2_power & nchar_i=%d ==> fudge dig_n. := 2");
+		nchar_i = 2;
 	    }
+	    use_nchar = FALSE;
 	}
+
 	if (i == 0) { /* first time */
-	    dig_n_max = dig_needed;
-	    ch = (char *) R_alloc(imax2(dig_n_max + 2, 7), // 7 : '-@Inf@' (+ \0)n_str,
-				  sizeof(char));
+	    max_nchar = nchar_i;
+	    ch = (char *) R_alloc(imax2(max_nchar + 2, 7), // 7 : '-@Inf@' (+ \0)n_str,
+			  sizeof(char));
 	}
-	else if(!N_digits && dig_needed > dig_n_max) { // enlarge :
+	else if(!N_digits && nchar_i > max_nchar) { // enlarge :
 	    ch = (char *) S_realloc(ch,
-				    imax2(dig_needed + 2, 7),
-				    imax2(dig_n_max  + 2, 7),
+				    imax2( nchar_i  + 2, 7),
+				    imax2(max_nchar + 2, 7),
 				    sizeof(char));
-	    dig_n_max = dig_needed;
+	    max_nchar = nchar_i;
 	}
 
 	/*  char* mpfr_get_str (char *STR, mpfr_exp_t *EXPPTR, int B,
@@ -596,22 +600,21 @@ SEXP mpfr2str(SEXP x, SEXP digits, SEXP maybeFull, SEXP base) {
 	 .........
 	 .........  ==> MPFR info manual  "5.4 Conversion Functions"
 	*/
-	R_mpfr_dbg_printf_0(1," .. dig_n_max=%d\n", dig_n_max);
+	R_mpfr_dbg_printf_0(1," .. max_nchar=%d\n", max_nchar);
 
-	// use dig_needed notably when that is smaller than dig_n_max :
-	mpfr_get_str(ch, exp_ptr, B, (size_t) dig_needed, R_i, MPFR_RNDN);
-	//==========
-#endif
+	/* // use nchar_i notably when that is smaller than max_nchar : */
+	/* mpfr_get_str(ch, exp_ptr, B, (size_t) nchar_i, R_i, MPFR_RNDN);  */
+	/* ---- alternatively,
+	 * N = 0 : MPFR finds the number of digits needed : */
+	mpfr_get_str(ch, exp_ptr, B, (size_t) (maybe_full || use_nchar) ? nchar_i : 0,
+	//==========                                                               ---
+		     R_i, MPFR_RNDN);
+
 	SET_STRING_ELT(str, i, mkChar(ch));
 	if(erange_is_int)
-	    i_exp [i] = (int) exp_ptr[0];
+	    i_exp [i] =    (int) exp_ptr[0];
 	else
 	    d_exp [i] = (double) exp_ptr[0];
-	is_fin[i] = mpfr_number_p(R_i);
-	is_0  [i] = mpfr_zero_p(R_i);
-#ifdef __Rmpfr_FIRST_TRY_FAILS__
-	mpfr_free_str(ch);
-#endif
     }
 
     mpfr_clear (R_i);

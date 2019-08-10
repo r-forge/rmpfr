@@ -155,9 +155,9 @@ if(.mpfr_erange("min.emin") <= -2^40) {
 z <- c(mpfr(1,8)/19, mpfr(1,32)/19, mpfr(1,24)/19)
 cbind(fz <- format(z))
 stopifnot(identical(fz, rev(format(rev(z)))))
-stopifnot(identical(fz, c("0.0527",
-                          "0.05263157895",
-                          "0.052631579"))) # << smaller prec, again since 2019-08-09
+stopifnot(identical(fz, c("0.05273",
+                          "0.052631578947",
+                          "0.0526315793"))) # << smaller prec, again since 2019-08-09
 
 e.xx. <- .mpfr2exp(xx)
 e.z.  <- .mpfr2exp(z)
@@ -185,7 +185,7 @@ str(sk1.   <- .mpfr2str(k1, maybe.full=TRUE))
 str(sk1.2  <- .mpfr2str(k1, digits=2,        base=2))
 str(sk1.2F <- .mpfr2str(k1, maybe.full=TRUE, base=2))
 stopifnot(exprs = {
-    identical(sk1 [1:2], list(str = rep("1", 4), exp = 3:6))
+    identical(sk1 [1:2], list(str = c("13", "10", "12", "13"), exp = 3:6))
     identical(sk1.[1:2], list(str = c("128", "1024", "12288", "131072"), exp = 3:6))
     identical(sk1.2, list(str = c("10", "10", "11", "10"),
                           exp = c( 8L,  11L,  14L,  18L),
