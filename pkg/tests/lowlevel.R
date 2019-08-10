@@ -154,11 +154,10 @@ if(.mpfr_erange("min.emin") <= -2^40) {
 ##               (precision increases, then decreases)
 z <- c(mpfr(1,8)/19, mpfr(1,32)/19, mpfr(1,24)/19)
 cbind(fz <- format(z))
-##stopifnot(identical(fz, c("0.05273", "0.052631578947", "0.0526315793")))
-## no longer, rather with updated formatMpfr() [2017-12]:
+stopifnot(identical(fz, rev(format(rev(z)))))
 stopifnot(identical(fz, c("0.0527",
                           "0.05263157895",
-                          "0.05263157934")))
+                          "0.052631579"))) # << smaller prec, again since 2019-08-09
 
 e.xx. <- .mpfr2exp(xx)
 e.z.  <- .mpfr2exp(z)
@@ -229,6 +228,34 @@ stopifnot(exprs = {
     rE[ cbind(FALSE, upper.tri(rE)[,-6]) ] == 0
     abs(residuals(fm)) < 0.15
 })
+
+## formatting / printing :
+tenth <- mpfr(-12:12, 52)/10
+cents <- mpfr(-11:11, 64)/100
+(kxi <- sort(c(k1, x4, i8, tenth, cents), na.last=FALSE))
+mstr <- .mpfr2str       (kxi)
+mfi  <- .mpfr_formatinfo(kxi)
+es <- mstr$exp # base 10 ; with '0'    when  !is.finite or is0
+ef <- mfi $exp # base  2 ; "undefined" when  !is.finite or is0
+j2 <- c("finite", "is.0")
+dxi <- cbind(x = asNumeric(kxi), prec = .getPrec(kxi),
+             as.data.frame(mstr, stringsAsFactors = FALSE))
+stopifnot(is.data.frame(dxi), identical(mstr$str, dxi[,"str"]),
+          identical(mstr[j2], mfi[j2]),
+          identical(ef, .mpfr2exp(kxi)))
+dxi ## 2019-08-09: again *varying* size of 'str' rather than only growing !!
+## Show that *order* no longer matters:
+n <- length(ixk <- rev(kxi))
+dix <- cbind(x = asNumeric(ixk), prec = .getPrec(ixk),
+             as.data.frame(.mpfr2str(ixk), stringsAsFactors = FALSE))[n:1,]
+attr(dix, "row.names") <- .set_row_names(n)
+stopifnot(identical(dxi, dix))
+
+
+## somewhat (but not so much) revealing :
+cbind(prec = .getPrec(kxi), kxi = asNumeric(kxi), str = es,
+      fi.10 = ceiling(ef/log2(10)), str.2 = as.integer(es*log2(10)), fi = ef)
+
 
 
 ## Bug example from RMH 2018-03-16 :

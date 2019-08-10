@@ -554,7 +554,7 @@ SEXP mpfr2str(SEXP x, SEXP digits, SEXP maybeFull, SEXP base) {
 	    dig_needed = N_digits;
 	    R_mpfr_dbg_printf(1," [i=%d]: ... -> dig.n = %d ", i, dig_needed);
 	} else { /* N_digits = 0 --> string must use "enough" digits */
-	    double need_dig = //possibly?  1 +
+	    double need_dig = // (if(<somewhat_rare_>) 1 else 0) +
 		ceil((maybe_full
 		      ? fmax2((double)R_i->_mpfr_prec,
 			      // want all digits before "." :
@@ -598,8 +598,9 @@ SEXP mpfr2str(SEXP x, SEXP digits, SEXP maybeFull, SEXP base) {
 	*/
 	R_mpfr_dbg_printf_0(1," .. dig_n_max=%d\n", dig_n_max);
 
-	mpfr_get_str(ch, exp_ptr, B,
-		     (size_t) dig_n_max, R_i, MPFR_RNDN);
+	// use dig_needed notably when that is smaller than dig_n_max :
+	mpfr_get_str(ch, exp_ptr, B, (size_t) dig_needed, R_i, MPFR_RNDN);
+	//==========
 #endif
 	SET_STRING_ELT(str, i, mkChar(ch));
 	if(erange_is_int)

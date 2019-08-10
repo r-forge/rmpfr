@@ -94,8 +94,8 @@ formatMpfr(x, digits = NULL, trim = FALSE, scientific = NA,
 }
 \references{
   The MPFR manual's description of \samp{mpfr_get_str()} which is the
-  C-internal workhorse for the low level \R function \code{.mpfr2str()}
-  on which \code{formatMpfr()} builds.
+  C-internal workhorse for \code{.mpfr2str()} (on which \code{formatMpfr()}
+  builds).% as we say in description{..} already
 }
 \author{Martin Maechler}
 \seealso{

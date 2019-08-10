@@ -4,7 +4,7 @@
 \title{Rmpfr News}
 \encoding{UTF-8}
 
-\section{Changes in version 0.8-0 [2019-08-09, r307]}{
+\section{Changes in version 0.8-0 [2019-08-10, r312]}{
   \subsection{USER-VISIBLE CHANGES}{
     \itemize{
       \item Formatting incl \code{print()}ing by default uses a \code{"+"}
@@ -34,6 +34,11 @@
     \itemize{
       \item \code{formatMpfr()} and hence all \code{print()}ing suffered
       from an integer overflow bug with very large (base 2) exponents.
+
+      \item \code{.mpfr2str(x, *)} is no longer dependent on the
+      \emph{order} of the elements in \code{x}; consequently
+      \code{format()} and \code{print()} may use less digits in case the
+      precision decreases along \code{x}.
     }
   }
 }
