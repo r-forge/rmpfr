@@ -60,7 +60,8 @@ if(FALSE) ## here are the individual function
       ## available in the mpfr - library:
       "erf" = 101, "erfc" = 102, "zeta" = 104, "Eint" = 106, "Li2" = 107,
       "j0" = 111, "j1" = 112, "y0" = 113, "y1" = 114,
-      "Ai" = 120) # Airy function (new in mpfr 3.0.0)
+      "Ai" = 120 # Airy function (new in mpfr 3.0.0)
+      )
 storage.mode(.Math.codes) <- "integer"
 
 if(FALSE)

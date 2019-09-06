@@ -4,7 +4,7 @@
 \title{Rmpfr News}
 \encoding{UTF-8}
 
-\section{Changes in version 0.8-0 [2019-08-10, r312]}{
+\section{Changes in version 0.8-0 [2019-09-06, r]}{
   \subsection{USER-VISIBLE CHANGES}{
     \itemize{
       \item Formatting incl \code{print()}ing by default uses a \code{"+"}
@@ -28,6 +28,13 @@
       a corresponding \code{decimal.plus} argument with a default that can
       be set by \code{options(Rmpfr.print.decimal.plus = *)} to allow
       strict back compatibility where needed.
+
+      \item For MPFR (C library) version >= 3.2.0 (not by default in Fedora 30!),
+      provide the \emph{incomplete} gamma function \code{igamma(a,x)}
+      (which is closely related to \code{pgamma(x,a)}, see help page.% and DO
+					% provide an MPFR pgamma() version,
+					% too ==> then even MPFR pchisq()
+					% with *non*centrality maybe!
     }
   }
   \subsection{BUG FIXES}{

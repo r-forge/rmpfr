@@ -397,3 +397,36 @@ pbetaI <- function(q, shape1, shape2, ncp = 0, lower.tail = TRUE, log.p = FALSE,
 	      ## reduce the precision, in order to not "claim wrongly":
 	      precBits=precBits, match.arg(rnd.mode))
 }
+
+### MPFR version >= 3.2.0 :
+##  mpfr_gamma_inc(a,x) =: igamma(a,x)    where
+##
+## igamma(a,x) = "upper" incomplete gamma  γ(a,x) :=: Γ(a) - Γ(a,x);
+##					## Γ(a,x) := ∫₀ˣ tᵃ⁻¹ e⁻ᵗ dt, and
+## R's  pgamma(x, a) :==  Γ(a,x) / Γ(a)
+##
+##
+igamma <- function(a,x, rnd.mode = c('N','D','U','Z','A')) {
+    if(is(a, "mpfrArray") || is.array(a)) {
+	if(is.array(a)) a <- mpfrArray(a, 128L, dim=dim(a), dimnames(a))
+	if(is.array(x)) x <- mpfrArray(x, 128L, dim=dim(x), dimnames(x))
+	if(is(x, "mpfrArray")) {
+	    if(dim(a) != dim(x))
+		stop("array dimensions differ")
+	    a@.Data[] <- .Call(R_mpfr_igamma, a, x, match.arg(rnd.mode))
+	    a
+	} else { ## x is not (mpfr)Array
+	    if(length(a) %% length(x) != 0)
+		stop("length of first argument (array) is not multiple of the second argument's one")
+	    a@.Data[] <- .Call(R_mpfr_igamma, a, as(x, "mpfr"), match.arg(rnd.mode))
+	    a
+	}
+    } else if(is(x, "mpfrArray")) {
+	if(length(x) %% length(a) != 0)
+	    stop("length of second argument (array) is not multiple of the first argument's one")
+	x@.Data[] <- .Call(R_mpfr_igamma, as(a, "mpfr"), x, match.arg(rnd.mode))
+	x
+    }
+    else
+	new("mpfr", .Call(R_mpfr_igamma, as(a, "mpfr"), as(x, "mpfr"), match.arg(rnd.mode)))
+}
