@@ -1,13 +1,14 @@
 Package: Rmpfr
 Title: R MPFR - Multiple Precision Floating-Point Reliable
 Version: 0.8-0
-Date: 2019-09-06
+Date: 2019-10-04
 DateNote: Previous CRAN version 0.7-2 on 2019-01-18
 Type: Package
-Authors@R: c(
-  person("Martin","Maechler", role=c("aut","cre"),
-	email="maechler@stat.math.ethz.ch", comment = c(ORCID="0000-0002-8685-9910"))
-  )
+Authors@R: c(person("Martin","Maechler", role = c("aut","cre"),
+	     email = "maechler@stat.math.ethz.ch", comment = c(ORCID="0000-0002-8685-9910"))
+	, person(c("Richard", "M."), "Heiberger", role = "ctb", email="rmh@temple.edu",
+					comment = "formatHex(), *Bin, *Dec")
+	)
 SystemRequirements: gmp (>= 4.2.3), mpfr (>= 3.0.0)
 SystemRequirementsNote: 'MPFR' (MP Floating-Point Reliable Library,
         http://mpfr.org/) and 'GMP' (GNU Multiple Precision library,
@@ -23,3 +24,4 @@ Description: Arithmetic (via S4 classes and methods) for
   the 'LGPL' licensed 'MPFR' (Multiple Precision Floating-Point Reliable) Library
   which itself is based on the 'GMP' (GNU Multiple Precision) Library.
 License: GPL (>= 2)
+Encoding: UTF-8

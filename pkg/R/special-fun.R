@@ -399,13 +399,18 @@ pbetaI <- function(q, shape1, shape2, ncp = 0, lower.tail = TRUE, log.p = FALSE,
 }
 
 ### MPFR version >= 3.2.0 :
+   "https://www.mpfr.org/mpfr-current/mpfr.html#index-mpfr_005fgamma_005finc"
+##
+## >>> Note: the current implementation of mpfr_gamma_inc is slow for large values of rop or op,
+## >>> ====  in which case some internal overflow might also occur.
+##
 ##  mpfr_gamma_inc(a,x) =: igamma(a,x)    where
 ##
-## igamma(a,x) = "upper" incomplete gamma  γ(a,x) :=: Γ(a) - Γ(a,x);
-##					## Γ(a,x) := ∫₀ˣ tᵃ⁻¹ e⁻ᵗ dt, and
-## R's  pgamma(x, a) :==  Γ(a,x) / Γ(a)
+## igamma(a,x) = "upper" incomplete gamma  Γ(a,x) :=: Γ(a) - γ(a,x);
+##	γ(a,x) = "lower" incomplete gamma  γ(a,x) := ₀∫ˣ tᵃ⁻¹ e⁻ᵗ dt, and
+## R's  pgamma(x, a) :==  γ(a,x) / Γ(a)
 ##
-##
+## >>> ../man/igamma.Rd <<<
 igamma <- function(a,x, rnd.mode = c('N','D','U','Z','A')) {
     if(is(a, "mpfrArray") || is.array(a)) {
 	if(is.array(a)) a <- mpfrArray(a, 128L, dim=dim(a), dimnames(a))

@@ -2,6 +2,8 @@ cyqlong.R
 trace-stuff.R
 Savicky
 --
+DESCRIPTION_
+00
 _unneeded
 _not_yet
 mail$
@@ -22,5 +24,5 @@ inst/doc/.*\.tex
 inst/doc/.*\.bbl
 inst/doc/.*\.blg
 Misc
-autom4te.cache/
+autom4te\.cache/
 tests/00
