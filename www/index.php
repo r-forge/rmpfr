@@ -42,13 +42,13 @@ echo '<?xml version="1.0" encoding="UTF-8"?>';
 (which is "open source" but even more).
 </p>
 
-<h3> Installation from <tt>source<tt/>: Needs MPFR and GMP libraries<h3/>
+<h3> Installation from <tt>source</tt>: Needs MPFR and GMP libraries</h3>
 either from the above web pages, or
 much more conveniently from your Linux distribution package system:
 <ul>
- <li> Debian, Ubuntu, etc . . . . . . . .: <tt> sudo apt-get install libmpfr-dev </tt> <li/>
- <li> Fedora, Redhat, CentOS, (open)SuSE:  <tt> sudo dnf install mpfr-devel </tt> <li/>
-<ul/>
+ <li> Debian, Ubuntu, etc . . . . . . . .: <tt> sudo apt-get install libmpfr-dev </tt> </li>
+ <li> Fedora, Redhat, CentOS, (open)SuSE:  <tt> sudo dnf install mpfr-devel </tt> </li>
+</ul>
 
 <p>
 <samp>Rmpfr</samp> provides S4 classes and methods for
