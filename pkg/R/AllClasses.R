@@ -52,7 +52,8 @@ setClass("mpfr", ## a *vector* of "mpfr1", i.e., multi-precision float numbers
 	 contains = "list", ## of "mpfr1" entries:
 	 validity = function(object) {
 	     ## should be fast ( ==> not using	is(., "mpfr1") ) :
-	     if(all(vapply(object@.Data, class, "") == "mpfr1"))
+	     if(all(lengths(cls <- lapply(object@.Data, class)) == 1L) && 
+		all(unlist(cls) == "mpfr1"))
 		 return(TRUE)
 	     ## else
 		 "Not all components are of class 'mpfr1'"
