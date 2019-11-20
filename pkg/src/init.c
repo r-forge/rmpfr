@@ -70,7 +70,9 @@ static R_CallMethodDef CallEntries[] = {
     CALLDEF(R_mpfr_is_zero, 1),      	CALLDEF(R_mpfr_is_zero_A, 1),
 
     CALLDEF(R_mpfr_atan2, 3),
+#if (MPFR_VERSION >= MPFR_VERSION_NUM(3,2,0))
     CALLDEF(R_mpfr_igamma, 3),
+#endif
     CALLDEF(R_mpfr_hypot, 3),
     CALLDEF(R_mpfr_beta, 3),
     CALLDEF(R_mpfr_lbeta, 3),
@@ -145,7 +147,9 @@ R_init_Rmpfr(DllInfo *dll)
     RREGDEF(R_mpfr_yn);
     RREGDEF(R_mpfr_atan2);
     RREGDEF(R_mpfr_hypot);
+#if (MPFR_VERSION >= MPFR_VERSION_NUM(3,2,0))
     RREGDEF(R_mpfr_igamma);
+#endif
     RREGDEF(R_mpfr_beta);
     RREGDEF(R_mpfr_lbeta);
     RREGDEF(R_mpfr_fac);

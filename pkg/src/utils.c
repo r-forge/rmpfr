@@ -624,7 +624,10 @@ SEXP _FNAME(SEXP x, SEXP y, SEXP rnd_mode) {		\
 
 R_MPFR_2_Numeric_Function(R_mpfr_atan2, mpfr_atan2)
 R_MPFR_2_Numeric_Function(R_mpfr_hypot, mpfr_hypot)
+
+#if (MPFR_VERSION >= MPFR_VERSION_NUM(3,2,0))
 R_MPFR_2_Numeric_Function(R_mpfr_igamma, mpfr_gamma_inc)
+#endif
 
 R_MPFR_2_Numeric_Function(R_mpfr_beta,  my_mpfr_beta)
 R_MPFR_2_Numeric_Function(R_mpfr_lbeta, my_mpfr_lbeta)

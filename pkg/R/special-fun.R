@@ -412,6 +412,9 @@ pbetaI <- function(q, shape1, shape2, ncp = 0, lower.tail = TRUE, log.p = FALSE,
 ##
 ## >>> ../man/igamma.Rd <<<
 igamma <- function(a,x, rnd.mode = c('N','D','U','Z','A')) {
+    if(mpfrVersion() < "3.2.0")
+	stop("igamma()'s MPFR equivalent needs mpfr version >= 3.2.0, but mpfrVersion()=",
+	     mpfrVersion())
     if(is(a, "mpfrArray") || is.array(a)) {
 	if(is.array(a)) a <- mpfrArray(a, 128L, dim=dim(a), dimnames(a))
 	if(is.array(x)) x <- mpfrArray(x, 128L, dim=dim(x), dimnames(x))
@@ -435,3 +438,11 @@ igamma <- function(a,x, rnd.mode = c('N','D','U','Z','A')) {
     else
 	new("mpfr", .Call(R_mpfr_igamma, as(a, "mpfr"), as(x, "mpfr"), match.arg(rnd.mode)))
 }
+
+## only as long as we still may have   mpfrVersion() < "3.2.0", e.g. in Fedora 30 (2019f)
+
+## mpfrVersion() cannot be called at package build time  (underlying C entry point not ready):
+## if(mpfrVersion() < "3.2.0")
+## dummy .. to pacify "R CMD check"
+## R_mpfr_igamma <- quote(dummy) # gives NOTE  ‘R_mpfr_igamma’ is of class "name"
+

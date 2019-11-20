@@ -4,7 +4,7 @@
 \title{Rmpfr News}
 \encoding{UTF-8}
 
-\section{Changes in version 0.8-0 [2019-09-06, r]}{
+\section{Changes in version 0.8-0 [2019-11-19, r319]}{
   \subsection{USER-VISIBLE CHANGES}{
     \itemize{
       \item Formatting incl \code{print()}ing by default uses a \code{"+"}

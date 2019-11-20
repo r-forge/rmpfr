@@ -118,8 +118,8 @@ export(.mpfr, .mpfr.
        , "getD"
        , "getPrec"
        , "hypot"
+       , igamma # working iff MPFR version >= 3.2.0  >>>  R/special-fun.R  <<<
        , "integrateR"
-     , igamma # working iff MPFR version >= 3.2.0  >>>  R/special-fun.R  <<<
        , "j0" , "j1" , "jn"
        , "mpfr"
        , mpfrIs0, .mpfr.is.whole # as substitutes of
