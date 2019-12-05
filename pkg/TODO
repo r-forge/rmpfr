@@ -71,9 +71,6 @@
     or provide ifelse2() -- a fast simplified version ?
 
 
-** TODO 22) *do* test rank(), sort(), order() : we claim they work in man/mpfr-class.Rd
-    quantile() should work from R 2.15.1 (June 2012) on       ~~~~~~~~~~~~~~~~~
-
 ** TODO 24) Bernoulli(): we use builtin zeta(); alternatively, use *exact*
      rationals from 'gmp', using "bigq" (and "bigz") -- and R code from ~/R/Pkgs/copula/R/special-func.R
 ** TODO 26) (?) Revert the decision to *not* care about rounding mode in Ops/function,
@@ -188,6 +185,9 @@
    - Function: mpfr_exp_t mpfr_get_emax_max (void)
 
 ** DONE 22) apply(<mpfrArray>, .) --> S4 method
+
+** DONE 22x) *do* test rank(), sort(), order() : we claim they work in man/mpfr-class.Rd
+    quantile() should work from R 2.15.1 (June 2012) on       ~~~~~~~~~~~~~~~~~
 
 ** DONE 23) quantile(<mpfr>)  does not work ---- but will from R 2.15.1 with better quantile.default()
     Reason: in stats::quantile.default(),

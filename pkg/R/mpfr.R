@@ -309,9 +309,11 @@ sapplyMpfr <- function(X, FUN, ...) new("mpfr", unlist(lapply(X, FUN, ...), recu
 ## sort() works too  (but could be made faster via faster
 ## ------  xtfrm() method !  [ TODO ]
 
-setMethod("unique", signature(x = "mpfr", incomparables = "missing"),
-	  function(x, incomparables = FALSE, ...)
-	  new("mpfr", unique(getD(x), incomparables, ...)))
+## to have this also work *inside* base function factor(), we need S3 method {AARGH!}
+unique.mpfr <- function(x, incomparables = FALSE, ...)
+    new("mpfr", unique(getD(x), incomparables, ...))
+setMethod("unique", signature(x = "mpfr", incomparables = "ANY"), unique.mpfr)
+
 
 ## This is practically identical to  grid's rep.unit :
 rep.mpfr <- function(x, times = 1, length.out = NA, each = 1, ...)

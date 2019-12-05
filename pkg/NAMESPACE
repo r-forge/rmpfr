@@ -231,3 +231,5 @@ S3method(t, mpfr)
 S3method(t, mpfrMatrix)
 S3method(aperm, mpfrArray)
 
+## trying to get base::factor() to work:
+S3method(unique, mpfr)

@@ -4,7 +4,7 @@
 \title{Rmpfr News}
 \encoding{UTF-8}
 
-\section{Changes in version 0.8-0 [2019-12-01, r320]}{
+\section{Changes in version 0.8-0 [2019-12-05, r321]}{
   \subsection{USER-VISIBLE CHANGES}{
     \itemize{
       \item Formatting incl \code{print()}ing by default uses a \code{"+"}
@@ -32,9 +32,11 @@
       \item For MPFR (C library) version >= 3.2.0 (not by default in Fedora 30!),
       provide the \emph{incomplete} gamma function \code{igamma(a,x)}
       which is closely related to \code{pgamma(x,a)}, see help page.% and DO
-					% provide an MPFR pgamma() version,
-					% too ==> then even MPFR pchisq()
-					% with *non*centrality maybe!
+      % provide an MPFR pgamma() version, too
+      %  ==> then even MPFR pchisq() with *non*centrality maybe!
+
+      \item Now also export S3 method of \code{unique()} for \code{"mpfr"},
+      such that \pkg{base} \code{factor(<mpfr>)} \dQuote{works}.% -> ../man/mpfr-class.Rd
     }
   }
   \subsection{BUG FIXES}{
