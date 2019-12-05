@@ -4,7 +4,7 @@
 \title{Rmpfr News}
 \encoding{UTF-8}
 
-\section{Changes in version 0.8-0 [2019-11-19, r319]}{
+\section{Changes in version 0.8-0 [2019-12-01, r320]}{
   \subsection{USER-VISIBLE CHANGES}{
     \itemize{
       \item Formatting incl \code{print()}ing by default uses a \code{"+"}
@@ -31,7 +31,7 @@
 
       \item For MPFR (C library) version >= 3.2.0 (not by default in Fedora 30!),
       provide the \emph{incomplete} gamma function \code{igamma(a,x)}
-      (which is closely related to \code{pgamma(x,a)}, see help page.% and DO
+      which is closely related to \code{pgamma(x,a)}, see help page.% and DO
 					% provide an MPFR pgamma() version,
 					% too ==> then even MPFR pchisq()
 					% with *non*centrality maybe!
@@ -46,6 +46,9 @@
       \emph{order} of the elements in \code{x}; consequently
       \code{format()} and \code{print()} may use less digits in case the
       precision decreases along \code{x}.
+
+      \item adapt to new C compiler default behavior \code{-fno-common},
+      using \code{extern #include <Syms.h>} in most \file{*.c} files.
     }
   }
 }
