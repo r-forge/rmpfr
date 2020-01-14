@@ -4,6 +4,15 @@
 \title{Rmpfr News}
 \encoding{UTF-8}
 
+\section{Changes in version 0.8-1 [2020-01-14, r323]}{
+  \subsection{BUG FIXES}{
+    \itemize{
+      \item Provide dummy C function in the case MPFR library is older than
+      3.2.0, thanks to Brian Ripley.  Should work around check \code{NOTE}s.
+    }
+  }
+}
+
 \section{Changes in version 0.8-0 [2019-12-05, r321]}{
   \subsection{USER-VISIBLE CHANGES}{
     \itemize{

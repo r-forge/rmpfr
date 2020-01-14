@@ -192,9 +192,7 @@ SEXP R_mpfr_atan2(SEXP x, SEXP y, SEXP rnd_mode);
 SEXP R_mpfr_hypot(SEXP x, SEXP y, SEXP rnd_mode);
 SEXP R_mpfr_beta (SEXP x, SEXP y, SEXP rnd_mode);
 SEXP R_mpfr_lbeta(SEXP x, SEXP y, SEXP rnd_mode);
-#if (MPFR_VERSION >= MPFR_VERSION_NUM(3,2,0))
 SEXP R_mpfr_igamma(SEXP a, SEXP x, SEXP rnd_mode);
-#endif
 
 SEXP R_mpfr_jn(SEXP x, SEXP n, SEXP rnd_mode);
 SEXP R_mpfr_yn(SEXP x, SEXP n, SEXP rnd_mode);

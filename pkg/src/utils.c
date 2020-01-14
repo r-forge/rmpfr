@@ -628,6 +628,11 @@ R_MPFR_2_Numeric_Function(R_mpfr_hypot, mpfr_hypot)
 
 #if (MPFR_VERSION >= MPFR_VERSION_NUM(3,2,0))
 R_MPFR_2_Numeric_Function(R_mpfr_igamma, mpfr_gamma_inc)
+#else
+SEXP R_mpfr_igamma(SEXP x, SEXP y, SEXP rnd_mode) {
+    error("mpfr_gamma_inc requires mpfr >= 3.2.0");
+    return R_NilValue;
+}
 #endif
 
 R_MPFR_2_Numeric_Function(R_mpfr_beta,  my_mpfr_beta)
