@@ -4,6 +4,21 @@
 \title{Rmpfr News}
 \encoding{UTF-8}
 
+\section{Changes in version 0.8-2 [2020-03-16, r...]}{
+  \subsection{NEW FEATURES}{
+    \itemize{
+      \item The workhorse for all matrix multiplication (\code{\%*\%},
+      \code{crossprod()}, and \code{tcrossprod()}), i.e., \code{.matmult.R(x, y, *)}
+      (not exported), gets new optional arguments \code{fPrec = 1} and
+      \code{precBits}, which defaults to the maximum of \code{getPrec(x)} and \code{getPrec(y)}.
+
+      \item \code{matmult(x,y)} is identical to \code{x \%*\% y}, but
+      \code{matmult()} has further optional arguments \code{fPrec} and
+      \code{precBits}, see above.
+    }
+  }
+}
+
 \section{Changes in version 0.8-1 [2020-01-14, r323]}{
   \subsection{BUG FIXES}{
     \itemize{
@@ -352,6 +367,28 @@
   \subsection{BUG FIXES}{
     \itemize{
       \item .
+    }
+  }
+}
+
+
+%% The first CRAN release
+\section{Changes in version 0.1-5 [2009-08-06]}{
+  \subsection{NEW FEATURES}{
+    \itemize{
+      \item First CRAN release on 'Publication:' 2009-08-14 20:24:02
+
+      \item new \code{pmin()} and \code{pmax()}, improving \code{seqMpfr()}.
+
+      \item new \code{"Math"} and \code{"Math2"} group methods, notably for
+      \code{round()} and \code{signif()}.
+
+      \item \code{as(. , "integer")} now works (via C \code{mpfr2i}).
+    }
+  }
+  \subsection{More details for old versions up to Feb. 2015:}{
+    \itemize{
+      \item See file \file{ChangeLog} %% ../ChangeLog <<<
     }
   }
 }

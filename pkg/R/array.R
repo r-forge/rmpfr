@@ -60,7 +60,10 @@ mpfrArray <- function(x, precBits, dim = length(x), dimnames = NULL,
 		   else dimnames)
 }
 
-setAs("array", "mpfr", function(from) mpfr(from, 128L))
+setAs("array", "mpfr",        function(from) mpfr(from, 128L))
+setAs("array", "mpfrArray",   function(from) mpfr(from, 128L))
+setAs("matrix", "mpfrMatrix", function(from) mpfr(from, 128L))
+
 ## and for "base" functions to work:
 as.array.mpfr <- function(x, ...) {
     if(is(x, "mpfrArray")) x else ## is(x, "mpfr") :
@@ -208,19 +211,19 @@ setMethod(show, "mpfrArray", function(object) print.mpfrArray(object))
 ## FIXME : should happen in C, where we could "cut & paste" much of
 ## -----  do_matprod() and matprod() from ~/R/D/r-devel/R/src/main/array.c
 ##/* "%*%" (op = 0), crossprod (op = 1) or tcrossprod (op = 2) */
-.matmult.R <- function(x,y, op = 0)
+.matmult.R <- function(x,y, op = 0L, fPrec = 1, precBits = fPrec * max(getPrec(x), getPrec(y)))
 {
     if(!(is.numeric(x) || is(x,"mpfr")))
 	stop("'x' must be numeric or mpfr(Matrix)")
     sym <- missing(y)
-    if (sym && (op > 0)) y <- x
+    if (sym && (op > 0L)) y <- x
     else if(!(is.numeric(y) || is(y,"mpfr")))
 	stop("'y' must be numeric or mpfr(Matrix)")
     ldx <- length(dx <- dim(x))
     ldy <- length(dy <- dim(y))
     ## "copy, paste & modify" from  do_matprod():
     if (ldx != 2 && ldy != 2) {		#* x and y non-matrices */
-	if (op == 0) {
+	if (op == 0L) {
 	    nrx <- 1L; ncx <- length(x)
 	} else {
 	    nrx <- length(x); ncx <- 1L
@@ -232,7 +235,7 @@ setMethod(show, "mpfrArray", function(object) print.mpfrArray(object))
 	nry <- dy[1]
 	ncy <- dy[2]
 	nrx <- ncx <- 0L
-	if (op == 0) {
+	if (op == 0L) {
 	    if (length(x) == nry) {	#* x as row vector */
 		nrx <- 1L
 		ncx <- nry # == length(x)
@@ -242,13 +245,13 @@ setMethod(show, "mpfrArray", function(object) print.mpfrArray(object))
 		ncx <- 1L # == nry
 	    }
 	}
-	else if (op == 1) { #* crossprod
+	else if (op == 1L) { #* crossprod
 	    if (length(x) == nry) {	#* x is a col vector */
 		nrx <- nry # = length(x)
 		ncx <- 1L
 	    }
 	}
-	else { # op == 2: tcrossprod
+	else { # op == 2L: tcrossprod
 	    if (length(x) == ncy) {	#* x as row vector */
 		nrx <- 1L
 		ncx <- ncy # == length(x)
@@ -263,7 +266,7 @@ setMethod(show, "mpfrArray", function(object) print.mpfrArray(object))
 	nrx <- dx[1]
 	ncx <- dx[2]
 	nry <- ncy <- 0L
-	if (op == 0) {
+	if (op == 0L) {
 	    if (length(y) == ncx) {	#* y as col vector */
 		nry <- ncx # = length(y)
 		ncy <- 1L
@@ -273,13 +276,13 @@ setMethod(show, "mpfrArray", function(object) print.mpfrArray(object))
 		ncy <- length(y)
 	    }
 	}
-	else if (op == 1) { #* crossprod
+	else if (op == 1L) { #* crossprod
 	    if (length(y) == nrx) {	#* y is a col vector */
 		nry <- nrx # = length(y)
 		ncy <- 1L
 	    }
 	}
-	else { # op == 2: tcrossprod	y is a col vector
+	else { # op == 2L: tcrossprod	y is a col vector
 	    nry <- length(y)
 	    ncy <- 1L
 	}
@@ -295,8 +298,7 @@ setMethod(show, "mpfrArray", function(object) print.mpfrArray(object))
     z <- new("mpfrMatrix")
     z0 <- as(0, "mpfr")
 
-    precBits <- max(getPrec(x), getPrec(y))
-    if (op == 0) { ## %*%
+    if (op == 0L) { ## %*%
 	if (ncx != nry) stop("non-conformable arguments")
 
 	z@Dim <- c(nrx, ncy)
@@ -308,7 +310,7 @@ setMethod(show, "mpfrArray", function(object) print.mpfrArray(object))
 		    z[i + k * nrx] <-
 			## sum(x[i + j * nrx] * y[1L+ j + k * nry])
 			new("mpfr",
-			    .Call(R_mpfr_sumprod,
+			    .Call(R_mpfr_sumprod, # --> ../src/Summary.c
 				  x[i + j * nrx], y[1L+ j + k * nry],
 				  precBits, alternating=FALSE))
 	    }
@@ -316,7 +318,7 @@ setMethod(show, "mpfrArray", function(object) print.mpfrArray(object))
 	else	    #/* zero-extent operations should return zeroes */
 	    for(i in seq_len(nrx*ncy)) z[i] <- z0
     }
-    else if (op == 1) { ## crossprod() :  x' %*% y
+    else if (op == 1L) { ## crossprod() :  x' %*% y
 	if (nrx != nry) stop("non-conformable arguments")
 
 	z@Dim <- c(ncx, ncy)
@@ -336,7 +338,7 @@ setMethod(show, "mpfrArray", function(object) print.mpfrArray(object))
 	} else
 	    for(i in seq_len(ncx*ncy)) z[i] <- z0
     }
-    else { ## op == 2 :	 tcrossprod() :	 x %*% y'
+    else { ## op == 2L :	 tcrossprod() :	 x %*% y'
 	if (ncx != ncy) stop("non-conformable arguments")
 
 	z@Dim <- c(nrx, nry)
@@ -362,53 +364,55 @@ setMethod(show, "mpfrArray", function(object) print.mpfrArray(object))
 ## "FIXME"?  make working also with "Matrix" class matrices ..
 ##                             ----------------------------
 
+## An 'explicit' %*% function (with >= 2 arguments) :
+matmult <- function(x,y, ...) .matmult.R(x,y, op = 0L, ...)
 
 setMethod("%*%", signature(x = "mpfrMatrix", y = "mpfrMatrix"),
-	  function(x,y) .matmult.R(x,y, op= 0))
+	  function(x,y) .matmult.R(x,y, op= 0L))
 setMethod("%*%", signature(x = "mpfrMatrix", y = "mpfr"),
-	  function(x,y) .matmult.R(x,y, op= 0))
+	  function(x,y) .matmult.R(x,y, op= 0L))
 setMethod("%*%", signature(x = "mpfr", y = "mpfrMatrix"),
-	  function(x,y) .matmult.R(x,y, op= 0))
+	  function(x,y) .matmult.R(x,y, op= 0L))
 setMethod("%*%", signature(x = "mpfr", y = "mpfr"),
-	  function(x,y) .matmult.R(x,y, op= 0))
+	  function(x,y) .matmult.R(x,y, op= 0L))
 ## These cover vectors, etc (!) :
 setMethod("%*%", signature(x = "mpfr", y = "Mnumber"),
-	  function(x,y) .matmult.R(x,y, op= 0))
+	  function(x,y) .matmult.R(x,y, op= 0L))
 setMethod("%*%", signature(x = "Mnumber", y = "mpfr"),
-	  function(x,y) .matmult.R(x,y, op= 0))
+	  function(x,y) .matmult.R(x,y, op= 0L))
 
 
 setMethod("crossprod", signature(x = "mpfrMatrix", y = "mpfrMatrix"),
-	  function(x,y) .matmult.R(x,y, op= 1))
+	  function(x,y, ...) .matmult.R(x,y, op= 1L, ...))
 setMethod("crossprod", signature(x = "mpfrMatrix", y = "mpfr"),
-	  function(x,y) .matmult.R(x,y, op= 1))
+	  function(x,y, ...) .matmult.R(x,y, op= 1L, ...))
 setMethod("crossprod", signature(x = "mpfr", y = "mpfrMatrix"),
-	  function(x,y) .matmult.R(x,y, op= 1))
+	  function(x,y, ...) .matmult.R(x,y, op= 1L, ...))
 setMethod("crossprod", signature(x = "mpfr", y = "mpfr"),
-	  function(x,y) .matmult.R(x,y, op= 1))
+	  function(x,y, ...) .matmult.R(x,y, op= 1L, ...))
 setMethod("crossprod", signature(x = "mpfr", y = "Mnumber"),
-	  function(x,y) .matmult.R(x,y, op= 1))
+	  function(x,y, ...) .matmult.R(x,y, op= 1L, ...))
 setMethod("crossprod", signature(x = "Mnumber", y = "mpfr"),
-	  function(x,y) .matmult.R(x,y, op= 1))
-## one argument-case:
+	  function(x,y, ...) .matmult.R(x,y, op= 1L, ...))
+## one argument-case: [FIXME: not copying 'x' and using x_i^2  is more efficient]
 setMethod("crossprod", signature(x = "mpfr", y = "missing"),
-	  function(x,y) .matmult.R(x,x, op= 1))
+	  function(x,y, ...) .matmult.R(x,x, op= 1L, ...))
 
 setMethod("tcrossprod", signature(x = "mpfrMatrix", y = "mpfrMatrix"),
-	  function(x,y) .matmult.R(x,y, op= 2))
+	  function(x,y, ...) .matmult.R(x,y, op= 2L, ...))
 setMethod("tcrossprod", signature(x = "mpfrMatrix", y = "mpfr"),
-	  function(x,y) .matmult.R(x,y, op= 2))
+	  function(x,y, ...) .matmult.R(x,y, op= 2L, ...))
 setMethod("tcrossprod", signature(x = "mpfr", y = "mpfrMatrix"),
-	  function(x,y) .matmult.R(x,y, op= 2))
+	  function(x,y, ...) .matmult.R(x,y, op= 2L, ...))
 setMethod("tcrossprod", signature(x = "mpfr", y = "mpfr"),
-	  function(x,y) .matmult.R(x,y, op= 2))
+	  function(x,y, ...) .matmult.R(x,y, op= 2L, ...))
 setMethod("tcrossprod", signature(x = "mpfr", y = "Mnumber"),
-	  function(x,y) .matmult.R(x,y, op= 2))
+	  function(x,y, ...) .matmult.R(x,y, op= 2L, ...))
 setMethod("tcrossprod", signature(x = "Mnumber", y = "mpfr"),
-	  function(x,y) .matmult.R(x,y, op= 2))
-## one argument-case:
+	  function(x,y, ...) .matmult.R(x,y, op= 2L, ...))
+## one argument-case: [FIXME: not copying 'x' and using x_i^2  is more efficient]
 setMethod("tcrossprod", signature(x = "mpfr", y = "missing"),
-	  function(x,y) .matmult.R(x,x, op= 2))
+	  function(x,y, ...) .matmult.R(x,x, op= 2L, ...))
 
 
 .mpfrA.subset <- function(x,i,j, ..., drop) {
@@ -504,6 +508,9 @@ for(it in c("ANY", "missing"))
 		     .mA.subAssign(x,i=i,j=j,...,value=value,
 				   n.a=nargs(), isMpfr = FALSE))
 rm(it,jt)
+
+## In the Matrix package we have  Diagonal()  for *constructing* a diagonalMatrix;
+## in any case, we do only want to support the   diag(<matrix>)    case.
 
 setMethod("diag", signature(x = "mpfrMatrix"),
 	  function(x, nrow, ncol) {

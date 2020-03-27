@@ -29,6 +29,10 @@ stopifnot(all.equal(m2, mpfr(m.x, 64), tol=0), # not identical(..)
 noDN <- function(.) { dimnames(.) <- NULL ; . }
 allEQ <- function(x,y) all.equal(x,y, tol=1e-15)
 
+## FIXME write "functions" that take  x -> {mx , m.x}  and run the following as *function*
+## ----  then use previous case *and* cases with NA's !
+##       and use  higher precision via  fPrec = 2 etc ...
+
 stopifnot(allEQ(m.x, noDN(.N(mx))),
 	  allEQ(m.y, noDN(.N(my))),
 	  allEQ(noDN(.N(my %*% mx)), m.y %*% m.x),

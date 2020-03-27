@@ -16,6 +16,7 @@ auto
 src/Makevars$
 log1mexp-artcl.*
 inst/doc/MPFR_Fousse_etal
+inst/doc/MM-poster
 inst/doc/20[12]
 inst/doc/.*(lynne|nb-m)
 inst/doc/.*\.(tex|bbl|aux|log|blg)$

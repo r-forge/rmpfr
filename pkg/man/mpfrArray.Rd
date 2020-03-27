@@ -1,6 +1,7 @@
 \name{mpfrArray}
 \alias{mpfrArray}
-\title{Construct "mpfrArray" almost as by 'array()'}
+\title{Construct "mpfrArray" almost as by 'array()'}% <--> ./mpfrMatrix-class.Rd
+
 \description{
   Utility to construct an \R object of class
   \code{\linkS4class{mpfrArray}}, very analogously to the numeric
