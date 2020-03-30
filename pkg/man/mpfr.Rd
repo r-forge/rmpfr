@@ -79,8 +79,8 @@ Const(name = c("pi", "gamma", "catalan", "log2"), prec = 120L,
 \references{
   The MPFR team. (201x).
   \emph{GNU MPFR -- The Multiple Precision Floating-Point Reliable
-    Library}; see \url{http://www.mpfr.org/mpfr-current/#doc} or directly
-  \url{http://www.mpfr.org/mpfr-current/mpfr.pdf}.
+    Library}; see \url{https://www.mpfr.org/mpfr-current/#doc} or directly
+  \url{https://www.mpfr.org/mpfr-current/mpfr.pdf}.
 }
 \author{Martin Maechler}
 \seealso{The class documentation \code{\linkS4class{mpfr}} contains more

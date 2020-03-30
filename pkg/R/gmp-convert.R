@@ -31,7 +31,7 @@ if(packageVersion("gmp") < "0.5.8")## <-> ../NAMESPACE
     if(is.null(precB)) precB <- 4L*nchar(cx)
     if(is.matrixZQ(x))
 	new("mpfrMatrix", .Call(str2mpfr1_list, cx, precB, b, rnd.mode),
-	    Dim = dim(x))# "bigz" has no dimnames
+	    Dim = as.integer(dim(x)))# "bigz" has no dimnames
     else
 	new("mpfr", .Call(str2mpfr1_list, cx, precB, b, rnd.mode))
 }

@@ -17,6 +17,12 @@
       \code{precBits}, see above.
     }
   }
+  \subsection{BUG FIXES}{
+    \itemize{
+      \item \code{mpfr(mm)} (and similar) now works for \code{"bigq"} or
+      \code{"bigz"} matrices, thanks to a report by Jerry Lewis.
+    }
+  }
 }
 
 \section{Changes in version 0.8-1 [2020-01-14, r323]}{

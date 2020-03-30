@@ -185,7 +185,7 @@ chooseMpfr.all <- function(n, precBits=NULL, k0=1, alternating=FALSE) {
 }## {chooseMpfr.all}
 
 
-## http://en.wikipedia.org/wiki/N%C3%B6rlund%E2%80%93Rice_integral
+## https://en.wikipedia.org/wiki/N%C3%B6rlund%E2%80%93Rice_integral
 ## also deals with these alternating binomial sums
 ##'
 ##' version 1: already using the 'alternating' arg in chooseMpfr.all()

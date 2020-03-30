@@ -202,12 +202,11 @@ SEXP R_mpfr_sumprod(SEXP x, SEXP y, SEXP minPrec, SEXP alternating_)
 
     for(int i=0; i < n; i++)
     {
-	Rboolean NA_res;
 	double xi = 0., yi = 0.; // Wall
-#define IF_NA_set_and_continue(_NA_COND_)		\
-	if(_NA_COND_) {					\
-	    mpfr_set_nan(Summ);				\
-	    continue;/* no need to continue the loop */	\
+#define IF_NA_set_and_continue(_NA_COND_)	\
+	if(_NA_COND_) {				\
+	    mpfr_set_nan(Summ);			\
+	    continue;/* -> "next i"  */		\
 	}
 
 	switch(R_case) {

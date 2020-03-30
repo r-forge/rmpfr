@@ -64,10 +64,10 @@ Further information is available in the following vignettes:
 \author{Martin Maechler}
 \references{
   MPFR (MP Floating-Point Reliable Library),
-  \url{http://mpfr.org/}
+  \url{https://mpfr.org/}
 
   GMP (GNU Multiple Precision library),
-  \url{http://gmplib.org/}
+  \url{https://gmplib.org/}
 
   and see the vignettes mentioned above.
 }
