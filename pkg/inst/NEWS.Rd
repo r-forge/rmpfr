@@ -4,13 +4,17 @@
 \title{Rmpfr News}
 \encoding{UTF-8}
 
-\section{Changes in version 0.8-2 [2020-03-16, r...]}{
+\section{Changes in version 0.8-2 [2020-05-08, r326]}{
   \subsection{NEW FEATURES}{
     \itemize{
       \item The workhorse for all matrix multiplication (\code{\%*\%},
       \code{crossprod()}, and \code{tcrossprod()}), i.e., \code{.matmult.R(x, y, *)}
       (not exported), gets new optional arguments \code{fPrec = 1} and
-      \code{precBits}, which defaults to the maximum of \code{getPrec(x)} and \code{getPrec(y)}.
+      \code{precBits}, which defaults to the maximum of \code{getPrec(x)}
+      and \code{getPrec(y)}.
+      To get correct \code{crossprod()} and tcrossprod() generics (with a
+      formal \code{\dots} argument), need a new \CRANpkg{gmp} release, as
+      we get these two generics from \pkg{gmp}.
 
       \item \code{matmult(x,y)} is identical to \code{x \%*\% y}, but
       \code{matmult()} has further optional arguments \code{fPrec} and
