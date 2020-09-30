@@ -4,7 +4,7 @@
 \title{Rmpfr News}
 \encoding{UTF-8}
 
-\section{Changes in version 0.8-2 [2020-08-27, r328]}{
+\section{Changes in version 0.8-2 [2020-09-20, r329]}{
   \subsection{NEW FEATURES}{
     \itemize{
       \item The workhorse for all matrix multiplication (\code{\%*\%},
@@ -30,12 +30,20 @@
       \code{\link{conflicts}()} with the \pkg{stats} package base \R
       function), providing an \code{"mpfr"}-number version of the negative
       binomial probabilities.
+
+      \item \code{.mpfr_erange_set()} now can set \emph{both} exponent
+      range limits simultaneously, and now returns invisibly \code{TRUE} if
+      the change succeeded.
     }
   }
   \subsection{BUG FIXES}{
     \itemize{
       \item \code{mpfr(mm)} (and similar) now works for \code{"bigq"} or
       \code{"bigz"} matrices, thanks to a report by Jerry Lewis.
+
+      \item Arithmetic and other \code{"\link{Ops}"} between \code{"mpfr"}
+      and \code{"bigq"} aka bigrational numbers, now use the
+      \dQuote{inherent} precision of the bigrational.
     }
   }
 }

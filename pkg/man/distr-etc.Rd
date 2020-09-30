@@ -26,9 +26,13 @@ pnorm(q, mean = 0, sd = 1, lower.tail = TRUE, log.p = FALSE)
   of \code{pnorm}, \code{erf(x) = 2*pnorm(sqrt(2)*x)} and
   \code{erfc(x) = 2* pnorm(sqrt(2)*x, lower=FALSE)}.
 }
+\note{E.g., for \code{pnorm(*, log.p = TRUE)} to be useful, i.e., not to
+  underflow or overflow, you may want to extend the exponential range of
+  MPFR numbers, using \code{\link{.mpfr_erange_set}()}, see the examples.
+}
 \arguments{
-  \item{x,q, lambda, size,prob, mean,sd, shape,rate,scale}{\code{\link{numeric}} or
-    \code{\linkS4class{mpfr}} vectors.  % for the function call.
+  \item{x,q, lambda, size,prob, mu, mean,sd, shape,rate,scale}{%
+    \code{\link{numeric}} or \code{\linkS4class{mpfr}} vectors.  % for the function call.
     All of these are \dQuote{recycled} to the length of the longest one.
     For their meaning/definition, see the corresponding standard R
     (\pkg{stats} package) function.}
@@ -61,6 +65,16 @@ print(dbinom(0:8, 8, pr = 4 / 5), digits=18)
 
 print(dnorm(     -5:5), digits=18)
       dnorm(mpfr(-5:5, prec=99))
+
+## For pnorm() in the extreme tails, need an exponent range
+## larger than the (MPFR and Rmpfr) default:
+(old_eranges <- .mpfr_erange()) # typically -/+ 2^30
+.mpfr_erange_set(value = (1-2^-52)*.mpfr_erange(c("min.emin","max.emax")))
+tens <- mpfr(10^(4:7), 128)
+pnorm(tens, lower.tail=FALSE, log.p=TRUE) # "works"
+## reset to previous
+.mpfr_erange_set( , old_eranges)
+pnorm(tens, lower.tail=FALSE, log.p=TRUE) # all but first underflow to -Inf
 }
 \keyword{distribution}
 

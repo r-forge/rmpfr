@@ -14,10 +14,11 @@ pbetaI(q, shape1, shape2, ncp = 0, lower.tail = TRUE, log.p = FALSE,
 }
 \arguments{
   \item{q}{called \eqn{x}, above; vector of quantiles, in \eqn{[0,1]}; can
-    be \code{\link{numeric}}, or of class \link{"mpfr"} or also
-    \link[gmp]{"bigq"} (\dQuote{big rational} from \CRANpkg{gmp}); in the
-    latter case, if \code{log.p = FALSE} as by default, \emph{all
-      computations} are exact, using big rational arithmetic.}
+    be \code{\link{numeric}}, or of class \code{"\link{mpfr}"} or also
+    \code{"\link[gmp]{bigq}"} (\dQuote{big rational} from package
+    \CRANpkg{gmp}); in the latter case, if \code{log.p = FALSE} as by
+    default, \emph{all computations} are exact, using big rational
+    arithmetic.}
   \item{shape1, shape2}{the positive Beta \dQuote{shape} parameters,
     called \eqn{a, b}, above. \bold{Must} be integer valued for this
     function.}
@@ -59,7 +60,7 @@ a <- 7; b <- 788
 p.  <- pbetaI(x, a, b) ## a bit slower:
 system.time(
 pp  <- pbetaI(x, a, b, precBits = 2048)
-) # 0.23 sec
+) # 0.23 -- 0.50 sec
 ## Currently, the lower.tail=FALSE  are computed "badly":
 lp  <- log(pp)    ## = pbetaI(x, a, b, log.p=TRUE)
 lIp <- log1p(-pp) ## = pbetaI(x, a, b, lower.tail=FALSE, log.p=TRUE)
@@ -100,6 +101,7 @@ stopifnot(
 ## is computed *exactly* with bigrational arithmetic:
 (q4 <- as.bigq(1, 2^(0:4)))
 pb4 <- pbetaI(q4, 10, 288, lower.tail=FALSE)
+stopifnot( is.bigq(pb4) )
 mpb4 <- as(pb4, "mpfr")
 mpb4[1:2]
 getPrec(mpb4) # 128 349 1100 1746 2362

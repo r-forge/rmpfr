@@ -38,10 +38,11 @@ setMethod("Ops", signature(e1 = "mpfr", e2 = "bigz"),
 setMethod("Ops", signature(e1 = "bigz", e2 = "mpfr"),
 	  function(e1, e2) callGeneric(.bigz2mpfr(e1), e2))
 
+# ..bigq2mpfr(q, NULL) determines the necessary precision for q :
 setMethod("Ops", signature(e1 = "mpfr", e2 = "bigq"),
-	  function(e1, e2) callGeneric(e1, ..bigq2mpfr(e2, pmax(.getPrec(e1), 128L))))
+	  function(e1, e2) callGeneric(e1, ..bigq2mpfr(e2, NULL)))
 setMethod("Ops", signature(e1 = "bigq", e2 = "mpfr"),
-	  function(e1, e2) callGeneric(..bigq2mpfr(e1, pmax(.getPrec(e1), 128L)), e2))
+	  function(e1, e2) callGeneric(..bigq2mpfr(e1, NULL), e2))
 
 
 setMethod("Logic", signature(e1 = "mpfr", e2 = "mpfr"),

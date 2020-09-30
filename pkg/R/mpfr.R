@@ -78,11 +78,17 @@ mpfr_default_prec <- function(prec) {
     r
 }
 
-
+## NB: This now works to set *both* kinds, simultaneously
 .mpfr_erange_set <- function(kind = c("Emin", "Emax"), value) {
-    kind <- match.arg(kind)
+    kind <- match.arg(kind, several.ok=TRUE)
+    stopifnot(length(kind) == length(value))
     ## value can be double, and need be for "64-bit long"
-    .Call(R_mpfr_set_erange, match(kind, .mpfr_erange_kinds), value)
+    invisible(vapply(seq_along(kind), function(j)
+        .Call(R_mpfr_set_erange,
+              match(kind[[j]], c("Emin", "Emax")),
+              value[[j]]),
+        ## returns error codes from MPFR; 0 is good
+        integer(1)) == 0L)
 }
 
 .mpfr_erange_is_int <- function() .Call(R_mpfr_erange_int_p)
