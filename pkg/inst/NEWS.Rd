@@ -4,7 +4,7 @@
 \title{Rmpfr News}
 \encoding{UTF-8}
 
-\section{Changes in version 0.8-2 [2020-05-28, r327]}{
+\section{Changes in version 0.8-2 [2020-08-27, r328]}{
   \subsection{NEW FEATURES}{
     \itemize{
       \item The workhorse for all matrix multiplication (\code{\%*\%},
@@ -19,6 +19,17 @@
       \item \code{matmult(x,y)} is identical to \code{x \%*\% y}, but
       \code{matmult()} has further optional arguments \code{fPrec} and
       \code{precBits}, see above.
+
+      \item New \code{is.mpfr(x)} function; simple, with fast pre-test.
+
+      \item In \code{pbetaI(q, ..)}, when \code{q} is a bigrational, i.e.,
+      of class \code{"bigq"} (package \CRANpkg{gmp}), the computations are
+      \emph{exact} now, using big rational arithmetic.
+
+      \item New \code{dnbinom()} function (with corresponding new
+      \code{\link{conflicts}()} with the \pkg{stats} package base \R
+      function), providing an \code{"mpfr"}-number version of the negative
+      binomial probabilities.
     }
   }
   \subsection{BUG FIXES}{

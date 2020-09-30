@@ -73,7 +73,7 @@ stopifnot(as(apply(A2, 2, range), "matrix") ==
    for(di in c(1,2)) {
      r <- FUN(a2, dims = di)
      R <- FUN(A2, dims = di)
-     stopifnot(dim(r) == dim(R),
+     stopifnot(identical(dim(r), dim(R)), # possibly both NULL
                all.equal(as(R, if(is.array(r)) "array" else "numeric"),
                          unname(r), tol = 1e-15))
    }

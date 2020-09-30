@@ -3,12 +3,14 @@
 \alias{pnorm}
 \alias{dnorm}
 \alias{dbinom}
+\alias{dnbinom}
 \alias{dgamma}
 \alias{dpois}
 \alias{mpfr-distr}% <- alternative for \link
 \usage{
 dpois (x, lambda, log = FALSE)
-dbinom(x, size, prob, log = FALSE)
+dbinom (x, size, prob, log = FALSE)
+dnbinom(x, size, prob, mu, log = FALSE)
 dnorm (x, mean = 0, sd = 1, log = FALSE)
 dgamma(x, shape, rate = 1, scale = 1/rate, log = FALSE)
 
@@ -41,6 +43,7 @@ pnorm(q, mean = 0, sd = 1, lower.tail = TRUE, log.p = FALSE)
 }
 \seealso{\code{\link[stats:Normal]{pnorm}},
   \code{\link[stats]{dbinom}},
+  \code{\link[stats]{dnbinom}},
   \code{\link[stats]{dgamma}},
   \code{\link[stats]{dpois}} in standard package \pkg{stats}.
 

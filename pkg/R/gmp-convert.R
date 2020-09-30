@@ -45,7 +45,7 @@ setAs("bigz", "mpfr", function(from) ..bigz2mpfr(from))
 as.bigz.mpfr <-
 .mpfr2bigz <- function(x, mod=NA) {
     if(is.null(mod)) mod <- NA_integer_
-    stopifnot(is(x, "mpfr"),
+    stopifnot(is.mpfr(x),
 	      is.na(mod) || (length(mod) == 1L && is.numeric(mod)))
     dx <- dim(x)
 ### FIXME or rather  roundMpfr()  [or even round "RND" as in mpfr_get_z() above] ??

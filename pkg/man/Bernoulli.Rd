@@ -24,6 +24,10 @@ Bernoulli(k, precBits = 128)
 }
 \author{Martin Maechler}
 \seealso{\code{\link{zeta}} is used to compute them.
+
+  The next version of package \CRANpkg{gmp} is to contain %\code{\link[gmp]{BernoulliQ}()}
+  \code{BernoulliQ()}, providing exact Bernoulli numbers as
+  big rationals (class \code{"bigq"}).
 }
 \examples{
 \dontshow{sessionInfo()

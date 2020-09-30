@@ -108,7 +108,7 @@ if(FALSE) ## no longer -- as R CMD check complains about use of non-API R_Output
 if(.Platform$OS.type != "windows") {## No R_Outputfile (in C) on Windows
 
 .print.mpfr <- function(x, digits = NA, ...) {
-    stopifnot(is(x, "mpfr"), is.na(digits) || digits >= 1)
+    stopifnot(is.mpfr(x), is.na(digits) || digits >= 1)
     ## digits = NA --> the inherent precision of x will be used
     if(length(x) >= 1)
 	.Call(print_mpfr, x, as.integer(digits))
@@ -130,7 +130,7 @@ print.mpfr <- function(x, digits = NULL, drop0trailing = TRUE, right = TRUE,
                        max.digits = getOption("Rmpfr.print.max.digits", 999L),
                        exponent.plus = getOption("Rmpfr.print.exponent.plus", TRUE),
                        ...) {
-    stopifnot(is(x, "mpfr"), is.null(digits) || digits >= 1)
+    stopifnot(is.mpfr(x), is.null(digits) || digits >= 1)
     ## digits = NULL --> the inherent precision of x will be used
     n <- length(x)
     ch.prec <-
@@ -496,14 +496,14 @@ seqMpfr <- function(from = 1, to = 1, by = ((to - from)/(length.out - 1)),
 	if(lf != 1) stop("'from' must be of length 1")
     }
     if (nargs() == 1L && h.from) { # 'One'
-	if(is.numeric(from) || is(from,"mpfr")) {
+	if(is.numeric(from) || is.mpfr(from)) {
 	    to <- from; from <- mpfr(1, getPrec(from))
 	} else stop("'from' is neither numeric nor \"mpfr\"")
     }
     ## else if (!is(from, "mpfr")) from <- as(from, "mpfr")
 
     if(!missing(to)) {
-	if (!is(to, "mpfr")) to <- as(to, "mpfr")
+	if (!is.mpfr(to)) to <- as(to, "mpfr")
 	if (length(to) != 1) stop("'to' must be of length 1")
     }
     if (!missing(along.with)) {
@@ -519,8 +519,8 @@ seqMpfr <- function(from = 1, to = 1, by = ((to - from)/(length.out - 1)),
 
     miss.by <- missing(by)
     if(is.null(length.out)) {
-	if(!is(to,   "mpfr")) to   <- as(to,   "mpfr")
-	if(!is(from, "mpfr")) from <- as(from, "mpfr")# need it again
+	if(!is.mpfr(to))   to   <- as(to,   "mpfr")
+	if(!is.mpfr(from)) from <- as(from, "mpfr")# need it again
 	del <- to - from
 	if(del == 0 && to == 0) return(to)
 	if(miss.by) {
@@ -528,7 +528,7 @@ seqMpfr <- function(from = 1, to = 1, by = ((to - from)/(length.out - 1)),
 	}
     }
     else if(!miss.by) { # to mpfr and check it
-        if (!is(by, "mpfr")) by <- as(by, "mpfr")
+        if (!is.mpfr(by)) by <- as(by, "mpfr")
         if (length(by) != 1) stop("'by' must be of length 1")
     }
     ## ---- This is  cut n paste  from seq.default() :
@@ -634,7 +634,7 @@ setMethod("seq", c(from = "ANY", to = "ANY", by = "mpfr"), seqMpfr)
 
 ## the user version
 getPrec <- function(x, base = 10, doNumeric = TRUE, is.mpfr = NA, bigq. = 128L) {
-    if(isTRUE(is.mpfr) || is(x,"mpfr"))
+    if(isTRUE(is.mpfr) || is.mpfr(x))
 	vapply(getD(x), slot, 1L, "prec")# possibly of length 0
     else if(is.character(x)) {
 	if (inherits(x, "Ncharacter"))

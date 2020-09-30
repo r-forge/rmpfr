@@ -261,8 +261,11 @@ $\log\left(1 - e^x \right) = \log(1 - \exp(x))$ for $x < 0$, neither
   \log(1 - \exp(x)) &= \loglp(-\exp(x)),
 \end{align}
 are uniformly sufficient for numerical evaluation.
+%% 1
 In (\ref{eq:f.log1p}), when $x$ approaches $0$, $\exp(x)$ approaches $1$
-and loses accuracy. In (\ref{eq:f.expm1}), when $x$ is large, $\expml(x)$
+so their difference suffers from cancellation, losing accuracy.  
+%% 2
+In (\ref{eq:f.expm1}), when $x$ is large, $\expml(x)$
 approaches $-1$ and similarly loses accuracy.
 Because of this, we will propose to use a function \code{log1mexp(x)}
 which uses either \code{expm1} (\ref{eq:f.expm1}) or

@@ -8,7 +8,7 @@ Installation is non-trivial if you install from __source_ because of the
 __MPFR, the "Multiple Precision Floating-Point Reliably" library__
 
 which is Free/Libre Software, available under the LGPL license.
-[MPFR Website](https://mpfr.org/)
+[MPFR Website](https://www.mpfr.org/)
 
 ## MPFR itself is built on and requires the GMP library
 __GNU Multiple Precision arithmetic library (GMP)__

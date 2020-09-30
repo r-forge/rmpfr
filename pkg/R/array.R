@@ -213,11 +213,11 @@ setMethod(show, "mpfrArray", function(object) print.mpfrArray(object))
 ##/* "%*%" (op = 0), crossprod (op = 1) or tcrossprod (op = 2) */
 .matmult.R <- function(x,y, op = 0L, fPrec = 1, precBits = fPrec * max(getPrec(x), getPrec(y)))
 {
-    if(!(is.numeric(x) || is(x,"mpfr")))
+    if(!(is.numeric(x) || is.mpfr(x)))
 	stop("'x' must be numeric or mpfr(Matrix)")
     sym <- missing(y)
     if (sym && (op > 0L)) y <- x
-    else if(!(is.numeric(y) || is(y,"mpfr")))
+    else if(!(is.numeric(y) || is.mpfr(y)))
 	stop("'y' must be numeric or mpfr(Matrix)")
     ldx <- length(dx <- dim(x))
     ldy <- length(dy <- dim(y))
@@ -563,7 +563,7 @@ setMethod("cbind", "Mnumber",
 	      for(ia in seq_along(args)) {
 		  w <- widths[ia]
 		  a <- args[[ia]]
-		  if(is(a,"mpfr")) {
+		  if(is.mpfr(a)) {
 		      prec <- max(prec, .getPrec(a))
 		  } else { ## not "mpfr"
 		      a <- mpfr(a, prec)
@@ -619,7 +619,7 @@ setMethod("rbind", "Mnumber",
 	      for(ia in seq_along(args)) {
 		  le <- lengths[ia]
 		  a <- args[[ia]]
-		  if(is(a,"mpfr")) {
+		  if(is.mpfr(a)) {
 		      prec <- max(prec, .getPrec(a))
 		  } else { ## not "mpfr"
 		      a <- mpfr(a, prec)
