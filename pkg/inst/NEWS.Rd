@@ -4,7 +4,7 @@
 \title{Rmpfr News}
 \encoding{UTF-8}
 
-\section{Changes in version 0.8-2 [2020-09-20, r329]}{
+\section{Changes in version 0.8-2 [2020-10-10, r330]}{
   \subsection{NEW FEATURES}{
     \itemize{
       \item The workhorse for all matrix multiplication (\code{\%*\%},
@@ -44,6 +44,10 @@
       \item Arithmetic and other \code{"\link{Ops}"} between \code{"mpfr"}
       and \code{"bigq"} aka bigrational numbers, now use the
       \dQuote{inherent} precision of the bigrational.
+
+      \item \code{chooseMpfr(a, n)} and similar now \dQuote{work} when
+      \code{n} is of length zero \emph{and} when an experimental version of
+      \code{stopifnot(*, allow.logical0=FALSE)} is used.
     }
   }
 }
