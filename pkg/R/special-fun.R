@@ -484,3 +484,49 @@ igamma <- function(a,x, rnd.mode = c('N','D','U','Z','A')) {
 ## dummy .. to pacify "R CMD check"
 ## R_mpfr_igamma <- quote(dummy) # gives NOTE  ‘R_mpfr_igamma’ is of class "name"
 
+
+## These are identical from package copuula/R/special-func.R -- where MM authored the function also:
+## We want to export these, but cannot easily import from copula which "weekly depends" on Rmpfr
+
+##' @title Compute  f(a) = log(1 - exp(-a))  stably
+##' @param a numeric vector of positive values
+##' @param cutoff  log(2) is optimal, see  Maechler (201x) .....
+##' @return f(a) == log(1 - exp(-a)) == log1p(-exp(-a)) == log(-expm1(-a))
+##' @author Martin Maechler, May 2002 .. Aug. 2011
+##' @references Maechler(2012)
+##' Accurately Computing log(1 - exp(-|a|)) Assessed by the Rmpfr package.
+##' http://cran.r-project.org/web/packages/Rmpfr/vignettes/log1mexp-note.pdf
+## MM: ~/R/Pkgs/Rmpfr/inst/doc/log1mexp-note.Rnw
+##--> ../man/log1mexp.Rd
+log1mexp <- function(a, cutoff = log(2)) ## << log(2) is optimal >>
+{
+    if(has.na <- any(ina <- is.na(a))) {
+	y <- a
+	a <- a[ok <- !ina]
+    }
+    if(any(a < 0))## a == 0  -->  -Inf	(in both cases)
+	warning("'a' >= 0 needed")
+    tst <- a <= cutoff
+    r <- a
+    r[ tst] <- log(-expm1(-a[ tst]))
+    r[!tst] <- log1p(-exp(-a[!tst]))
+    if(has.na) { y[ok] <- r ; y } else r
+}
+
+##' @title Compute  f(x) = log(1 + exp(x))  stably and quickly
+##--> ../man/log1mexp.Rd
+log1pexp <- function(x, c0 = -37, c1 = 18, c2 = 33.3)
+{
+    if(has.na <- any(ina <- is.na(x))) {
+	y <- x
+	x <- x[ok <- !ina]
+    }
+    r <- exp(x)
+    if(any(i <- c0 < x & (i1 <- x <= c1)))
+	r[i] <- log1p(r[i])
+    if(any(i <- !i1 & (i2 <- x <= c2)))
+	r[i] <- x[i] + 1/r[i] # 1/exp(x) = exp(-x)
+    if(any(i3 <- !i2))
+	r[i3] <- x[i3]
+    if(has.na) { y[ok] <- r ; y } else r
+}

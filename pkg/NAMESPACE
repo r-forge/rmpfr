@@ -128,6 +128,7 @@ export(.mpfr, .mpfr.
        , "integrateR"
      , is.mpfr
      , "j0" , "j1" , "jn"
+     , log1mexp, log1pexp
      , matmult
        , "mpfr"
        , mpfrIs0, .mpfr.is.whole # as substitutes of

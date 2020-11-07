@@ -34,6 +34,10 @@
       \item \code{.mpfr_erange_set()} now can set \emph{both} exponent
       range limits simultaneously, and now returns invisibly \code{TRUE} if
       the change succeeded.
+
+      \item New \code{log1mexp()} and \code{log1pexp()}, as "from"
+      \CRANpkg{copula}, notably as the vignette has been here, and authored
+      by me.
     }
   }
   \subsection{BUG FIXES}{
