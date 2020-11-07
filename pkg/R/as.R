@@ -231,6 +231,7 @@ formatMpfr <-
 	paste(substr   (str, 1L, k),
 	      substring(str, k+1L), sep = decimal.mark)
 
+    if(FALSE) ## not used currently __FIXME__
     ## scipen := penalty for using "scientific", i.e., exponential format
     scipen <-
         if(is.na(scientific))
