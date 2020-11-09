@@ -527,6 +527,22 @@ setMethod("diag<-", signature(x = "mpfrMatrix"),
 setGeneric("cbind", signature = "...")# -> message about override & deparse.level
 setGeneric("rbind", signature = "...")
 
+## inside such cbind() / rbind() S4 methods,  match.call() does *not* work correctly,
+## this works *only* for top-level calls :
+bind_match.call <- function() sys.call(1L)
+## so use our "hack" :
+bind_match.call <- function() {
+    nc <- length(scs <- sys.calls()) # last one is bind_match.call() itself
+    ## want the one call *above*  standardGeneric("...") :
+    if(is.symbol(fn <- scs[[nc-1L]][[1L]])) { # e.g. 'cbind'
+        Gcall <- call("standardGeneric", as.character(fn)) # e.g. standardGeneric("cbind")
+        i. <- which(vapply(scs, identical, NA, Gcall))
+        scs[[if(!length(i.) || i. < 2L) 1L else i. - 1L ]]
+    } else # try "better"
+        match.call()
+}
+
+
 setMethod("cbind", "Mnumber",
 	  function(..., deparse.level = 1) {
 	      args <- list(...)
@@ -556,29 +572,70 @@ setMethod("cbind", "Mnumber",
 	      NC <- sum(widths	<- vapply(args, W, integer(1)))
 	      r <- setDataPart(new("mpfrMatrix"), vector("list", NR*NC))
 	      r@Dim <- as.integer(c(NR, NC))
-	      if(deparse.level >= 1 && !is.null(nms <- names(widths)))
-		  r@Dimnames[[2]] <- nms
+	      hasDim <- !vapply(args, function(a) is.null(dim(a)), NA)
+	      do.colnames <- deparse.level || any(hasDim)
+	      if(do.colnames) {
+		  nms <- character(NC)
+		      ## help(cbind)  has in 'Value' :
+		      ##      For ‘cbind’ (‘rbind’) the column (row) names are taken from the
+		      ##      colnames (rownames) of the arguments if these are matrix-like.
+		      ##      Otherwise from the names of the arguments or where those are not
+		      ##      supplied and ‘deparse.level > 0’, by deparsing the expressions
+		      ##      given, for ‘deparse.level = 1’ only if that gives a sensible name
+		      ##      (a symbol, see is.symbol).
+		  nV <- names(widths) # == names(args), possibly NULL
+		  hasV <- !is.null(nV)
+		  ## argN <- substitute(...)## "fails" here same as match.call()
+		  fcall <- bind_match.call()
+		  if(!missing(deparse.level)) # must remove: it could be "anywhere"
+		      fcall <- fcall[names(fcall) != "deparse.level"]
+		  ## cat("fcall: "); str(fcall)
+		  ## browser()
+		  ## argN <- fcall[-1] # but that makes 1st arg into fn.name!
+		  ## vapply(fcall[-1], deparse1, "") ## is what we'd need, incl. *names*
+		  ## not ok when called as  selectMethod("cbind","mpfr")(x, ....)
+                  fcall.ok <- (length(fcall) == 1L + ...length()) ## == 1 + length(args)
+	      }
 	      j <- 0
 	      prec <- .Machine$double.digits
 	      for(ia in seq_along(args)) {
 		  w <- widths[ia]
 		  a <- args[[ia]]
+                  isM <- hasDim[[ia]] # == !is.null(dim(a)) ; true iff matrix-like
 		  if(is.mpfr(a)) {
 		      prec <- max(prec, .getPrec(a))
 		  } else { ## not "mpfr"
 		      a <- mpfr(a, prec)
 		  }
 		  if((li <- lengths[ia]) != 1 && li != NR) { ## recycle
-		      if(!is.null(dim(a)))
+		      if(isM)
 			  stop("number of rows of matrices must match")
 		      ## else
 		      if(NR %% li)
 			  warning("number of rows of result is not a multiple of vector length")
 		      a <- a[rep(seq_len(li), length.out = NR)]
 		  }
-		  r[, j+ 1:w] <- a
+		  ii <- j+ seq_len(w)
+		  r[, ii] <- a
+		  if(do.colnames) {
+		      nms[ii] <-
+			  if(isM)
+			      colnames(a) %||% ""
+			  else {
+			      if(hasV && nzchar(n. <- nV[[ia]]))
+				  n.
+			      else if(fcall.ok) { ## deparsed argument "arg"[[ia]]
+				  a <- fcall[[ia+1L]]
+				  if(is.symbol(a) || deparse.level == 2)
+				      deparse1(a)
+				  else ""
+			      } else ""
+			  }
+		  }
 		  j <- j + w
 	      }
+	      if(do.colnames && any(nzchar(nms)))
+		  r@Dimnames[[2L]] <- nms
 	      r
 	  })
 
@@ -609,33 +666,60 @@ setMethod("rbind", "Mnumber",
 	      ## the number of rows of the result : {for now require integer}
 	      NR <- sum(lengths <- vapply(args, L, integer(1)))
 	      NC <- max(widths	<- vapply(args, W, integer(1)))
-
 	      r <- setDataPart(new("mpfrMatrix"), vector("list", NR*NC))
 	      r@Dim <- as.integer(c(NR, NC))
-	      if(deparse.level >= 1 && !is.null(nms <- names(widths)))
-		  r@Dimnames[[1]] <- nms
+	      hasDim <- !vapply(args, function(a) is.null(dim(a)), NA)
+	      do.rownames <- deparse.level || any(hasDim)
+	      if(do.rownames) {
+		  nms <- character(NR)
+		  nV <- names(lengths) # == names(args), possibly NULL
+		  hasV <- !is.null(nV)
+		  fcall <- bind_match.call()
+		  if(!missing(deparse.level)) # must remove: it could be "anywhere"
+		      fcall <- fcall[names(fcall) != "deparse.level"]
+		  ## not ok when called as  selectMethod("cbind","mpfr")(x, ....)
+                  fcall.ok <- (length(fcall) == 1L + ...length()) ## == 1 + length(args)
+	      }
 	      i <- 0
 	      prec <- .Machine$double.digits
 	      for(ia in seq_along(args)) {
 		  le <- lengths[ia]
 		  a <- args[[ia]]
+		  isM <- hasDim[[ia]] # == !is.null(dim(a)) ; true iff matrix-like
 		  if(is.mpfr(a)) {
 		      prec <- max(prec, .getPrec(a))
 		  } else { ## not "mpfr"
 		      a <- mpfr(a, prec)
 		  }
-
 		  if((wi <- widths[ia]) != 1 && wi != NC) { ## recycle
-		      if(!is.null(dim(a)))
+		      if(isM)
 			  stop("number of rows of matrices must match")
 		      ## else
 		      if(NC %% wi)
 			  warning("number of columns of result is not a multiple of vector length")
 		      a <- a[rep(seq_len(wi), length.out = NC)]
 		  }
-		  r[i+ 1:le, ] <- a
+		  ii <- i+ seq_len(le)
+		  r[ii, ] <- a
+		  if(do.rownames) {
+		      nms[ii] <-
+			  if(isM)
+			      rownames(a) %||% ""
+			  else {
+			      if(hasV && nzchar(n. <- nV[[ia]]))
+				  n.
+			      else if(fcall.ok) { ## deparsed argument "arg"[[ia]]
+				  a <- fcall[[ia+1L]]
+				  if(is.symbol(a) || deparse.level == 2)
+				      deparse1(a)
+				  else ""
+			      } else ""
+			  }
+		  }
 		  i <- i + le
 	      }
+	      if(do.rownames && any(nzchar(nms)))
+		  r@Dimnames[[1L]] <- nms
 	      r
 	  })
 

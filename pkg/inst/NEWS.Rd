@@ -4,7 +4,7 @@
 \title{Rmpfr News}
 \encoding{UTF-8}
 
-\section{Changes in version 0.8-2 [2020-11-07, r334]}{
+\section{Changes in version 0.8-2 [2020-11-09, r336]}{
   \subsection{NEW FEATURES}{
     \itemize{
       \item The workhorse for all matrix multiplication (\code{\%*\%},
@@ -52,6 +52,11 @@
       \item \code{chooseMpfr(a, n)} and similar now \dQuote{work} when
       \code{n} is of length zero \emph{and} when an experimental version of
       \code{stopifnot(*, allow.logical0=FALSE)} is used.
+
+      \item Our \code{cbind()} and \code{rbind()} methods with
+      \code{signature = "mNumber"} now keep and construct column and row
+      names as the corresponding base functions, obeying
+      \code{deparse.level}.
     }
   }
 }

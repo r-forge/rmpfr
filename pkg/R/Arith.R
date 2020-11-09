@@ -6,6 +6,10 @@
 ### NB:	 Look at /usr/local/app/R/R_local/src/Brobdingnag/R/brob.R
 ###					      -----------
 
+##' return 'x' unless it is NULL where you'd use 'orElse'
+`%||%` <- function(x, orElse) if(!is.null(x)) x else orElse
+
+
 if(FALSE) {
  print(getGroupMembers("Ops"))#  "Arith"   "Compare" "Logic"
  .Ops.list <- sapply(getGroupMembers("Ops"),
