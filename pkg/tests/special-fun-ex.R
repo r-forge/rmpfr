@@ -304,12 +304,17 @@ xP <- function(x, d) x - d*(x > d)
 aEQformat <- function(xy, ...) format(xy, digits = 7, ...)
 allEQ_0 <- function (target, current, ...)
     all.equal(target, current, tolerance = 0, formatFUN = aEQformat, ...)
+stopIfNot <-
+    if("allow.logical0" %in% names(formals(stopifnot))) { # experimental (MM only)
+        stopifnot
+    } else function(exprs, allow.logical0) stopifnot(exprs=exprs)
+
 for(shp in c(2^c(-20, -3, -1:1, 4, 10, 50))) {
     cat("shape = 2^", log2(shp), ":\n-------------\n")
     d.dg  <- dgamma(xP(2 ^ xe, shp), shape=shp)
     m.dg  <- dgamma(xP(two^xe, shp), shape=shp)
     m.ldg <- dgamma(xP(two^xe, shp), shape=shp, log=TRUE)
-    stopifnot(exprs = {
+    stopIfNot(exprs = {
         !is.unsorted(xe)
         is.finite(m.dg)
         m.dg >= 0
