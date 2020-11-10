@@ -4,7 +4,7 @@
 \title{Rmpfr News}
 \encoding{UTF-8}
 
-\section{Changes in version 0.8-2 [2020-11-09, r336]}{
+\section{Changes in version 0.8-2 [2020-11-10, r337]}{
   \subsection{NEW FEATURES}{
     \itemize{
       \item The workhorse for all matrix multiplication (\code{\%*\%},
@@ -57,6 +57,9 @@
       \code{signature = "mNumber"} now keep and construct column and row
       names as the corresponding base functions, obeying
       \code{deparse.level}.
+
+      \item Fixed "not-yet"-as-cran \file{NOTE}
+      \emph{Undeclared packages \pkg{dfoptim}, \pkg{pracma} in Rd xrefs}.
     }
   }
 }

@@ -70,7 +70,7 @@ optimizeR(f, lower, upper, ..., tol = 1e-20,
 % }
 \author{
   \code{"GoldenRatio"} is based on Hans Werner Borchers'
-  \code{\link[pracma]{golden_ratio}};
+  \code{\link[pracma]{golden_ratio}} (package \CRANpkg{pracma});
   modifications and \code{"Brent"} by Martin Maechler.
 }
 % \note{

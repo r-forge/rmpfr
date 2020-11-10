@@ -231,7 +231,6 @@ formatMpfr <-
 	paste(substr   (str, 1L, k),
 	      substring(str, k+1L), sep = decimal.mark)
 
-    if(FALSE) ## not used currently __FIXME__
     ## scipen := penalty for using "scientific", i.e., exponential format
     scipen <-
         if(is.na(scientific))
@@ -261,7 +260,7 @@ formatMpfr <-
         ##	     mxsl := max_i{sleft_i}; sleft_i = sign_i + (digits left of ".")_i
         else { ## scientific = (FALSE | NA | number) --- for now :
             if(is.na(scientific))
-                scientific <- as.numeric(getOption("scipen"))
+                scientific <- scipen
             isNum & (Ex < -4 + scientific | Ex > r.dig)
         }
     }

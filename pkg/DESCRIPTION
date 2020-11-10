@@ -1,7 +1,7 @@
 Package: Rmpfr
 Title: R MPFR - Multiple Precision Floating-Point Reliable
 Version: 0.8-2
-Date: 2020-11-09
+Date: 2020-11-10
 DateNote: Previous CRAN version 0.8-1 on 2020-01-14
 Type: Package
 Authors@R: c(person("Martin","Maechler", role = c("aut","cre"),
@@ -21,6 +21,8 @@ Depends: gmp (>= 0.6-1), R (>= 3.5.0)
 Imports: stats, utils, methods
 Suggests: MASS, Bessel, polynom, sfsmisc (>= 1.0-20), Matrix
 SuggestsNote: MASS, polynom, sfsmisc: only for vignette; Matrix: test-tools
+Enhances: dfoptim, pracma
+EnhancesNote: mentioned in Rd xrefs
 URL: https://rmpfr.r-forge.r-project.org/
 Description: Arithmetic (via S4 classes and methods) for
   arbitrary precision floating point numbers, including transcendental
