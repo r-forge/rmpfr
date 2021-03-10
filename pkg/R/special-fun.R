@@ -128,14 +128,23 @@ dnbinom <- function (x, size, prob, mu, log = FALSE) {
     } else if((s.mp <- is.mpfr(size)) |
 	    (p.mp <- is.mpfr(prob)) || is.mpfr(x)) {
 	stopifnot(is.whole(x)) # R's dbinom() gives NaN's with a warning..
-        if(!is.integer(x)) x <- as.integer(x) # chooseMpfr() needs
+        if(!is.integer(x) && all(abs(x) < .Machine$integer.max))
+            x <- as.integer(x) # chooseMpfr() needs it
 	prec <- pmax(53, getPrec(size), getPrec(prob), getPrec(x))
 	if(!s.mp) size <- mpfr(size, prec)
 	if(!p.mp) prob <- mpfr(prob, prec)
 	## n:= size, p:= prob,	compute	 P(x) = choose(n+x-1, x) * p^n * (1-p)^x
-	C.nx <- chooseMpfr(size+x-1, x)
-	if(log) log(C.nx) + size*log(prob) + x*log1p(-prob)
-	else C.nx * prob^size * (1-prob)^x
+        if(is.integer(x)) {
+            C.nx <- chooseMpfr(size+x-1, x)
+            if(log) log(C.nx) + size*log(prob) + x*log1p(-prob)
+            else C.nx * prob^size * (1-prob)^x
+        } else { # x not integer, typically  |x| > .Machine$integer.max (= 2147483647 = 2^31 - 1)
+            ## => x is large but  size >= x is even larger ... so everything is large
+            ## FIXME (?) suffering from cancellation (when ?) !
+            logC.nx <- lgamma(size+x) - lgamma(size) - lgamma(x+1)
+            if(log)  logC.nx + size*log(prob) + x*log1p(-prob)
+            else exp(logC.nx + size*log(prob) + x*log1p(-prob))
+        }
     } else
 	stop("(x,size, prob | mu) must be numeric or \"mpfr\"")
 }## {dnbinom}

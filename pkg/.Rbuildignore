@@ -5,6 +5,7 @@ DESCRIPTION_
 ^00
 _unneeded
 _not_yet
+_cop$
 mail$
 _INSTALL
 \.Rhistory
@@ -13,6 +14,7 @@ _INSTALL
 ^\.Rmpfr
 ^svn-
 auto
+R/.*\.R\+.*
 src/Makevars$
 log1mexp-artcl.*
 inst/doc/MPFR_Fousse_etal

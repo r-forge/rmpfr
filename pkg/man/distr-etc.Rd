@@ -58,7 +58,7 @@ pnorm(q, mean = 0, sd = 1, lower.tail = TRUE, log.p = FALSE)
 x <- 1400+ 0:10
 print(dpois(x, 1000), digits =18) ## standard R's double precision
 dpois(mpfr(x, 120), 1000)## more accuracy for the same
-dpois(0:5, mpfr(10000, 80)) ## very small exponents
+dpois(0:5, mpfr(10000, 80)) ## very small exponents (underflowing in dbl.prec.)
 
 print(dbinom(0:8, 8, pr = 4 / 5), digits=18)
       dbinom(0:8, 8, pr = 4/mpfr(5, 99)) -> dB; dB
@@ -77,4 +77,3 @@ pnorm(tens, lower.tail=FALSE, log.p=TRUE) # "works"
 pnorm(tens, lower.tail=FALSE, log.p=TRUE) # all but first underflow to -Inf
 }
 \keyword{distribution}
-

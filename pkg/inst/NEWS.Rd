@@ -4,6 +4,24 @@
 \title{Rmpfr News}
 \encoding{UTF-8}
 
+\section{Changes in version 0.8-3 [2021-03-.., r..]}{
+  \subsection{NEW FEATURES}{
+    \itemize{
+      \item \code{dnbinom(x, *)} now also works when \code{x} is too large
+      to be coerced to \code{integer}.
+      %% FIXME:  add tests/* :  dnbinom(1e300, prob=1-mpfr(2, 256)^-12, size=1e307, log=TRUE)
+    }
+  }
+  \subsection{BUG FIXES}{
+    \itemize{
+      \item For arithmetic (\code{`+`}, \code{`*`}, etc), the check to see
+      if a numeric can be validly coerced to a long has been amended such
+      that 9223372036854775808 is no longer accidentally coerced into
+      \emph{negative}.
+    }
+  }
+}
+
 \section{Changes in version 0.8-2 [2020-11-10, r337]}{
   \subsection{NEW FEATURES}{
     \itemize{
