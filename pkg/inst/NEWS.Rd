@@ -4,12 +4,12 @@
 \title{Rmpfr News}
 \encoding{UTF-8}
 
-\section{Changes in version 0.8-3 [2021-03-.., r..]}{
+\section{Changes in version 0.8-3 [2021-03-20, r339]}{
   \subsection{NEW FEATURES}{
     \itemize{
       \item \code{dnbinom(x, *)} now also works when \code{x} is too large
       to be coerced to \code{integer}.
-      %% FIXME:  add tests/* :  dnbinom(1e300, prob=1-mpfr(2, 256)^-12, size=1e307, log=TRUE)
+      %% FIXME:  add tests/* :  dnbinom(1e300, prob=1-mpfr(2, 256)^-12, %% size=1e307,log=TRUE)
     }
   }
   \subsection{BUG FIXES}{
@@ -18,6 +18,13 @@
       if a numeric can be validly coerced to a long has been amended such
       that 9223372036854775808 is no longer accidentally coerced into
       \emph{negative}.
+
+      \item \code{dpois(x, lambda)} now works via log-scale in case
+      \code{exp(-lambda)} or \code{lambda^x} would under- or overflow even
+      for mpfr-numnbers.
+
+      Analogously, \code{dbinom()} and \code{dnbinom()} work via log-scale
+      in case even mpfr-arithmetic would overflow.
     }
   }
 }

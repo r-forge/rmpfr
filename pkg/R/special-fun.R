@@ -86,8 +86,15 @@ dpois <- function (x, lambda, log = FALSE) {
 	prec <- pmax(53, getPrec(lambda), getPrec(x))
 	if(!l.mp) lambda <- mpfr(lambda, prec)
 	if(!x.mp) x <- mpfr(x, prec)
-	if(log)	 -lambda  + x*log(lambda) - lfactorial(x)
-	else exp(-lambda) * lambda^x	  /  factorial(x)
+        if(log || { ## MPFR overflow:
+            ln2 <- log(2)
+            any(lambda >= -.mpfr_erange("Emin")*ln2) ||
+            any(x*log(lambda) >= .mpfr_erange("Emax")*ln2)
+        }) {
+            r <-  -lambda  + x*log(lambda) - lfactorial(x)
+            if(log) r else exp(r)
+        }
+	else exp(-lambda) * lambda^x /  factorial(x)
     } else
 	stop("(x,lambda) must be numeric or \"mpfr\"")
 }
@@ -104,7 +111,12 @@ dbinom <- function (x, size, prob, log = FALSE) {
 	if(!p.mp) prob <- mpfr(prob, prec)
 	## n:= size, p:= prob,	compute	 P(x) = choose(n, x) p^x (1-p)^(n-x)
 	C.nx <- chooseMpfr(size, x)
-	if(log) log(C.nx) + x*log(prob) + (size-x)*log1p(-prob)
+        if(log || ## MPFR overflow:
+           max(x*log(prob), (size-x)*log1p(-prob)) >= .mpfr_erange("Emax")*log(2))
+        {
+            r <- log(C.nx) + x*log(prob) + (size-x)*log1p(-prob)
+            if(log) r else exp(r)
+        }
 	else C.nx * prob^x * (1-prob)^(size-x)
     } else
 	stop("(x,size, prob) must be numeric or \"mpfr\"")
@@ -136,7 +148,12 @@ dnbinom <- function (x, size, prob, mu, log = FALSE) {
 	## n:= size, p:= prob,	compute	 P(x) = choose(n+x-1, x) * p^n * (1-p)^x
         if(is.integer(x)) {
             C.nx <- chooseMpfr(size+x-1, x)
-            if(log) log(C.nx) + size*log(prob) + x*log1p(-prob)
+            if(log || ## MPFR overflow:
+               max(size*log(prob), x*log1p(-prob)) >= .mpfr_erange("Emax")*log(2))
+            {
+                r <- log(C.nx) + size*log(prob) + x*log1p(-prob)
+                if(log) r else exp(r)
+            }
             else C.nx * prob^size * (1-prob)^x
         } else { # x not integer, typically  |x| > .Machine$integer.max (= 2147483647 = 2^31 - 1)
             ## => x is large but  size >= x is even larger ... so everything is large
