@@ -99,7 +99,11 @@ dpois <- function (x, lambda, log = FALSE) {
 	stop("(x,lambda) must be numeric or \"mpfr\"")
 }
 
-dbinom <- function (x, size, prob, log = FALSE) {
+dbinom <- function(x, size, prob, log = FALSE,
+                   useLog = any(abs(x) > 1e6) || ## MPFR overflow:
+                       max(x*log(prob), (size-x)*log1p(-prob)) >=
+                         .mpfr_erange("Emax")*log(2))
+{
     if(is.numeric(x) && is.numeric(size) && is.numeric(prob)) ## standard R
 	stats__dbinom(x, size, prob, log=log)
     else if((s.mp <- is.mpfr(size)) |
@@ -110,11 +114,15 @@ dbinom <- function (x, size, prob, log = FALSE) {
 	if(!s.mp) size <- mpfr(size, prec)
 	if(!p.mp) prob <- mpfr(prob, prec)
 	## n:= size, p:= prob,	compute	 P(x) = choose(n, x) p^x (1-p)^(n-x)
-	C.nx <- chooseMpfr(size, x)
-        if(log || ## MPFR overflow:
-           max(x*log(prob), (size-x)*log1p(-prob)) >= .mpfr_erange("Emax")*log(2))
-        {
-            r <- log(C.nx) + x*log(prob) + (size-x)*log1p(-prob)
+        if(useLog) { # do *not* use chooseMpfr() {which is O(x^2)}
+            lC.nx <- ## lchoose(size, x), but that is *not* yet available for "mpfr" __FIXME?__
+                lfactorial(size) - (lfactorial(x) + lfactorial(size-x))
+        } else {
+            C.nx <- chooseMpfr(size, x)
+            lC.nx <- log(C.nx)
+        }
+        if(log || useLog) {
+            r <- lC.nx + x*log(prob) + (size-x)*log1p(-prob)
             if(log) r else exp(r)
         }
 	else C.nx * prob^x * (1-prob)^(size-x)
@@ -122,7 +130,7 @@ dbinom <- function (x, size, prob, log = FALSE) {
 	stop("(x,size, prob) must be numeric or \"mpfr\"")
 }## {dbinom}
 
-dnbinom <- function (x, size, prob, mu, log = FALSE) {
+dnbinom <- function (x, size, prob, mu, log = FALSE, useLog = any(x > 1e6)) {
     if(!missing(mu)) {
         if (!missing(prob))
             stop("'prob' and 'mu' both specified")
@@ -140,13 +148,13 @@ dnbinom <- function (x, size, prob, mu, log = FALSE) {
     } else if((s.mp <- is.mpfr(size)) |
 	    (p.mp <- is.mpfr(prob)) || is.mpfr(x)) {
 	stopifnot(is.whole(x)) # R's dbinom() gives NaN's with a warning..
-        if(!is.integer(x) && all(abs(x) < .Machine$integer.max))
+        if(!is.integer(x) && !useLog)
             x <- as.integer(x) # chooseMpfr() needs it
 	prec <- pmax(53, getPrec(size), getPrec(prob), getPrec(x))
 	if(!s.mp) size <- mpfr(size, prec)
 	if(!p.mp) prob <- mpfr(prob, prec)
 	## n:= size, p:= prob,	compute	 P(x) = choose(n+x-1, x) * p^n * (1-p)^x
-        if(is.integer(x)) {
+        if(!useLog) {
             C.nx <- chooseMpfr(size+x-1, x)
             if(log || ## MPFR overflow:
                max(size*log(prob), x*log1p(-prob)) >= .mpfr_erange("Emax")*log(2))

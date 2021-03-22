@@ -4,11 +4,13 @@
 \title{Rmpfr News}
 \encoding{UTF-8}
 
-\section{Changes in version 0.8-3 [2021-03-20, r339]}{
+\section{Changes in version 0.8-3 [2021-03-22, r340]}{
   \subsection{NEW FEATURES}{
     \itemize{
-      \item \code{dnbinom(x, *)} now also works when \code{x} is too large
-      to be coerced to \code{integer}.
+      \item \code{dnbinom(x, *)} and \code{dbinom(x, *)} now also work when
+      \code{x} is too large to be coerced to \code{integer} \emph{and} they
+      get a new optional argument \code{useLog} (with a smart default) in
+      order to choose log-scale computation also for \code{log=FALSE}.
       %% FIXME:  add tests/* :  dnbinom(1e300, prob=1-mpfr(2, 256)^-12, %% size=1e307,log=TRUE)
     }
   }

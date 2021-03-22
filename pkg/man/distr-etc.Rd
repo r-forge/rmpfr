@@ -7,10 +7,10 @@
 \alias{dgamma}
 \alias{dpois}
 \alias{mpfr-distr}% <- alternative for \link
-\usage{
+\usage{%				>>>>  ../R/special-fun.R  <<<<
 dpois (x, lambda, log = FALSE)
-dbinom (x, size, prob, log = FALSE)
-dnbinom(x, size, prob, mu, log = FALSE)
+dbinom (x, size, prob,     log = FALSE, useLog = )
+dnbinom(x, size, prob, mu, log = FALSE, useLog = any(x > 1e6))
 dnorm (x, mean = 0, sd = 1, log = FALSE)
 dgamma(x, shape, rate = 1, scale = 1/rate, log = FALSE)
 
@@ -39,6 +39,9 @@ pnorm(q, mean = 0, sd = 1, lower.tail = TRUE, log.p = FALSE)
   \item{log, log.p, lower.tail}{logical, see
     \code{\link[stats:Normal]{pnorm}},
     \code{\link[stats:Poisson]{dpois}}, etc.}
+  \item{useLog}{\code{\link{logical}} with default depending on \code{x}
+    etc, indicating if log-scale computation should be used even when
+    \code{log = FALSE}, for performance or against overflow / underflow.}
 }
 \value{
   A vector of the same length as the longest of \code{x,q, ...},
