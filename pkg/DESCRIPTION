@@ -1,7 +1,7 @@
 Package: Rmpfr
 Title: R MPFR - Multiple Precision Floating-Point Reliable
 Version: 0.8-4
-Date: 2021-..-..
+Date: 2021-04-08
 DateNote: Previous CRAN version 0.8-3 on 2021-03-23
 Type: Package
 Authors@R: c(person("Martin","Maechler", role = c("aut","cre"),
