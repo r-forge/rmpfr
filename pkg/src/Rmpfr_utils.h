@@ -12,8 +12,15 @@
 
 #include <R.h>  /* includes Rconfig.h */
 #include <Rversion.h>
-/* for NEW_OBJECT(), GET_SLOT + Rinternals.h : */
-#include <Rdefines.h>
+#include <Rinternals.h>
+// previously from <Rdefines.h> :
+#ifndef GET_SLOT
+# define GET_SLOT(x, what)       R_do_slot(x, what)
+# define SET_SLOT(x, what, value) R_do_slot_assign(x, what, value)
+# define MAKE_CLASS(what)	R_do_MAKE_CLASS(what)
+# define NEW_OBJECT(class_def)	R_do_new_object(class_def)
+#endif
+
 #include <R_ext/Print.h>
 
 /* must come *after* the above, e.g., for
