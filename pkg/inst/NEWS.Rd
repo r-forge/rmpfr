@@ -4,7 +4,7 @@
 \title{Rmpfr News}
 \encoding{UTF-8}
 
-\section{Changes in version 0.8-4 [2021-03-24, r341]}{
+\section{Changes in version 0.8-4 [2021-07-28, r345]}{
   \subsection{NEW FEATURES}{
     \itemize{
       \item \code{dpois(x, *)} now also gets an explicit optional argument
@@ -20,6 +20,11 @@
     \itemize{
       \item fixed problem detected by clang-UBSAN testing in \file{src/Ops.c}
       (from arithmetic bug fix in 0.8-3). % ../tests/arith-ex.Rout_clang-UBSAN
+    }
+  }
+  \subsection{Misc}{
+    \itemize{
+      \item No longer include \file{Rdefines.h} as it is somewhat deprecated.
     }
   }
 }
