@@ -626,6 +626,125 @@ SEXP mpfr2str(SEXP x, SEXP digits, SEXP maybeFull, SEXP base) {
     return val;
 }
 
+/* R  ldexpMpfr(f, E)
+ *
+ *  return "mpfr" x = f * 2^E   where 'f' is "mpfr" and  'E' is "integer".
+ *  -------
+ *  "Problem": here, the exponent is limited to  +/- 2^31-1 ("ok" with default erange;
+ *             but the maximal erange is +- 2^61 which corresponds to *two* 32-bit integers
+ */
+SEXP R_mpfr_ldexp(SEXP f, SEXP E, SEXP rnd_mode) {
+
+/* NB: Allow *recycling* for (f, E)
+ * --  using 'mismatch' and the MISMATCH macros */
+    mpfr_rnd_t rnd = R_rnd2MP(rnd_mode);
+    int nprot = 0;
+    if(!isInteger(E)) { PROTECT(E = coerceVector(E, INTSXP)); nprot++; }
+    int *ee = INTEGER(E),
+	nx = length(f), ny = length(E), // instead of 'nf, nE' for MISMATCH macros
+	n = (nx == 0 || ny == 0) ? 0 : imax2(nx, ny),
+	mismatch = 0;
+    SEXP val = PROTECT(allocVector(VECSXP, n)); nprot++;
+    mpfr_t x_i;
+    mpfr_init(x_i); /* with default precision */
+
+    SET_MISMATCH;
+    for(int i=0; i < n; i++) {
+	R_asMPFR(VECTOR_ELT(f, i % nx), x_i);
+	mpfr_mul_2si(x_i, x_i, (long) ee[i % ny], rnd);
+	/*
+	  -- Function: int mpfr_mul_2si (mpfr_t ROP, mpfr_t OP1, long int OP2, mpfr_rnd_t RND)
+	  Set ROP to OP1 times 2 raised to OP2 rounded in the direction RND.
+	  Just increases the exponent by OP2 when ROP and OP1 are identical.
+	*/
+	SET_VECTOR_ELT(val, i, MPFR_as_R(x_i));
+    }
+    MISMATCH_WARN;
+
+    mpfr_clear (x_i);
+    mpfr_free_cache();
+    UNPROTECT(nprot);
+    return val;
+}
+
+#ifdef _not_yet_
+/* For R functionality: from "mpfr" x, return  list(z, E),
+ * z = "bigz", E = "integer" (or integer-valued double) such that   x = z * 2^E  exactly
+ */
+SEXP R_mpfr_get_2exp(SEXP x) {
+
+    /*-- Function: mpfr_exp_t mpfr_get_z_2exp (mpz_t ROP, mpfr_t OP)
+
+     Put the scaled significand of OP (regarded as an integer, with the
+     precision of OP) into ROP, and return the exponent EXP (which may
+     be outside the current exponent range) such that OP exactly equals
+     ROP times 2 raised to the power EXP.  If OP is zero, the minimal
+     exponent ‘emin’ is returned.  If OP is NaN or an infinity, the
+     _erange_ flag is set, ROP is set to 0, and the the minimal exponent
+     ‘emin’ is returned.  The returned exponent may be less than the
+     minimal exponent ‘emin’ of MPFR numbers in the current exponent
+     range; in case the exponent is not representable in the
+     ‘mpfr_exp_t’ type, the _erange_ flag is set and the minimal value
+     of the ‘mpfr_exp_t’ type is returned.
+    */
+
+    // placeholder -- FIXME !
+    return R_Nilvalue;
+}
+#endif // _not_yet_
+
+// R frexpMpfr(x)  |-> list(r, e)
+SEXP R_mpfr_frexp(SEXP x, SEXP rnd_mode) {
+    mpfr_rnd_t rnd = R_rnd2MP(rnd_mode);
+    // NB: 'exp' may have to be 'double' instead of 'integer', when erange allows large exponents
+    int erange_is_int = mpfr_erange_int_p();
+    SEXPTYPE exp_SXP = (erange_is_int ? INTSXP : REALSXP);
+    int n = length(x);
+    SEXP ans = PROTECT(allocVector(VECSXP, 2)),
+	 nms = PROTECT(allocVector(STRSXP, 2)), r, e;
+
+    // r: fractional parts; still "mpfr" numbers:
+    SET_VECTOR_ELT(ans, 0, r = PROTECT(duplicate(x)));            SET_STRING_ELT(nms, 0, mkChar("r"));
+    // e: 2-exponents (integer or double see aboe)
+    SET_VECTOR_ELT(ans, 1, e = PROTECT(allocVector(exp_SXP, n))); SET_STRING_ELT(nms, 1, mkChar("e"));
+    setAttrib(ans, R_NamesSymbol, nms);
+
+    mpfr_t x_i, y_i;
+    mpfr_init(x_i);
+    mpfr_init(y_i);
+    mpfr_exp_t *exp = (mpfr_exp_t *) R_alloc(n, sizeof(mpfr_exp_t));
+    // Rboolean int_ok = TRUE;
+    for(int i=0; i < n; i++) {
+	R_asMPFR(VECTOR_ELT(x, i), x_i);
+	mpfr_set_prec(y_i, mpfr_get_prec(x_i));
+	int ierr = mpfr_frexp (exp+i, y_i, x_i, rnd); // exp+i == &(exp[i])
+	/*-- Function: int mpfr_frexp (mpfr_exp_t *EXP, mpfr_t Y, mpfr_t X, mpfr_rnd_t RND)
+
+	  Set EXP (formally, the value pointed to by EXP) and Y such that
+	  0.5<=abs(Y)<1 and Y times 2 raised to EXP equals X rounded to the
+	  precision of Y, using the given rounding mode.  If X is zero, then
+	  Y is set to a zero of the same sign and EXP is set to 0.  If X is
+	  NaN or an infinity, then Y is set to the same value and EXP is
+	  undefined.
+	*/
+	if(ierr) {
+	    error("R_mpfr_frexp(): mpfr_frexp(x[%d]) gave error code %d\n", i+1, ierr);
+	}
+
+	SET_VECTOR_ELT(r, i, MPFR_as_R(y_i));
+    }
+    // only now we know if we can return integer or need double
+    if(erange_is_int) {
+	int *e_ = INTEGER(e);
+	for(int i=0; i < n; i++) e_[i] = (int) exp[i];
+    } else {
+	double *e_ = REAL(e);
+	for(int i=0; i < n; i++) e_[i] = (double) exp[i];
+    }
+    UNPROTECT(4);
+    return ans;
+}
+
 
 // TODO : get *exact* as.bigq.mpfr(), i.e, "mpfr" --> "bigq". (R's "bigq" is C 'mpq')
 // ---- inside the GMP library, have
