@@ -4,16 +4,23 @@
 \title{Rmpfr News}
 \encoding{UTF-8}
 
-\section{Changes in version 0.8-4 [2021-07-28, r345]}{
+\section{Changes in version 0.8-4 [2021-08-18, r346]}{
   \subsection{NEW FEATURES}{
     \itemize{
       \item \code{dpois(x, *)} now also gets an explicit optional argument
       \code{useLog} instead of just switching to log-scale by the same
       test as defines \code{useLog}'s default.
 
+      \item New mpfr-ized \code{dt(x, df, ..)}; noncentrality \code{ncp}
+      not yet supported.
+
       \item The default method of \code{mpfr(r)} now also works when
       \code{r} is a \code{list} of \code{"mpfr1"} objects, e.g., resulting
       from \code{Vectorize(.)} or similar applied to mpfr-vectors.
+
+      \item New arithmetic functions \code{frexpMpfr()} and
+      \code{ldexpMpfr()}, corresponding to C's (and CRAN package
+      \CRANpkg{DPQ}'s) \code{ldexp()} and \code{frexp()} functions.
     }
   }
   \subsection{BUG FIXES}{
@@ -36,7 +43,6 @@
       \code{x} is too large to be coerced to \code{integer} \emph{and} they
       get a new optional argument \code{useLog} (with a smart default) in
       order to choose log-scale computation also for \code{log=FALSE}.
-      %% FIXME:  add tests/* :  dnbinom(1e300, prob=1-mpfr(2, 256)^-12, %% size=1e307,log=TRUE)
     }
   }
   \subsection{BUG FIXES}{

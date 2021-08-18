@@ -184,6 +184,8 @@ SEXP R_mpfr_prec_range(SEXP ind);
 SEXP R_mpfr_get_version(void);
 SEXP R_mpfr_get_GMP_numb_bits(void);
 SEXP R_mpfr_2exp(SEXP x);
+SEXP R_mpfr_ldexp(SEXP f, SEXP E, SEXP rnd_mode);
+SEXP R_mpfr_frexp(SEXP x, SEXP rnd_mode);
 
 
 
