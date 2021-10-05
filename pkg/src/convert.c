@@ -438,15 +438,13 @@ SEXP mpfr2i(SEXP x, SEXP rnd_mode) {
  */
 SEXP R_mpfr_formatinfo(SEXP x) {
     int n = length(x);
-    SEXP
-	val = PROTECT(allocVector(VECSXP, 3)),
-	nms = PROTECT(allocVector(STRSXP, 3)), exp, fini, zero;
+    static const char *ans_nms[] = {"exp", "finite", "is.0", ""};
+    SEXP val = PROTECT(mkNamed(VECSXP, ans_nms)), exp, fini, zero;
     int erange_is_int = mpfr_erange_int_p();
     SEXPTYPE exp_SXP = (erange_is_int ? INTSXP : REALSXP);
-    SET_VECTOR_ELT(val, 0, exp = PROTECT(allocVector(exp_SXP,n))); SET_STRING_ELT(nms, 0, mkChar("exp"));
-    SET_VECTOR_ELT(val, 1, fini= PROTECT(allocVector(LGLSXP, n))); SET_STRING_ELT(nms, 1, mkChar("finite"));
-    SET_VECTOR_ELT(val, 2, zero= PROTECT(allocVector(LGLSXP, n))); SET_STRING_ELT(nms, 2, mkChar("is.0"));
-    setAttrib(val, R_NamesSymbol, nms);
+    SET_VECTOR_ELT(val, 0, exp = PROTECT(allocVector(exp_SXP,n)));
+    SET_VECTOR_ELT(val, 1, fini= PROTECT(allocVector(LGLSXP, n)));
+    SET_VECTOR_ELT(val, 2, zero= PROTECT(allocVector(LGLSXP, n)));
     int *is_fin= LOGICAL(fini),
 	*is_0  = LOGICAL(zero);
     mpfr_t R_i;
@@ -469,7 +467,7 @@ SEXP R_mpfr_formatinfo(SEXP x) {
     }
     mpfr_clear (R_i);
     mpfr_free_cache();
-    UNPROTECT(5);
+    UNPROTECT(4);
     return val;
 }
 
@@ -514,17 +512,15 @@ SEXP mpfr2str(SEXP x, SEXP digits, SEXP maybeFull, SEXP base) {
     Rboolean base_is_2_power = (B == 2 || B == 4 || B == 8 || B == 16 || B == 32);
     Rboolean n_dig_1_problem = (n_dig == 1) && base_is_2_power;
     size_t N_digits = n_dig_1_problem ? 2 : n_dig;
-    SEXP
-	val = PROTECT(allocVector(VECSXP, 4)),
-	nms = PROTECT(allocVector(STRSXP, 4)), str, exp, fini, zero;
+    static const char *ans_nms[] = {"str", "exp", "finite", "is.0", ""};
+    SEXP val = PROTECT(mkNamed(VECSXP, ans_nms)), str, exp, fini, zero;
     // NB: 'exp' may have to be 'double' instead of 'integer', when erange allows large exponents
     int erange_is_int = mpfr_erange_int_p();
     SEXPTYPE exp_SXP = (erange_is_int ? INTSXP : REALSXP);
-    SET_VECTOR_ELT(val, 0, str = PROTECT(allocVector(STRSXP, n))); SET_STRING_ELT(nms, 0, mkChar("str"));
-    SET_VECTOR_ELT(val, 1, exp = PROTECT(allocVector(exp_SXP,n))); SET_STRING_ELT(nms, 1, mkChar("exp"));
-    SET_VECTOR_ELT(val, 2, fini= PROTECT(allocVector(LGLSXP, n))); SET_STRING_ELT(nms, 2, mkChar("finite"));
-    SET_VECTOR_ELT(val, 3, zero= PROTECT(allocVector(LGLSXP, n))); SET_STRING_ELT(nms, 3, mkChar("is.0"));
-    setAttrib(val, R_NamesSymbol, nms);
+    SET_VECTOR_ELT(val, 0, str = PROTECT(allocVector(STRSXP, n)));
+    SET_VECTOR_ELT(val, 1, exp = PROTECT(allocVector(exp_SXP,n)));
+    SET_VECTOR_ELT(val, 2, fini= PROTECT(allocVector(LGLSXP, n)));
+    SET_VECTOR_ELT(val, 3, zero= PROTECT(allocVector(LGLSXP, n)));
     // depending on erange_is_int, only need one of  d_exp or i_exp  (but don't see a more elegant way):
     double *d_exp; // = REAL(exp);
     int *i_exp, // = INTEGER(exp),
@@ -622,7 +618,7 @@ SEXP mpfr2str(SEXP x, SEXP digits, SEXP maybeFull, SEXP base) {
 
     mpfr_clear (R_i);
     mpfr_free_cache();
-    UNPROTECT(6);
+    UNPROTECT(5);
     return val;
 }
 
@@ -700,14 +696,12 @@ SEXP R_mpfr_frexp(SEXP x, SEXP rnd_mode) {
     int erange_is_int = mpfr_erange_int_p();
     SEXPTYPE exp_SXP = (erange_is_int ? INTSXP : REALSXP);
     int n = length(x);
-    SEXP ans = PROTECT(allocVector(VECSXP, 2)),
-	 nms = PROTECT(allocVector(STRSXP, 2)), r, e;
-
+    static const char *ans_nms[] = {"r", "e", ""};
+    SEXP ans = PROTECT(mkNamed(VECSXP, ans_nms)), r, e;
     // r: fractional parts; still "mpfr" numbers:
-    SET_VECTOR_ELT(ans, 0, r = PROTECT(duplicate(x)));            SET_STRING_ELT(nms, 0, mkChar("r"));
+    SET_VECTOR_ELT(ans, 0, r = PROTECT(duplicate(x)));
     // e: 2-exponents (integer or double see aboe)
-    SET_VECTOR_ELT(ans, 1, e = PROTECT(allocVector(exp_SXP, n))); SET_STRING_ELT(nms, 1, mkChar("e"));
-    setAttrib(ans, R_NamesSymbol, nms);
+    SET_VECTOR_ELT(ans, 1, e = PROTECT(allocVector(exp_SXP, n)));
 
     mpfr_t x_i, y_i;
     mpfr_init(x_i);
@@ -741,7 +735,7 @@ SEXP R_mpfr_frexp(SEXP x, SEXP rnd_mode) {
 	double *e_ = REAL(e);
 	for(int i=0; i < n; i++) e_[i] = (double) exp[i];
     }
-    UNPROTECT(4);
+    UNPROTECT(3);
     return ans;
 }
 
