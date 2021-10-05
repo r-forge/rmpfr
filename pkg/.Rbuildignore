@@ -13,6 +13,10 @@ _INSTALL
 ^valgrind
 ^\.Rmpfr
 ^svn-
+-BUG-
+\.(log|txt)$
+Rmpfr-Ex
+(Wikiped|HH).*\.pdf$
 auto
 R/.*\.R\+.*
 src/Makevars$

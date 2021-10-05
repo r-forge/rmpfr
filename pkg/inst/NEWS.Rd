@@ -4,34 +4,50 @@
 \title{Rmpfr News}
 \encoding{UTF-8}
 
-\section{Changes in version 0.8-4 [2021-08-18, r346]}{
+\section{Changes in version 0.8-5 [2021-10-05, r349]}{
+  \subsection{NEW FEATURES}{
+    \itemize{
+      \item New mpfr-ized \code{dt(x, df, ..)}; noncentrality \code{ncp}
+      not yet supported.
+
+      \item New arithmetic functions \code{frexpMpfr()} and
+      \code{ldexpMpfr()}, corresponding to C's (and CRAN package
+      \CRANpkg{DPQ}'s) \code{ldexp()} and \code{frexp()} functions.
+
+      \item \code{sapplyMpfr()} now also returns \code{"mpfrMatrix"} or
+      \code{"mpfrArray"} when appropriate.
+    }
+  }
+  \subsection{BUG FIXES}{
+    \itemize{
+      \item Improved \code{`[.Ncharacter`} method for \code{formatHex()} etc.
+    }
+  }
+  \subsection{Misc}{
+    \itemize{
+      \item No longer include \file{Rdefines.h} as it is somewhat deprecated.
+
+      \item update \file{configure{.ac}} (for \command{autoconf 2.71}).
+    }
+  }
+}
+
+\section{Changes in version 0.8-4 [2021-03-24, r341]}{
   \subsection{NEW FEATURES}{
     \itemize{
       \item \code{dpois(x, *)} now also gets an explicit optional argument
       \code{useLog} instead of just switching to log-scale by the same
       test as defines \code{useLog}'s default.
 
-      \item New mpfr-ized \code{dt(x, df, ..)}; noncentrality \code{ncp}
-      not yet supported.
-
       \item The default method of \code{mpfr(r)} now also works when
       \code{r} is a \code{list} of \code{"mpfr1"} objects, e.g., resulting
       from \code{Vectorize(.)} or similar applied to mpfr-vectors.
-
-      \item New arithmetic functions \code{frexpMpfr()} and
-      \code{ldexpMpfr()}, corresponding to C's (and CRAN package
-      \CRANpkg{DPQ}'s) \code{ldexp()} and \code{frexp()} functions.
     }
   }
   \subsection{BUG FIXES}{
     \itemize{
       \item fixed problem detected by clang-UBSAN testing in \file{src/Ops.c}
       (from arithmetic bug fix in 0.8-3). % ../tests/arith-ex.Rout_clang-UBSAN
-    }
-  }
-  \subsection{Misc}{
-    \itemize{
-      \item No longer include \file{Rdefines.h} as it is somewhat deprecated.
     }
   }
 }

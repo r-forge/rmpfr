@@ -48,7 +48,8 @@ ldexpMpfr(f, E, rnd.mode = c("N", "D", "U", "Z", "A"))
 %% }
 \seealso{
   Somewhat related, \code{\link{.mpfr2exp}()}.
-  \code{\link[DPQ]{frexp}()} and \code{ldexp()} in package \CRANpkg{DPQ}.
+  %_TODO_: that DPQ version is not yet on CRAN:
+  %\code{\link[DPQ]{frexp}()} and \code{ldexp()} in package \CRANpkg{DPQ}.
 }
 \examples{
 set.seed(47)
