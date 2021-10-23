@@ -722,6 +722,8 @@ SEXP R_mpfr_frexp(SEXP x, SEXP rnd_mode) {
 	  undefined.
 	*/
 	if(ierr) {
+#define MPFR_CLEAR mpfr_clear(x_i); mpfr_clear(y_i); mpfr_free_cache()
+	    MPFR_CLEAR;
 	    error("R_mpfr_frexp(): mpfr_frexp(x[%d]) gave error code %d\n", i+1, ierr);
 	}
 
@@ -735,6 +737,7 @@ SEXP R_mpfr_frexp(SEXP x, SEXP rnd_mode) {
 	double *e_ = REAL(e);
 	for(int i=0; i < n; i++) e_[i] = (double) exp[i];
     }
+    MPFR_CLEAR;
     UNPROTECT(3);
     return ans;
 }

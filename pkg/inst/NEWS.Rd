@@ -4,6 +4,15 @@
 \title{Rmpfr News}
 \encoding{UTF-8}
 
+\section{Changes in version 0.8-6 [2021-10-08, r350}{
+  \subsection{BUG FIXES}{
+    \itemize{
+      \item In \file{convert.c}'s \code{R_mpfr_frexp()}, do
+      \code{mpfr_clear(*)}, fixing a valgrind-detectable leak.
+    }
+  }
+}
+
 \section{Changes in version 0.8-5 [2021-10-05, r349]}{
   \subsection{NEW FEATURES}{
     \itemize{
