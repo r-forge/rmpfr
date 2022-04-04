@@ -397,13 +397,15 @@ x^2
 x[1] / x[2] # 0.66666... ~ 30 digits
 
 ## indexing - as with numeric vectors
-stopifnot(identical(x[2], x[[2]]),
-	  ## indexing "outside" gives NA (well: "mpfr-NaN" for now):
-	  is.na(x[5]),
-	  ## whereas "[[" cannot index outside:
-	  is(try(x[[5]]), "try-error"),
-	  ## and only select *one* element:
-	  is(try(x[[2:3]]), "try-error"))
+stopifnot(exprs = {
+   identical(x[2], x[[2]])
+   ## indexing "outside" gives NA (well: "mpfr-NaN" for now):
+   is.na(x[5])
+   ## whereas "[[" cannot index outside:
+   inherits(tryCatch(x[[5]], error=identity), "error")
+   ## and only select *one* element:
+   inherits(tryCatch(x[[2:3]], error=identity), "error")
+})
 
 ## factorial() & lfactorial would work automagically via [l]gamma(),
 ## but factorial() additionally has an "mpfr" method which rounds

@@ -4,6 +4,22 @@
 \title{Rmpfr News}
 \encoding{UTF-8}
 
+\section{Changes in version 0.8-8 [2022-04-04, r354}{
+  \subsection{NEW FEATURES}{
+    \itemize{
+      \item **PLANNED** / TODO: \code{pbetaI(q, a,b, *)} should also work
+      when only \emph{one} of the shape parameters is a (not too large)
+      integer.
+    }
+  }
+  \subsection{BUG FIXES}{
+    \itemize{
+      \item Our \code{dpois(x, lambda, *)} now works \R-compatibly for
+      \code{lambda=+Inf} giving 0 or \code{-Inf} when \code{log=TRUE}.
+    }
+  }
+}
+
 \section{Changes in version 0.8-7 [2021-10-27, r353}{
   \subsection{BUG FIXES}{
     \itemize{
