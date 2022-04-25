@@ -268,7 +268,8 @@ hypot(x,y, rnd.mode = c("N","D","U","Z","A"))
     \item{Math}{\code{signature(x = "mpfr")}: All the S4
       \code{\link[methods:S4groupGeneric]{Math}} group functions are
       defined, using multiple precision (MPFR) arithmetic, from
-      \code{\link{getGroupMembers}("Math")}, these are (in alphabetical order):
+      \code{\link{getGroupMembers}("Math")}, these are (in alphabetical
+      order): % keep in sync w/  >> ../R/Math.R <<
 
       \code{\link{abs}}, \code{\link{sign}}, \code{\link{sqrt}},
       \code{\link{ceiling}}, \code{\link{floor}}, \code{\link{trunc}},
@@ -279,7 +280,9 @@ hypot(x,y, rnd.mode = c("N","D","U","Z","A"))
       \code{\link{sin}}, \code{\link{sinh}}, \code{\link{tan}},
       \code{\link{tanh}}, \code{\link{acos}}, \code{\link{acosh}},
       \code{\link{asin}}, \code{\link{asinh}}, \code{\link{atan}},
-      \code{\link{atanh}}, \code{\link{gamma}}, \code{\link{lgamma}},
+      \code{\link{atanh}},
+      \code{\link{cospi}}, \code{\link{sinpi}}, \code{\link{tanpi}},
+      \code{\link{gamma}}, \code{\link{lgamma}},
       \code{\link{digamma}}, and \code{\link{trigamma}}.
 
       Currently, \code{trigamma} is not provided by
