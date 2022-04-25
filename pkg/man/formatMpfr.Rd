@@ -92,6 +92,12 @@ formatMpfr(x, digits = NULL, trim = FALSE, scientific = NA,
   \code{\link{sprintf}("\%a", x)} where the powers after \code{"p"} are
   powers of \eqn{2}.
 }
+\note{
+  Currently, \code{formatMpfr(x, scientific = FALSE)} does \emph{not work
+    correctly}, e.g., for \code{x <- Const("pi", 128) * 2^c(-200,200)}, i.e., it
+  uses the scientific / exponential-style format.
+  This is considered bogous and hopefully will change.
+}
 \references{
   The MPFR manual's description of \samp{mpfr_get_str()} which is the
   C-internal workhorse for \code{.mpfr2str()} (on which \code{formatMpfr()}
@@ -137,6 +143,11 @@ stopifnot(
    identical("ugi0", formatMpfr(mpfr(10^6, 40), base=32, drop0trailing=TRUE)),
    mpfr("ugi0", base=32) == 10^6)
 }
+
+## this is not as desired, i.e. a "bug" - see 'Note:' above
+x <- Const("pi", 128) * 2^c(-200,200)
+formatMpfr(x, scientific = FALSE)# 1.955...e-16  5.048...e+60   {for now}
+
 
 i32 <- mpfr(1:32, precBits = 64)
 format(i32,   base=  2, drop0trailing=TRUE)
