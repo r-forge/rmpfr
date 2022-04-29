@@ -4,7 +4,7 @@
 ## <--> ./plot-factErr-def.R
 ##        ~~~~~~~~~~~~~~~~~~
 
-##' Compute and Visualize (1--2 plots) the accuracy / relative error of gamma(x).
+##' Compute and Visualize (1--2 plots) the accuracy / relative error of gamma(xF-xG.R).
 ##' *Must* have the \pkg{Rmpfr} package attached, i.e., in `search()`.  { just for asNumeric() ?! }
 ##'
 ##' @title Compute and Visualize (In)accuracy of gamma(x)
@@ -19,15 +19,17 @@
 ##' @param type
 ##' @param ylim1 y-limits of the first plot, i.e., for the (positive and negative) relative errors.
 ##' @param ylim2 y-limits of the 2n plot, i.e., for the *absolute relative errors.
-##' @param doCut logical indicating if we should use a lower bound cutoff for the 2nd plot.
+##' @param cutBelow logical indicating if we should use a lower bound cutoff for the 2nd plot.
 ##' @param mar, mgp  graphical margin options, passed to `par()`.
 ##'
 ##' @return a numeric matrix, returned invisibly, with columns (x, gam, gamM, relErr).
 ##' @author Martin Maechler
 p.gammEr <- function(x, gx = gamma(x), gamM = gamma(mpfr(x, precBits)),
                      precBits = 128, ch.Rversion = R.version.string,
-                     doFirst = TRUE, type = "b", ylim1=NULL, ylim2=NULL,
-                     doCut = is.numeric(ylim2[1]),
+                     doFirst = TRUE, type = "b",
+                     vert = c(-10, 10, 50), # cutoffs in "old" gamma(): (-10, 10, 50)
+                     ylim1=NULL, ylim2=NULL,
+                     cutBelow = is.numeric(ylim2[1]),
                      mar = .1+c(3,4,4,4), mgp = c(1.6, .6, 0)) {
     rE <- asNumeric(sfsmisc::relErrV(gamM, gx))
     ##                       ^^^^^^^ (gx / gamM - 1) but dealing with Inf, NA, etc
@@ -39,7 +41,8 @@ p.gammEr <- function(x, gx = gamma(x), gamM = gamma(mpfr(x, precBits)),
         ch.Rversion <- paste0(R.version.string, "_no-long-double")
     plotExtr <- function() { # to be applied for both plots
         mtext(ch.Rversion, adj=1)
-        abline(v= c(-10, 10, 50), col=3, lty=2) # cutoffs in "old" gamma(): (-10, 10, 50)
+        abline(v = vert, col=3, lty=2)
+        axis(1, at=vert, col=3, lty=2, col.axis=3)
         f <- fEps; if(!par("ylog")) { abline(h=0, lty=2);  f <- c(-rev(f),f) }
         f.eps <- f * .Machine$double.eps
         abline(h = f.eps, col="orange", lty=3)
@@ -56,7 +59,7 @@ p.gammEr <- function(x, gx = gamma(x), gamM = gamma(mpfr(x, precBits)),
     } else { op <- par(mar=mar, mgp=mgp); on.exit(par(op)) }
     ## 2n plot : abs(<rel.errors>) --------------------------
     y <- abs(rE)
-    if(doCut) {
+    if(cutBelow) {
         stopifnot(length(ym <- ylim2[1]) > 0, is.finite(ym))
         y[y < ym] <- 3/4*ym
     }
