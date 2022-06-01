@@ -18,10 +18,10 @@
 }
 \usage{
 formatMpfr(x, digits = NULL, trim = FALSE, scientific = NA,
-           maybe.full = !is.null(digits) && is.na(scientific),
-	   base = 10, showNeg0 = TRUE, max.digits = Inf,
-	   big.mark = "", big.interval = 3L,
-	   small.mark = "", small.interval = 5L,
+           maybe.full = (!is.null(digits) && is.na(scientific)) || isFALSE(scientific),
+           base = 10, showNeg0 = TRUE, max.digits = Inf,
+           big.mark = "", big.interval = 3L,
+           small.mark = "", small.interval = 5L,
            decimal.mark = ".",
            exponent.char = if(base <= 14) "e" else if(base <= 36) "E" else "|e",
            exponent.plus = TRUE,
@@ -144,10 +144,9 @@ stopifnot(
    mpfr("ugi0", base=32) == 10^6)
 }
 
-## this is not as desired, i.e. a "bug" - see 'Note:' above
+## This now works: The large number shows "as" large integer:
 x <- Const("pi", 128) * 2^c(-200,200)
-formatMpfr(x, scientific = FALSE)# 1.955...e-16  5.048...e+60   {for now}
-
+formatMpfr(x, scientific = FALSE) # was 1.955...e-60  5.048...e+60
 
 i32 <- mpfr(1:32, precBits = 64)
 format(i32,   base=  2, drop0trailing=TRUE)

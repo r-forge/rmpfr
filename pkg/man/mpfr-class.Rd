@@ -395,7 +395,8 @@ hypot(x,y, rnd.mode = c("N","D","U","Z","A"))
 }
 \examples{
 ## 30 digit precision
-str(x <- mpfr(c(2:3, pi), prec = 30 * log2(10)))
+(x <- mpfr(c(2:3, pi), prec = 30 * log2(10)))
+str(x) # str() displays *compact*ly => not full precision
 x^2
 x[1] / x[2] # 0.66666... ~ 30 digits
 

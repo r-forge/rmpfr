@@ -6,7 +6,8 @@
   \code{pbeta(x, a,b)} is a polynomial in x with rational coefficients,
   and hence arbitarily accurately computable.
 
-  MM: TODO: It's sufficient for \emph{one} of \eqn{a,b} to be integer
+  TODO (\emph{not yet}):
+  It's sufficient for \emph{one} of \eqn{a,b} to be integer
   such that the result is a \emph{finite sum} (but the coefficients will no
   longer be rational, see Abramowitz and Stegun, 26.5.6 and *.7, p.944).
   % \url{https://personal.math.ubc.ca/~cbm/aands/page_944.htm}
@@ -14,7 +15,7 @@
 \usage{%% code --> ../R/special-fun.R
 pbetaI(q, shape1, shape2, ncp = 0, lower.tail = TRUE, log.p = FALSE,
        precBits = NULL,
-       useRational = !log.p && !is.mpfr(q) && is.null(precBits),
+       useRational = !log.p && !is.mpfr(q) && is.null(precBits) && int2,
        rnd.mode = c("N","D","U","Z","A"))
 }
 \arguments{

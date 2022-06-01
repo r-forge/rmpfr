@@ -456,16 +456,21 @@ hypot <- function(x,y, rnd.mode = c('N','D','U','Z','A')) {
 ## The Beta(a,b)  Cumulative Probabilities are exactly computable for *integer* a,b:
 pbetaI <- function(q, shape1, shape2, ncp = 0, lower.tail = TRUE, log.p = FALSE,
 		   precBits = NULL,
-                   useRational = !log.p && !is.mpfr(q) && is.null(precBits),
+                   useRational = !log.p && !is.mpfr(q) && is.null(precBits) && int2,
                    rnd.mode = c('N','D','U','Z','A'))
 {
     stopifnot(length(shape1) == 1, length(shape2) == 1,
-	      is.whole(shape1), is.whole(shape2),
+	      (i1 <- is.whole(shape1)) | (i2 <- is.whole(shape2)),
 	      shape1 >= 0, shape2 >= 0,
 	      length(lower.tail) == 1, length(log.p) == 1,
 	      0 <= q, q <= 1, ncp == 0,
 	      is.null(precBits) ||
 	      (is.numeric(precBits) && is.whole(precBits) && precBits >= 2))
+
+    int2 <- i1 && i2 # both integer -> can use rational
+### TODO: Also have finite (but non-rational) sum if only *one* is an integer number
+### ----
+
     ## Care for too large (a,b) and "integer overflow".
     ## NB:  below have 0:(b - 1) or 0:(a - 1)
     max.ab <- 2^20
@@ -512,6 +517,12 @@ pbetaI <- function(q, shape1, shape2, ncp = 0, lower.tail = TRUE, log.p = FALSE,
             ## reduce the precision, in order to not "claim wrongly":
             precBits=precBits, match.arg(rnd.mode))
     }
+}
+
+## TODO  1) add (and test) R mpfr version R's bpser() in toms708.c
+##       2) compare with bpser() from package DPQ which should have more flexible variant
+##          ~/R/Pkgs/DPQ/R/beta-fns.R  &  ~/R/Pkgs/DPQ/src/bpser.c
+pbeta_ser <- function(q, shape1, shape2, log.p=FALSE) {
 }
 
 ### MPFR version >= 3.2.0 :
