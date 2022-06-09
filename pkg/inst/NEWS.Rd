@@ -4,6 +4,14 @@
 \title{Rmpfr News}
 \encoding{UTF-8}
 
+\section{Changes in version 0.8-10 [2022-06-09, r364]}{
+  \subsection{BUG FIXES}{
+     \itemize{
+       \item Fix \code{\\eqn{(\\gamma)}{}} - as requested by KH (June 9).
+    }
+  }
+}
+
 \section{Changes in version 0.8-9 [2022-06-02, r363]}{
   \subsection{BUG FIXES}{
      \itemize{
