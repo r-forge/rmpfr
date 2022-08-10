@@ -10,9 +10,13 @@
 unirootR <- function(f, interval, ...,
 		     lower = min(interval), upper = max(interval),
 		     f.lower = f(lower, ...), f.upper = f(upper, ...),
-		     verbose = FALSE,
+                     extendInt = c("no", "yes", "downX", "upX"),
+                     trace = 0,
+		     verbose = as.logical(trace),
 		     tol = .Machine$double.eps^0.25, maxiter = 1000,
-                     warn.no.convergence = TRUE,
+                     check.conv = FALSE,
+                     ## Rmpfr-only:
+                     warn.no.convergence = !check.conv,
 		     epsC = NULL)
 {
     if(!missing(interval) && length(interval) != 2L)
@@ -20,21 +24,93 @@ unirootR <- function(f, interval, ...,
     ## For many "quick things", we will use as.numeric(.) but we do *NOT* assume that
     ## lower and upper are numeric!
     .N <- as.numeric
-    if(.N(lower) >= .N(upper))
-	##if(!is.numeric(lower) || !is.numeric(upper) || lower >= upper)
+    if(lower >= upper) # (may be mpfr-numbers *outside* double.xmax)
 	stop("lower < upper  is not fulfilled")
     if(is.na(.N(f.lower))) stop("f.lower = f(lower) is NA")
     if(is.na(.N(f.upper))) stop("f.upper = f(upper) is NA")
 
-    if((ff <- f.lower * f.upper) >= 0) {
-	if(ff > 0)
-	    stop("f() values at end points not of opposite sign")
-	## else ff == 0	 <==> (at least) one of them is 0
-	if(f.lower == 0)
-	    return(list(root = lower, f.root = f.lower, iter = 0, estim.prec = tol))
-	## else f.upper == 0 :
-	return(list(root = upper, f.root = f.upper, iter = 0, estim.prec = tol))
+    ff <- f.lower * f.upper # used later also for mpfr-checking
+    form <- if(inherits(ff, "mpfr")) function(x) format(x, drop0trailing=TRUE) else format
+    Sig <- switch(match.arg(extendInt),
+		  "yes" = NULL,
+		  "downX"= -1,
+		  "no"   =  0,
+		  "upX"  =  1,
+		  stop("invalid 'extendInt'; please report"))
+    ## protect against later   0 * Inf  |--> NaN  and Inf * -Inf.
+    truncate <- function(x) { ## NA are already excluded; deal with +/- Inf
+        if(is.numeric(x))
+            pmax.int(pmin(x, .Machine$double.xmax), -.Machine$double.xmax)
+        else if(inherits(x, "mpfr") && is.infinite(x)) # use maximal/minimal mpfr-number instead:
+            sign(x) * mpfr(2, .getPrec(x))^((1 - 2^-52)*.mpfr_erange("Emax"))
+        else x
     }
+    f.low. <- truncate(f.lower)
+    f.upp. <- truncate(f.upper)
+    doX <- (   is.null(Sig) && f.low. * f.upp. > 0 ||
+	    is.numeric(Sig) && (Sig*f.low. > 0 || Sig*f.upp. < 0))
+    if(doX) { ## extend the interval = [lower, upper]
+	if(trace)
+	    cat(sprintf("search in [%s,%s]%s", form(lower), form(upper),
+			if(trace >= 2)"\n" else " ... "))
+	Delta <- function(u) 0.01* pmax(1e-4, abs(u)) ## <-- FIXME? [= R's uniroot() for double]
+        it <- 0L
+	## Two cases:
+	if(is.null(Sig)) {
+	    ## case 1)	'Sig' unspecified --> extend (lower, upper) at the same time
+	    delta <- Delta(c(lower,upper))
+	    while(isTRUE(f.lower*f.upper > 0) &&
+                  any(iF <- is.finite(c(lower,upper)))) {
+		if((it <- it + 1L) > maxiter)
+		    stop(gettextf("no sign change found in %d iterations", it-1),
+			 domain=NA)
+		if(iF[1]) {
+		    ol <- lower; of <- f.lower
+		    if(is.na(f.lower <- f(lower <- lower - delta[1], ...))) {
+			lower <- ol; f.lower <- of; delta[1] <- delta[1]/4
+		    }
+		}
+		if(iF[2]) {
+		    ol <- upper; of <- f.upper
+		    if(is.na(f.upper <- f(upper <- upper + delta[2], ...))) {
+			upper <- ol; f.upper <- of; delta[2] <- delta[2]/4
+		    }
+		}
+		if(trace >= 2)
+		    cat(sprintf(" .. modified lower,upper: (%15g,%15g)\n",
+				.N(lower), .N(upper)))
+		delta <- 2 * delta
+	    }
+	} else {
+	    ## case 2) 'Sig' specified --> typically change only *one* of lower, upper
+	    ## make sure we have Sig*f(lower) <= 0 and Sig*f(upper) >= 0:
+	    delta <- Delta(lower)
+	    while(isTRUE(Sig*f.lower > 0)) {
+		if((it <- it + 1L) > maxiter)
+		    stop(gettextf("no sign change found in %d iterations", it-1),
+			 domain=NA)
+		f.lower <- f(lower <- lower - delta, ...)
+		if(trace >= 2) cat(sprintf(" .. modified lower: %g\n", .N(lower)))
+		delta <- 2 * delta
+	    }
+	    delta <- Delta(upper)
+	    while(isTRUE(Sig*f.upper < 0)) {
+		if((it <- it + 1L) > maxiter)
+		    stop(gettextf("no sign change found in %d iterations", it-1),
+			 domain=NA)
+		f.upper <- f(upper <- upper + delta, ...)
+		if(trace >= 2) cat(sprintf(" .. modified upper: %s\n", form(upper)))
+		delta <- 2 * delta
+	    }
+	}
+	if(trace && trace < 2)
+            cat(sprintf("extended to [%s, %s] in %d steps\n", form(lower), form(upper), it))
+    }
+    if(!isTRUE(as.vector(sign(f.lower) * sign(f.upper) <= 0)))
+	stop(if(doX)
+	"did not succeed extending the interval endpoints for f(lower) * f(upper) <= 0"
+	     else sprintf("f() values at end points = (%s, %s) not of opposite sign",
+                          form(f.lower), form(f.upper)))
 
     if(is.null(epsC) || is.na(epsC)) {
 	## determine 'epsC'  ``the achievable Machine precision''
@@ -92,7 +168,7 @@ unirootR <- function(f, interval, ...,
 	##double d.new;		## Step at this iteration	*/
 
 	if(abs(fc) < abs(fb)) { ## Swap data for b to be the smaller
-	    if (verbose) cat("fc smaller than fb\n")
+	    if (verbose) cat(sprintf("fc (=%s) smaller than fb\n", form(fa)))
 	    a <- b
 	    b <- c
 	    c <- a	## best approximation
@@ -117,7 +193,7 @@ unirootR <- function(f, interval, ...,
 	       && (abs(fa) > abs(fb)) ) { ## and was in true direction,
 		## Interpolation may be tried	*/
 		##    register double t1,cb,t2;
-		if (verbose) cat("d.prev larger than tol.2 and fa bigger than fb\n")
+		if (verbose) cat("d.prev larger than tol.2 and fa bigger than fb --> ")
 
 		cb <- c-b
 		if (a == c) { ## If we have only two distinct points, linear interpolation
@@ -125,10 +201,10 @@ unirootR <- function(f, interval, ...,
 		    t1 <- fb/fa
 		    p <- cb*t1
 		    q <- 1 - t1
-		    if (verbose) cat("a == c\n")
+		    if (verbose) cat("a == c: ")
 		}
 		else { ## Quadric inverse interpolation*/
-		    if (verbose) cat("a != c\n")
+		    if (verbose) cat("a != c: ")
 		    q <- fa/fc
 		    t1 <- fb/fc
 		    t2 <- fb/fa
@@ -146,32 +222,30 @@ unirootR <- function(f, interval, ...,
 		    && p < abs(d.prev*q/2)) {	## and isn't too large	*/
 		    if (verbose) cat("p satisfies conditions for changing d.new\n")
 		    d.new <- p/q ## it is accepted
-		}
+		} else if(verbose) cat("\n")
 		## If p/q is too large, then the
 		## bisection procedure can reduce [b,c] range to more extent
 	    }
 
-	    if( abs(d.new) < tol.2) { ## Adjust the step to be not less*/
-		if (verbose) cat("d.new smaller than tol.2\n")
-		if( d.new > 0 ) ## than tolerance		*/
-		    d.new <- tol.2
-		else
-		    d.new <- -tol.2
+	    if( abs(d.new) < tol.2) { ## Adjust the step to be not less than tolerance
+		if (verbose) cat("d.new smaller than tol.2, adjusted to it.\n")
+                d.new <- if(d.new > 0) tol.2 else -tol.2
 	    }
 	    a <- b
 	    fa <- fb ## Save the previous approx. */
 	    b <- b + d.new
 	    fb <- f(b, ...)
+            if (verbose) cat(sprintf("new f(b) = %s; ", form(fb)))
 	    maxit <- maxit-1
 	    ## Do step to a new approxim. */
 	    if( ((fb > 0) && (fc > 0)) || ((fb < 0) && (fc < 0)) ) {
-		if (verbose) cat("make c to have sign opposite to b\n")
+		if (verbose) cat(sprintf("make c to have sign opposite to b: f(c)=%s\n", form(fa)))
 		## Adjust c for it to have a sign opposite to that of b */
 		c <- a
 		fc <- fa
-	    }
+            } else if(verbose) cat("\n")
 
-	}## else
+	}## else not converged
 
     } ## end{ while(maxit > 0) } --------------------------------------------
 
@@ -180,12 +254,14 @@ unirootR <- function(f, interval, ...,
 	if(!is.na(fb) &&  abs(fb) > 0.5*max(abs(f.lower), abs(f.upper)))# from John Nash:
 	    warning("Final function magnitude seems large -- maybe converged to sign-changing 'pole' location?")
     } else { ## (!converged) : failed!
+        if(check.conv)
+            stop("no convergence in zero finding in ", iter, " iterations")
+        ## else
 	val <- list(root= b, rtol = abs(c-b))
 	iter <- maxiter
 	if(warn.no.convergence)
 	    warning("_NOT_ converged in ", iter, " iterations")
     }
-
     list(root = val[["root"]], f.root = f(val[["root"]], ...),
 	 iter = iter, estim.prec = .N(val[["rtol"]]), converged = converged)
 }

@@ -27,4 +27,3 @@ inst/doc/20[12]
 inst/doc/.*(lynne|nb-m)
 inst/doc/.*\.(tex|bbl|aux|log|blg)$
 autom4te\.cache/
-

@@ -4,7 +4,15 @@
 \title{Rmpfr News}
 \encoding{UTF-8}
 
-\section{Changes in version 0.8-10 [2022-06-09, r364]}{
+\section{Changes in version 0.9-0 [2022-08-10, r365]}{
+  \subsection{NEW FEATURES}{
+    \itemize{
+      \item Add the \code{extendInt="*"} option to \code{unirootR()}
+      adopting its addition in base \R \code{uniroot()}.
+      This is particularly useful, e.g., for a \code{qnorm*()} version
+      based on inverting our mpfr-ized \code{pnorm()}.
+    }
+  }
   \subsection{BUG FIXES}{
      \itemize{
        \item Fix \code{\\eqn{(\\gamma)}{}} - as requested by KH (June 9).
