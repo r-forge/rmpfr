@@ -177,7 +177,7 @@ unirootR <- function(f, interval, ...,
 	    fc <- fa
 	}
 	tol.2 <- 2*epsC*abs(b) + tol/2
-	if (verbose) cat("tol.2= ",.N(tol.2),"\n")
+	if (verbose) cat("tol.2(epsC,b) = ",.N(tol.2),"\n")
 	d.new <- (c-b)/2 # bisection
 	if (verbose) cat("d.new= ",.N(d.new),"\n")
 

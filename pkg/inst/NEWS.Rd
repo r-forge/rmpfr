@@ -4,7 +4,7 @@
 \title{Rmpfr News}
 \encoding{UTF-8}
 
-\section{Changes in version 0.9-0 [2022-08-10, r365]}{
+\section{Changes in version 0.9-0 [2022-08-10, r367]}{
   \subsection{NEW FEATURES}{
     \itemize{
       \item Add the \code{extendInt="*"} option to \code{unirootR()}

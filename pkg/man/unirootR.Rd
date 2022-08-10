@@ -8,10 +8,10 @@ unirootR(f, interval, \dots,
         extendInt = c("no", "yes", "downX", "upX"),
         trace = 0, verbose = as.logical(trace),
         tol = .Machine$double.eps^0.25, maxiter = 1000,
-        warn.no.convergence = TRUE,
+        check.conv = FALSE,
+        warn.no.convergence = !check.conv,
         epsC = NULL)
-}     % check.conv = FALSE,
-
+}
 \arguments{% base R : ~/R/D/r-devel/R/src/library/stats/man/uniroot.Rd
   \item{f}{the function for which the root is sought.}
   \item{interval}{a vector containing the end-points of the interval
@@ -29,10 +29,9 @@ unirootR(f, interval, \dots,
     when \code{f()} does not have differing signs at the endpoints.  The
     default, \code{"no"}, keeps the search interval and hence produces
     an error.  Can be abbreviated.}
-  %% \item{check.conv}{logical indicating whether a convergence warning of the
-  %%   underlying \code{\link{uniroot}} should be caught as an error and if
-  %%   non-convergence in \code{maxiter} iterations should be an error
-  %%   instead of a warning.}
+  \item{check.conv}{logical indicating whether non convergence
+    should be caught as an error, notably non-convergence in \code{maxiter}
+    iterations should be an error instead of a warning.}
   \item{verbose}{logical (or integer) indicating if (and how much)
     verbose output should be produced during the iterations.}
   \item{tol}{the desired accuracy (convergence tolerance).}
