@@ -51,7 +51,8 @@ unirootR <- function(f, interval, ...,
 	    is.numeric(Sig) && (Sig*f.low. > 0 || Sig*f.upp. < 0))
     if(doX) { ## extend the interval = [lower, upper]
 	if(trace)
-	    cat(sprintf("search in [%s,%s]%s", form(lower), form(upper),
+	    cat(sprintf("search {extendInt=\"%s\", Sig=%s} in [%s,%s]%s",
+                        extendInt, form(Sig), form(lower), form(upper),
 			if(trace >= 2)"\n" else " ... "))
 	Delta <- function(u) 0.01* pmax(1e-4, abs(u)) ## <-- FIXME? [= R's uniroot() for double]
         it <- 0L
@@ -90,7 +91,7 @@ unirootR <- function(f, interval, ...,
 		    stop(gettextf("no sign change found in %d iterations", it-1),
 			 domain=NA)
 		f.lower <- f(lower <- lower - delta, ...)
-		if(trace >= 2) cat(sprintf(" .. modified lower: %g\n", .N(lower)))
+		if(trace >= 2) cat(sprintf(" .. modified lower: %s, f(.)=%s\n", form(lower), form(f.lower)))
 		delta <- 2 * delta
 	    }
 	    delta <- Delta(upper)
@@ -99,7 +100,7 @@ unirootR <- function(f, interval, ...,
 		    stop(gettextf("no sign change found in %d iterations", it-1),
 			 domain=NA)
 		f.upper <- f(upper <- upper + delta, ...)
-		if(trace >= 2) cat(sprintf(" .. modified upper: %s\n", form(upper)))
+		if(trace >= 2) cat(sprintf(" .. modified upper: %s, f(.)=%s\n", form(upper), form(f.upper)))
 		delta <- 2 * delta
 	    }
 	}
@@ -147,8 +148,7 @@ unirootR <- function(f, interval, ...,
     fa <- f.lower # f(ax, ...)
     fb <- f.upper # f(bx, ...)
     if (verbose)
-	cat(sprintf("Start zeroin: f(%g)= %g;  f(%g)= %g\n",
-		    .N(a), .N(fa),  .N(b), .N(fb)))
+	cat(sprintf("==> Start zeroin: f(%g)= %g;  f(%g)= %g\n", .N(a), .N(fa),  .N(b), .N(fb)))
     c <- a
     fc <- fa
     ## First test if we have found a root at an endpoint
@@ -181,7 +181,8 @@ unirootR <- function(f, interval, ...,
 	d.new <- (c-b)/2 # bisection
 	if (verbose) cat("d.new= ",.N(d.new),"\n")
 
-	converged <- abs(d.new) <= tol.2  ||  fb == 0
+	## converged <- (abs(d.new) <= tol.2 && is.finite(fb))  ||  fb == 0
+	converged <- (abs(d.new) <= tol.2)  ||  fb == 0
 	if(converged) {
 	    if (verbose) cat("DONE! -- small d.new or fb=0\n")
 	    ## Acceptable approx. is found :

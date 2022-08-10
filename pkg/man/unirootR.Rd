@@ -29,13 +29,15 @@ unirootR(f, interval, \dots,
     when \code{f()} does not have differing signs at the endpoints.  The
     default, \code{"no"}, keeps the search interval and hence produces
     an error.  Can be abbreviated.}
-  \item{check.conv}{logical indicating whether non convergence
-    should be caught as an error, notably non-convergence in \code{maxiter}
-    iterations should be an error instead of a warning.}
+  \item{trace}{integer number; if positive, tracing information is
+    produced.  Higher values giving more details.}
   \item{verbose}{logical (or integer) indicating if (and how much)
     verbose output should be produced during the iterations.}
   \item{tol}{the desired accuracy (convergence tolerance).}
   \item{maxiter}{the maximum number of iterations.}
+  \item{check.conv}{logical indicating whether non convergence
+    should be caught as an error, notably non-convergence in \code{maxiter}
+    iterations should be an error instead of a warning.}
   \item{warn.no.convergence}{if set to \code{FALSE} there's no warning
     about non-convergence.  Useful to just run a few iterations.}
   \item{epsC}{positive number or \code{NULL} in which case a smart
