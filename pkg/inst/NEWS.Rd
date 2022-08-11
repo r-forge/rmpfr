@@ -4,13 +4,15 @@
 \title{Rmpfr News}
 \encoding{UTF-8}
 
-\section{Changes in version 0.9-0 [2022-08-10, r368]}{
+\section{Changes in version 0.9-0 [2022-08-11, r369]}{
   \subsection{NEW FEATURES}{
     \itemize{
       \item Add the \code{extendInt="*"} option to \code{unirootR()}
       adopting its addition in base \R \code{uniroot()}.
-      This is particularly useful, e.g., for a \code{qnorm*()} version
-      based on inverting our mpfr-ized \code{pnorm()}.
+
+      \item New \code{qnormI()}, the normal quantile function, computed via
+      inversion of (our potentially arbitrarily accurate) \code{pnorm()},
+      using \code{unirootR()} root finding.
     }
   }
   \subsection{BUG FIXES}{
