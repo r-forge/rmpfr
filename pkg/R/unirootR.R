@@ -91,7 +91,8 @@ unirootR <- function(f, interval, ...,
 		    stop(gettextf("no sign change found in %d iterations", it-1),
 			 domain=NA)
 		f.lower <- f(lower <- lower - delta, ...)
-		if(trace >= 2) cat(sprintf(" .. modified lower: %s, f(.)=%s\n", formI(lower), formI(f.lower)))
+		if(trace >= 2) cat(sprintf(" .. modified lower: %s, f(.)=%s\n",
+                                           formI(lower), formI(f.lower)))
 		delta <- 2 * delta
 	    }
 	    delta <- Delta(upper)
@@ -100,7 +101,8 @@ unirootR <- function(f, interval, ...,
 		    stop(gettextf("no sign change found in %d iterations", it-1),
 			 domain=NA)
 		f.upper <- f(upper <- upper + delta, ...)
-		if(trace >= 2) cat(sprintf(" .. modified upper: %s, f(.)=%s\n", formI(upper), formI(f.upper)))
+		if(trace >= 2) cat(sprintf(" .. modified upper: %s, f(.)=%s\n",
+                                           formI(upper), formI(f.upper)))
 		delta <- 2 * delta
 	    }
 	}
@@ -286,7 +288,8 @@ qnormI <- function(p, mean = 0, sd = 1, lower.tail = TRUE, log.p = FALSE,
 {
     zFun <- function(q) pnorm(q, mean=mean, sd=sd, lower.tail=lower.tail, log.p=log.p) - p.
     if(missing(tol) || !is.finite(tol)) {
-        prec <- max(getPrec(c(p, mean, sd)))
+        prec <- getPrec(if(missing(mean) && missing(sd)) p else p+(mean+sd))
+        ## not max(getPrec(c(p, mean, sd)))  as it's >= 128 by default
         tol <- 2^-(prec - 1)
     } else
         prec <- as.integer(ceiling(1 - log2(tol)))

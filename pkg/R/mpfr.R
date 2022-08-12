@@ -303,9 +303,12 @@ setReplaceMethod("[", signature(x = "mpfrArray", i = "matrix", j = "missing",
 
 ## I don't see how I could use setMethod("c", ...)
 ## but this works "magically"  when the first argument is an mpfr :
+## NB: via as(., "mpfr") it currently makes all doubles to 128 bit prec;
+##     MM now would prefer something like 55 (just barely enough accurate)
 c.mpfr <- function(...)
     new("mpfr", unlist(lapply(list(...), as, Class = "mpfr"),
 		       recursive = FALSE))
+
 ## and the same trick can be used to implement a *simplistic*
 sapplyMpfr <- function(X, FUN, ...) new("mpfr", unlist(lapply(X, FUN, ...), recursive = FALSE))
 ##' more carefully, also returing mpfrArray when appropriate:
