@@ -7,7 +7,8 @@ unirootR(f, interval, \dots,
         f.lower = f(lower, ...), f.upper = f(upper, ...),
         extendInt = c("no", "yes", "downX", "upX"),
         trace = 0, verbose = as.logical(trace),
-        tol = .Machine$double.eps^0.25, maxiter = 1000,
+        verbDigits = max(3, min(20, -log10(tol)/2)),
+        tol = .Machine$double.eps^0.25, maxiter = 1000L,
         check.conv = FALSE,
         warn.no.convergence = !check.conv,
         epsC = NULL)
@@ -33,6 +34,9 @@ unirootR(f, interval, \dots,
     produced.  Higher values giving more details.}
   \item{verbose}{logical (or integer) indicating if (and how much)
     verbose output should be produced during the iterations.}
+  \item{verbDigits}{used only if \code{verbose} is true, indicates the
+    number of digits numbers should be printed with, using
+    \code{\link{format}(., digits=verbDigits)}.}
   \item{tol}{the desired accuracy (convergence tolerance).}
   \item{maxiter}{the maximum number of iterations.}
   \item{check.conv}{logical indicating whether non convergence

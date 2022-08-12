@@ -9,9 +9,10 @@
 }
 \usage{
 qnormI(p, mean = 0, sd = 1, lower.tail = TRUE, log.p = FALSE,
-       verbose = FALSE, traceRoot = as.integer(verbose),
-       tol, maxiter = 1000,
-       warn.no.convergence = TRUE, epsC = NULL, give.full = FALSE)
+       trace = 0, verbose = as.logical(trace),
+       tol,
+       give.full = FALSE,
+       \dots)
 }
 \arguments{% ~/R/D/r-devel/R/src/library/stats/man/Normal.Rd <<<<<
   \item{p}{vector of probabilities.}
@@ -21,22 +22,16 @@ qnormI(p, mean = 0, sd = 1, lower.tail = TRUE, log.p = FALSE,
   \item{lower.tail}{logical; if TRUE (default), probabilities are
     \eqn{P[X \le x]} otherwise, \eqn{P[X > x]}.}
   %%--
+  \item{trace}{integer passed to \code{\link{unirootR}()}.  If positive,
+    information about a search interval extension will be printed to the console.}
   \item{verbose}{logical indicating if progress details should be printed
     to the console.}
-  \item{traceRoot}{integer passed as \code{trace} to
-    \code{\link{unirootR}()}.  If positive, information about a search
-    interval extension will be printed to the console.}
   \item{tol}{the desired accuracy (convergence tolerance).}
-  \item{maxiter}{the maximum number of iterations.}
-  \item{epsC}{positive number or \code{NULL} in which case a smart
-    default is sought.  This should specify the \dQuote{achievable
-      machine precision} \emph{for} the given numbers and their
-    arithmetic; see \code{\link{unirootR}()} for more.}
-  \item{warn.no.convergence}{logical indicating if a \code{\link{warning}}
-    should be produced for every case where \code{\link{unirootR}()} did
-    not converge.}
   \item{give.full}{logical indicating if the \emph{full} result of
     \code{\link{unirootR}()} should be returned (when applicable).}
+  \item{\dots}{optional further arguments passed to \code{\link{unirootR}()}
+    such as \code{maxiter}, \code{verbDigits}, \code{check.conv},
+    \code{warn.no.convergence}, and \code{epsC}.}
 }
 \value{
   If \code{give.full} is true, return a \code{\link{list}}, say \code{r}, of
@@ -98,7 +93,6 @@ qnormI(log(pM) * (2:22), log.p=TRUE)
 %%  [2] -2528468770.34329343681076815919728151437393281585185631490875396946906388
 %%  ...............
 %% [21] -2528468770.34329343681076815919728151437393281585185631490875396946906388
-
 
 
 ## reset to previous status if needed
