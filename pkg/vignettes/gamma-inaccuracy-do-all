@@ -1,19 +1,25 @@
 #!/bin/bash
 #
 dt=`date --iso=min| sed 's/\+.*//'`
-
-(cd gamma-inaccuracy_src/; R-4.1.3 CMD BATCH --no-save gamma-inaccuracy-4old.R)
-R-devel CMD Sweave gamma-inaccuracy.Rnw && pdflatex gamma-inaccuracy
+R=${R:-R-devel}
+# default R-devel (as long as my gamma() improvements are only there)
+#
+(cd gamma-inaccuracy_src/; R-4.2.1 CMD BATCH --no-save gamma-inaccuracy-4old.R)
+fRmd=gamma-inaccuracy.Rmd
+bf=`basename $fRmd .Rmd`
+logf=${bf}.render_log
+$R -e 'rmarkdown::render("'$fRmd'")' 1> $logf 2>&1
 
 saveD=/tmp/gamma-inacc_${dt}
 mkdir -p $saveD
-echo -n 'moving *.pdf'" etc to $saveD/ .."
-mv gamma-inaccuracy-*.pdf gamma-inaccuracy.{log,tex,pdf} $saveD  ;  echo ' [Ok]'
+echo -n 'moving *.md'" etc to $saveD/ .."
+mv ${bf}-*.md ${bf}_files   $saveD  ;  echo ' [Ok]'
 
-R-devel-no-ldouble CMD Sweave gamma-inaccuracy.Rnw && pdflatex gamma-inaccuracy
-SaveDir=gamma-inaccuracy_no-ldouble
+logf=${bf}.render_no-ldbl
+R-devel-no-ldouble  -e 'rmarkdown::render("'$fRmd'")' 1> $logf 2>&1
+SaveDir=${bf}_no-ldouble
 echo -n 'moving *.pdf'" etc to $SaveDir/ .."
-mv gamma-inaccuracy-*.pdf gamma-inaccuracy.{log,tex,pdf} $SaveDir ;  echo ' [Ok]'
+mv ${bf}-*.md ${bf}_files   $SaveDir ;  echo ' [Ok]'
 
 ## get the old ones back:
 mv $saveD/* .

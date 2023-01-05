@@ -1,0 +1,607 @@
+---
+title: Accurate Gamma Computation in R
+author: "Martin Mächler, ETH Zurich"
+date: "April 2022 ff - rendered on  `r Sys.Date()`"
+package: Rmpfr
+output:
+  BiocStyle::html_document
+# ~~~~~~~~~~~~~~~~~~~~~~~~
+abstract: |
+  Interestingly enough it lasted more than 25 years before I (re-)detected
+  that `R`'s not perfectly accurate gamma function $\Gamma(x) =$`gamma(x)`
+  can quite easily be remedied --- amazingly by *simplifying* the underlying
+  C source code:
+  Higher accuracy than previously is achieved by using $\Gamma()$'s simple functional
+  equation,
+  $$
+    \Gamma(x+1) = x \cdot \Gamma(x),
+  $$
+  recursively, for the full range of `x`  instead of just when
+  $\left| x \right|$ is smallish.
+  Interestingly, the improvement did not help the computation of
+  `factorial(x) := gamma(x + 1)`  in some situations for which I needed
+  some time before understanding why.
+vignette: >
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteIndexEntry{Accurately Computing Gamma}
+  %\VignetteDepends{Rmpfr}
+  %\VignetteDepends{gmp}
+  %\VignetteDepends{sfsmisc}
+  %\VignetteDepends{BiocStyle}
+---
+
+\usepackage{amsmath}
+\usepackage{mathtools}
+\usepackage{amssymb}
+\usepackage{bm}
+<!-- \usepackage[american]{babel} -->
+
+\newcommand{\eps}{\varepsilon}
+\newcommand{\abs}[1]{\left| #1 \right|}
+\newcommand{\floorF}[1]{\left\lfloor{#1}\right\rfloor}
+\newcommand{\fx}{\floorF{x}}
+
+
+```{r setup, include=FALSE}
+## does not work: png is included directly in *.html:
+## options(device = "cairo_pdf")
+knitr::opts_chunk$set(echo = TRUE,
+                      dev = "png", dev.args = list(type = "cairo-png"),
+                      ## fig.align seems to *not* work html_vignette  ?
+                      fig.align = "center", # "default" aligns to left border of text
+                      fig.width = 8, fig.height = 5.75) # in [in]
+```
+
+<!-- ### Abstract -->
+
+<!-- \Keywords{Accuracy, Cancellation Error, Gamma, Factorial, MPFR, Rmpfr} -->
+
+<!-- \Address{
+	Martin M\"achler\\
+	Seminar f\"ur Statistik, HG G~16\\
+	ETH Zurich\\
+	8092 Zurich, Switzerland\\
+	E-mail: \email{maechler@stat.math.ethz.ch}\\
+	URL: (https://stat.ethz.ch/~maechler)
+}
+ -->
+
+<!-- message=F: suppress "objects are masked ..." when loading {gmp} , {Rmpfr} : -->
+```{r preliminaries, echo=FALSE, results="hide", message=FALSE}
+op.orig <-
+options(width = 75,
+	## SweaveHooks= list(fig=function() par(mar=c(5.1, 4.1, 1.1, 2.1))),
+	digits = 5,
+	useFancyQuotes = "none",
+	## for JSS, but otherwise MM does not like it:
+	## prompt="R> ", continue = "+  ",
+	continue="  ")# 2 (or 3) blanks: use same length as 'prompt'
+
+if((p <- "package:fortunes") %in% search())
+    try(detach(p, unload=TRUE, char=TRUE))
+Sys.setenv(LANGUAGE = "en")
+if(.Platform$OS.type != "windows")
+  Sys.setlocale("LC_MESSAGES","C")
+library("sfsmisc")# e.g., for eaxis()
+library("Rmpfr")
+```
+
+
+# Introduction: exp(x) may be less accurate than x
+
+Many people have either not been aware of at all or have
+forgotten (as myself):  Whereas typical arithmetic operations keep the
+internal accuracy, hopefully only losing one bit or two when the operation is
+implemented well, this is _not_ the case for exponentiation `exp(x)`$= e^x$
+when the exponent $x$ is not close to $[-1,1]$:
+
+If we have an $x$ with relative inaccuracy $\eps$, or to make it shorter,
+directly assume we have $\tilde x := x(1+\eps)$ instead of $x$, then
+instead of $f(x) = \exp(x) = e^x$, we'd compute --- if $e^x$ would be perfectly exact ---
+
+\begin{align}
+  f(\tilde x) = \exp(x(1+\eps)) = e^{x(1+\eps)} = e^x e^{x\eps} = f(x) \cdot e^{x \eps},
+  (\#eq:exp-eps)
+\end{align}
+
+where the relative error $\tilde\eps$ is defined (implicitly) via
+$f(\tilde x) = f(x) \cdot (1 + \tilde\eps)$,
+i.e., we have
+
+\begin{align}
+ 1 + \tilde \eps = e^{x \eps}     &=         1 +     x\eps + (x\eps)^2/2! + O\bigl((x\eps)^3\bigr),
+                    \quad \textrm{and hence,}\nonumber\\
+     \tilde \eps = e^{x \eps} - 1 &=\phantom{1 + \ } x\eps + (x\eps)^2/2! + O\bigl((x\eps)^3\bigr),
+  (\#eq:exp-err)
+\end{align}
+
+and hence in good cases, when $\abs{x\eps} \ll 1$, we have
+$\abs{\tilde \eps} = e^{x \eps} - 1 \approx \abs{x\eps}$, i.e., the
+relative error is blown up by $\abs{x}$.
+In a bad case, $\abs{x\eps} \approx 1$ the blow up would be horrendous,
+but that will not happen with double precision:
+
+Given double precision arithmetic, the exponents $x$ of `exp(x)`
+which do not overflow (to `Inf` ) nor underflow to 0 are not too large, specifically,
+```{r exp-boundaries}
+rbind(
+  regular = log(c(min = .Machine$double.xmin,      max = .Machine$double.xmax)),
+  denormal= log(c(min = .Machine$double.xmin/2^52, max = .Machine$double.xmax)) )
+```
+so exponents are still in the order of 1000, i.e., such that exponentiation
+may lose up to 3 decimals.
+
+Now, losing 3 out of almost 16 digits is not catastrophical,
+and in situations such as graphics or analysis of noisy data often irrelevant.  But
+we want to be able to use `R`\ not just for data analysis but also as
+scientific calculator with typically
+"high" accuracy. <!-- often better than *any* other applied math engines -->
+
+Our way to measure accuracy of `R`'s computations is by using our package
+`{Rmpfr}` 's ability to do many computations with arbitrary high precision.
+The package `{Rmpfr}`  is an interface from `R`\ to the MPFR C library.
+According to Wikipedia:
+
+	The GNU Multiple Precision Floating-Point Reliable Library (GNU MPFR) is a
+	GNU portable C library for arbitrary-precision binary floating-point
+	computation with correct rounding, based on GNU Multi-Precision Library.
+
+Also, this is the principal reason why `gamma(x)`  in `R`, has been
+losing up to about 3 digits in accuracy till `R 4.2.*` <!-- at least -->, when
+$x > 10$, as it basically has used `gamma(x) := exp(lgamma(x))`  for these $x$
+values, as the `exp()` onentiation may lose accuracy there.
+
+
+# Computation of Gamma, \(\Gamma(x)\)
+
+We measure and visualize the accuracy of `R`'s `gamma(x)`
+and in the next section also of `R`'s `gamma(x+1)`  which because of $x! := \Gamma(x+1)$ (also for non-integer $x$) has even been defined as
+```{r factorial-def, eval=FALSE}
+  factorial := function(x) gamma(x + 1)
+```
+in `R`.
+In both cases, we compute the function in base `R`\ with double precision
+vector argument `x`  and also compute high-accuracy function values
+using `mpfr(x, 256)`  instead of `x` , where the `Rmpfr`
+package `mpfr()`  creates a 256-bit mantissa version of `x`  and
+when passed to `gamma()`  calls the Rmpfr version of these.
+\footnote{Note that `gamma()`  (and many similar special math functions) is not
+  explicitly exported from `{Rmpfr}`  but used as a `method`  of the
+  `Math()`  S4 group generic function.  This is one reason for wanting
+  `Rmpfr`  attached to the `search()`  path.}
+
+In addition, we make use of our package `{sfsmisc}` 's
+`relErrV()`  function which basically computes the relative error
+(\textsc{v}ectorized) of an approximate $\hat\theta$ wrt a true $\theta$,
+i.e.,
+$(\hat\theta - \theta)/\theta =  \hat\theta / \theta - 1$.  The
+`relErrV()`  function is careful to switch to absolute error
+$\hat\theta - \theta$ in case $\theta \approx 0$, and to
+return $0$ when both values are the same, e.g., for `0` , `NaN` , or `Inf` ,
+and similar.
+
+The `p.gammEr()`  and `p.factEr()`  functions can compute and
+visualize the relative errors for `gamma()`  and `factorial()`  in
+one call, however also allow what we do here, i.e., to separate most of the
+computation from the visualization (plotting)
+and *pass* both vectors of function values, the double precision base `R`\ and the package
+`{Rmpfr}`  high-accuracy ones, to the plotting function as arguments:
+
+<!-- source("gamma-inaccuracy_R/plot-gammaErr-def.R") -->
+```{r plot-gammaErr-def, echo=FALSE, code=readLines("gamma-inaccuracy_R/plot-gammaErr-def.R")}
+```
+<!--   source("gamma-inaccuracy_R/plot-factErr-def.R") -->
+```{r plot-factErr-def, echo=FALSE, code=readLines("gamma-inaccuracy_R/plot-factErr-def.R")}
+```
+
+```{r p.gammaEr-str}
+str(removeSource(p.gammEr))
+## and p.factEr() is defined analogously
+```
+
+For the abscissas $x$ we want a "mixture" of binary-nice and decimal-nice numbers,
+i.e., we want their non-integer part, i.e., $x - \fx$, called `u01`
+below, to be a mixture of nice (in binary!) ($\frac{k}{4}$) and nicely
+*looking* in decimal, but "not binary-nice" floating point numbers
+resulting from $\frac{m}{20}$ where $m$ is not divisible by 5 hence needing
+an infinite binary fraction representation:
+```{r xF-values, code=readLines('gamma-inaccuracy_R/xF-xG.R')}
+```
+<!--  source("gamma-inaccuracy_R/xF-xG.R") -->
+
+<!-- These are already sorted, and have "delta x" values $x_{i+1} - x_i$ -->
+<!-- either $1/80$ or $2/80 = 1/40$: -->
+<!-- ```{r xF-2} -->
+<!-- stopifnot(all.equal((1:2)/80, range(diff(xF))), -->
+<!--           all.equal((1:2)/80, range(diff(xG)))) -->
+<!-- length(xF) -->
+<!-- % = 16575 -->
+
+We compute base `R`'s gamma, and then also `{Rmpfr}` 's
+`gamma`  method, using 256-bit precision:
+```{r gamma-comp}
+gammxG <- gamma(xG)
+system.time(# 256-bit (~= 256*log10(2) ~= 77 digits) internal accuracy to be "safe")
+    gammMxG <- gamma(mpfr(xG, 256))
+) # 0.3 sec
+```
+
+Is 256 bits enough?  Use a twice as accurate computation with 512 bits to
+check the "error" of the the 256-bit computations:
+```{r gamma-mpfr-prec}
+gammMM <- gamma(mpfr(xG, 512))
+rEM <- asNumeric(roundMpfr(relErrV(gammMM, gammMxG), 30))[xG %% 1 != 0]
+summary(rEM)
+-log2(8.5e-78) # 256.02
+```
+<!-- summary(rEM) : -->
+<!--      Min.   1st Qu.    Median      Mean   3rd Qu.      Max. -->
+<!-- -8.50e-78 -2.99e-78  0.00e+00 -2.6e-81  3.00e-78  8.36e-78 -->
+
+So, the largest relative errors being $\approx 2^{-256}$, indeed, the
+256-bit `Rmpfr` --version is accurate to (about) the last bit.
+
+```{r read-oldR-gamma}
+## Code in ./gamma-inaccuracy_R/gamma-inaccuracy-4old.R
+Rver <- "4.2.1" # or also "4.2.1" ..
+gamRfile <- paste0("gamma-inaccuracy_R/gamma_R-", Rver, ".rds")
+oldG <- readRDS(gamRfile)
+stopifnot(identical(xF, oldG[,"xF"])) # the 'x' values are the same
+```
+
+<!-- In Fig.~\@ref(fig:p.relE-gamm-old) we look at the current `R`\ version's accuracy of  -->
+In Fig.~\@ref(fig:relE-gamm-old) we look at the current `R`\ version's accuracy of
+`gamma(x)` , for the whole range of $x$ for which `gamma(x)`  does
+not underflow to zero nor overflow to `+Inf` .
+<!-- \enlargethispage{3ex} -->
+<!-- \begin{figure}[hbt] -->
+<!--   \centering -->
+```{r relE-gamm-old, echo=FALSE, fig.cap="|relative errors| of \"old\" R's gamma(). Comparing `R 4.2.1`'s `gamma(x)` to its 256-bit `Rmpfr`-package version"}
+pgEpmO <- p.gammEr(oldG[,"xG"], oldG[,"gamm.x"], gammMxG,
+                   ch.Rversion = attr(oldG, "R.version"),
+                   type="l", ylim2 = c(1e-17, 2e-13), doFirst = FALSE)
+```
+
+Note that values for $x \in \{1,\dots,23\}$ are exact, i.e, have $\abs{rE(x)} = 0$,
+because for positive integer $x = n \le 50 $, `gamma(n) == factorial(n-1)` has been
+implemented by computing the product $(n-1)! = 1 \cdot 2 \cdot (n-1)$,
+since May 16, 2003, svn rev 24344 by `maechler`.
+
+Also, we notice that there is a "break" in accuracy where $\Gamma(x)$ is
+much better approximated by `R`'s `gamma(x)`  for $x \in [-10, 10]$ than
+when it is outside, i.e., $\abs{x} > 10$.
+
+This is because the "old" traditional `R`\ algorithm for `gamma()` is basically just using
+
+<!-- \begin{enumerate} -->
+-  a fully accurate (double precision) Chebyshev polynomial
+  approximation for $\Gamma(x), \ x \in [1,2]$ (where $\Gamma$ looks vaguely
+  like a quadratic function with minimum at
+  $(x_0, \Gamma(x_0)) = (1.461632144968\dots, 0.88560319441\dots)$, see
+  (https://en.wikipedia.org/wiki/Gamma_function#Minima)
+<!-- zmin ≈1.46163214496836234126 .. where it attains the value Γ(zmin) ≈ 0.88560319441088870027 -->
+  and values
+  $\Gamma(1) = \Gamma(2) = 1$ at the interval boundaries).
+  <!--   \begin{minipage}{.5\linewidth} -->
+```{r plot-gamma-in-1_2, echo=FALSE, out.width=300, fig.width=5, fig.asp=0.7}
+   par(mgp = c(1.5, .6, 0), mar = 0.1 + c(3,3:1))
+   curve(gamma, 1,2, n=501, col=2, lwd=2, asp=1, ylab="", las=1)
+   title(quote(Gamma(x) ~ "for"~ x %in% group("[",list(1,2),"]") ~
+          ~ "via 22-d Chebyshev polynomial"))
+   abline(h=1, v=1:2, lty=2, col="gray")
+   x0 <- 1.461632145; points(x0, gamma(x0), col=4, pch=3, cex=3, type="h")
+   axis(1, at=x0, col=4, col.axis=4, cex.axis=2/3, padj=-2)
+```
+  <!--   \end{minipage} -->
+-  for $\abs{x} \le 10$ uses the $\Gamma()$ recursion formula $\Gamma(x+1) = x\Gamma(x)$,
+   repeatedly, see also (\@ref(eq:Gamma-recursion)).
+-  for $\abs{x} > 10$ computes $\Gamma(x) = \exp(\mathtt{lgamma(x)})$
+  via the `lgamma()`  function which computes $\log\Gamma(x)$ via a
+  (generalized) asymptotic Stirling formula.
+<!-- \end{enumerate} -->
+
+
+Further, note that `factorial(171)`  overflows to `+Inf`  as indeed,
+```{r fact171}
+f171 <- factorial(mpfr(171, precBits=128))
+noquote(format(f171))
+asNumeric(f171 / .Machine$double.xmax)
+```
+i.e., $171!$ "must" overflow in double precision.
+
+Now, we zoom into the (more "common") region
+$x \in [1, 50]$, and then extend the range to
+all positive $x$ (for which `gamma()`  is still finite):
+
+```{r plot-gammErr-1, fig=TRUE}
+str(i1 <- which(1 <= xG & xG <= 50)); stopifnot(!anyNA(i1))
+pgE1 <- p.gammEr(xG[i1], gammxG[i1], gammMxG[i1], ylim2=c(1e-18, 1e-15))
+```
+
+
+<!-- %% ================ "Part 2": -->
+# Computation of  Factorial \(\Gamma(x+1) = x!\)
+
+
+<!-- %%------------------------------------------------------------------ -->
+The same with `factorial()`  instead of `gamma()` :
+<!-- %%------------------------------------------------------------------ -->
+
+We compute base `R`'s factorial, and then also `{Rmpfr}` 's
+`factorial`  method, using 256-bit precision:
+```{r factorial-comp}
+ <<factorial-def, eval=FALSE>>
+facxF <- factorial(xF)
+system.time(# 256-bit (~= 256*log10(2) ~= 77 digits) internal accuracy to be "safe")
+    facMxF <- factorial(mpfr(xF, 256))
+) # 0.3 sec; then (LDOUBLE): 0.81 sec
+```
+
+To compare the old ("current" at time of writing) and potential new
+algorithms visually, we get their values from a saved version of what above would be
+` cbind(x = xG, fact.x = facxF, gamm.x = gammxG) `   :
+<!-- %` cbind(x = xF, fact.x = facxF) `   : -->
+
+
+Then, in Figure \@ref(fig:relE-fac-old)) we look at the current `R`\ 4.2.1's accuracy of
+`factorial(x)`  or equivalently `gamma(x+1)` , for the whole range
+of $x$ for which `factorial(x)`  is positive and finite.
+```{r relE-fac-old, echo=FALSE, fig.cap="|relative errors| of \"old\" R's factorial(). Comparing  `R 4.2.1`'s `factorial(x)` to the 256-bit `mpfr` version."}
+pfEpmO <- p.factEr(oldG[,"xF"], oldG[,"fact.x"], facMxF,
+                   ch.Rversion = attr(oldG, "R.version"),
+                   type="l", ylim2 = c(1e-17, 2e-13), doFirst = FALSE)
+```
+Note that $x!$ values for $x \in \{0,1,\dots,22\}$ are exact, as explained in Fig.~\@ref(fig:relE-gamm-old)'s caption above.
+We observe that it seems the simple product for integer $x$ should be used
+for all $n \in \{0,1, \dots, 170\}$, instead of just up to 50.
+
+For `factorial(x)` $ = x! = \Gamma(x+1)$, using $[0, 49]$ analogously, (Fig.\@ref{plot-factErr-1})
+```{r plot-factErr-1, fig=TRUE, fig.cap="new R `factorial(x)`, x in $[0,49]$"}
+str(i1 <- which(0 <= xF & xF <= 49)); stopifnot(!anyNA(i1))
+pfE1 <- p.factEr(xF[i1], facxF[i1], facMxF[i1])
+```
+This is really surprisingly different from the figure above!
+<!-- %% TODO: Fig.~\ref{} -->
+Note that the visual outliers can be easily be separated, and clustered
+very distinctively into 5 groups:
+```{r cluster-iLarge, fig=TRUE, fig.cap="Clustered outliers.  They are just below 4, 8, .., 32, i.e., $2^k$."}
+iLarge <- which(abs(pfE1[,"relErr"]) > 2e-15 |
+               (abs(pfE1[,"relErr"]) > 4e-16 & pfE1[,"x"] < 10))
+ xLrg <- xF[i1][iLarge]
+rELrg <-  pfE1 [iLarge, "relErr"]
+require(cluster)
+clLrg <- pam(xLrg, 4)
+str(split(xLrg, clLrg$clustering), digits=6)
+
+plot(abs(rELrg) ~ xLrg, type="o", log="xy", axes=FALSE, ylim=c(2e-17, 2e-14))
+xI <- outer(-1:0, 2^(2:5), `+`); cg <- adjustcolor("gray20", 1/3); abline(v = xI, lty=2, col=cg)
+eaxis(1, sub10=2, at=xI);  eaxis(2)
+lines(abs(pfE1[,"relErr"]) ~ xF[i1], col=cg, lwd=1/2)
+abline(h = 2^(0:2)*2^-53, col="orange", lty=3)
+```
+
+which shows for *some* (actually exactly $\frac 1 3$, i.e. one third)
+of the $x$ values in the intervals $(3,4)$, $(7,8)$, $(15,16)$, and $(31,32)$,
+there are "outliers" with quite substantial accuracy loss.
+
+For a typical one in interval $(3,4)$, if I do the multiplications manually in `R`,
+everything remains amazingly accurate:
+```{r relE-0.98}
+Mfac3.98 <- factorial(mpfr(3.98, 128)) ## all these three are the same
+c(asNumeric((factorial(0.98)*1.98*2.98*3.98)/Mfac3.98 - 1)
+, asNumeric((factorial(0.98)*(1+.98)*(2+.98)*(3+.98))/Mfac3.98 - 1)
+, asNumeric((gamma(1.98)*(1+.98)*(1+1+.98)*(1+1+1+.98))/Mfac3.98 - 1) )
+```
+where the error is only $2.43 \cdot 10^{-17}$, almost 10 times smaller than
+the computer epsilon $2^{-52}$,
+and about 80 times smaller than the 7.87..e-16 we got from `R`'s C-base
+evaluation `factorial(3.98)` .
+However, if I get close to what `R`\ does, I can now get
+```{r relE-0.98_RinC}
+c(asNumeric((gamma(4.98-3) * (4.98-1)*(4.98-2)*(4.98-3))/Mfac3.98 - 1) ,
+  asNumeric((gamma(4.98-3) * (4.98-3)*(4.98-2)*(4.98-1))/Mfac3.98 - 1) )
+```
+for which I see larger errors 6.345..e-16 and 7.871..e-16, respectively.
+
+Similar observation if we extend to the whole (finite $\Gamma()$) positive
+axis: $\Gamma(x)$ is perfectly accurate (new algorithm), whereas $x!$ has "outliers":
+
+```{r plot-gammErr-full, fig.cap="new R `gamma(x)`.  Whole finite-Gamma positive axis"}
+str(i2 <-  which(1 <= xG & xG <= 173)); stopifnot(!anyNA(i2))
+pgE2 <- p.gammEr(xG[i2], gammxG[i2], gammMxG[i2], ylim2=c(1e-18, 1e-15))
+```
+
+```{r plot-factErr-full, fig.cap="new R `factorial(x) == gamma(x+1)` in whole finite $x!$ positive axis"}
+str(i2 <-  which(0 <= xF & xF <= 172)); stopifnot(!anyNA(i2))
+pfE2 <- p.factEr(xF[i2], facxF[i2], facMxF[i2], ylim2=c(1e-18, 1e-15))
+```
+
+We find the accuracy of this by visualizing the relative error of `R`'s
+`gamma(x)`  wrt to the 256-bit accurate mpfr-values.
+
+<!-- ... FIXME ... -->
+
+For that, we the values from a saved version of what above would be
+` cbind(x = xF, fact.x = facxF) `   :
+
+```{r oldR-factEr}
+i.10 <- abs(xF+1) <= 10 # <==> -11 <= xF <= 9
+all.equal(facxF[i.10], oldG[i.10,"fact.x"])
+```
+which *differ* as we now use a different  ` value *= (..) ; `  scheme in the
+multiplication `for` -loop.
+% i.e., indeed, `gamma(x)`  is unchanged for $x \in [-10, 10]$, and hence,
+% `factorial(x)`  is unchanged for $x \in [-11,9]$.
+
+Now we choose larger $y$-axis limits (`ylim = *` ) to compare both the
+old and the new algorithm behavior:
+
+```{r plot-factErr-oldR-full-ylim, fig.cap="`R 4.2.1` (=\"old\") `gamma(x)` errors."}
+p.factEr(oldG[i2,"xF"], oldG[i2,"fact.x"], facMxF[i2],
+         ch.Rversion = attr(oldG, "R.version"), type="o",
+         ylim1 = c(-1,1)*8e-14, ylim2 = c(.5e-17, 2e-13))
+```
+
+```{r plot-factErr-newR-full-ylim, fig.cap="`R \"new\" `factorial(x)` errors."}
+p.factEr(xF[i2], facxF[i2], facMxF[i2], type="o",
+         ylim1 = c(-1,1)*8e-14, ylim2 = c(.5e-17, 2e-13))
+```
+
+and then using positive *and* negative arguments $x$ for the new algorithm,
+which is perfect for the $\Gamma(x) :=$`gamma(x)` ,
+
+```{r plot-gammErr-neg-pos, fig.cap="`R \"new\" `gamma(x)` errors. Full x range."}
+pgEpm <- p.gammEr(xG, gammxG, gammMxG, type="l", ylim2= c(1e-17, 2e-13))
+```
+
+but quite different, with the "outliers" for `factorial(x)`
+
+```{r plot-factErr-neg-pos, fig.cap="`R \"new\" `factorial(x)` errors. Full x range."}
+pfEpm <- p.factEr(xF, facxF, facMxF, type="l", ylim2= c(1e-17, 2e-13))
+```
+
+where for the "old" `R`\ version, we've seen the *absolute* values of
+the relative errors, i.e., the 2nd plot, already above in Fig.~\@ref(fig:relE-fac-old).
+
+Now compare the relative errors of the traditional "old" `gamma(.)`
+and the new one, using the simple recursion derived from the identity
+$\Gamma(x+1) = x\Gamma(x)$,
+i.e.,
+
+\begin{align}
+  \Gamma(x+1) & = x(x-1)\cdots(x-\fx+k+1)\Gamma(x-\fx+k) \textrm{\ for\ } k=0,1,\dots,\fx
+  \\ & \nonumber
+   \textrm{and where\ } \fx  is R's `floor(x)`.
+ (\#eq:Gamma-recursion)
+\end{align}
+
+Both old and new algorithm together, for  the $\Gamma(x) :=$`gamma(x)` ,
+
+
+```{r plot-gammErr-both, echo=FALSE, fig.cap = "|relative error gamma(x)|"}
+matpl2 <- function(x, y, main, ylim = c(2e-17, 2e-13),
+                   col = adjustcolor(2:1, 2/3), vcol = "sky blue",
+                   vert = c(-10, 10)) {
+    op <- par(mgp=c(2, .4, 0)); on.exit(par(op))
+    matplot(x, y, type="o", cex=1/2, pch=2:1, lty=1,
+            xlab=quote(x), ylab=quote(abs(rE)), main=main,
+            ylim=ylim, col=col, log="y", yaxt='n')
+    sfsmisc::eaxis(2, cex.axis=.8)
+    legend("top", c("new R devel", "old R 4.1.3"), col=col, lty=1, pch=2:1, bty='n')
+    abline(v = vert, lty=3, col=vcol)
+    for(s in c(1,3)) axis(s, at = vert, col=vcol, col.axis=vcol)
+}
+
+relE2 <- cbind(n.relE = pgEpm[,"relErr"], o.relE = pgEpmO[,"relErr"])
+matpl2(pgEpm[,"x"], relE2, main = "|relative error{ gamma(x) }|")
+```
+
+```{r plot-factErr-both, echo=FALSE, fig.cap = "|relative error gamma(x)|"}
+relE2 <- cbind(n.relE = pfEpm[,"relErr"], o.relE = pfEpmO[,"relErr"])
+matpl2(pfEpm[,"x"], relE2, main = "|relative error{ x! }|",
+       vert = c(-11,9))
+```
+
+## Extending the domain, i.e. range(x) with finite gamma()
+
+In addition to always use the new algorithm, i.e., use the
+recursion~(\@ref(eq:Gamma-recursion)),
+$ \Gamma(x+1) = x(x-1)\cdots(x-\fx+k+1)\Gamma(x-\fx+k)$ everywhere,
+we can also extended the range of $x$ which gives finite
+$\Gamma(x)=$`gamma(x)`  in `R`:
+
+Here, we want to determine the smallest and largest possible `x`  such
+that `gamma(x)`  is finite, *more** accurately (and allowing
+denormalized numbers) than `R`'s (internal) `gammalims()` , which had
+been hard coded to the interval  $(-170.567...., 171.614....)$.
+
+The upper bound `'xmax'`  :
+\\
+```{r compute-xmax}
+str(ur <- uniroot(function(x) asNumeric(gamma(mpfr(x, 256))/.Machine$double.xmax - 1),
+                  c(170,180), tol=1e-14), digits=12)
+xmax <- ur$root
+dput(xmax, , "digits") # 171.62437695630271
+asNumeric(gamma(mpfr(171.62437695630271, 256))/.Machine$double.xmax - 1)
+## -4.7749e-14  < 0  <==>  gamma(.) < Machine..xmax
+```
+
+The lower bound `'xmin'`  --- this considerably more delicate, as we
+have odd poles here at each negative integer, $\Gamma(x)$ "jumping" from
+$+\infty$ to $-\infty$ (or the other way round.
+In the end we will *not* use the value found here but rather even a
+slightly smaller one, $x_{\mathop{min}\Gamma} = -182$ and use a version of
+$\log\Gamma(x)$, i.e., code from `R`'s `lgamma()`  for values of $x$
+which lead to "sub normal" $gamma(x)$ values, i.e., \code{abs(gamma(x)) <
+.Machine\$double.xmin} ($ = 2^{-1022}$ for the IEEE double precision standard).
+\\
+```{r compute-xmin}
+str(uL <- uniroot(function(x) asNumeric(abs(gamma(mpfr(x, 256))/2^-1073.9999) - 1),
+                  c(-180.1, -170.1), tol=1e-14), digits=12)
+dput(uL$root, , "digits") # -177.56341258681965
+
+asNumeric(gamma(mpfr(-177.56341258681965, 256))/2^-1073.9999 - 1)
+## 1.71551e-14 > 0  <==> gamma(.) > Machine..denormalized_xmin  .. good
+```
+
+Consequently, the proposal is to have in `R`'s source `<R>/src/nmath/gamma.c` ,
+```
+// now allowing denormalized result
+# define xmin -177.56341258681965 // was -170.5674972726612
+# define xmax  171.62437695630271 // was  171.61447887182298
+```
+
+However, on April 29, 2022, analyzing more on these experiments, now in
+accompanying file
+`gamma-inaccuracy\_R/gamma-subnormal.R` ,
+%%    gamma-inaccuracy_R/gamma-subnormal.R
+we've found two properties
+
+<!-- \begin{enumerate} -->
+-  In the case of "no `"long.double"`  ",  and in the subnormal
+  range, I've found that  `exp(lgamma(x))`  *with correct sign*
+  is clearly superior to the recursive formula !!
+-  In the (typical) `"long.double"`  case, we've further seen that
+  we should *not* "explicitly" underflow to zero, i.e., via
+  ` if(x < xmin) return(0) `  too quickly (say for `xmin = -177.5635` ),
+  but rather use our code down to about `xmin := -178.1`  .
+<!-- \end{enumerate} -->
+
+**TODO**: show more here
+
+And indeed, we can see
+```{r gamma-xtreme}
+if(capabilities("long.double")) withAutoprint({
+ gamma(-177.56341258681968 * (1 - c(0, 2e-16))) #  0  4.4907e-324
+ gamma(-177.56341258681962) # 4.4907e-324
+ gamma(-177.56341258681962) == 2^-1074
+}) else withAutoprint({ ## no long double
+ gamma(-177.44546702405586 * (1 - c(0, 2e-16))) #  0  1.976263e-323
+ gamma(-177.44546702405583) # 1.976263e-323
+ gamma(-177.44546702405583) == 2^-1072
+})
+
+## The upper boundary is correctly giving  (1.7977e308, Inf)  {with and withOUT long double}:
+gamma( 171.62437695630271 * (1 + c(0, 3e-16)))
+```
+
+### Conclusion:
+`gamma(x)` itself suffers from the fact that `exp(y)` has a *large* relative error,
+  when  $\abs{y} \approx 100$ or so, more specifically, the
+relative error of  $\exp(y) = \abs{y} \cdot rel.err(y)$ , since
+`exp(((1+ eps)*y) = exp(y) * exp(eps*y) >=  exp(y) (1 + eps*y)`  and indeed,
+the inaccuracy of y (i.e. eps)  is blown up by a factor |y|  which is not small here!
+
+### Session Information
+\nopagebreak
+```{r final-info}
+capabilities("long.double")
+sessionInfo()
+```
+
+```{r finalizing, echo=FALSE}
+options(op.orig)
+```
+
+\bibliography{gamma-inacc}

@@ -4,7 +4,7 @@
 \title{Rmpfr News}
 \encoding{UTF-8}
 
-\section{Changes in version 0.9-0 [2022-08-12, r370]}{
+\section{Changes in version 0.9-0 [2023-1-5, r372]}{
   \subsection{NEW FEATURES}{
     \itemize{
       \item Add the \code{extendInt="*"} option to \code{unirootR()}
@@ -16,6 +16,9 @@
       \item New \code{qnormI()}, the normal quantile function, computed via
       inversion of (our potentially arbitrarily accurate) \code{pnorm()},
       using \code{unirootR()} root finding.
+
+      \item Start vignette about \code{gamma()} inaccuracies and possible
+      remedies (is \bold{unfinished}).
     }
   }
   \subsection{BUG FIXES}{
