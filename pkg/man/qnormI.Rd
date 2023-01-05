@@ -46,21 +46,37 @@ qnormI(p, mean = 0, sd = 1, lower.tail = TRUE, log.p = FALSE,
  Standard \R's \code{\link[stats]{qnorm}}.
 }
 \examples{
+doX <- Rmpfr:::doExtras() # slow parts only if(doX)
+cat("doExtras: ", doX, "\n")
 p  <- (0:32)/32
 lp <- -c(1000, 500, 200, 100, 50, 20:1, 2^-(1:8))
+if(doX) {
+  tol1 <- 2.3e-16
+  tolM <- 1e-20
+  tolRIlog <- 4e-14
+} else { # use only half the points:
+   p <-  p[c(TRUE,FALSE)]
+  lp <- lp[c(TRUE,FALSE)]
+  tol1 <- 1e-9
+  tolM <- 1e-12
+  tolRIlog <- 10*tolM # ??
+}
 
+f.all.eq <- function(a,b)
+  sub("^Mean relative difference:", '', format(all.equal(a, b, tol=0)))
 for(logp  in c(FALSE,TRUE)) {
   pp <- if(logp) lp else p
-  mp <- mpfr(pp, precBits = 80) # precBits = 128 gave "the same"
+  mp <- mpfr(pp, precBits = if(doX) 80 else 64) # precBits = 128 gave "the same" as 80
   for(l.tail in c(FALSE,TRUE)) {
       qn <- qnorm (pp, lower.tail = l.tail, log.p = logp)
-     qnI <- qnormI(pp, lower.tail = l.tail, log.p = logp, tol = 2.3e-16)
-     qnM <- qnormI(mp, lower.tail = l.tail, log.p = logp, tol =   1e-20)
-     cat(sprintf("Accuracy of qnorm(*, lower.t=\%-5s, log.p=\%-5s): \%s\n",
-                 l.tail, logp, format(all.equal(qnM, qn, tol=0))))
+     qnI <- qnormI(pp, lower.tail = l.tail, log.p = logp, tol = tol1)
+     qnM <- qnormI(mp, lower.tail = l.tail, log.p = logp, tol = tolM)
+     cat(sprintf("Accuracy of qnorm(*, lower.t=\%-5s, log.p=\%-5s): \%s || qnI: \%s\n",
+                 l.tail, logp, f.all.eq(qnM, qn ),
+                               f.all.eq(qnM, qnI)))
      stopifnot(exprs = {
-        all.equal(qn,  qnI, tol = if(logp) 4e-14 else 8e-16)
-        all.equal(qnM, qnI, tol = 2.3e-16)
+        all.equal(qn,  qnI, tol = if(logp) tolRIlog else 4*tol1)
+        all.equal(qnM, qnI, tol = tol1)
      })
   }
 }
@@ -82,17 +98,26 @@ log(pM) # ... 233 bits: -3196577161300663205.85759196211156141481203239336338270
 %% FIXME : here, the internal qnInt() gives (-Inf, -Inf) :
 try( qnormI(pM) ) ## Error: lower < upper not fulfilled (evt. TODO)
 ## but this works
-(qnI <- qnormI(log(pM), log.p=TRUE))
+(qnI <- qnormI(log(pM), log.p=TRUE)) #  -2528468770.343293436
 all.equal(-qM, qnI, tol = 0) # << show how close
 stopifnot( all.equal(-qM, qnI, tol = 1e-18) )# see 1.084202e-19
 
-if(FALSE) # this (*SLOW*) gives 21 x the exact *same* result --- FIXME!
-qnormI(log(pM) * (2:22), log.p=TRUE)
-%% 21 'mpfr' numbers of precision  233   bits
+if(FALSE) # this (*SLOW*) gives 21 x the *same* (wrong) result --- FIXME!
+  qnormI(log(pM) * (2:22), log.p=TRUE)
+%% 21 'mpfr' numbers of precision 233 bits --- actually see *2* slightly differing:
 %%  [1] -2528468770.34329343681076815919728151437393281585185631490875396946906388
 %%  [2] -2528468770.34329343681076815919728151437393281585185631490875396946906388
 %%  ...............
+%% [20] -2528468770.34329343681076815919728151437393281585185631490875396946906419 <<
 %% [21] -2528468770.34329343681076815919728151437393281585185631490875396946906388
+if(doX) ## Show how bad it is (currently ca. 220 iterations, and then *wrong*)
+ str(qnormI(round(log(pM)), log.p=TRUE, trace=1, give.full = TRUE))
+if(requireNamespace("DPQ"))
+  new("mpfr", DPQ::qnormR(pM, trace=1))
+  # qnormR1(p=         0, m=0, s=1, l.t.= 1, log= 0): q = -0.5
+  #    somewhat close to 0 or 1: r := sqrt(-lp) =  1.7879e+09
+  #    r > 5, using rational form R_3(t), for t=1.787897e+09  -- that is *not* accurate
+  # [1] -94658744.369295865460462720............
 
 
 ## reset to previous status if needed
