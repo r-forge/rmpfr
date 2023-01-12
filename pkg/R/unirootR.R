@@ -283,23 +283,24 @@ qnorm(p) == q   <==>  pnorm(q) == p
 qnormI <- function(p, mean = 0, sd = 1, lower.tail = TRUE, log.p = FALSE,
                    trace = 0, verbose = as.logical(trace), # <- identical defaults as unirootR()
                    tol, # for "base" = .Machine$double.eps^0.25, but here use getPrec()
+                   useMpfr = any(prec > 53), # if true, use mpfr
                    give.full = FALSE,
                    ...) # <- arguments to pass to unirootR()
 {
+    ## The function  whose "zeros" aka "roots" we want to find:
     zFun <- function(q) pnorm(q, mean=mean, sd=sd, lower.tail=lower.tail, log.p=log.p) - p.
     if(missing(tol) || !is.finite(tol)) {
-        prec <- getPrec(if(missing(mean) && missing(sd)) p else p+(mean+sd))
+        prec <- max(getPrec(if(missing(mean) && missing(sd)) p else p+(mean+sd)))
         ## not max(getPrec(c(p, mean, sd)))  as it's >= 128 by default
-        tol <- 2^-(prec - 1)
+        tol <- 2^-(prec + 2) # 2^(-prec - 1) gives less accurate
     } else
         prec <- as.integer(ceiling(1 - log2(tol)))
-    useM <- (prec > 53) # if true, use mpfr
     ##
-    if(verbose) cat(sprintf("prec=%d ==> useM=%s:\n", prec, format(useM)))
+    if(verbose) cat(sprintf("prec=%d ==> useMpfr=%s:\n", prec, format(useMpfr)))
     verbDigs <- if(any(is.vd <- "verbDigits" == ...names()))
                  ...elt(which(is.vd))
              else max(3, min(20, -log10(tol)/2))
-    if(useM) { ## This **IS** important here:
+    if(useMpfr) { ## This **IS** important here:
         old_eranges <- .mpfr_erange() # typically -/+ 2^30
         myERng <- (1-2^-52) * .mpfr_erange(c("min.emin","max.emax"))
         if(!isTRUE(all.equal(myERng, old_eranges))) {
@@ -313,9 +314,9 @@ qnormI <- function(p, mean = 0, sd = 1, lower.tail = TRUE, log.p = FALSE,
     ## Notably for the relevant (p <<< -1, log.p=TRUE) case !
     qnInt <-
         if(log.p) {
-            Pi <- if(useM) Const("pi", prec) else pi
+            Pi <- if(useMpfr) Const("pi", prec) else pi
             function(p) { s2 <- -2*p
-                if(useM && !inherits(s2, "mpfr")) s2 <- mpfr(s2, precBits = prec)
+                if(useMpfr && !inherits(s2, "mpfr")) s2 <- mpfr(s2, precBits = prec)
                 xs1 <- s2 - log(2*Pi*s2)
                 if(p < -54) {
                     qn <- sqrt(s2 - log(2*Pi*xs1)); e <- 1e-4
@@ -329,7 +330,7 @@ qnormI <- function(p, mean = 0, sd = 1, lower.tail = TRUE, log.p = FALSE,
                 qn*(sgn + c(-e,e))
             }
         } else { ## log.p is FALSE
-            Id <- if(useM) function(.) mpfr(., precBits = prec) else identity
+            Id <- if(useMpfr) function(.) mpfr(., precBits = prec) else identity
             function(p) { q <- stats__qnorm(asNumeric(p), lower.tail=lower.tail)
                 Id(if(abs(q) < 1e-3) c(-2,2)*1e-3 else c(.99, 1.01) * q)
             }
@@ -339,7 +340,7 @@ qnormI <- function(p, mean = 0, sd = 1, lower.tail = TRUE, log.p = FALSE,
     .p_1 <- as.integer(!log.p)
     .p_0 <- if (log.p) -Inf else 0
     r <- if(give.full) vector("list", length(p))
-         else if(useM) mpfr(p, precBits=prec)
+         else if(useMpfr) mpfr(p, precBits=prec)
          else p
     for(ip in seq_along(p)) {
         p. <- p[ip]

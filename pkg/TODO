@@ -21,6 +21,7 @@
 *** TODO Split this section into  Short | Mid  (?)
 ** TODO 66) Improve pnorm(*, log.p=TRUE) using Abramowitz asymptotic formulas ==> 1st need Rmpfr'ified DPQ:pnormAsymp()
    Abramowitz and Stegun (1972), p.932, (26.2.12) and (26.2.13)   see also ~/R/Pkgs/DPQ/vignettes/qnorm-asymp.Rnw
+*** TODO 66a) "mpfrify" pnormAsymp() and qnormAsymp() but in pkg {DPQmpfr} !!
 ** TODO 60) Should have *exact* as.bigq.mpfr(), i.e, "mpfr" --> "bigq". (R's "bigq" is C 'mpq')
 ** TODO 62) integrateR(): option 'all.sums=TRUE' --> R/integrate-Romberg.R
 ***  Inside the GMP library, have

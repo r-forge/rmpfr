@@ -7,10 +7,11 @@
   \code{\link[Rmpfr]{pnorm}()}, using our \code{\link{unirootR}()} root
   finder.
 }
-\usage{
+\usage{%--> ../R/unirootR.R
 qnormI(p, mean = 0, sd = 1, lower.tail = TRUE, log.p = FALSE,
        trace = 0, verbose = as.logical(trace),
        tol,
+       useMpfr = any(prec > 53),
        give.full = FALSE,
        \dots)
 }
@@ -26,7 +27,11 @@ qnormI(p, mean = 0, sd = 1, lower.tail = TRUE, log.p = FALSE,
     information about a search interval extension will be printed to the console.}
   \item{verbose}{logical indicating if progress details should be printed
     to the console.}
-  \item{tol}{the desired accuracy (convergence tolerance).}
+  \item{tol}{optionally the desired accuracy (convergence tolerance); if
+    missing or not finite, it is computed as \eqn{2^-{pr+2}} where the
+    precision \eqn{pr} is basically \code{max(\link{getPrec}(p+mean+sd))}.}
+  \item{useMpfr}{logical indicating if \code{\link{mpfr}} arithmetic should
+    be used.}%  Its default is derived from \code{tol} when that is specified.}
   \item{give.full}{logical indicating if the \emph{full} result of
     \code{\link{unirootR}()} should be returned (when applicable).}
   \item{\dots}{optional further arguments passed to \code{\link{unirootR}()}
@@ -81,6 +86,20 @@ for(logp  in c(FALSE,TRUE)) {
   }
 }
 
+## useMpfr, using mpfr()  :
+if(doX) {
+  p2 <- 2^-c(1:27, 5*(6:20), 20*(6:15))
+  e2 <- 88
+} else {
+  p2 <- 2^-c(1:7, 77, 177, 307)
+  e2 <- 64
+}
+system.time( pn2 <- pnorm(qnormI(mpfr(p2, e2))) ) # 4.1 or 0.68
+           all.equal(p2, pn2, tol = 0) # 5.48e-29 // 1.05e-21
+2^-e2
+stopifnot(all.equal(p2, pn2, tol = 2^-e2))
+
+
 ## Boundary -- from limits in mpfr maximal exponent range!
 ## 1) Use maximal ranges:
 old_eranges <- .mpfr_erange() # typically -/+ 2^30
@@ -92,7 +111,7 @@ if(doIncr) .mpfr_erange_set(value = myERng)
 (qM <- mpfr("2528468770.343293436810768159197281514373932815851856314908753969469064"))
 ##           1 3 5 7 9  1 3 5 7 9 1 3 5 7 9 1 3 5 7 9 1 3 5 7 9 1 3 5 7 9 1 3 5 7 9 1 3 5 7 9 1
 ##                     10        20        30        40        50        60        70        80
-(pM <- pnorm(-qM)) # precision  223   bits
+(pM <- pnorm(-qM)) # precision  233   bits
  ## 7.64890682545699845135633468495894619457903458325606933043966616334460003e-1388255822130839040
 log(pM) # ... 233 bits: -3196577161300663205.85759196211156141481203239336338270527868730785529034
 %% FIXME : here, the internal qnInt() gives (-Inf, -Inf) :

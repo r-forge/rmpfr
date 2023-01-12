@@ -1,7 +1,7 @@
 Package: Rmpfr
 Title: R MPFR - Multiple Precision Floating-Point Reliable
 Version: 0.9-0
-Date: 2022-12-31
+Date: 2023-01-12
 DateNote: Previous CRAN version 0.8-9 on 2022-06-02
 Type: Package
 Authors@R: c(person("Martin","Maechler", role = c("aut","cre"),
@@ -27,8 +27,8 @@ Depends: gmp (>= 0.6-1), R (>= 3.5.0)
 Imports: stats, utils, methods
 Suggests: MASS, Bessel, polynom, sfsmisc (>= 1.1-14)
 SuggestsNote: MASS, polynom, sfsmisc: only for vignette;
-Enhances: dfoptim, pracma
-EnhancesNote: mentioned in Rd xrefs
+Enhances: dfoptim, pracma, DPQ
+EnhancesNote: mentioned in Rd xrefs | used in example
 URL: https://rmpfr.r-forge.r-project.org/
 BugReports: https://r-forge.r-project.org/tracker/?group_id=386
 License: GPL (>= 2)

@@ -1,5 +1,5 @@
 \name{mpfr-distr-etc}
-\title{Distribution Functions etc (MPFR)}
+\title{Distribution Functions with MPFR Arithmetic}
 \alias{pnorm}
 \alias{dnorm}
 \alias{dbinom}
