@@ -21,6 +21,7 @@ auto
 R/.*\.R\+.*
 src/Makevars$
 log1mexp-artcl.*
+vignettes/.*\.pdf$
 inst/doc/MPFR_Fousse_etal
 inst/doc/MM-poster
 inst/doc/20[12]

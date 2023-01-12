@@ -4,7 +4,7 @@
 \title{Rmpfr News}
 \encoding{UTF-8}
 
-\section{Changes in version 0.9-0 [2023-1-12, r374]}{
+\section{Changes in version 0.9-0 [2023-01-12, r375]}{
   \subsection{NEW FEATURES}{
     \itemize{
       \item Add the \code{extendInt="*"} option to \code{unirootR()}
@@ -19,10 +19,17 @@
 
       \item Start vignette about \code{gamma()} inaccuracies and possible
       remedies (is \bold{unfinished}).
+
+      \item \code{sapplyMpfr()} gets \code{drop_1_ = TRUE} option,
+      \emph{changing} default behaviour to return an \code{"mpfr"} vector
+      instead of a 1-column \code{"mpfrMatrix"}.
     }
   }
   \subsection{BUG FIXES}{
      \itemize{
+       \item \code{sapplyMpfr()} now gets the correct dimension when it returns
+       an \code{"mpfrMatrix"} (or \code{"*array"}).
+
        \item Fix \code{\\eqn{(\\gamma)}{}} - as requested by KH (June 9).
     }
   }
