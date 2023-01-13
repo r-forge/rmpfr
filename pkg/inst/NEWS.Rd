@@ -4,7 +4,7 @@
 \title{Rmpfr News}
 \encoding{UTF-8}
 
-\section{Changes in version 0.9-0 [2023-01-12, r375]}{
+\section{Changes in version 0.9-0 [2023-01-13, r376]}{
   \subsection{NEW FEATURES}{
     \itemize{
       \item Add the \code{extendInt="*"} option to \code{unirootR()}
@@ -31,6 +31,9 @@
        an \code{"mpfrMatrix"} (or \code{"*array"}).
 
        \item Fix \code{\\eqn{(\\gamma)}{}} - as requested by KH (June 9).
+
+       \item \code{.mpfr_gmp_numbbits()} is documented now (notably as I
+       see it is only 32 on Winbuilder (!)).
     }
   }
 }

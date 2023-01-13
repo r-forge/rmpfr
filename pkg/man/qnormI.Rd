@@ -102,10 +102,13 @@ stopifnot(all.equal(p2, pn2, tol = 2^-e2))
 
 ## Boundary -- from limits in mpfr maximal exponent range!
 ## 1) Use maximal ranges:
-old_eranges <- .mpfr_erange() # typically -/+ 2^30
+(old_eranges <- .mpfr_erange()) # typically -/+ 2^30
 (myERng <- (1-2^-52) * .mpfr_erange(c("min.emin","max.emax")))
-doIncr <- !isTRUE(all.equal(myERng, old_eranges))
+(doIncr <- !isTRUE(all.equal(unname(myERng), unname(old_eranges))))
 if(doIncr) .mpfr_erange_set(value = myERng)
+
+log2(abs(.mpfr_erange()))# 62 62 if the above increase worked
+lrgOK <- all(log2(abs(.mpfr_erange())) >= 62)
 
 ## The largest quantile for which our mpfr-ized qnorm() does *NOT* underflow :
 (qM <- mpfr("2528468770.343293436810768159197281514373932815851856314908753969469064"))
@@ -118,8 +121,9 @@ log(pM) # ... 233 bits: -3196577161300663205.85759196211156141481203239336338270
 try( qnormI(pM) ) ## Error: lower < upper not fulfilled (evt. TODO)
 ## but this works
 (qnI <- qnormI(log(pM), log.p=TRUE)) #  -2528468770.343293436
-all.equal(-qM, qnI, tol = 0) # << show how close
-stopifnot( all.equal(-qM, qnI, tol = 1e-18) )# see 1.084202e-19
+all.equal(-qM, qnI, tol = 0) # << show how close; seen  1.084202e-19
+if(lrgOK)
+ stopifnot( all.equal(-qM, qnI, tol = 1e-18) )
 
 if(FALSE) # this (*SLOW*) gives 21 x the *same* (wrong) result --- FIXME!
   qnormI(log(pM) * (2:22), log.p=TRUE)
