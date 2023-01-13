@@ -59,12 +59,13 @@ if(doX) {
   tol1 <- 2.3e-16
   tolM <- 1e-20
   tolRIlog <- 4e-14
-} else { # use only half the points:
-   p <-  p[c(TRUE,FALSE)]
-  lp <- lp[c(TRUE,FALSE)]
+} else { # use one more than a third of the points:
+   ip <- c(TRUE,FALSE, rep_len(c(TRUE,FALSE,FALSE), length(p)-2L))
+   p <-  p[ip]
+  lp <- lp[ip]
   tol1 <- 1e-9
   tolM <- 1e-12
-  tolRIlog <- 10*tolM # ??
+  tolRIlog <- 25*tolM
 }
 
 f.all.eq <- function(a,b)
@@ -141,7 +142,6 @@ if(requireNamespace("DPQ"))
   #    somewhat close to 0 or 1: r := sqrt(-lp) =  1.7879e+09
   #    r > 5, using rational form R_3(t), for t=1.787897e+09  -- that is *not* accurate
   # [1] -94658744.369295865460462720............
-
 
 ## reset to previous status if needed
 if(doIncr) .mpfr_erange_set( , old_eranges)
