@@ -136,7 +136,7 @@ if(FALSE) # this (*SLOW*) gives 21 x the *same* (wrong) result --- FIXME!
 if(doX) ## Show how bad it is (currently ca. 220 iterations, and then *wrong*)
  str(qnormI(round(log(pM)), log.p=TRUE, trace=1, give.full = TRUE))
 if(requireNamespace("DPQ"))
-  new("mpfr", DPQ::qnormR(pM, trace=1))
+  new("mpfr", as(DPQ::qnormR(pM, trace=1), "mpfr")) # as(*, "mpfr") also works for +/- Inf
   # qnormR1(p=         0, m=0, s=1, l.t.= 1, log= 0): q = -0.5
   #    somewhat close to 0 or 1: r := sqrt(-lp) =  1.7879e+09
   #    r > 5, using rational form R_3(t), for t=1.787897e+09  -- that is *not* accurate
