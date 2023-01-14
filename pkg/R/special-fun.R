@@ -34,10 +34,11 @@ pnorm <- function (q, mean = 0, sd = 1, lower.tail = TRUE, log.p = FALSE)
 	    rr[neg] <- pnorm(-q[neg], lower.tail = !lower.tail, log.p=log.p)
 	if(any(pos <- !neg)) {
 	    q <- q[pos] #==> now  q >= 0
-	    prec.q <- max(.getPrec(q)) + 4L # "+4" seems needed
-	    two <- mpfr(2, prec.q)
-	    Irt2 <- sqrt(mpfr(0.5, prec.q)) # 1 / sqrt(2)
-	    rr[pos] <- if(lower.tail) {
+	    prec.q <- max(.getPrec(q))
+	    two <- mpfr(2, prec.q + 4L)
+	    Irt2 <- sqrt(mpfr(0.5, prec.q + 4L)) # 1 / sqrt(2)
+	    rr[pos] <- roundMpfr(precBits = prec.q,
+              if(lower.tail) {
 		if(log.p) {
 		    r <- q
 		    sml <- q < 0.67448975
@@ -57,7 +58,7 @@ pnorm <- function (q, mean = 0, sd = 1, lower.tail = TRUE, log.p = FALSE)
 	    } else { ## upper.tail
 		r <- erfc(q*Irt2) / 2
 		if(log.p) log(r) else r
-	    }
+	    })
 	}
 	rr
     } else stop("(q,mean,sd) must be numeric or \"mpfr\"")

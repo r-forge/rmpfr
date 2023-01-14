@@ -137,7 +137,7 @@ unirootR <- function(f, interval, ...,
 	    }
 	}
     }
-    if(tol < epsC)
+    if(tol < epsC / 8) # "8 fudge factor" (otherwise happens too often)
         warning(sprintf("tol (%g) < epsC (%g)  is rarely sensical,
  and the resulting precision is probably not better than epsC",
                         tol, epsC))
