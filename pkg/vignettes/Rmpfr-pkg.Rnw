@@ -618,7 +618,7 @@ On the extreme left tail, \R{} correctly computes
 <<pnorm-extr>>=
 pnorm(-1234, log.p=TRUE)
 @
-i.e., \code{-761386.03695539} to more digits.
+i.e., \code{-761386.036955} to more digits.
 However, \code{erf()}  and \code{erfc()} do not have a log scale or other scaled versions.
 
 Thanks to the large range of exponents compared to double precision numbers it does less quickly underflow to zero, e.g.,
@@ -629,7 +629,8 @@ Thanks to the large range of exponents compared to double precision numbers it d
 
 (p333 <- Rmpfr::pnorm(mpfr(-333, 66), log.p=TRUE))
 exp(p333)
-stopifnot(p123 == log(ec123), all.equal(p333, -55451.22709, tol=1e-8))
+stopifnot(p123 == log(roundMpfr(ec123, 66)), ## '==' as we implemented our pnorm() 
+          all.equal(p333, -55451.22709, tol=1e-8))
 @
 and indeed, the default range for exponent (wrt base 2, not 10) is given by
 <<mpfr-erange>>=
