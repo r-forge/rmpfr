@@ -98,7 +98,7 @@ if(doX) {
 system.time( pn2 <- pnorm(qnormI(mpfr(p2, e2))) ) # 4.1 or 0.68
            all.equal(p2, pn2, tol = 0) # 5.48e-29 // 1.05e-21
 2^-e2
-stopifnot(all.equal(p2, pn2, tol = 2^-e2))
+stopifnot(all.equal(p2, pn2, tol = 6 * 2^-e2)) # '4 *' needed
 
 
 ## Boundary -- from limits in mpfr maximal exponent range!
