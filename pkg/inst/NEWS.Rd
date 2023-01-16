@@ -4,7 +4,12 @@
 \title{Rmpfr News}
 \encoding{UTF-8}
 
-\section{Changes in version 0.9-0 [2023-01-15, r380]}{
+%% -- not yet in tar ball --
+      %% \item Start vignette about \code{gamma()} inaccuracies and possible
+      %% remedies (is \bold{unfinished}).
+
+
+\section{Changes in version 0.9-0 [2023-01-16, r382]}{
   \subsection{NEW FEATURES}{
     \itemize{
       \item Add the \code{extendInt="*"} option to \code{unirootR()}
@@ -16,9 +21,6 @@
       \item New \code{qnormI()}, the normal quantile function, computed via
       inversion of (our potentially arbitrarily accurate) \code{pnorm()},
       using \code{unirootR()} root finding.
-
-      \item Start vignette about \code{gamma()} inaccuracies and possible
-      remedies (is \bold{unfinished}).
 
       \item \code{sapplyMpfr()} gets \code{drop_1_ = TRUE} option,
       \emph{changing} default behaviour to return an \code{"mpfr"} vector
