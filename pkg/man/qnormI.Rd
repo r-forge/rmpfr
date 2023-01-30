@@ -1,4 +1,4 @@
-se\name{qnormI}
+\name{qnormI}
 \alias{qnormI}
 \title{Gaussian / Normal Quantiles \code{qnorm()} via Inversion}
 \description{
