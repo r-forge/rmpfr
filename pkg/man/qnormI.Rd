@@ -111,18 +111,21 @@ if(doIncr) .mpfr_erange_set(value = myERng)
 log2(abs(.mpfr_erange()))# 62 62 if the above increase worked
 (lrgOK <- all(log2(abs(.mpfr_erange())) >= 62))
                                         # currently(2023-01) FALSE on Windows
+## The largest quantile for which our mpfr-ized qnorm() does *NOT* underflow :
+cM <- if(doX) { "2528468770.343293436810768159197281514373932815851856314908753969469064"
+      } else    "2528468770.34329343681"
+##               1 3 5 7 9  1 3 5 7 9 1 3 5 7 9 1 3 5 7 9 1 3 5 7 9 1 3 5 7 9 1 3 5 7 9 1 3
+##                       10         20        30        40        50        60        70
+(qM <- mpfr(cM))
+(pM <- pnorm(-qM)) # precision  233   bits  if(doX)
+## 7.64890682545699845135633468495894619457903458325606933043966616334460003e-1388255822130839040
+log(pM) # 233 bits: -3196577161300663205.8575919621115614148120323933633827052786873078552904
+
 if(lrgOK) {
-  ## The largest quantile for which our mpfr-ized qnorm() does *NOT* underflow :
-  (qM <- mpfr("2528468770.343293436810768159197281514373932815851856314908753969469064"))
-  ##           1 3 5 7 9  1 3 5 7 9 1 3 5 7 9 1 3 5 7 9 1 3 5 7 9 1 3 5 7 9 1 3 5 7 9 1 3
-  ##                     10        20        30        40        50        60        70
-  (pM <- pnorm(-qM)) # precision  233   bits
-  ## 7.64890682545699845135633468495894619457903458325606933043966616334460003e-1388255822130839040
-  log(pM) # 233 bits: -3196577161300663205.8575919621115614148120323933633827052786873078552904
   %% FIXME : here, the internal qnInt() gives (-Inf, -Inf) :
   try( qnormI(pM) ) ## Error: lower < upper not fulfilled (evt. TODO)
   ## but this works
-  (qnI <- qnormI(log(pM), log.p=TRUE)) #  -2528468770.343293436
+  print(qnI <- qnormI(log(pM), log.p=TRUE)) #  -2528468770.343293436
   all.equal(-qM, qnI, tol = 0) # << show how close; seen  1.084202e-19
   stopifnot( all.equal(-qM, qnI, tol = 1e-18) )
 }
