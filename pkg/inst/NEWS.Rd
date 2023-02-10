@@ -7,6 +7,19 @@
 %% -- not yet in tar ball --
       %% \item Start vignette about \code{gamma()} inaccuracies and possible
       %% remedies (is \bold{unfinished}).
+\section{Changes in version 0.9-2 [2023-02-10, r387]}{
+  \subsection{BUG FIXES}{
+    \itemize{
+      \item \code{igamma()}, \code{hypot()}, and \code{atan2()} no longer
+      only return 53 bit (or more generally, mpfr default precision)
+      results.
+
+      \item New \code{max2_prec()} utility instead of \code{imax2()},
+      also curing compilation warning.
+    }
+  }
+}
+
 \section{Changes in version 0.9-1 [2023-01-30, r386]}{
   \subsection{BUG FIXES}{
     \itemize{
