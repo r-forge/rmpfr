@@ -488,6 +488,8 @@ SEXP R_mpfr_formatinfo(SEXP x) {
  *     -------------   -----------------==> set digits  <=>  max(digit, getPrec(x), #{"digits left of '.'"}))
  *
  *  Rmpfr:::.mpfr_debug(1)  ==> to add debug output here
+ *
+ * mpfr2str() is the workhorse for R level  formatMpfr() , called from format(<mpfr>) <- print(<mpfr>)
  */
 SEXP mpfr2str(SEXP x, SEXP digits, SEXP maybeFull, SEXP base) {
     int n = length(x), i;

@@ -7,7 +7,16 @@
 %% -- not yet in tar ball --
       %% \item Start vignette about \code{gamma()} inaccuracies and possible
       %% remedies (is \bold{unfinished}).
-\section{Changes in version 0.9-2 [2023-02-10, r387]}{
+\section{Changes in version 0.9-2 [2023-03-29, r388]}{
+  \subsection{USER-VISIBLE CHANGES}{
+    \itemize{
+      \item \code{formatMpfr()} and hence the \code{format()} method for
+      \code{"mpfr"} etc now uses a \code{scientific = <number>} the same as
+      \pkg{base} \code{format.default()};  accidentally it had the
+      \emph{sign} of the number interpreted differently and failed to use
+      e.g., \code{getOption("scipen")} correctly.
+    }
+  }
   \subsection{BUG FIXES}{
     \itemize{
       \item \code{igamma()}, \code{hypot()}, and \code{atan2()} no longer
