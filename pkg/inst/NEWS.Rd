@@ -7,7 +7,7 @@
 %% -- not yet in tar ball --
       %% \item Start vignette about \code{gamma()} inaccuracies and possible
       %% remedies (is \bold{unfinished}).
-\section{Changes in version 0.9-2 [2023-04-03, r389]}{
+\section{Changes in version 0.9-2 [2023-04-03, r390]}{
   \subsection{USER-VISIBLE CHANGES}{
     \itemize{
       \item \code{formatMpfr()} and hence the \code{format()} method for

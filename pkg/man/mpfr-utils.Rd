@@ -235,7 +235,7 @@ mpfrImport(mxp)
   \emph{and} is not undefined but ...)% FIXME
 
   \code{.mpfr_sign(x)} only works for \code{mpfr} objects, then identical
-  to \code{\link{sign(x)}}.  Analogously, \code{.mpfr_negative(x)} is
+  to \code{\link{sign}(x)}.  Analogously, \code{.mpfr_negative(x)} is
   \code{-x} in that case.
   \code{.getSign(x)} is a low-level version of \code{\link{sign}(x)}
   returning -1 or +1, but not 0.
