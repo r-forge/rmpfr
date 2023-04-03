@@ -7,7 +7,7 @@
 %% -- not yet in tar ball --
       %% \item Start vignette about \code{gamma()} inaccuracies and possible
       %% remedies (is \bold{unfinished}).
-\section{Changes in version 0.9-2 [2023-03-29, r388]}{
+\section{Changes in version 0.9-2 [2023-04-03, r389]}{
   \subsection{USER-VISIBLE CHANGES}{
     \itemize{
       \item \code{formatMpfr()} and hence the \code{format()} method for
@@ -25,6 +25,9 @@
 
       \item New \code{max2_prec()} utility instead of \code{imax2()},
       also curing compilation warning.
+
+      \item Internal (exported) objects are now (somewhat) documented, as
+      eventually required by \R.
     }
   }
 }
