@@ -518,7 +518,7 @@ SEXP mpfr2str(SEXP x, SEXP digits, SEXP maybeFull, SEXP base) {
 
     Rboolean base_is_2_power = (B == 2 || B == 4 || B == 8 || B == 16 || B == 32);
     Rboolean n_dig_1_problem = (n_dig == 1) && base_is_2_power;
-    size_t N_digits = n_dig_1_problem ? 2 : n_dig;
+    int N_digits = n_dig_1_problem ? 2 : n_dig;
     static const char *ans_nms[] = {"str", "exp", "finite", "is.0", ""};
     SEXP val = PROTECT(mkNamed(VECSXP, ans_nms)), str, exp, fini, zero;
     // NB: 'exp' may have to be 'double' instead of 'integer', when erange allows large exponents
