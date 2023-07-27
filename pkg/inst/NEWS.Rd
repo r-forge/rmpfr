@@ -7,7 +7,7 @@
 %% -- not yet in tar ball --
       %% \item Start vignette about \code{gamma()} inaccuracies and possible
       %% remedies (is \bold{unfinished}).
-\section{Changes in version 0.9-3 [2023-07-24, r393]}{
+\section{Changes in version 0.9-3 [2023-07-27, r394]}{
   \subsection{NEW FEATURES}{
     \itemize{
       \item .
