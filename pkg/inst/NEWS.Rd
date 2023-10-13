@@ -7,6 +7,14 @@
 %% -- not yet in tar ball --
       %% \item Start vignette about \code{gamma()} inaccuracies and possible
       %% remedies (is \bold{unfinished}).
+\section{Changes in version 0.9-4 [2023-10-13, r396]}{
+  \subsection{Misc}{
+    \itemize{
+      \item fix "lost braces"
+    }
+  }
+}
+
 \section{Changes in version 0.9-3 [2023-07-27, r394]}{
   \subsection{BUG FIXES}{
     \itemize{
@@ -15,7 +23,6 @@
     }
   }
 }
-
 
 \section{Changes in version 0.9-2 [2023-04-21, r392]}{
   \subsection{USER-VISIBLE CHANGES}{
