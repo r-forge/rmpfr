@@ -11,6 +11,7 @@ _INSTALL
 \.Rhistory
 ^Misc
 ^M1mac
+^config\.
 ^valgrind
 ^\.Rmpfr
 ^svn-

@@ -8,11 +8,6 @@
       %% \item Start vignette about \code{gamma()} inaccuracies and possible
       %% remedies (is \bold{unfinished}).
 \section{Changes in version 0.9-3 [2023-07-27, r394]}{
-  \subsection{NEW FEATURES}{
-    \itemize{
-      \item .
-    }
-  }
   \subsection{BUG FIXES}{
     \itemize{
       \item \code{any()} and \code{all()} no longer damage \R's internal
@@ -171,7 +166,7 @@
     \itemize{
       \item No longer include \file{Rdefines.h} as it is somewhat deprecated.
 
-      \item update \file{configure{.ac}} (for \command{autoconf 2.71}).
+      \item update both \file{configure\{,.ac\}} (for \command{autoconf 2.71}).
     }
   }
 }
