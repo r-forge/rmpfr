@@ -7,9 +7,12 @@
 %% -- not yet in tar ball --
       %% \item Start vignette about \code{gamma()} inaccuracies and possible
       %% remedies (is \bold{unfinished}).
-\section{Changes in version 0.9-4 [2023-10-13, r396]}{
-  \subsection{Misc}{
+\section{Changes in version 0.9-4 [2023-12-01, r397]}{
+  \subsection{BUG FIXES}{
     \itemize{
+      \item **NOT YET** Fix bug - showing on Windows only --> ../Misc/2023-12_CRAN_check_results_0.9-3.md ___TODO___
+
+      \item format ("\%ld" etc) fixes in \file{src/utils.c}
       \item fix "lost braces"
     }
   }
