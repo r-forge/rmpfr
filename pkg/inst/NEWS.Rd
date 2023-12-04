@@ -7,10 +7,11 @@
 %% -- not yet in tar ball --
       %% \item Start vignette about \code{gamma()} inaccuracies and possible
       %% remedies (is \bold{unfinished}).
-\section{Changes in version 0.9-4 [2023-12-01, r398]}{
+\section{Changes in version 0.9-4 [2023-12-04, r399]}{
   \subsection{BUG FIXES}{
     \itemize{
-      \item Fixed Windows-only (long = 32 bit) bug; adapt mpfr1-validity check.
+      \item Fixed Windows-only (long = 32 bit) bug; adapt mpfr1-validity() check.
+      \item allow `.Platform$endian != "little"  to 'work' in validity().
       \item format ("\%ld" etc) fixes in \file{src/utils.c}
       \item fix "lost braces"
     }

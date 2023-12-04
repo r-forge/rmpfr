@@ -46,6 +46,11 @@ setClass("mpfr1", ## a single Multi-precision float number
                                   (is.na(ex[2]) && any(ex[[1]] == (1:3)))) ## mpfr 3.1.5, Fedora 26++
                          )
 			     TRUE
+			 else if(.Platform$endian != "little") {
+                             message(gettextf("@exp possibly invalid for non-regular number _or_ it seems so on a platform with endian=\"%s\".
+                                              Please report to maintainer(\"Rmpfr\")", .Platform$endian), domain=NA)
+                             TRUE
+                         }
 			 else
 			     sprintf("@exp invalid for non-regular number (64b, le(d) == 0, |long|=%d bytes)",
                                      .Machine$sizeof.long)
