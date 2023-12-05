@@ -298,8 +298,11 @@ B6
 .mpfr_erange_kinds
 .mpfr_erange(.mpfr_erange_kinds)
 eLimits <- .mpfr_erange(c("min.emin", "max.emin", "min.emax", "max.emax"))
-## Typically true in "current" MPFR versions:
-eLimits == c(-1,1, -1,1) * (2^62 - 1)
+## Typically true in MPFR versions *iff* long is 64-bit, i.e. *not* on Windows
+if(.Machine$sizeof.long == 8L)
+    eLimits == c(-1,1, -1,1) * (2^62 - 1)
+else if(.Machine$sizeof.long == 4L) # on Windows
+    eLimits == c(-1,1, -1,1) * (2^30 - 1)
 
 
 ## Looking at internal representation [for power users only!]:

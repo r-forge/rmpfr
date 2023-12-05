@@ -7,6 +7,14 @@
 %% -- not yet in tar ball --
       %% \item Start vignette about \code{gamma()} inaccuracies and possible
       %% remedies (is \bold{unfinished}).
+\section{Changes in version 0.9-5 [2023-12-05, r400]}{
+  \subsection{BUG FIXES}{
+    \itemize{
+      \item (erange-related comments in examples)
+    }
+  }
+}
+
 \section{Changes in version 0.9-4 [2023-12-04, r399]}{
   \subsection{BUG FIXES}{
     \itemize{
