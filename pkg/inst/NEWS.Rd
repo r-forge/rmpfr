@@ -7,12 +7,17 @@
 %% -- not yet in tar ball --
       %% \item Start vignette about \code{gamma()} inaccuracies and possible
       %% remedies (is \bold{unfinished}).
-\section{Changes in version 0.9-5 [2023-12-05, r401]}{
+\section{Changes in version 0.9-5 [2024-01-08, r402]}{
   \subsection{BUG FIXES}{
     \itemize{
       \item \code{x == y} and other comparisons of two \code{"mpfr"}
       operands now return \code{NaN} when an operand is \code{NaN} (mpfr
       numbers are never \code{NA}).
+
+      \item \code{dbinom(x, *)} and \code{dnbinom(x, *)} now use the
+      precision of \code{x} when it is an (integer valued) \code{"mpfr"}
+      object, and then notice or even error when precision is lost as
+      \code{x} is coerced to integer.
 
       \item (erange-related comments in examples)
     }
