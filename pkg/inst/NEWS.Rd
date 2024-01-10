@@ -7,7 +7,7 @@
 %% -- not yet in tar ball --
       %% \item Start vignette about \code{gamma()} inaccuracies and possible
       %% remedies (is \bold{unfinished}).
-\section{Changes in version 0.9-5 [2024-01-08, r402]}{
+\section{Changes in version 0.9-5 [2024-01-10, r403]}{
   \subsection{BUG FIXES}{
     \itemize{
       \item \code{x == y} and other comparisons of two \code{"mpfr"}
@@ -20,6 +20,10 @@
       \code{x} is coerced to integer.
 
       \item (erange-related comments in examples)
+
+      \item \code{chooseMpfr(a, n)} gives \code{0} when \code{n < 0}, as
+      \R's \code{choose()} and when \code{a} is integer valued, uses the
+      equivalent of \code{chooseMpfr(a, a-n)} to be more accurate and faster.
     }
   }
 }
