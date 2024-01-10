@@ -243,7 +243,7 @@ int my_mpfr_choose (mpfr_t R, long n, mpfr_t X, mpfr_rnd_t RND)
     mpfr_t r, x;
     mpfr_init2(x, p_X); mpfr_set(x, X, RND);
     mpfr_init2(r, p_X);
-    if(mpfr_integer_p(X) && mpfr_cmp_si(X, 2*n) < 0) { // integer X-n < n ;
+    if(mpfr_integer_p(X) && n > 0 && mpfr_cmp_si(X, n) >= 0 && mpfr_cmp_si(X, 2*n) < 0) { // integer X, 0 <= X-n < n ;
 	/* ==> choose(X,n) == choose(X, X-n) ; X-n is smaller => faster: do  n <--> X-n  */
 	mpfr_sub_si(r, X, n, RND); /* r = X-n */
 	n = mpfr_get_si(r, RND);
