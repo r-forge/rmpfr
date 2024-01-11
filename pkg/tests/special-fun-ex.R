@@ -151,18 +151,19 @@ stopifnot(all.equal(	B(1,b10),  1/x),
 	  TRUE)
 
 x <- -10:10 + 0; X <- mpfr(x, 128L)
-stopifnot(Bi1(1,X) == (B1x <- Bi2(X,1)),
-	  Bi1(2,X) == (B2x <- Bi2(X,2)),
-	  Bi1(3,X) == (B3x <- Bi2(X,3)),
-	  all.equal(B1x,  1/x,               tol= 4e-16) ,
-	  all.equal(B2x,  1/(x*(x+1)),       tol= 8e-16) ,
-	  all.equal(B3x,  2/(x*(x+1)*(x+2)), tol=16e-16) ,
-	  ## these the "poles" are all odd i.e. result in { +Inf / -Inf / NaN}
-	  ## are all "ok" {e.g. 1/(x*(x+1)) gives (-Inf, Inf) for x = -1:0 }
-	  all.eq.finite(beta(1,X),  1/x) ,
-	  all.eq.finite(beta(X,2),  1/(x*(x+1))) ,
-	  all.eq.finite(beta(3,X),  2/(x*(x+1)*(x+2)), tol=16e-16) ,
-	  TRUE)
+stopifnot(exprs = {
+    Bi1(1,X) == (B1x <- Bi2(X,1))
+    Bi1(2,X) == (B2x <- Bi2(X,2))
+    Bi1(3,X) == (B3x <- Bi2(X,3))
+    all.equal(B1x,  1/x,               tol= 4e-16)
+    all.equal(B2x,  1/(x*(x+1)),       tol= 8e-16)
+    all.equal(B3x,  2/(x*(x+1)*(x+2)), tol=16e-16)
+    ## these the "poles" are all odd i.e. result in { +Inf / -Inf / NaN}
+    ## are all "ok" {e.g. 1/(x*(x+1)) gives (-Inf, Inf) for x = -1:0 }
+    all.eq.finite(beta(1,X),  1/x)
+    all.eq.finite(beta(X,2),  1/(x*(x+1)))
+    all.eq.finite(beta(3,X),  2/(x*(x+1)*(x+2)), tol=16e-16)
+})
 
 ## (a,b)  *both* integer, one negative:
 for(i in (-20):(-1)) {
