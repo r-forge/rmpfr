@@ -1,6 +1,18 @@
 stopifnot(require("Rmpfr"))
 (doExtras <- Rmpfr:::doExtras())
 
+## to enhance  |rel.Err| plots:  {also in ~/R/Pkgs/DPQ/tests/pow-tst.R }
+drawEps.h <- function(p2 = -(53:51), side = 4, lty=3, lwd=2, col=adjustcolor(2, 1/2)) {
+    abline(h = 2^p2, lty=lty, lwd=lwd, col=col)
+    axis(side, las=2, line=-1, at = 2^p2,
+         labels = as.expression(lapply(p2, function(p) substitute(2^E, list(E=p)))),
+         col.axis = col, col=NA, col.ticks=NA)
+}
+mtextVersion <- function(adj = 1, col = 1) {
+    mtext(osVersion, line=1, col=col, adj=adj)
+    mtext(sfsmisc::shortRversion(spaces=FALSE), col=col, adj=adj)
+}
+
 all.eq.finite <- function(x,y, ...) {
     ## x = 'target'   y = 'current'
     if(any(is.finite(y[!(fx <- is.finite(x))])))
@@ -10,6 +22,11 @@ all.eq.finite <- function(x,y, ...) {
     ## now they have finite values at the same locations
     all.equal(x[fx], y[fy], ...)
 }
+
+if(!dev.interactive(orNone=TRUE)) ## evaluate manually :
+    pdf("special-fun_1.pdf")
+
+
 n <- 1000
 head(x <- mpfr(0:n, 100) / n)
 
@@ -78,7 +95,7 @@ stopifnot(exprs = {
 dlp <- diff(log(-pmL))/diff(x)
 n <- length(x)
 x.1 <- (x[-1] + x[-n])/2
-plot(x.1, dlp, type="b", ylab = "d/dx  log(-pnorm(., log=TRUE))")
+plot(x.1, dlp, type="b", ylab = "d/dx  log(-pnorm(., log=TRUE))"); mtextVersion()
 plot(x.1[-1], diff(dlp)/diff(x.1), type="b", ylab = "d^2/dx^2  log(-pnorm(., log=TRUE))")
 stopifnot(exprs = {
     -1 < (d2 <- diff(dlp)/diff(x.1))
@@ -130,7 +147,9 @@ if(mpfrVersion() >= "3") { ## only available since MPFR 3.0.0
   curve(Ai, -10, 5, n=5001); abline(h=0,v=0, col="gray", lty=3)
 }
 
-### Utilities  hypot(), atan2() : --- TODO !
+### Utilities  hypot(), atan2() : --------------------------------------------------------------
+
+## ======= TODO! ========
 
 ## beta(), lbeta()
 ## ---------------
@@ -149,6 +168,9 @@ stopifnot(all.equal(	B(1,b10),  1/x),
 	  all.equal( beta(1,b10),  1/x),
 	  all.equal( beta(2,b10),  1/(x*(x+1))),
 	  TRUE)
+
+if(do.pdf) { dev.off(); pdf("special-fun-beta.pdf") }
+
 
 x <- -10:10 + 0; X <- mpfr(x, 128L)
 stopifnot(exprs = {
@@ -271,6 +293,8 @@ stopifnot(identical(bb, beta(mpfr(2,99), 1:4)),
 
 ##-- The d*() density functions from ../R/special-fun.R  |  ../man/distr-etc.Rd ---
 
+if(do.pdf) { dev.off(); pdf("special-fun-density.pdf") }
+
 dx <- 1400+ 0:10
 mx <- mpfr(dx, 120)
 nx <- sort(c(c(-32:32)/2, 50*(-8:8)))
@@ -305,22 +329,81 @@ stopifnot(exprs = {
     all.equal(dnbx10[iF], dnbD[iF], tol = 6e-16) # R's *is* accurate here (seen 2.9e-16)
 })
 
+
 ## plot dt() "error" of R's implementation
 nx <- seq(-100, 100, by=1/8)
-dtd <- dt(     nx,       df= .75)
-dtM  <- dt(mpfr(nx,  256), df= .75)
-system.time(
-dtMx <- dt(mpfr(nx, 2048), df= .75)
-) # 2.4 sec
-stopifnot(all.equal(dtMx, dtM, tol = 2^-254)) # almost all of dtM's 256 bits are correct !?
+dtd <- dt(     nx,        df= .75)
+dtM <- dt(mpfr(nx,  256), df= .75)
+if(doExtras) withAutoprint({
+ system.time(
+  dtMx <- dt(mpfr(nx, 2048), df= .75) ) # 2.5 sec
+ stopifnot(all.equal(dtMx, dtM, tol = 2^-254)) # almost all of dtM's 256 bits are correct
+})
 relE <- asNumeric(dtd/dtM - 1)
-plot(relE ~ nx,      type="l", col=2)
+plot(relE ~ nx,      type="l", col=2); mtextVersion()
 plot(abs(relE) ~ nx, type="l", col=2, log="y", ylim=c(5e-17, 1.5e-15))
 
+## ============== even smaller 'df' such that lgamma1p(df) is better than lgamma(1+df) ====
+
+u <- sort(outer(10^-(20:1), c(1,2,5))) # *not* "exact" on purpose
+
+dt10  <- dt(     10,        df=nu)
+dt10M <- dt(mpfr(10, 1024), df=nu)
+re10 <- asNumeric(relErrV(dt10M, dt10))
+
+plot(re10 ~ nu, type="l", lwd=2, log="x", main = quote(rel.Err( dt(10, df==nu) )),
+     xaxt="n"); eaxis(1, nintLog=20)
+mtextVersion()
+abline(h = (-1:1)*2^-53, lty=4, col=adjustcolor("blue", 1/2))
+
+plot(abs(re10) ~ nu, type="l", lwd=2, log="xy",
+     xlab = quote(df == nu), ylab = quote(abs(relE)),
+     main = quote(abs(rel.Err( dt(10, df==nu) ))), xaxt="n", yaxt="n")
+eaxis(1, nintLog=20); eaxis(2); drawEps.h()
+
+x0 <- c(0, 10^(-5:10)) # only >= 0 should be sufficient; x0 <- c(-rev(x0),0,x0)
+stopifnot(!is.unsorted(nu), # just for plotting ..
+          !is.unsorted(x0))
+xnu <- expand.grid(x=x0, df=nu)
+dt2  <- with(xnu, dt(     x,       df=df))
+dtM2 <- with(xnu, dt(mpfr(x, 512), df=df))
+str(relE2 <- `attributes<-`(asNumeric(relErrV(dtM2, dt2)),
+                            attr(xnu, "out.attrs")))
+
+## consistency check that with() etc was fine:
+stopifnot(identical(re10, unname(relE2[which(x0 == 10), ])))
+
+filled.contour(x=log10(1e-7+x0), y=log10(nu), z = relE2)
+filled.contour(x=log10(1e-7+x0), y=log10(nu), z = abs(relE2))
+## around nu = 10^-16 is the most critical place
+
+(pch <- c(1L:9L, 0L, letters, LETTERS)[1:ncol(relE2)])
+
+matplot(x0+1e-7, relE2, type="b", log="x", main="rel.err{  dt(x, df=df) }")
+legend("topright", legend = paste0("df=",formatC(nu,wid=3)), ncol=7,
+       bty="n", lwd=1, pch=pch, col=1:6, lty=1:5, cex = 0.8)
+abline(h = c(-4:4)*2^-53, lty=3, col="gray")
+
+matplot(nu, t(relE2), type="b", log="x", main="rel.err{  dt(x, df=df) }")
+legend("topright", legend = paste0("x=",formatC(x0,wid=3)), ncol=7,
+       bty="n", lwd=1, pch=pch, col=1:6, lty=1:5, cex = 0.8)
+abline(h = c(-4:4)*2^-53, lty=3, col="gray")
+
+matplot(nu, pmax(abs(t(relE2)), 1e-19), type="b", log="xy", axes=FALSE, ylab = quote(abs("rel Err")),
+        ylim = c(7e-17, max(abs(relE2))), main="|rel.err{ dt(x, df=df)}|")
+eaxis(1, nintLog=22) ; eaxis(2, line=-1/2); drawEps.h()
+legend("topright", legend = paste0("x=",formatC(x0,wid=3)), ncol=7,
+       bty="n", lwd=1, pch=pch, col=1:6, lty=1:5, cex = 0.8)
+
+
+1
 ## dnbinom() -- has mode as expected, but with huge size, the scales are "off reality" ..
 
+### ..... TODO !
 
 ### dgamma(): ----------------------------------------------------
+if(do.pdf) { dev.off(); pdf("special-fun-dgamma.pdf") }
+
 xe <- c(-2e5, -1e5, -2e4, -1e4, -2000, -1000, -500, -200, -100, -50, -20, -10)
 (xe <- c(xe, -8:8, -rev(xe)))
 two <- mpfr(2, 64)

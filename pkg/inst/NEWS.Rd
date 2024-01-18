@@ -7,7 +7,7 @@
 %% -- not yet in tar ball --
       %% \item Start vignette about \code{gamma()} inaccuracies and possible
       %% remedies (is \bold{unfinished}).
-\section{Changes in version 0.9-5 [2024-01-11, r404]}{
+\section{Changes in version 0.9-5 [2024-01-18, r405]}{
   \subsection{BUG FIXES}{
     \itemize{
       \item \code{x == y} and other comparisons of two \code{"mpfr"}
