@@ -1,5 +1,13 @@
 stopifnot(require("Rmpfr"))
 (doExtras <- Rmpfr:::doExtras())
+options(nwarnings = 50000, width = 99)
+
+(do.pdf <- !dev.interactive(orNone = TRUE))
+if(do.pdf) {
+    pdf.options(width = 8.5, height = 6) # for all pdf plots
+    pdf("special-fun.pdf")
+}
+
 
 ## to enhance  |rel.Err| plots:  {also in ~/R/Pkgs/DPQ/tests/pow-tst.R }
 drawEps.h <- function(p2 = -(53:51), side = 4, lty=3, lwd=2, col=adjustcolor(2, 1/2)) {
@@ -23,8 +31,6 @@ all.eq.finite <- function(x,y, ...) {
     all.equal(x[fx], y[fy], ...)
 }
 
-if(!dev.interactive(orNone=TRUE)) ## evaluate manually :
-    pdf("special-fun_1.pdf")
 
 
 n <- 1000
@@ -345,8 +351,12 @@ plot(abs(relE) ~ nx, type="l", col=2, log="y", ylim=c(5e-17, 1.5e-15))
 
 ## ============== even smaller 'df' such that lgamma1p(df) is better than lgamma(1+df) ====
 
-u <- sort(outer(10^-(20:1), c(1,2,5))) # *not* "exact" on purpose
+require(sfsmisc)# -> eaxis(); relErrV()
 
+u <- sort(outer(10^-(20:1), c(1,2,5))) # *not* "exact" on purpose
+## .. unfinished .. exploring *when* dt() would suffer from inaccurate stirlerr()  -- would it?
+
+nu <- 2^-(70:1)
 dt10  <- dt(     10,        df=nu)
 dt10M <- dt(mpfr(10, 1024), df=nu)
 re10 <- asNumeric(relErrV(dt10M, dt10))

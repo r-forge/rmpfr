@@ -11,6 +11,8 @@
 \alias{print.mpfr}
 \alias{print.mpfrArray}
 \alias{toNum}
+\alias{.mpfr2d}
+\alias{.mpfr2i}
 \alias{.mpfr2list}
 %-
 \alias{.mpfr_formatinfo}
@@ -57,6 +59,9 @@ mpfr_default_prec(prec)
       exponent.plus = getOption("Rmpfr.print.exponent.plus", TRUE),
       \dots)
 toNum(from, rnd.mode = c('N','D','U','Z','A'))
+.mpfr2d(from)
+.mpfr2i(from)
+
 mpfr2array(x, dim, dimnames = NULL, check = FALSE)
 
 .mpfr2list(x, names = FALSE)
@@ -196,6 +201,9 @@ mpfrImport(mxp)
   respectively.  It should be equivalent to \code{as(m, "array")} or
   \code{... "matrix"}.   Note that the slightly more general
   \code{\link{asNumeric}()} is preferred now.
+  \code{.mpfr2d()} is similar to but simpler than \code{toNum()}, whereas
+  \code{.mpfr2i()} is an analogue low level utility for
+  \code{\link{as.integer}(<mpfr>)}.
 
   \code{mpfr2array()} a slightly more flexible alternative to
   \code{dim(.) <- dd}.
