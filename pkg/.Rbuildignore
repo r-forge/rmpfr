@@ -1,3 +1,5 @@
+## NB: patterns are matched case insensitively
+
 cyqlong.R
 trace-stuff.R
 Savicky
@@ -6,6 +8,9 @@ DESCRIPTION_
 _unneeded
 _not_yet
 _cop$
+/T/
+gamma-inaccuracy_src/
+Rout\.[a-z]
 mail$
 _INSTALL
 \.Rhistory
@@ -22,6 +27,7 @@ Rmpfr-Ex
 auto
 R/.*\.R\+.*
 src/Makevars$
+src/.*\.[ch]\+
 log1mexp-artcl.*
 vignettes/.*\.pdf$
 vignettes/.*-do-
