@@ -7,6 +7,22 @@
 %% -- not yet in tar ball --
       %% \item Start vignette about \code{gamma()} inaccuracies and possible
       %% remedies (is \bold{unfinished}).
+\section{Changes in version 0.9-6 [2024-03-25, r408]}{
+  \subsection{NEW FEATURES}{
+    \itemize{
+      \item New \code{num2bigq(x)} finds \dQuote{small} denominator
+      \code{bigq} / \sQuote{bigRational} approximation to numeric or <mpfr> \code{x}.
+      Basically a \CRANpkg{MASS}\code{::fractions()} version for
+      \CRANpkg{Rmpfr} and \CRANpkg{gmp}.
+    }
+  }
+  \subsection{BUG FIXES}{
+    \itemize{
+      \item \code{format(mpfr())} no longer warns.
+    }
+  }
+}
+
 \section{Changes in version 0.9-5 [2024-01-20, r407]}{
   \subsection{NEW FEATURES}{
     \itemize{
