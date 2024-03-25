@@ -14,7 +14,7 @@ drawEps.h <- function(p2 = -(53:51), side = 4, lty=3, lwd=2, col=adjustcolor(2, 
 
 (do.pdf <- !dev.interactive(orNone = TRUE))
 
-if(do.pdf) { dev.off(); pdf("special-fun-dgamma.pdf") }
+if(do.pdf) pdf("special-fun-dgamma.pdf")
 
 xe <- c(-2e5, -1e5, -2e4, -1e4, -2000, -1000, -500, -200, -100, -50, -20, -10)
 (xe <- c(xe, -8:8, -rev(xe)))
