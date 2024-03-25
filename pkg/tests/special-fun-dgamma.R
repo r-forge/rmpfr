@@ -1,5 +1,7 @@
 ### dgamma(): ----------------------- was part of  ./special-fun-ex.R -------------------
 stopifnot(require("Rmpfr"))
+require(sfsmisc)# -> eaxis(); relErrV()
+
 (doExtras <- Rmpfr:::doExtras())
 options(nwarnings = 50000, width = 99)
 
