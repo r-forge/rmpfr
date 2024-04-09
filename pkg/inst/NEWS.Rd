@@ -7,7 +7,7 @@
 %% -- not yet in tar ball --
       %% \item Start vignette about \code{gamma()} inaccuracies and possible
       %% remedies (is \bold{unfinished}).
-\section{Changes in version 0.9-6 [2024-03-25, r411]}{
+\section{Changes in version 0.9-6 [2024-04-09, r413]}{
   \subsection{NEW FEATURES}{
     \itemize{
       \item New \code{num2bigq(x)} finds \dQuote{small} denominator
@@ -24,7 +24,7 @@
   \subsection{Misc}{
     \itemize{
       \item new \file{../tests/special-fun-dgamma.R} file; partly from \file{..../special-fun-ex.R}:
-      accuracy checking for more accurate \code{stirlerr()} in R-devel (\R 4.4.0).
+      accuracy checking for more accurate \code{stirlerr()} in \R 4.4.0 and later.
     }
   }
 }

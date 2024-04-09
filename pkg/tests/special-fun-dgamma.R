@@ -96,7 +96,7 @@ shs <- 1/32 + seq(6, 16, by = 1/8)
 stopifnot(all(!is.whole(shs*2))) # shs are *not* half-integers
 system.time(
     LrelE <- lapply(shs, relEgamma)
-) # 5.3 sec
+) # 7.5 sec
 
 m.relE <- sapply(LrelE, function(m) m[,"relE"])
 qrelE <- t(apply(abs(m.relE), 2, quantile, probs = c(.05, .25, .50, .75, .90, 1)))
@@ -132,8 +132,45 @@ matplot(shs, qrelE, type="l", log="y", yaxt="n", ylim = rngP(qrelE))
 title("|relErr( dgamma(x, sh) |   for  x / sh  in [.5, 1.25]")
 eaxis(2); drawEps.h(); mtext(myRversion, adj=1, cex=3/4)
 
+## take *one* of these:
+plot(abs(m.relE[, shs == 14.53125]), type="l", log="y", ylim = c(1e-16, 1.5e-14))
+drawEps.h()
 
+sh <- 14.53125
+stopifnot(identical(sh, 465 / 32))
 
+x14.5 <- sh2x_gamma(sh, nx = 21) # 21 points
+xM <- mpfr(x14.5, 512)
+dg1 <- stats::dgamma(x14.5, sh)
+dgM <- Rmpfr::dgamma(xM,    sh)
+cbind(x14.5, relE = asNumeric(relErrV(dgM, dg1))) # very "constant" ~=~  - 1e-14
+                                        #            in R-devel   around  1e-16 !!
+## try easier x:
+sh <- 14.53125 ; stopifnot(identical(sh, 465 / 32))
+x0 <- 1/4 + 8:20
+xM <- mpfr(x0, 512)
+dg1 <- stats::dgamma(x0, sh)
+dgM <- Rmpfr::dgamma(xM, sh)
+relE <- asNumeric(relErrV(dgM, dg1))
+signif(cbind(x0, relE, abs(relE)), 4) # R <= 4.3.*: very "constant" ~=~  - 1e-14
+## R-devel:                   |  no-long-double  == *same* numbers
+##    x0       relE           |       relE
+##  8.25  1.276e-16 1.276e-16 |  1.276e-16 1.276e-16
+##  9.25  1.294e-16 1.294e-16 |  1.294e-16 1.294e-16
+## 10.25 -1.408e-16 1.408e-16 | -1.408e-16 1.408e-16
+## 11.25 -2.108e-17 2.108e-17 | -2.108e-17 2.108e-17
+## 12.25 -1.306e-17 1.306e-17 | -1.306e-17 1.306e-17
+## 13.25  1.464e-16 1.464e-16 |  1.464e-16 1.464e-16
+## 14.25 -8.908e-17 8.908e-17 | -8.908e-17 8.908e-17
+## 15.25 -5.852e-18 5.852e-18 | -5.852e-18 5.852e-18
+## 16.25 -3.029e-17 3.029e-17 | -3.029e-17 3.029e-17
+## 17.25  1.900e-16 1.900e-16 |  1.900e-16 1.900e-16
+## 18.25 -1.511e-17 1.511e-17 | -1.511e-17 1.511e-17
+## 19.25 -5.779e-17 5.779e-17 | -5.779e-17 5.779e-17
+## 20.25  1.848e-16 1.848e-16 |  1.848e-16 1.848e-16
+
+if(getRversion() >= "4.4.0") # *not* true for  R <= 4.3.3 :
+    stopifnot(abs(relE) < 4e-16) # seen max = 1.900e-16
 
 cat('Time elapsed: ', proc.time(),'\n') # "stats"
 if(!interactive()) warnings()
