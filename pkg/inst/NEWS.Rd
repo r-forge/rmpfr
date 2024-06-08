@@ -7,7 +7,7 @@
 %% -- not yet in tar ball --
       %% \item Start vignette about \code{gamma()} inaccuracies and possible
       %% remedies (is \bold{unfinished}).
-\section{Changes in version 0.9-6 [2024-04-09, r413]}{
+\section{Changes in version 0.9-6 [2024-06-06, r414]}{
   \subsection{NEW FEATURES}{
     \itemize{
       \item New \code{num2bigq(x)} finds \dQuote{small} denominator
@@ -19,6 +19,8 @@
   \subsection{BUG FIXES}{
     \itemize{
       \item \code{format(mpfr())} no longer warns.
+
+      \item in \code{formatDec()}: use \code{p*log(2, 10)} instead of \code{log(2^p, 10)}!
     }
   }
   \subsection{Misc}{
