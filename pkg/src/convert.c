@@ -27,7 +27,7 @@ extern
 
 // Initialize contents (4 slots) of a "mpfr1" R object
 #define R_mpfr_MPFR_2R_init(_V_, _d_length_)				\
-    SEXP _V_ = PROTECT(NEW_OBJECT(PROTECT(MAKE_CLASS("mpfr1"))));	\
+    SEXP _V_ = PROTECT(R_do_new_object(PROTECT(R_do_MAKE_CLASS("mpfr1"))));	\
     SEXP prec_R = PROTECT(ALLOC_SLOT(_V_, Rmpfr_precSym, INTSXP, 1));	\
     SEXP sign_R = PROTECT(ALLOC_SLOT(_V_, Rmpfr_signSym, INTSXP, 1));	\
     SEXP exp_R  = PROTECT(ALLOC_SLOT(_V_, Rmpfr_expSym,  INTSXP, R_mpfr_exp_size)); \
@@ -289,14 +289,14 @@ SEXP str2mpfr1_list(SEXP x, SEXP prec, SEXP base, SEXP rnd_mode)
 
 
 #ifdef _not_used_
-/* This does *not* work: gives *empty* .Data slot [bug in NEW_OBJECT()? ] */
+/* This does *not* work: gives *empty* .Data slot [bug in R_do_new_object()? ] */
 SEXP d2mpfr(SEXP x, SEXP prec)
 {
     int i_prec = asInteger(prec),
 	nx = LENGTH(x), np = LENGTH(prec),
 	n = (nx == 0 || np == 0) ? 0 : imax2(nx, np),
 	nprot = 1;
-    SEXP val = PROTECT(NEW_OBJECT(MAKE_CLASS("mpfr"))),
+    SEXP val = PROTECT(R_do_new_object(R_do_MAKE_CLASS("mpfr"))),
 	lis = ALLOC_SLOT(val, Rmpfr_Data_Sym, VECSXP, n);
     double *dx;
 
@@ -317,10 +317,10 @@ SEXP d2mpfr(SEXP x, SEXP prec)
  * From an R  "mpfr1" object `x`,  create mpfr `r` (with correct prec): */
 void R_asMPFR(SEXP x, mpfr_ptr r)
 {
-    SEXP prec_R = GET_SLOT(x, Rmpfr_precSym);
-    // SEXP sign_R = GET_SLOT(x, Rmpfr_signSym);// only used once
-    SEXP exp_R  = GET_SLOT(x, Rmpfr_expSym);
-    SEXP d_R    = GET_SLOT(x, Rmpfr_d_Sym);
+    SEXP prec_R = R_do_slot(x, Rmpfr_precSym);
+    // SEXP sign_R = R_do_slot(x, Rmpfr_signSym);// only used once
+    SEXP exp_R  = R_do_slot(x, Rmpfr_expSym);
+    SEXP d_R    = R_do_slot(x, Rmpfr_d_Sym);
 
     int x_prec = INTEGER(prec_R)[0],
 	nr_limbs = N_LIMBS(x_prec), i;
@@ -339,7 +339,7 @@ void R_asMPFR(SEXP x, mpfr_ptr r)
     } else ex1 = ex[1];
 
     mpfr_set_prec(r, (mpfr_prec_t) x_prec);
-    r->_mpfr_sign = (mpfr_sign_t) INTEGER(GET_SLOT(x, Rmpfr_signSym))[0];
+    r->_mpfr_sign = (mpfr_sign_t) INTEGER(R_do_slot(x, Rmpfr_signSym))[0];
     R_mpfr_GET_EXP(r, ex, ex1);
     if(regular_x)
 	/* the full *vector* of limbs : */
@@ -378,7 +378,7 @@ SEXP print_mpfr1(SEXP x, SEXP digits)
 
 SEXP print_mpfr(SEXP x, SEXP digits)
 {
-    SEXP D = GET_SLOT(x, Rmpfr_Data_Sym);/* an R list() of length n */
+    SEXP D = R_do_slot(x, Rmpfr_Data_Sym);/* an R list() of length n */
     int n = length(D), i;
     mpfr_t r;
     Rboolean use_x_digits = INTEGER(digits)[0] == NA_INTEGER;
