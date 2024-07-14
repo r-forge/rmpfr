@@ -38,7 +38,8 @@ pbetaI(q, shape1, shape2, ncp = 0, lower.tail = TRUE, log.p = FALSE,
   \item{useRational}{optional \code{\link{logical}}, specifying if we
     should try to do everything in exact \emph{rational arithmetic}, i.e,
     using package \CRANpkg{gmp} functionality only, and return
-    \code{\link{bigq}} numbers instead of \code{\link{mpfr}} numbers.}
+    \code{\link[gmp]{bigq}} (from \CRANpkg{gmp}) numbers instead of
+    \code{\link{mpfr}} numbers.}
   \item{rnd.mode}{a 1-letter string specifying how \emph{rounding}
     should happen at C-level conversion to MPFR, see \code{\link{mpfr}}.}
 }

@@ -27,7 +27,8 @@ num2bigq(x, cycles = 50L, max.denominator = 2^25, verbose = FALSE)
 %% \details{
 %% }
 \value{
-  a big rational, i.e., \code{\link{bigq}} vector of the same length as \code{x}.
+  a big rational, i.e.,  \code{\link[gmp]{bigq}} (from \CRANpkg{gmp})
+  vector of the same length as \code{x}.
 }
 %% \references{
 
