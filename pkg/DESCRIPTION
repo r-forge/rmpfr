@@ -1,7 +1,7 @@
 Package: Rmpfr
 Title: Interface R to MPFR - Multiple Precision Floating-Point Reliable
 Version: 0.9-6
-Date: 2024-08-14
+Date: 2024-08-20
 DateNote: Previous CRAN version 0.9-5 on 2024-01-20
 Type: Package
 Authors@R: c(person("Martin","Maechler", role = c("aut","cre"),
@@ -12,13 +12,14 @@ Authors@R: c(person("Martin","Maechler", role = c("aut","cre"),
 					comment = "hjkMpfr(), origin of unirootR()")
 	, person(c("Hans", "W."), "Borchers", role = "ctb", email="hwborchers@googlemail.com",
 					comment = "optimizeR(*, \"GoldenRatio\"); origin of hjkMpfr()")
+	, person("Mikael", "Jagan", role = "ctb", comment = c("safer convert.c", ORCID = "0000-0002-3542-2938"))
 	)
 Description: Arithmetic (via S4 classes and methods) for
   arbitrary precision floating point numbers, including transcendental
   ("special") functions.  To this end, the package interfaces to
   the 'LGPL' licensed 'MPFR' (Multiple Precision Floating-Point Reliable) Library
   which itself is based on the 'GMP' (GNU Multiple Precision) Library.
-SystemRequirements: gmp (>= 4.2.3), mpfr (>= 3.0.0),
+SystemRequirements: gmp (>= 4.2.3), mpfr (>= 3.1.0),
   pdfcrop (part of TexLive) is required to rebuild the vignettes.
 SystemRequirementsNote: 'MPFR' (MP Floating-Point Reliable Library,
         https://www.mpfr.org/) and 'GMP' (GNU Multiple Precision library,

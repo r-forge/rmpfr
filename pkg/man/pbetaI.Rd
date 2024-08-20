@@ -77,12 +77,14 @@ lIp <- log1p(-pp) ## = pbetaI(x, a, b, lower.tail=FALSE, log.p=TRUE)
  Ip <- 1 - pp     ## = pbetaI(x, a, b, lower.tail=FALSE)
 
 if(Rmpfr:::doExtras()) { ## somewhat slow
-   stopifnot(
-     all.equal(lp,  pbetaI(x, a, b, precBits = 2048, log.p=TRUE)),
+   system.time(
+   stopifnot(exprs = {
+     all.equal(lp,  pbetaI(x, a, b, precBits = 2048, log.p=TRUE))
      all.equal(lIp, pbetaI(x, a, b, precBits = 2048, lower.tail=FALSE, log.p=TRUE),
-               tol = 1e-230),
+               tolerance = 1e-230)
      all.equal( Ip, pbetaI(x, a, b, precBits = 2048, lower.tail=FALSE))
-   )
+   })
+   ) # 0.375 sec -- "slow" ???
 }
 
 rErr <- function(approx, true, eps = 1e-200) {
@@ -94,10 +96,12 @@ rErr <- function(approx, true, eps = 1e-200) {
 	   true - approx)
 }
 
-rErr(pbeta(x, a, b), pp)
-rErr(pbeta(x, a, b, lower=FALSE), Ip)
-rErr(pbeta(x, a, b, log = TRUE),  lp)
-rErr(pbeta(x, a, b, lower=FALSE, log = TRUE),  lIp)
+cbind(x
+    , pb    = rErr(pbeta(x, a, b), pp)
+    , pbUp  = rErr(pbeta(x, a, b, lower.tail=FALSE),  Ip)
+    , ln.p  = rErr(pbeta(x, a, b, log.p = TRUE    ),  lp)
+    , ln.pUp= rErr(pbeta(x, a, b, lower.tail=FALSE, log.p=TRUE), lIp)
+      )
 
 a.EQ <- function(..., tol=1e-15) all.equal(..., tolerance=tol)
 stopifnot(
@@ -117,7 +121,7 @@ mpb4[1:2]
 getPrec(mpb4) # 128 349 1100 1746 2362
 (pb. <- pbeta(asNumeric(q4), 10, 288, lower.tail=FALSE))
 stopifnot(mpb4[1] == 0,
-          all.equal(mpb4, pb., tol=4e-15))
+          all.equal(mpb4, pb., tolerance = 4e-15))
 
 qbetaI. <- function(p, shape1, shape2, ncp = 0, lower.tail = TRUE, log.p = FALSE,
     precBits = NULL, rnd.mode = c("N", "D", "U", "Z", "A"),
@@ -135,7 +139,7 @@ qbetaI. <- function(p, shape1, shape2, ncp = 0, lower.tail = TRUE, log.p = FALSE
 q95.1.3 <- qbetaI.(p, 1,3, tolerance = 1e-29) # -> ~29 digits accuracy
 str(q95.1.3) ; roundMpfr(q95.1.3$root, precBits = 29 * log2(10))
 ## relative error is really small:
-(relE <- asNumeric(1 - pbetaI(q95.1.3$root, 1,3) / p))
+(relE <- asNumeric(1 - pbetaI(q95.1.3$root, 1,3) / p)) # -5.877e-39
 stopifnot(abs(relE) < 1e-28)
 }%examples
 \keyword{arith}

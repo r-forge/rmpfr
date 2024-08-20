@@ -7,7 +7,7 @@
 %% -- not yet in tar ball --
       %% \item Start vignette about \code{gamma()} inaccuracies and possible
       %% remedies (is \bold{unfinished}).
-\section{Changes in version 0.9-6 [2024-08-14, r418]}{
+\section{Changes in version 0.9-6 [2024-08-20, r419]}{
   \subsection{NEW FEATURES}{
     \itemize{
       \item New \code{num2bigq(x)} finds \dQuote{small} denominator

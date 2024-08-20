@@ -479,8 +479,8 @@ pbetaI <- function(q, shape1, shape2, ncp = 0, lower.tail = TRUE, log.p = FALSE,
 	      (is.numeric(precBits) && is.whole(precBits) && precBits >= 2))
 
     int2 <- i1 && i2 # both integer -> can use rational
+
 ### TODO: Also have finite (but non-rational) sum if only *one* is an integer number
-### ----
 
     ## Care for too large (a,b) and "integer overflow".
     ## NB:  below have 0:(b - 1) or 0:(a - 1)

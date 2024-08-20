@@ -33,30 +33,42 @@ extern
     SEXP exp_R  = PROTECT(ALLOC_SLOT(_V_, Rmpfr_expSym,  INTSXP, R_mpfr_exp_size)); \
     SEXP d_R    = PROTECT(ALLOC_SLOT(_V_, Rmpfr_d_Sym,   INTSXP, _d_length_)); \
     /* the integer vector which makes up the mantissa: */		\
-    int *dd = INTEGER(d_R),						\
-	*ex = INTEGER(exp_R) /* the one for the exponent */
+    unsigned int *dd = (unsigned int *) INTEGER(d_R),			\
+	*ex = (unsigned int *) INTEGER(exp_R) /* the one for the exponent */
 
 /*------------------------*/
+
+/* Convert integer 'u' of unsigned type 'utype' to corresponding signed
+ * type 'stype' without relying on implementation-defined behaviour when
+ * 'u' exceeds the maximum of 'stype'; see C99 6.3.1.3
+ */
+#define CAST_SIGNED(u, utype, stype) \
+    (((u) <= ((utype) -1 >> 1)) ? (stype) u : -(stype) ~(u) - 1)
+
 #if GMP_NUMB_BITS == 32
 /*                  ---- easy : a gmp-limb is an int <--> R */
 
-static R_INLINE void R_mpfr_FILL_DVEC(int i, mpfr_t r, int *dd) {
-    R_mpfr_dbg_printf(2,"r..d[i=%d] = 0x%lx\n", i, r->_mpfr_d[i]);
-    dd[i] = (int) r->_mpfr_d[i];
+static R_INLINE void R_mpfr_FILL_DVEC(int i, mpfr_t r, unsigned int *dd) {
+    mp_limb_t limb = r->_mpfr_d[i];
+    dd[i] = (unsigned int) limb;
+    R_mpfr_dbg_printf(2, "r..d[i=%d] = 0x%lx\n",
+                      i, limb);
 }
 
-static R_INLINE void R_mpfr_GET_DVEC(int i, mpfr_t r, int *dd) {
-    r->_mpfr_d[i] = (mp_limb_t) dd[i];
-    R_mpfr_dbg_printf(2,"dd[%d] = %10lu -> r..d[i=%d]= 0x%lx\n",
-		      i, dd[i], i,r->_mpfr_d[i]);
+static R_INLINE void R_mpfr_GET_DVEC(int i, mpfr_t r, unsigned int *dd) {
+    mp_limb_t limb = (mp_limb_t) dd[i];
+    r->_mpfr_d[i] = limb;
+    R_mpfr_dbg_printf(2, "dd[%d] = %10lu -> r..d[i=%d] = 0x%lx\n",
+                      i, limb, i, limb);
 }
 
 // these work on (r, ex[0]) :
-static R_INLINE void R_mpfr_FILL_EXP(mpfr_t r, int *ex) {
-    ex[0] = (int)r->_mpfr_exp;
+static R_INLINE void R_mpfr_FILL_EXP(mpfr_t r, unsigned int *ex) {
+    ex[0] = (unsigned int) r->_mpfr_exp;
 }
-static R_INLINE void R_mpfr_GET_EXP(mpfr_t r, int *ex, int ex1) {
-    r->_mpfr_exp = (mpfr_exp_t) ex[0];
+static R_INLINE void R_mpfr_GET_EXP(mpfr_t r, unsigned int *ex,
+                                    unsigned int ex1) {
+    r->_mpfr_exp = (mpft_exp_t) CAST_SIGNED(ex[0], unsigned int, int);
 }
 
 
@@ -65,35 +77,38 @@ static R_INLINE void R_mpfr_GET_EXP(mpfr_t r, int *ex, int ex1) {
 /*                    ---- here a gmp-limb is 64-bit (long long):
  * ==> one limb  <---> 2 R int.s : */
 
-static R_INLINE long long RIGHT_HALF(long x) { return((long long)(x) & 0x00000000FFFFFFFF); }
-//                                                   1  4   8|  4   8
-/* # define LEFT_SHIFT(_LONG_) (((unsigned long long)(_LONG_)) << 32) */
-static R_INLINE unsigned long long LEFT_SHIFT(long x) { return(((unsigned long long)(x)) << 32); }
-
 // This is only ok  if( mpfr_regular_p(.) ), i.e. not for {0, NaN, Inf}:
-static R_INLINE void R_mpfr_FILL_DVEC(int i, mpfr_t r, int *dd) {
-    R_mpfr_dbg_printf(2,"r..d[i=%d] = 0x%lx\n", i, r->_mpfr_d[i]);
-    dd[2*i]  = (int) RIGHT_HALF(r->_mpfr_d[i]);
-    dd[2*i+1]= (int) (r->_mpfr_d[i] >> 32);
+static R_INLINE void R_mpfr_FILL_DVEC(int i, mpfr_t r, unsigned int *dd) {
+    mp_limb_t limb = r->_mpfr_d[i];
+    dd[2*i  ] = (unsigned int) (limb & 0x00000000FFFFFFFFu);
+    dd[2*i+1] = (unsigned int) (limb >> 32);
+    R_mpfr_dbg_printf(2, "r..d[i=%d] = 0x%llx\n",
+                      i, (unsigned long long) limb);
 }
 
-static R_INLINE void R_mpfr_GET_DVEC(int i, mpfr_t r, int *dd) {
-    r->_mpfr_d[i] = (mp_limb_t)(RIGHT_HALF(dd[2*i]) | LEFT_SHIFT(dd[2*i+1]));
-    R_mpfr_dbg_printf(2,"dd[%d:%d]= (%10lu,%10lu) -> r..d[i=%d]= 0x%lx\n",
-		      2*i,2*i+1, dd[2*i],dd[2*i+1], i,r->_mpfr_d[i]);
+static R_INLINE void R_mpfr_GET_DVEC(int i, mpfr_t r, unsigned int *dd) {
+    mp_limb_t limb = ((mp_limb_t) dd[2*i+1] << 32) | ((mp_limb_t) dd[2*i] & 0x00000000FFFFFFFFu);
+    r->_mpfr_d[i] = limb;
+    R_mpfr_dbg_printf(2, "dd[%d:%d] = (%10lu,%10lu) -> r..d[i=%d] = 0x%llx\n",
+                      2*i, 2*i+1, dd[2*i], dd[2*i+1],
+                      i, (unsigned long long) limb);
 }
 
 // these work on (r, ex[0], {ex[1] or ex1}) :
-static R_INLINE void R_mpfr_FILL_EXP(mpfr_t r, int *ex) {
-    R_mpfr_dbg_printf(2,"_exp = 0x%lx\n",r->_mpfr_exp);
-    ex[0] = (int) RIGHT_HALF(r->_mpfr_exp);
-    ex[1] = (int) (((long long)r->_mpfr_exp) >> 32);
+static R_INLINE void R_mpfr_FILL_EXP(mpfr_t r, unsigned int *ex) {
+    mpfr_uexp_t exponent = (mpfr_uexp_t) r->_mpfr_exp;
+    ex[0] = (unsigned int) (exponent & 0x00000000FFFFFFFFu);
+    ex[1] = (unsigned int) (exponent >> 32);
+    R_mpfr_dbg_printf(2, "_exp = 0x%llx\n",
+                      (unsigned long long) exponent);
 }
 
-static R_INLINE void R_mpfr_GET_EXP(mpfr_t r, int *ex, int ex1) {
-    r->_mpfr_exp = (mpfr_exp_t) (RIGHT_HALF(ex[0]) | LEFT_SHIFT(ex1));
-    R_mpfr_dbg_printf(2,"ex[0:1]= (%10lu,%10lu) -> _exp = 0x%lx\n",
-		      ex[0], ex1, r->_mpfr_exp);
+static R_INLINE void R_mpfr_GET_EXP(mpfr_t r, unsigned int *ex,
+                                    unsigned int ex1) {
+    mpfr_uexp_t exponent = ((mpfr_uexp_t) ex1 << 32) | ((mpfr_uexp_t) ex[0] & 0x00000000FFFFFFFFu);
+    r->_mpfr_exp = CAST_SIGNED(exponent, mpfr_uexp_t, mpfr_exp_t);
+    R_mpfr_dbg_printf(2, "ex[0:1] = (%10lu,%10lu) -> _exp = 0x%llx\n",
+                      ex[0], ex1, (unsigned long long) exponent);
 }
 
 /*------------------------*/
@@ -104,9 +119,9 @@ static R_INLINE void R_mpfr_GET_EXP(mpfr_t r, int *ex, int ex1) {
 
 
 static R_INLINE void
-R_mpfr_MPFR_2R_fill(mpfr_t r, int *ex, int nr_limbs, int regular_p,
+R_mpfr_MPFR_2R_fill(mpfr_t r, unsigned int *ex, int nr_limbs, int regular_p,
 		    // Fill (i.e., modify) these :
-		    int *dd, /* = INTEGER(d_R) , the vector which makes up the mantissa */
+		    unsigned int *dd, /* = INTEGER(d_R) , the vector which makes up the mantissa */
 		    SEXP prec_R, SEXP sign_R)
 {
     /* now fill the slots of val */
@@ -325,8 +340,9 @@ void R_asMPFR(SEXP x, mpfr_ptr r)
     int x_prec = INTEGER(prec_R)[0],
 	nr_limbs = N_LIMBS(x_prec), i;
     Rboolean regular_x = length(d_R) > 0;
-    int *dd = INTEGER(d_R),/* the vector which makes up the mantissa */
-	*ex = INTEGER(exp_R), ex1; /* the one for the exponent */
+    /* the integer vector which makes up the mantissa: */
+    unsigned int *dd = (unsigned int *) INTEGER(d_R),
+	*ex = (unsigned int *) INTEGER(exp_R), ex1; /* the one for the exponent */
 
     if(regular_x && length(d_R) != R_mpfr_nr_ints)
 	error("nr_limbs(x_prec)= nr_limbs(%d)= %d : length(<d>) == %d != R_mpfr_nr_ints == %d",
