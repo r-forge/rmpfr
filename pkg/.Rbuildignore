@@ -1,4 +1,4 @@
-## NB: patterns are matched case insensitively
+## -*-sh-*-  using reg.exp (==> no initial or final '.*'), *but* case is ignored!
 
 cyqlong.R
 trace-stuff.R
@@ -25,10 +25,10 @@ _INSTALL
 Rmpfr-Ex
 (Wikiped|HH).*\.pdf$
 auto
-R/.*\.R\+.*
+R/.*\.R\+
 src/Makevars$
 src/.*\.[ch]\+
-log1mexp-artcl.*
+log1mexp-artcl
 vignettes/.*\.pdf$
 vignettes/.*-do-
 vignettes/202[2-9]

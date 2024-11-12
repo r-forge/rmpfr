@@ -7,7 +7,7 @@
 %% -- not yet in tar ball --
       %% \item Start vignette about \code{gamma()} inaccuracies and possible
       %% remedies (is \bold{unfinished}).
-\section{Changes in version 0.9-6 [2024-08-20, r419]}{
+\section{Changes in version 0.9-6 [2024-08-20, r420]}{
   \subsection{NEW FEATURES}{
     \itemize{
       \item New \code{num2bigq(x)} finds \dQuote{small} denominator
@@ -22,6 +22,9 @@
 
       \item in \code{formatDec()}: use \code{p*log(2, 10)} instead of
       \code{log(2^p, 10)}!
+
+      \item low-level C fixes in \file{src/convert.c} thanks to analysis
+      and proposition by Mikael Jagan.
 
       \item add \code{\\link[pkg]{...}} where needed.
     }
