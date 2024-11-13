@@ -7,7 +7,7 @@
 %% -- not yet in tar ball --
       %% \item Start vignette about \code{gamma()} inaccuracies and possible
       %% remedies (is \bold{unfinished}).
-\section{Changes in version 0.9-6 [2024-08-20, r420]}{
+\section{Changes in version 0.9-6 [2024-11-13, r421]}{
   \subsection{NEW FEATURES}{
     \itemize{
       \item New \code{num2bigq(x)} finds \dQuote{small} denominator
@@ -24,7 +24,7 @@
       \code{log(2^p, 10)}!
 
       \item low-level C fixes in \file{src/convert.c} thanks to analysis
-      and proposition by Mikael Jagan.
+      and proposition by Mikael Jagan.  Entails update of \code{validity()} for \code{"mpfr1"}.
 
       \item add \code{\\link[pkg]{...}} where needed.
     }
