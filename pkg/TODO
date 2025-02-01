@@ -18,8 +18,9 @@
      (and possibly more).
 
 * Short Term
-Change Macros  to  static  R_INLINE Functions 
-Tomas K: "Macros were outdated even when I was a CS student .."
+** TODO add trigamma() where MPFR is new enough:
+*** [MPFR] new function: trigamma -- 02 Dec 2024 17:09:18
+*** To: mpfr@inria.fr  / Reply-To: Paul Zimmermann <Paul.Zimmermann@inria.fr>
 
 * Short or Mid Term
 *** TODO Split this section into  Short | Mid  (?)
@@ -258,3 +259,6 @@ Tomas K: "Macros were outdated even when I was a CS student .."
      extendInt = c("no", "yes", "downX", "upX"), check.conv = FALSE,
 
 ** DONE 67) BUG:   igamma() [incomplete gamma] always returns 53-bit ???????
+
+** DONE Change Macros  to  static  R_INLINE Functions 
+    Tomas K: "Macros were outdated even when I was a CS student .."
