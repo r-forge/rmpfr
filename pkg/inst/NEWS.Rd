@@ -8,7 +8,7 @@
       %% \item Start vignette about \code{gamma()} inaccuracies and possible
       %% remedies (is \bold{unfinished}).
 
-\section{Changes in version 1.1-0 [2025-05-07, r425]}{
+\section{Changes in version 1.1-0 [2025-05-08, r426]}{
   \subsection{NEW FEATURES}{
     \itemize{
       \item New \code{pgamma()}, simply via \code{igamma()}, to become

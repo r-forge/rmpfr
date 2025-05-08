@@ -135,7 +135,7 @@ iOk <- 1e-3 <= abs(x) & abs(x) <= 100
 xm <- xM <- xM[iOk]; x <- x[iOk]
  ## sh.v <- c(1e-100, 1e-20, 1e-10, .5, 1,2,5, 10^c(1:10, 100, 300))
  ## sh.v <- c(1e-100, 1e-11,  1e-4, .5, 1,2,5, 10^c(1:5, 10, 100)) # less extreme ..
-sh.v <- c(1e-100, 1e-11, 1e-4, .5, 1,2,5, 10^c(1:5,7, 10)) # much less extreme than above ..
+sh.v <- c(1e-100, 1e-11, 1e-4, .5, 1,2,5, 10^c(1:5,7)) # much less extreme than above ..
 FT <- c("F", "T") # for printing
 for(scale in c(1/2, 2))
  for(sh in sh.v) {
@@ -172,5 +172,6 @@ for(scale in c(1/2, 2))
 ##                              user.time:  0.021 
 ## scale = 0.5, shape= 1e+100: gamma_inc.c:290: MPFR assertion failed: 
 ##					!(__builtin_expect(!!((flags) & (2)), 0))
+## On Windows (erange etc): alread shape = 1e10  leads to the above MPFR assertion fail !!
 }
 \keyword{distribution}
