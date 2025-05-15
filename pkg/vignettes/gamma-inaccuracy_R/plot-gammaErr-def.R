@@ -10,7 +10,7 @@
 ##' @title Compute and Visualize (In)accuracy of gamma(x)
 ##' @param x
 ##' @param gx numeric vector as x; defaults to `gamma(x)`.  Using `gamma(x)` computed
-##'           alternatively, e.g., by an earlier R version allows interesing visual comparison
+##'           alternatively, e.g., by an earlier R version allows interesting visual comparison
 ##' @param gamM an mpfr-vector as `x`; must be a correct `gamma(mpfr(x, precBits))`
 ##'             and is an argument only to allow skipping re-computation.
 ##' @param precBits integer number of bits to be for the high-accuracy \pkg{Rmpfr} gamma()
@@ -18,7 +18,7 @@
 ##' @param doFirst logical indicating if *two* plots (or just one) should be produced.
 ##' @param type
 ##' @param ylim1 y-limits of the first plot, i.e., for the (positive and negative) relative errors.
-##' @param ylim2 y-limits of the 2n plot, i.e., for the *absolute relative errors.
+##' @param ylim2 y-limits of the  2nd  plot, i.e., for the *absolute* relative errors.
 ##' @param cutBelow logical indicating if we should use a lower bound cutoff for the 2nd plot.
 ##' @param mar, mgp  graphical margin options, passed to `par()`.
 ##'

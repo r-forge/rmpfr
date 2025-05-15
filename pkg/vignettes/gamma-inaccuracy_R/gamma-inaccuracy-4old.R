@@ -1,7 +1,7 @@
-### This is to be run with R 4.1.3 -- to produce pdf()s
+### This is to be run with R 4.2.1 (or a bit earlier) -- to produce pdf()s
 ### e.g.
 "
-R-4.1.3 CMD BATCH --no-save  gamma-inaccuracy-4old.R
+R-4.2.1 CMD BATCH --no-save  gamma-inaccuracy-4old.R
 "
 
 require(Rmpfr)
@@ -27,7 +27,7 @@ facxF <- factorial(xF)
 stopifnot(all.equal(gammx, facxF)) ## but not exactly:
 all.equal(gammx, facxF, countEQ=TRUE, tol=0) ## Mean absolute diff: 2.062e-14
 
-if(getRversion() <= "4.2.0") {
+if(getRversion() <= "4.2.1") {
     gamRfile <- paste0("gamma_R-", as.character(getRversion()), ".rds")
     cat("Saving factorial(xF) to ", gamRfile,": ")
     saveRDS(structure(R.version = R.version.string,
