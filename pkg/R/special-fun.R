@@ -280,6 +280,8 @@ dgamma <- function(x, shape, rate = 1, scale = 1/rate, log = FALSE) {
 	stop("(x, shape, scale) must be numeric or \"mpfr\"")
 }## {dgamma}
 
+dchisq <- function(x, df, log = FALSE) dgamma(x, df / 2, scale = 2, log)
+
 pgamma <- function(q, shape, rate = 1, scale = 1/rate,
                    lower.tail = TRUE, log.p = FALSE,
                    rnd.mode = c('N','D','U','Z','A')) {

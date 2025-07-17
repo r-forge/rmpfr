@@ -3,6 +3,7 @@
 \alias{dnorm}
 \alias{dbinom}
 \alias{dnbinom}
+\alias{dchisq}
 \alias{dgamma}
 \alias{dpois}
 \alias{dt}
@@ -13,6 +14,7 @@
 dpois (x, lambda, log = FALSE, useLog = )
 dbinom (x, size, prob,     log = FALSE, useLog = , warnLog = TRUE)
 dnbinom(x, size, prob, mu, log = FALSE, useLog = any(x > 1e6))
+dchisq(x, df, log = FALSE)
 dnorm (x, mean = 0, sd = 1, log = FALSE)
 dgamma(x, shape, rate = 1, scale = 1/rate, log = FALSE)
 dt (x, df, ncp, log = FALSE)
@@ -29,7 +31,7 @@ pnorm(q, mean = 0, sd = 1, lower.tail = TRUE, log.p = FALSE)
   \item{x,q, lambda, size,prob, mu, mean,sd, shape,rate,scale, df,ncp}{%
     \code{\link{numeric}} or \code{\linkS4class{mpfr}} vectors.  % for the function call.
     All of these are \dQuote{recycled} to the length of the longest one.
-    For their meaning/definition, see the corresponding standard R
+    For their meaning/definition, see the corresponding standard \R
     (\pkg{stats} package) function.}
   \item{log, log.p, lower.tail}{logical, see
     \code{\link[stats:Normal]{pnorm}},

@@ -120,6 +120,7 @@ export(.mpfr, .mpfr.
        ## S3 "c.mpfr"
        , "chooseMpfr", "chooseMpfr.all", "sumBinomMpfr"
        , "dbinom", "dpois", "dnorm", "dgamma"
+       , dchisq
        , "dnbinom"
        , dt
        , "erf", "erfc"

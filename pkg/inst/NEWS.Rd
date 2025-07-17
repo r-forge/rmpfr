@@ -8,14 +8,18 @@
       %% \item Start vignette about \code{gamma()} inaccuracies and possible
       %% remedies (is \bold{unfinished}).
 
-\section{Changes in version 1.1-0 [2025-05-08, r426]}{
+\section{Changes in version 1.1-0 [2025-07-17, r427]}{
   \subsection{NEW FEATURES}{
     \itemize{
       \item New \code{pgamma()}, simply via \code{igamma()}, to become
       more visible to probability and statistics.\cr
       Note that in some regions of its domain, it is currently severely
       limited (both slow and inaccurate)
-      as by its implementation in MPFR, see the \sQuote{Warning} in \code{?igamma}.
+      as by its implementation in MPFR, see the \sQuote{Warning} in
+      \code{?igamma}.
+
+      \item added \code{dchisq()} for completeness, simply calling
+      \code{dgamma(x, df/2, scale = 2)}.
     }
   }
   \subsection{BUG FIXES}{
