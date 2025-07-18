@@ -251,15 +251,15 @@ dgamma <- function(x, shape, rate = 1, scale = 1/rate, log = FALSE) {
     if(is.numeric(x) && is.numeric(shape) && is.numeric(scale))
         stats__dgamma(x, shape, scale=scale, log=log)
     else if((sh.mp <- is.mpfr(shape)) |
-	    (sc.mp <- is.mpfr(scale)) || is.mpfr(x)) {
+	    (sc.mp <- is.mpfr(scale)) |
+            ( x.mp <- is.mpfr(x))) {
         ##     f(x)= 1/(s^a Gamma(a)) x^(a-1) e^-(x/s)  ; a=shape, s=scale
         ## log f(x) = -a*log(s) - lgamma(a) + (a-1)*log(x) - (x/s)
-	if(!sh.mp || !sc.mp) {
-	    prec <- pmax(53, getPrec(shape), getPrec(scale), getPrec(x))
-	    if(!sh.mp)
-		shape <- mpfr(shape, prec)
-	    else ## !sc.mp :
-		scale <- mpfr(scale, prec)
+	if(!sh.mp || !sc.mp || !x.mp) {
+	    prec <- pmax(53L, getPrec(shape), getPrec(scale), getPrec(x))
+	    if(!sh.mp) shape <- mpfr(shape, prec)
+	    if(!sc.mp) scale <- mpfr(scale, prec)
+	    if(! x.mp) x     <- mpfr(x,     prec)
 	}
 	## for now, "cheap", relying on "mpfr" arithmetic to be smart
 	## "TODO":  Use C.Loader's formulae via dpois_raw() ,  bd0() etc
