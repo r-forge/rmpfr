@@ -1,5 +1,5 @@
 \name{mpfr-utils}
-\title{Rmpfr -- Utilities for Precision Setting, Printing, etc}
+\title{Rmpfr -- Utilities for Precision Setting, etc}
 \alias{getPrec}
 \alias{.getPrec}
 \alias{getD}
@@ -8,8 +8,7 @@
 \alias{mpfrImport}
 \alias{mpfrXport}
 %\alias{.mpfr1tolist}% not exported
-\alias{print.mpfr}
-\alias{print.mpfrArray}
+% \alias{print.mpfr}    ==> ./formatMpfr.Rd
 \alias{toNum}
 \alias{.mpfr2d}
 \alias{.mpfr2i}
@@ -48,16 +47,6 @@ getPrec(x, base = 10, doNumeric = TRUE, is.mpfr = NA, bigq. = 128L)
 .getPrec(x)
 getD(x)
 mpfr_default_prec(prec)
-\S3method{print}{mpfrArray}(x, digits = NULL, drop0trailing = FALSE,
-      right = TRUE,
-      max.digits = getOption("Rmpfr.print.max.digits", 999L),
-      exponent.plus = getOption("Rmpfr.print.exponent.plus", TRUE),
-      \dots)
-\S3method{print}{mpfr}(x, digits = NULL, drop0trailing = TRUE,
-      right = TRUE,
-      max.digits = getOption("Rmpfr.print.max.digits", 999L),
-      exponent.plus = getOption("Rmpfr.print.exponent.plus", TRUE),
-      \dots)
 toNum(from, rnd.mode = c('N','D','U','Z','A'))
 .mpfr2d(from)
 .mpfr2i(from)
@@ -107,21 +96,8 @@ mpfrImport(mxp)
     known to be \code{"mpfr"}; typically should be kept at default, \code{NA}.}
   \item{bigq.}{for \code{getPrec()}, the precision to use for a big
     rational (class \code{"bigq"}); if not specified gives warning when used.}
-  \item{prec, precB, precBits}{a positive integer, or missing.}
-  \item{drop0trailing}{logical indicating if trailing \code{"0"}s should
-    be omitted.}
-  \item{right}{logical indicating \code{print()}ing should right
-    justify the strings; see \code{\link{print.default}()} to which it
-    is passed.}
-  \item{digits, \dots}{further arguments to print methods.}
-  \item{max.digits}{a number (possibly \code{Inf}) to limit the number
-    of (mantissa) digits to be printed, simply passed to
-    \code{\link{formatMpfr}()}.  The default is finite to protect from
-    printing very long strings which is often undesirable, notably in
-    \code{\link{interactive}} use.}
-  \item{exponent.plus}{logical, simply passed to \code{\link{formatMpfr}()}.
-    Was \code{FALSE} hardwired in Rmpfr versions before 0.8-0, and hence is
-    allowed to be tweaked by an \code{\link{options}()} setting.}
+  \item{prec, precB, precBits}{a positive integer, not larger than
+    \code{\link{.Machine}$ integer.max}, or missing.}
   \item{rnd.mode}{a 1-letter string specifying how \emph{rounding}
     should happen at C-level conversion to MPFR, see details of
     \code{\link{mpfr}}.}
@@ -145,18 +121,6 @@ mpfrImport(mxp)
     \code{*."emin"} and \code{*."emax"} erange values.}
 }
 \details{
-  The \code{print} method is currently built on the \code{\link{format}}
-  method for class \code{\linkS4class{mpfr}}.  This, currently does
-  \emph{not} format columns jointly which leads to suboptimally looking
-  output.  There are plans to change this.
-
-  Note that \code{\link{formatMpfr}()} which is called by \code{print()}
-  (or \code{show()} or \R's implicit printing) uses \code{max.digits =
-    Inf}, differing from our \code{print()}'s default on purpose.
-  If you do want to see the full accuracy even in cases it is large, use
-  \code{\link{options}(Rmpfr.print.max.digits = Inf)} or
-  \code{(.. = 1e7)}, say.
-
   The \code{.mpfr_erange*} functions (and variable) allow to query and set
   the allowed range of values for the base-2 \emph{exponents} of
   \code{"mpfr"} numbers.
@@ -286,16 +250,6 @@ sapply(c("N", "D", "U", "Z", "A"), function(RM)
 ## -Inf          -Inf -1.797693e+308 -1.797693e+308 -Inf
 ##  Inf 1.797693e+308            Inf  1.797693e+308  Inf
 
-## Printing of "MPFR" matrices is less nice than R's usual matrix printing:
-m <- outer(c(1, 3.14, -1024.5678), c(1, 1e-3, 10,100))
-m[3,3] <- round(m[3,3])
-m
-mpfr(m, 50)
-
-B6 <- mpfr2array(Bernoulli(1:6, 60), c(2,3),
-                 dimnames = list(LETTERS[1:2], letters[1:3]))
-B6
-
 ## Ranges of (base 2) exponents of MPFR numbers:
 .mpfr_erange() # the currently active range of possible base 2 exponents:
 
@@ -334,7 +288,10 @@ str( .mpfr2list(x4, names = TRUE) )
 str(xp4 <- mpfrXport(x4, names = TRUE))
 stopifnot(identical(x4, mpfrImport(mpfrXport(x4))),
           identical(i8, mpfrImport(mpfrXport(i8))))
-## FIXME, need c(.), as dim(.)  "get lost":
+
+B6 <- mpfr2array(Bernoulli(1:6, 60), c(2,3),
+                 dimnames = list(LETTERS[1:2], letters[1:3]))
+## FIXME, need c(.), as dim(.) & dimnames(.)  "get lost" in export/import:
 stopifnot(identical(c(B6), mpfrImport(mpfrXport(B6))))
 }
 \keyword{utilities}

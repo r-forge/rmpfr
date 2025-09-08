@@ -52,6 +52,9 @@ qnormI(p, mean = 0, sd = 1, lower.tail = TRUE, log.p = FALSE,
 }
 \examples{
 doX <- Rmpfr:::doExtras() # slow parts only if(doX)
+%-- NB: 1.1-1 submission gave Win? Result: NOTE                        %
+%  Examples with CPU ...... time > 5s :            user system elapsed % 
+%                                          qnormI 6.757  0.004   6.767 % 
 cat("doExtras: ", doX, "\n")
 p  <- (0:32)/32
 lp <- -c(1000, 500, 200, 100, 50, 20:1, 2^-(1:8))

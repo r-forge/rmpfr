@@ -1,7 +1,9 @@
 \name{formatMpfr}
-\title{Formatting MPFR (multiprecision) Numbers}
+\title{Formatting and Printing MPFR (multiprecision) Numbers}
 \alias{formatMpfr}
 \alias{formatN.mpfr}
+\alias{print.mpfr}
+\alias{print.mpfrArray}
 \alias{.mpfr2str}
 \description{
   Flexible formatting of \dQuote{multiprecision numbers}, i.e., objects
@@ -28,6 +30,15 @@ formatMpfr(x, digits = NULL, trim = FALSE, scientific = NA,
            zero.print = NULL, drop0trailing = FALSE, ...)
 
 \S3method{formatN}{mpfr}(x, drop0trailing = TRUE, \dots)
+
+\S3method{print}{mpfr}(x, digits = NULL, drop0trailing = TRUE, right = TRUE,
+      max.digits    = getOption("Rmpfr.print.max.digits", 999L),
+      exponent.plus = getOption("Rmpfr.print.exponent.plus", TRUE),
+      \dots)
+\S3method{print}{mpfrArray}(x, digits = NULL, drop0trailing = FALSE, right = TRUE,
+      max.digits    = getOption("Rmpfr.print.max.digits", 999L),
+      exponent.plus = getOption("Rmpfr.print.exponent.plus", TRUE),
+      \dots)
 
 .mpfr2str(x, digits = NULL, maybe.full = !is.null(digits), base = 10L)
 }
@@ -63,16 +74,32 @@ formatMpfr(x, digits = NULL, trim = FALSE, scientific = NA,
   \item{exponent.plus}{\code{\link{logical}} indicating if \code{"+"}
     should be for positive exponents in exponential (aka
     \dQuote{scientific}) representation.  This used to be hardcoded to
-    \code{FALSE}; the new default is compatible to \R's
+    \code{FALSE}; the new default for \code{formatMpfr()}, i.e., the
+    mpfr-\code{format} method, is compatible to \R's
     \code{\link{format}()}ing of numbers and helps to note visually when
-    exponents are in use.}
-  \item{max.digits}{a (large) positive number to limit the number of
+    exponents are in use.  For the \code{print()} methods,
+    it has a different default and is simply passed to
+    \code{\link{formatMpfr}()};
+    it was \code{FALSE} hardwired in Rmpfr versions before 0.8-0, and now
+    is allowed to be tweaked by an \code{\link{options}()} setting.
+  }
+  \item{max.digits}{a (large) positive number (possibly \code{Inf}) to limit the number of
     (mantissa) digits, notably when \code{digits} is \code{NULL} (as by
     default).  Otherwise, a numeric \code{digits} is \emph{preferred} to
     setting \code{max.digits} (which should not be smaller than
-    \code{digits}).}
+    \code{digits}).
+    The \code{print()} and hence \code{\link{show}()} methods for \code{"mpfr"}
+    (and \code{"mpfrArray"}) use a default of \code{getOption("Rmpfr.print.max.digits", 999L)}
+    preventing accidental printing of too large strings of digits (whereas
+    \code{formatMpfr()}, the \code{format()} method for \code{"mpfr"}, uses
+    (slightly more than) the full precision of the respective numbers).}
+  \item{drop0trailing}{logical indicating if trailing \code{"0"}s should
+    be omitted.}
+  \item{right}{logical indicating \code{print()}ing should right
+    justify the strings; see \code{\link{print.default}()} to which it
+    is passed.}
   \item{big.mark, big.interval, small.mark,
-    small.interval, decimal.mark, zero.print, drop0trailing}{%
+    small.interval, decimal.mark, zero.print}{%
     used for prettying decimal sequences, these are passed to
     \code{\link{prettyNum}} and that help page explains the details.}
   \item{\dots}{further arguments passed to or from other methods.}
@@ -91,6 +118,20 @@ formatMpfr(x, digits = NULL, trim = FALSE, scientific = NA,
   \code{"u.gi"}. This is in contrast, e.g., with
   \code{\link{sprintf}("\%a", x)} where the powers after \code{"p"} are
   powers of \eqn{2}.
+}
+\details{
+  The \code{print} method is built on the \code{\link{format}}
+  method for class \code{\linkS4class{mpfr}}.  This, for
+  \code{print.mpfrArray}, currently does \emph{not} format columns jointly
+  which leads to suboptimally looking output.
+  There are plans to change this.
+
+  Note that \code{\link{formatMpfr}()} which is called by \code{print()}
+  (or \code{show()} or \R's implicit printing) uses \code{max.digits =
+    Inf}, differing from our \code{print()}'s default on purpose.
+  If you do want to see the full accuracy even in cases it is large, use
+  \code{\link{options}(Rmpfr.print.max.digits = Inf)} or
+  \code{(.. = 1e7)}, say.
 }
 \note{
   Currently, \code{formatMpfr(x, scientific = FALSE)} does \emph{not work
@@ -155,6 +196,15 @@ format(1/i32, base=  2, drop0trailing=TRUE)# using scientific notation for [17..
 format(1/i32, base= 32)
 format(1/i32, base= 62, drop0trailing=TRUE)
 format(mpfr(2, 64)^-(1:16), base=16, drop0trailing=TRUE)
+
+## Printing of "MPFR" matrices is less nice than R's usual matrix printing:
+m <- outer(c(1, 3.14, -1024.5678), c(1, 1e-3, 10,100))
+m[3,3] <- round(m[3,3])
+m
+mpfr(m, 50)
+
+(mpfr2array(Bernoulli(1:6, 60), c(2,3),
+            dimnames = list(LETTERS[1:2], letters[1:3])))
 }
 \keyword{character}
 \keyword{print}

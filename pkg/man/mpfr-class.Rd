@@ -144,7 +144,7 @@
   \code{"mpfr"} is the class of \bold{M}ultiple \bold{P}recision
   \bold{F}loatingpoint numbers with \bold{R}eliable arithmetic.
 
-  sFor the high-level user, \code{"mpfr"} objects should behave
+  For the high-level user, \code{"mpfr"} objects should behave
   as standard \R's \code{\link{numeric}} \emph{vectors}. They would just
   print differently and use the prespecified (typically high) precision
   instead of the double precision of \sQuote{traditional} \R numbers
@@ -314,19 +314,20 @@ hypot(x,y, rnd.mode = c("N","D","U","Z","A"))
       subsetting aka \dQuote{indexing} happens as for numeric vectors.}
 
     \item{format}{\code{signature(x = "mpfr")}, further arguments
-      \code{digits = NULL, scientific = NA}, etc:
-      returns \code{\link{character}} vector of same length as \code{x};
-      when \code{digits} is \code{NULL}, with \emph{enough} digits to
-      recreate \code{x} accurately.  For details, see
-      \code{\link{formatMpfr}}.}
+      \code{digits = NULL, scientific = NA}, etc:  This method is identical
+      to the (exported) \code{\link{formatMpfr}()} function, see its help
+      page for details.}% ./formatMpfr.Rd
     \item{is.finite}{\code{signature(x = "mpfr")}: ... }
     \item{is.infinite}{\code{signature(x = "mpfr")}: ... }
     \item{is.na}{\code{signature(x = "mpfr")}: ... }
     \item{is.nan}{\code{signature(x = "mpfr")}: ... }
     \item{log}{\code{signature(x = "mpfr")}: ... }
-    \item{show}{\code{signature(object = "mpfr")}: ... }
+    \item{show}{\code{signature(object = "mpfr")}: The \code{\link{show}}
+      method for \code{"mpfr"} classed objects calls the S3 method
+      \code{\link{print.mpfr}(object)} with several optional arguments,
+      itself based on the \code{format()} method which calls
+      \code{\link{formatMpfr}()}.}
     \item{sign}{\code{signature(x = "mpfr")}: ... }
-
     \item{Re, Im}{\code{signature(z = "mpfr")}: simply return \code{z}
       or \code{0} (as \code{"mpfr"} numbers of correct precision), as mpfr
       numbers are \sQuote{real} numbers.}

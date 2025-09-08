@@ -8,6 +8,23 @@
       %% \item Start vignette about \code{gamma()} inaccuracies and possible
       %% remedies (is \bold{unfinished}).
 
+\section{Changes in version 1.1-2 [2025-09-06, r431]}{
+  \subsection{NEW FEATURES}{
+    \itemize{
+      \item .
+    }
+  }
+ \subsection{BUG FIXES}{
+    \itemize{
+      \item For \code{mpfr(x, precBits=*)} it is now documented that
+      \code{precBits} must not be larger than largest integer, i.e.,
+      \eqn{2^31 - 1 = 2147483648}.   An error message for larger values
+      is now easier to understand.
+    }
+  }
+}
+
+
 \section{Changes in version 1.1-1 [2025-07-18, r430]}{
   \subsection{NEW FEATURES}{
     \itemize{

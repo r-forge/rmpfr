@@ -59,7 +59,8 @@ mpfr.default <- function(x, precBits, base = 10, rnd.mode = c('N','D','U','Z','A
     if(missing(precBits)) {
 	precBits <- getPrec(x, base = base, doNumeric = FALSE)
     }
-    stopifnot(precBits >= 2, ## libmpfr exits (after good error message) for precBits == 1
+    stopifnot(2 <= precBits, ## libmpfr exits (after good error message) for precBits == 1
+                   precBits <= .Machine$integer.max,
               is.character(rnd.mode <- toupper(rnd.mode)))
     rnd.mode <- match.arg(rnd.mode)
 

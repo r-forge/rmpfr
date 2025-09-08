@@ -26,8 +26,13 @@ is.mpfr(x)
   \item{precBits, prec}{a number, the maximal precision to be used, in
     \bold{\emph{bits}}; i.e. \code{53} corresponds to double precision.
     Must be at least 2.  If \code{\link{missing}},
-    \code{\link{getPrec}(x)} determines a default precision.}
-  \item{base}{(only when \code{x} is \code{\link{character}}) the base
+    \code{\link{getPrec}(x)} determines a default precision.  In the
+    \pkg{Rmpfr} package, the \code{\linkS4class{mpfr}} class is defined to
+    have type \code{\link{integer}} slot \code{prec}, and hence, currently,
+    \code{precBits} and \code{prec} may not be larger than
+    \code{\link{.Machine}$ integer.max}, which is \eqn{2^31 - 1 =
+      2147483648} on all platforms.}
+    \item{base}{(only when \code{x} is \code{\link{character}}) the base
     with respect to which \code{x[i]} represent numbers; \code{base}
     \eqn{b} must fulfill \eqn{2 \le b \le 62}{2 <= b <= 62}.}
   \item{rnd.mode}{a 1-letter string specifying how \emph{rounding}

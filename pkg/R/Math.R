@@ -230,7 +230,7 @@ sumBinomMpfr <- sumBinomMpfr.v2
 ##' @return an mpfr number as \code{x} but with the new 'precBits' precision
 ##' @author Martin Maechler
 roundMpfr <- function(x, precBits, rnd.mode = c('N','D','U','Z','A')) {
-    stopifnot(is(x, "mpfr"))
+    stopifnot(is(x, "mpfr"), precBits <= .Machine$integer.max)
     setDataPart(x, .Call(R_mpfr_round, x, precBits, match.arg(rnd.mode)))
 }
 

@@ -29,6 +29,9 @@ if(packageVersion("gmp") < "0.5.8")## <-> ../NAMESPACE
     b <- 16L
     cx <- .as.char.bigz(x, b)
     if(is.null(precB)) precB <- 4L*nchar(cx)
+    if(max(precB) > .Machine$integer.max)
+        stop("max(precB) = ", max(precB),
+             " may not be larger than  .Machine$integer.max = ", .Machine$integer.max)
     if(is.matrixZQ(x))
 	new("mpfrMatrix", .Call(str2mpfr1_list, cx, precB, b, rnd.mode),
 	    Dim = as.integer(dim(x)))# "bigz" has no dimnames
