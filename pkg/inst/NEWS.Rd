@@ -8,7 +8,7 @@
       %% \item Start vignette about \code{gamma()} inaccuracies and possible
       %% remedies (is \bold{unfinished}).
 
-\section{Changes in version 1.1-2 [2025-09-06, r431]}{
+\section{Changes in version 1.1-2 [2025-09-08, r432]}{
   \subsection{NEW FEATURES}{
     \itemize{
       \item .

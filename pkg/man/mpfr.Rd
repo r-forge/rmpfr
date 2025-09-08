@@ -31,7 +31,7 @@ is.mpfr(x)
     have type \code{\link{integer}} slot \code{prec}, and hence, currently,
     \code{precBits} and \code{prec} may not be larger than
     \code{\link{.Machine}$ integer.max}, which is \eqn{2^31 - 1 =
-      2147483648} on all platforms.}
+      2147483647} on all platforms.}
     \item{base}{(only when \code{x} is \code{\link{character}}) the base
     with respect to which \code{x[i]} represent numbers; \code{base}
     \eqn{b} must fulfill \eqn{2 \le b \le 62}{2 <= b <= 62}.}
