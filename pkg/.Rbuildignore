@@ -33,6 +33,7 @@ vignettes/.*\.pdf$
 vignettes/.*-do-
 vignettes/202[2-9]
 inst/doc/MPFR_Fousse_etal
+inst/doc/Maechler
 inst/doc/MM-poster
 inst/doc/20[12]
 inst/doc/.*(lynne|nb-m)

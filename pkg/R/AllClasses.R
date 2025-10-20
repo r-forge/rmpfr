@@ -20,25 +20,26 @@ setClass("mpfr1", ## a single Multi-precision float number
                    sign= "integer",  # signum
                    d = "integer"),   # the mantissa as a vector of (32 bit) integers
 	 validity = function(object) {
-	     gmp.numb <- .mpfr_gmp_numbbits() # 32 or 64
 	     if(length(pr <- object@prec) != 1 || is.na(pr) || pr < 2)
 		 "invalid 'prec' slot"
-	     else if((lex <- length(ex <- object@exp)) != 2 && gmp.numb == 64)
-		 "invalid 'exp' slot for 64-bit gmp.numbbits: must have length 2"
-	     else if(lex != 1 && gmp.numb == 32)
-		 "invalid 'exp' slot for 32-bit gmp.numbbits: must have length 1"
+	     else if((lex <- length(ex <- object@exp)) != 2 &
+	             (bex <- .mpfrSizeof()[["mpfr_exp_t"]]) == 8)
+		 "invalid 'exp' slot for 64-bit exponent: must have length 2"
+	     else if(lex != 1 && bex == 4)
+		 "invalid 'exp' slot for 32-bit exponent: must have length 1"
 	     else if(length(sig <- object@sign) != 1 || is.na(sig) || abs(sig) > 1)
 		 "'sign' slot not in {-1,1} is invalid"
 	     else {
 		 nd <- length(d <- object@d)
 		 if(nd) { ## "regular"
+		     gmp.numb <- .mpfr_gmp_numbbits() # 32 or 64
 		     need.d <- ceiling(pr / 32)
 		     if((gmp.numb == 32 && nd != need.d) ||
 			(gmp.numb == 64 && !any((nd - need.d) == 0:1)))
 			 "length('d' slot) does not match 'prec'"
 		     else TRUE
 		 } else ## not regular: valid if exp slot shows so
-		     if(gmp.numb == 64) {  ## ex of length 2
+		     if(lex == 2) {  ## ex of length 2
 			 if((long_is_4b && ## Windows
 			     ((ex[1] == ex[2] && any(ex[1] == specExps)) || ## mpfr 3.1.3, "old" R/Rtools
                               (  0L  == ex[2] && any(ex[1] == specExps)))   ## new Rtools (2023); convert.c chg

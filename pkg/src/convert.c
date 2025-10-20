@@ -15,14 +15,20 @@ extern
  *                   = N_LIMBS(i_prec)     [ in d2mpfr1_()  ]
  *      R_mpfr_exp_size  is sufficient also for enlarged exponent range, as that is still < 2^62
 */
-#if GMP_NUMB_BITS == 32
+#if SIZEOF_MP_LIMB_T == 4
 # define R_mpfr_nr_ints nr_limbs
-# define R_mpfr_exp_size 1
-#elif GMP_NUMB_BITS == 64
+#elif SIZEOF_MP_LIMB_T == 8
 # define R_mpfr_nr_ints (2*nr_limbs)
+#else
+# error "R <-> C Interface *not* implemented for sizeof(mp_limb_t)=" ## SIZEOF_MP_LIMB_T
+#endif
+
+#if SIZEOF_MPFR_EXP_T == 4
+# define R_mpfr_exp_size 1
+#elif SIZEOF_MPFR_EXP_T == 8
 # define R_mpfr_exp_size 2
 #else
-# error "R <-> C Interface *not* implemented for GMP_NUMB_BITS=" ## GMP_NUMB_BITS
+# error "R <-> C Interface *not* implemented for sizeof(mpfr_exp_t)=" ## SIZEOF_MPFR_EXP_T
 #endif
 
 // Initialize contents (4 slots) of a "mpfr1" R object
@@ -45,7 +51,7 @@ extern
 #define CAST_SIGNED(u, utype, stype) \
     (((u) <= ((utype) -1 >> 1)) ? (stype) u : -(stype) ~(u) - 1)
 
-#if GMP_NUMB_BITS == 32
+#if SIZEOF_MP_LIMB_T == 4
 /*                  ---- easy : a gmp-limb is an int <--> R */
 
 static R_INLINE void R_mpfr_FILL_DVEC(int i, mpfr_t r, unsigned int *dd) {
@@ -62,18 +68,7 @@ static R_INLINE void R_mpfr_GET_DVEC(int i, mpfr_t r, unsigned int *dd) {
                       i, limb, i, limb);
 }
 
-// these work on (r, ex[0]) :
-static R_INLINE void R_mpfr_FILL_EXP(mpfr_t r, unsigned int *ex) {
-    ex[0] = (unsigned int) r->_mpfr_exp;
-}
-static R_INLINE void R_mpfr_GET_EXP(mpfr_t r, unsigned int *ex,
-                                    unsigned int ex1) {
-    r->_mpfr_exp = (mpft_exp_t) CAST_SIGNED(ex[0], unsigned int, int);
-}
-
-
-/*------------------------*/
-#elif GMP_NUMB_BITS == 64
+#elif SIZEOF_MP_LIMB_T == 8
 /*                    ---- here a gmp-limb is 64-bit (long long):
  * ==> one limb  <---> 2 R int.s : */
 
@@ -94,6 +89,24 @@ static R_INLINE void R_mpfr_GET_DVEC(int i, mpfr_t r, unsigned int *dd) {
                       i, (unsigned long long) limb);
 }
 
+#else
+# error "will not happen"
+#endif
+
+
+#if SIZEOF_MPFR_EXP_T == 4
+
+// these work on (r, ex[0]) :
+static R_INLINE void R_mpfr_FILL_EXP(mpfr_t r, unsigned int *ex) {
+    ex[0] = (unsigned int) r->_mpfr_exp;
+}
+static R_INLINE void R_mpfr_GET_EXP(mpfr_t r, unsigned int *ex,
+                                    unsigned int ex1) {
+    r->_mpfr_exp = (mpfr_exp_t) CAST_SIGNED(ex[0], unsigned int, int);
+}
+
+#elif SIZEOF_MPFR_EXP_T == 8
+
 // these work on (r, ex[0], {ex[1] or ex1}) :
 static R_INLINE void R_mpfr_FILL_EXP(mpfr_t r, unsigned int *ex) {
     mpfr_uexp_t exponent = (mpfr_uexp_t) r->_mpfr_exp;
@@ -111,11 +124,9 @@ static R_INLINE void R_mpfr_GET_EXP(mpfr_t r, unsigned int *ex,
                       ex[0], ex1, (unsigned long long) exponent);
 }
 
-/*------------------------*/
 #else
 # error "will not happen"
 #endif
-
 
 
 static R_INLINE void

@@ -323,8 +323,18 @@ SEXP R_mpfr_get_version(void) {
     return mkString(mpfr_get_version());
 }
 
+SEXP R_mpfr_get_sizeof(void) {
+    const char *nms[] = {"mpfr_prec_t", "mpfr_exp_t", "mp_limb_t", ""};
+    SEXP ans = Rf_mkNamed(INTSXP, nms);
+    int *p = INTEGER(ans);
+    p[0] = SIZEOF_MPFR_PREC_T;
+    p[1] = SIZEOF_MPFR_EXP_T;
+    p[2] = SIZEOF_MP_LIMB_T;
+    return ans;
+}
+
 SEXP R_mpfr_get_GMP_numb_bits(void) {// for diagnosing
-    return ScalarInteger((int)GMP_NUMB_BITS);
+    return ScalarInteger(SIZEOF_MP_LIMB_T * CHAR_BIT);
 }
 
 /* Set or get the C-global debugging level --

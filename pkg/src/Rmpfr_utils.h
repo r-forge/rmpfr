@@ -28,6 +28,10 @@
 #define _(String) (String)
 #endif
 
+#ifdef HAVE_CONFIG_H
+# include "config.h"
+#endif
+
 #if (MPFR_VERSION < MPFR_VERSION_NUM(3,0,0))
 /* define back-compatibility types:*/
 # define MPFR_RNDD GMP_RNDD
@@ -179,6 +183,7 @@ SEXP R_mpfr_get_erange(SEXP kind);
 SEXP R_mpfr_set_erange(SEXP kind, SEXP val);
 SEXP R_mpfr_prec_range(SEXP ind);
 SEXP R_mpfr_get_version(void);
+SEXP R_mpfr_get_sizeof(void);
 SEXP R_mpfr_get_GMP_numb_bits(void);
 SEXP R_mpfr_2exp(SEXP x);
 SEXP R_mpfr_ldexp(SEXP f, SEXP E, SEXP rnd_mode);

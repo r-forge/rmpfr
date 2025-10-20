@@ -99,6 +99,8 @@ mpfr_default_prec <- function(prec) {
 mpfrVersion <- function()
     numeric_version(sub("^([0-9]+\\.[0-9]+\\.[0-9]+).*","\\1", .mpfrVersion()))
 
+.mpfrSizeof <- function() .Call(R_mpfr_get_sizeof)
+
 print.mpfr1 <- function(x, digits = NULL, drop0trailing = TRUE, ...) {
     stopifnot(is(x, "mpfr1"), is.null(digits) || digits >= 1)
     cat("'mpfr1' ",

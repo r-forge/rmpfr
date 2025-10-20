@@ -103,6 +103,7 @@ export(.mpfr, .mpfr.
        , .mpfr2exp
        ## , ".mpfrA.subset"
        , .mpfrVersion, .mpfr_gmp_numbbits
+       , .mpfrSizeof
        , .mpfr2list, mpfrImport, mpfrXport # <- experimental: for a possible save format
        ## , ".packageName"
        ## , ".print.mpfr"

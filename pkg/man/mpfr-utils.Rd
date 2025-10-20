@@ -24,6 +24,7 @@
 \alias{.mpfr_maxPrec}
 \alias{.mpfr_minPrec}
 \alias{.mpfr_gmp_numbbits}
+\alias{.mpfrSizeof}
 \alias{.mpfrVersion}
 %- really internal
 \alias{..bigq2mpfr}
@@ -69,6 +70,7 @@ mpfrImport(mxp)
 .mpfr_minPrec()
 
 .mpfr_gmp_numbbits()
+.mpfrSizeof()
 .mpfrVersion()
 
 ## Really Internal and low level, no error checking (for when you know ..)
@@ -193,6 +195,11 @@ mpfrImport(mxp)
   cannot enlarge the exponential range of mpfr numbers via
   \code{.mpfr_erange()}, see above.
 
+  \code{.mpfrSizeof()} may be more relevant (than \code{.mpfr_gmp_numbbits()}),
+  returning a named integer vector of \code{\link{length}(.) == 3} with
+  the sizes in bytes of the three \file{MPFR} library types named
+  \code{c("mpfr_prec_t", "mpfr_exp_t", "mp_limb_t")}.
+
   \code{.mpfrVersion()} returns a string, the version of the \file{MPFR}
   library we are linking to.
 
@@ -284,6 +291,10 @@ stopifnot(exprs = {
 ## on sizeof.long (mostly non-Windows <-> Windows, see above):
 str( .mpfr2list(i8) )
 str( .mpfr2list(x4, names = TRUE) )
+
+dput( .mpfrSizeof() ) # on (64-bit) Linux, now typically all '8',
+## as 64 bit = 8 bytes --  nowadays probably more relevant than
+dput( .mpfr_gmp_numbbits() ) # typically 64
 
 str(xp4 <- mpfrXport(x4, names = TRUE))
 stopifnot(identical(x4, mpfrImport(mpfrXport(x4))),

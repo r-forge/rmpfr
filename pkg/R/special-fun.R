@@ -533,14 +533,15 @@ pbetaI <- function(q, shape1, shape2, ncp = 0, lower.tail = TRUE, log.p = FALSE,
                    rnd.mode = c('N','D','U','Z','A'))
 {
     stopifnot(length(shape1) == 1, length(shape2) == 1,
-	      (i1 <- is.whole(shape1)) | (i2 <- is.whole(shape2)),
+              ## for now *error* if not both are integer; previously silently truncated (e.g. 'pi' to '3')
+	      (i1 <- is.whole(shape1)), (i2 <- is.whole(shape2)),
 	      shape1 >= 0, shape2 >= 0,
 	      length(lower.tail) == 1, length(log.p) == 1,
 	      0 <= q, q <= 1, ncp == 0,
 	      is.null(precBits) ||
 	      (is.numeric(precBits) && is.whole(precBits) && precBits >= 2))
 
-    int2 <- i1 && i2 # both integer -> can use rational
+    int2 <- TRUE # was  i1 && i2  # both integer -> can use rational
 
 ### TODO: Also have finite (but non-rational) sum if only *one* is an integer number
 

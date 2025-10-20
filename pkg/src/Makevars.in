@@ -12,8 +12,8 @@
 # PKG_CPPFLAGS=$(CPPFLAGS)
 
 #-- "Regularly" --
-PKG_CFLAGS=$(CFLAGS)
-PKG_LIBS=$(PKG_LDFLAGS) -lmpfr -lgmp
+PKG_CPPFLAGS = @MPFR_CPPFLAGS@ @DEFS@
+PKG_LIBS = @MPFR_LDFLAGS@ -lmpfr -lgmp
 #--MM-- "Works to get newest" (for me via PKG_CONFIG_PATH & sym.link in /usr/local.nfs/app/pkgconfig)
 # PKG_CFLAGS = `pkg-config --cflags mpfr`
 # PKG_LIBS   = `pkg-config --libs mpfr`

@@ -2,7 +2,7 @@ Package: Rmpfr
 Title: Interface R to MPFR - Multiple Precision Floating-Point Reliable
 Version: 1.1-2
 VersionNote: Last CRAN: 1.1-1 on 2025-07-18; 1.1-0 on 2025-05-08; 1.0-0 on 2024-11-15
-Date: 2025-09-08
+Date: 2025-10-20
 Type: Package
 Authors@R: c(person("Martin","Maechler", role = c("aut","cre"),
 	     email = "maechler@stat.math.ethz.ch", comment = c(ORCID="0000-0002-8685-9910"))
@@ -12,7 +12,7 @@ Authors@R: c(person("Martin","Maechler", role = c("aut","cre"),
 					comment = "hjkMpfr(), origin of unirootR()")
 	, person(c("Hans", "W."), "Borchers", role = "ctb", email="hwborchers@googlemail.com",
 					comment = "optimizeR(*, \"GoldenRatio\"); origin of hjkMpfr()")
-	, person("Mikael", "Jagan", role = "ctb", comment = c("safer convert.c", ORCID = "0000-0002-3542-2938"))
+	, person("Mikael", "Jagan", role = "ctb", comment = c("safer convert.c; configure.ac etc", ORCID = "0000-0002-3542-2938"))
 	)
 Description: Arithmetic (via S4 classes and methods) for
   arbitrary precision floating point numbers, including transcendental

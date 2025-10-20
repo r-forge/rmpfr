@@ -2,6 +2,7 @@
 AC_INIT
 AC_CONFIG_SRCDIR([Rmpfr])
 AC_CONFIG_SRCDIR([DESCRIPTION])
+AC_CONFIG_HEADERS([src/config.h])
 
 dnl Select an optional include path, from a configure option
 dnl or from an environment variable  >> mpfr_INCLUDE <<
@@ -46,10 +47,6 @@ dnl use the include and lib
 CPPFLAGS="${CPPFLAGS} ${MPFR_CPPFLAGS}"
 LDFLAGS="${LDFLAGS} ${MPFR_LDFLAGS}"
 
-PKG_CPPFLAGS=$CPPFLAGS
-PKG_CFLAGS=$CFLAGS
-PKG_LDFLAGS=$LDFLAGS
-
 AC_CHECK_HEADER([mpfr.h], ,
     [AC_MSG_ERROR([Header file mpfr.h not found; maybe use --with-mpfr-include=INCLUDE_PATH])])
 
@@ -68,9 +65,12 @@ dnl	~~~~~~~~~~~~~~~~~
 AC_CHECK_LIB(mpfr, mpfr_digamma, ,
     [AC_MSG_ERROR([MPFR Library must be at least version 3.0.0, see README])])
 
-AC_SUBST(PKG_CPPFLAGS)
-AC_SUBST(PKG_CFLAGS)
-AC_SUBST(PKG_LDFLAGS)
+AC_CHECK_SIZEOF([mp_limb_t], [], [[#include <gmp.h>]])
+AC_CHECK_SIZEOF([mpfr_prec_t], [], [[#include <mpfr.h>]])
+AC_CHECK_SIZEOF([mpfr_exp_t], [], [[#include <mpfr.h>]])
+
+AC_SUBST(MPFR_CPPFLAGS)
+AC_SUBST(MPFR_LDFLAGS)
 
 AC_CONFIG_FILES(src/Makevars)
 AC_OUTPUT

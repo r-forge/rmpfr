@@ -61,6 +61,7 @@ static R_CallMethodDef CallEntries[] = {
     CALLDEF(R_mpfr_erange_int_p, 0),
 
     CALLDEF(R_mpfr_get_version, 0),
+    CALLDEF(R_mpfr_get_sizeof, 0),
     CALLDEF(R_mpfr_get_GMP_numb_bits, 0),
 
     CALLDEF(const_asMpfr, 3),

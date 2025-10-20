@@ -8,10 +8,11 @@
       %% \item Start vignette about \code{gamma()} inaccuracies and possible
       %% remedies (is \bold{unfinished}).
 
-\section{Changes in version 1.1-2 [2025-09-08, r432]}{
+\section{Changes in version 1.1-2 [2025-10-20, r433]}{
   \subsection{NEW FEATURES}{
     \itemize{
-      \item .
+      \item New \code{\link{.mpfrSizeof()}} providing the small integer
+      sizes of the platform's MPFR library configuration.
     }
   }
  \subsection{BUG FIXES}{
@@ -20,6 +21,10 @@
       \code{precBits} must not be larger than largest integer, i.e.,
       \eqn{2^31 - 1 = 2147483648}.   An error message for larger values
       is now easier to understand.
+
+      \item Correct \file{configure.ac}, \file{Makevars}, etc needed when
+      MPFR exponent size does not match limb size (as on r-universe Windows),
+      fixing R-forge Rmpfr bug #6865 by \I{Mikael Jagan}.
     }
   }
 }
@@ -726,11 +731,6 @@
       \code{rnd.mode} option.
     }
   }
-  \subsection{BUG FIXES}{
-    \itemize{
-      \item .
-    }
-  }
 }
 
 \section{Changes in version 0.5-5 [2014-06-19, r190]}{
@@ -753,11 +753,6 @@
       \item New \code{sinpi()}, \code{cospi()} etc, notably for \R >= 3.0.1.
     }
   }
-  %% \subsection{BUG FIXES}{
-  %%   \itemize{
-  %%     \item .
-  %%   }
-  %% }
 }
 
 \section{Changes in version 0.5-4 [2013-10-22, r173]}{
