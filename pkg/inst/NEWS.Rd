@@ -8,7 +8,7 @@
       %% \item Start vignette about \code{gamma()} inaccuracies and possible
       %% remedies (is \bold{unfinished}).
 
-\section{Changes in version 1.1-2 [2025-10-21, r436]}{
+\section{Changes in version 1.1-2 [2025-10-21, r437]}{
   \subsection{NEW FEATURES}{
     \itemize{
       \item New \code{\link{.mpfrSizeof()}} providing the small integer
