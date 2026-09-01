@@ -63,7 +63,7 @@ knitr::opts_chunk$set(echo = TRUE,
 	ETH Zurich\\
 	8092 Zurich, Switzerland\\
 	E-mail: \email{maechler@stat.math.ethz.ch}\\
-	URL: (https://stat.ethz.ch/~maechler)
+	URL: \url{https://people.math.ethz.ch/~maechler/}
 }
  -->
 

@@ -45,11 +45,11 @@
 %% in the following format:
 \Address{
 	Martin M\"achler\\
-	Seminar f\"ur Statistik, HG G~16\\
+	Seminar f\"ur Statistik, HG G~14.2\\
 	ETH Zurich\\
 	8092 Zurich, Switzerland\\
 	E-mail: \email{maechler@stat.math.ethz.ch}\\
-	URL: \url{http://stat.ethz.ch/people/maechler}
+        URL: \url{https://people.math.ethz.ch/~maechler/}
 }
 %% It is also possible to add a telephone and fax number
 %% before the e-mail in the following format:
@@ -74,7 +74,7 @@
 \DefineVerbatimEnvironment{Scode}{Verbatim}{fontsize=\small,fontshape=sl}
 %%~-~-~-~ Make space between Sinput and Soutput smaller: ~-~-~-~~-~-~-~~-~-~-~~-~-~-~~-~-~-~
 %%--- Best advice, now from :
-% http://tex.stackexchange.com/questions/19359/reduce-space-between-sinput-and-soutput
+% https://tex.stackexchange.com/questions/19359/reduce-space-between-sinput-and-soutput
 \newlength{\FVtopsep}
 \newlength{\FVpartopsep}
 \newlength{\FVparskip}% <- added as "no. 3" by MMa (after reading fancyvrb doc)
@@ -101,7 +101,7 @@
 \setkeys{Gin}{width=\textwidth}% Sweave.sty has {width=0.8\textwidth}
 
 \newcommand*{\R}{\proglang{R}}%{\textsf{R}}
-\newcommand*{\CRANpkg}[1]{\href{http://CRAN.R-project.org/package=#1}{\pkg{#1}}}
+\newcommand*{\CRANpkg}[1]{\href{https://CRAN.R-project.org/package=#1}{\pkg{#1}}}
 
 \newcommand*{\eps}{\varepsilon}
 %- \abs{ab}  -->  | ab |   ``absolut Betrag''
@@ -233,7 +233,7 @@ and % because of the latter,
 even for the logit link function in logistic regression. For the beta and
 gamma distributions, see, for example, % e.g.,
 \citet{DidAM92}\footnote{In the Fortran source, file ``\code{708}'', also
-  available as \url{http://www.netlib.org/toms/708},
+  available as \url{https://www.netlib.org/toms/708},
   the function ALNREL() computes log1p() and REXP() computes expm1().},
 and further references mentioned in \R{}'s \code{?pgamma} and
 \code{?pbeta} help pages.
@@ -263,7 +263,7 @@ $\log\left(1 - e^x \right) = \log(1 - \exp(x))$ for $x < 0$, neither
 are uniformly sufficient for numerical evaluation.
 %% 1
 In (\ref{eq:f.log1p}), when $x$ approaches $0$, $\exp(x)$ approaches $1$
-so their difference suffers from cancellation, losing accuracy.  
+so their difference suffers from cancellation, losing accuracy.
 %% 2
 In (\ref{eq:f.expm1}), when $x$ is large, $\expml(x)$
 approaches $-1$ and similarly loses accuracy.
@@ -274,7 +274,7 @@ which uses either \code{expm1} (\ref{eq:f.expm1}) or
 % now, both  R_Log1_Exp() and --> R_D_LExp(x) :=  (log_p ? R_Log1_Exp(x) : log1p(-x))
 we have defined the macro \verb|R_D_LExp(x)| to provide these two cases %branches
 automatically\footnote{look for ``log(1-exp(x))'' in
-  \url{http://svn.r-project.org/R/branches/R-1-9-patches/src/nmath/dpq.h}}.
+  \url{https://svn.r-project.org/R/branches/R-1-9-patches/src/nmath/dpq.h}}.
 % R-1.8.1: pgamma(30,100, lower=FALSE, log=TRUE)  gave 0 instead of -...
 
 
