@@ -81,7 +81,7 @@ $^\star$Contact author: \href{mailto:maechler@stat.math.ethz.ch}{maechler@stat.m
  matrices, and arrays thereof, where all arithmetic and mathematical
  functions work via the (GNU) MPFR C library, where MPFR is acronym for
  ``\emph{\textbf{M}ultiple \textbf{P}recision \textbf{F}loating-Point
-   \textbf{R}eliably}''\nocite{FousseHLPZ:2007}.
+   \textbf{R}eliably}''\nocite{FouLHLPZ:2007}.
  MPFR is Free Software, available under the LGPL
  license\nocite{FousseHLPZ-MPFR:2011}, and itself is built on the free GNU
  Multiple Precision arithmetic library (GMP)\nocite{GMP:2011}.
@@ -107,7 +107,7 @@ chooseMpfr( 200, 99:100 )
  \code{R-devel} mailing list for high-accuracy computations, e.g., in
  comparison with results from commercial software such as Maple, and in
  private communications with Petr Savicky about fixing \proglang{R} bug
- \href{https://bugs.R-project.org/bugzilla3/show_bug.cgi?id=14491}{\code{PR\#14491}}.
+ \href{https://bugs.R-project.org/show_bug.cgi?id=14491}{\code{PR\#14491}}.
 
  We expect the package to be used in more situations for easy comparison
  studies about the accuracy of algorithms implemented in \proglang{R}, both
@@ -127,7 +127,7 @@ MM-Rmpfr_pkg}
 %\subsubsection*{References}
 
 %\begin{hangparas}{.25in}{1}
-%AuthorA (2007). Title of a web resource, \url{http://url/of/resource/}.
+%AuthorA (2007). Title of a web resource, \url{https://url/of/resource/}.
 
 %AuthorC (2008a). Article example in proceedings. In \textit{useR! 2008, The R
 %User Conference, (Dortmund, Germany)}, pp. 31--37.
