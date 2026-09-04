@@ -32,7 +32,9 @@
 \usage{
 mpfrVersion()
 mpfrIs0(x)
-%% .mpfr.is.whole(x)
+mpfr.is.0(x) ## <<<<<<<<< STRONGLY deprecated;	use mpfrIs0()
+.mpfr.is.whole(x)
+mpfr.is.integer(x) ## <<<<< deprecated;	use generic is.whole() / .mpfr.is.whole()
 \method{c}{mpfr}(\dots)
 \method{diff}{mpfr}(x, lag = 1L, differences = 1L, \dots)
 }
@@ -44,15 +46,12 @@ mpfrIs0(x)
   \item{lag, differences}{for \code{diff()}: exact same meaning as in
     \code{\link{diff}()}'s default method, \code{\link{diff.default}}.}
 }
-% \details{
-%   ~~ If necessary, more details than the description above ~~
-% }
 \value{
   \code{mpfrIs0} returns a logical vector of length \code{length(x)}
   with values \code{TRUE} iff the corresponding \code{x[i]} is an MPFR
   representation of zero (\code{0}).
-  \cr Similarly, \code{.mpfr.is.whole} and \code{is.whole} return a
-  logical vector of length \code{length(x)}.
+  \cr Similarly, \code{.mpfr.is.whole} and (the \code{"mpfr"} method of)
+  \code{is.whole} return a logical vector of length \code{length(x)}.
 
   \code{mpfrVersion} returns an object of S3 class
   \code{"\link{numeric_version}"}, so it can be used in comparisons.

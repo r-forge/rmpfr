@@ -8,6 +8,15 @@
       %% \item Start vignette about \code{gamma()} inaccuracies and possible
       %% remedies (is \bold{unfinished}).
 
+\section{Changes in version 1.1-3 [2026-08-29, r...]}{
+ \subsection{BUG FIXES}{
+    \itemize{
+      \item Fix URLs in vignettes; document all exported functions
+      including \verb{\usage{.}}.
+    }
+  }
+}
+
 \section{Changes in version 1.1-2 [2025-10-21, r437]}{
   \subsection{NEW FEATURES}{
     \itemize{
@@ -28,7 +37,6 @@
     }
   }
 }
-
 
 \section{Changes in version 1.1-1 [2025-07-18, r430]}{
   \subsection{NEW FEATURES}{

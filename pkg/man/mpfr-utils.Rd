@@ -292,8 +292,8 @@ stopifnot(exprs = {
 str( .mpfr2list(i8) )
 str( .mpfr2list(x4, names = TRUE) )
 
-dput( .mpfrSizeof() ) # on (64-bit) Linux, now typically all '8',
-## as 64 bit = 8 bytes --  nowadays probably more relevant than
+dput( .mpfrSizeof() ) # on (64-bit) Linux, now typically   all '8',
+## as 64 bit = 8 bytes; on (64-bit) Windows, notably Rtools+Winbuilder: 4 4 8
 dput( .mpfr_gmp_numbbits() ) # typically 64
 
 str(xp4 <- mpfrXport(x4, names = TRUE))

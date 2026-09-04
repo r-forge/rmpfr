@@ -3,7 +3,7 @@
 cyqlong.R
 trace-stuff.R
 Savicky
-DESCRIPTION_
+DESCRIPTION[+_]
 ^00
 _unneeded
 _not_yet
@@ -11,6 +11,7 @@ _cop$
 /T/
 gamma-inaccuracy_src/
 Rout\.[a-z]
+Rmpfr.*Rout
 mail$
 _INSTALL
 \.Rhistory
@@ -29,7 +30,7 @@ R/.*\.R\+
 src/Makevars$
 src/.*\.[ch]\+
 log1mexp-artcl
-vignettes/.*\.pdf$
+vignettes/.*\.(pdf|bbl|blg)$
 vignettes/.*-do-
 vignettes/202[2-9]
 inst/doc/MPFR_Fousse_etal
