@@ -8,7 +8,7 @@
       %% \item Start vignette about \code{gamma()} inaccuracies and possible
       %% remedies (is \bold{unfinished}).
 
-\section{Changes in version 1.1-3 [2026-08-29, r...]}{
+\section{Changes in version 1.1-3 [2026-09-05, r441]}{
  \subsection{BUG FIXES}{
     \itemize{
       \item Fix URLs in vignettes; document all exported functions
